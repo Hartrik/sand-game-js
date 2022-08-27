@@ -1,0 +1,9 @@
+
+.sand-game-component {
+}
+
+.sand-game-component .sand-game-canvas {
+    margin-top: 8pt;
+    outline: 1px solid #b7b7b7;
+    cursor: crosshair;
+}
