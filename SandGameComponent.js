@@ -58,7 +58,8 @@ export class SandGameComponent {
         let context = this.#nodeCanvas[0].getContext('2d');  // TODO: what about 'bitmaprenderer'
         let width = this.#init.canvasWidthPx * this.#init.scale;
         let height = this.#init.canvasHeightPx * this.#init.scale;
-        this.#sandGame = new SandGame(context, width, height, Brushes.AIR.apply(0, 0));
+        let defaultElement = Brushes.AIR.apply(0, 0);
+        this.#sandGame = new SandGame(context, width, height, defaultElement);
         this.#sandGame.addOnRendered(() => {
             this.#nodeFPS.text(this.#sandGame.getFPS() + ' FPS');
         });
