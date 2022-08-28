@@ -36,8 +36,8 @@ export class SandGame {
      * @param width {number}
      * @param height {number}
      */
-    constructor(context, width, height) {
-        this.#elementArea = new ElementArea(width, height);
+    constructor(context, width, height, defaultElement) {
+        this.#elementArea = new ElementArea(width, height, defaultElement);
         this.#random = new FastRandom(0);
         this.#fpsCounter = new FPSCounter();
         this.#processor = new ElementProcessor(width, height, this.#random);
@@ -167,16 +167,15 @@ class ElementArea {
     /** @type DataView */
     #buffer;
 
-    constructor(width, height) {
+    constructor(width, height, defaultElement) {
         this.#width = width;
         this.#height = height;
         this.#buffer = new DataView(new ArrayBuffer(width * height * 4));
 
         // set default elements
-        let air = Elements.of(Elements.ELEMENT_TYPE_AIR, 255, 255, 255);
         for (let y = 0; y < this.#height; y++) {
             for (let x = 0; x < this.#width; x++) {
-                this.setElement(x, y, air);
+                this.setElement(x, y, defaultElement);
             }
         }
     }
@@ -217,17 +216,22 @@ class ElementArea {
  */
 class Elements {
 
-    static ELEMENT_TYPE_AIR = 0;
-    static ELEMENT_TYPE_WALL = 1;
-    static ELEMENT_TYPE_SAND_1 = 2;
-    static ELEMENT_TYPE_SAND_2 = 3;
+    static ELEMENT_TYPE_STATIC = 0x0;
+    static ELEMENT_TYPE_SAND_1 = 0x1;
+    static ELEMENT_TYPE_SAND_2 = 0x2;
+    static ELEMENT_TYPE_FLUID_1 = 0x3;
+    static ELEMENT_TYPE_FLUID_2 = 0x4;
 
-    static of(type, r, g, b) {
-        return (((((type << 8) | r) << 8) | g) << 8) | b
+    static of(type, weight, r, g, b) {
+        return (((((((type << 4) | weight) << 8) | r) << 8) | g) << 8) | b
     }
 
     static getType(element) {
-        return (element >> 24) & 0x000000FF;
+        return (element >> 28) & 0x0000000F;
+    }
+
+    static getWeight(element) {
+        return (element >> 24) & 0x0000000F;
     }
 
     static getColorRed(element) {
@@ -295,7 +299,10 @@ class ElementProcessor {
         let element = elementArea.getElement(x, y);
         let type = Elements.getType(element);
 
-        if (type === Elements.ELEMENT_TYPE_SAND_1) {
+        if (type === Elements.ELEMENT_TYPE_STATIC) {
+            // no action
+
+        } else if (type === Elements.ELEMENT_TYPE_SAND_1) {
             //   #
             //  ###
             // #####
@@ -325,6 +332,32 @@ class ElementProcessor {
                     }
                 }
             }
+        } else if (type === Elements.ELEMENT_TYPE_FLUID_1) {
+            if (!this.#move(elementArea, element, x, y, x, y + 1)) {
+                let rnd = this.#random.nextInt(2);
+                if (rnd === 0) {
+                    this.#move(elementArea, element, x, y, x + 1, y)
+                } else {
+                    this.#move(elementArea, element, x, y, x - 1, y)
+                }
+            }
+        } else if (type === Elements.ELEMENT_TYPE_FLUID_2) {
+            if (!this.#move(elementArea, element, x, y, x, y + 1)) {
+                let rnd = this.#random.nextInt(2);
+                if (rnd === 0) {
+                    if (this.#move(elementArea, element, x, y, x + 1, y)) {
+                        if (this.#move(elementArea, element, x + 1, y, x + 2, y)) {
+                            this.#move(elementArea, element, x + 2, y, x + 3, y)
+                        }
+                    }
+                } else {
+                    if (this.#move(elementArea, element, x, y, x - 1, y)) {
+                        if (this.#move(elementArea, element, x - 1, y, x - 2, y)) {
+                            this.#move(elementArea, element, x - 2, y, x - 3, y)
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -334,9 +367,7 @@ class ElementProcessor {
         }
 
         let element2 = elementArea.getElement(x2, y2);
-        let type2 = Elements.getType(element2);
-
-        if (type2 === 0) {
+        if (Elements.getWeight(element) > Elements.getWeight(element2)) {
             elementArea.setElement(x2, y2, element);
             elementArea.setElement(x, y, element2);
             return true;
@@ -404,90 +435,100 @@ class DoubleBufferedRenderer {
 }
 
 export class Brushes {
+    static #AIR_W = 0x0;
+    static #WATER_W = 0x1;
+    static #POWDER_W = 0x2;
+    static #WALL_W = 0x3;
+
     static AIR = new RandomBrush([
-        Elements.of(Elements.ELEMENT_TYPE_AIR, 255, 255, 255)
+        Elements.of(Elements.ELEMENT_TYPE_STATIC, Brushes.#AIR_W, 255, 255, 255)
     ]);
 
     static WALL = new RandomBrush([
-        Elements.of(Elements.ELEMENT_TYPE_WALL, 55, 55, 55),
-        Elements.of(Elements.ELEMENT_TYPE_WALL, 57, 57, 57)
+        Elements.of(Elements.ELEMENT_TYPE_STATIC, Brushes.#WALL_W, 55, 55, 55),
+        Elements.of(Elements.ELEMENT_TYPE_STATIC, Brushes.#WALL_W, 57, 57, 57)
     ]);
 
     static SAND = new RandomBrush([
-        Elements.of(Elements.ELEMENT_TYPE_SAND_2, 214, 212, 154),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_2, 214, 212, 154),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_2, 214, 212, 154),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_2, 214, 212, 154),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_2, 225, 217, 171),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_2, 225, 217, 171),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_2, 225, 217, 171),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_2, 225, 217, 171),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_2, 203, 201, 142),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_2, 203, 201, 142),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_2, 203, 201, 142),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_2, 203, 201, 142),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_2, 195, 194, 134),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_2, 195, 194, 134),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_2, 218, 211, 165),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_2, 218, 211, 165),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_2, 223, 232, 201),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_2, 186, 183, 128),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_2, Brushes.#POWDER_W, 214, 212, 154),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_2, Brushes.#POWDER_W, 214, 212, 154),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_2, Brushes.#POWDER_W, 214, 212, 154),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_2, Brushes.#POWDER_W, 214, 212, 154),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_2, Brushes.#POWDER_W, 225, 217, 171),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_2, Brushes.#POWDER_W, 225, 217, 171),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_2, Brushes.#POWDER_W, 225, 217, 171),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_2, Brushes.#POWDER_W, 225, 217, 171),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_2, Brushes.#POWDER_W, 203, 201, 142),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_2, Brushes.#POWDER_W, 203, 201, 142),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_2, Brushes.#POWDER_W, 203, 201, 142),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_2, Brushes.#POWDER_W, 203, 201, 142),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_2, Brushes.#POWDER_W, 195, 194, 134),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_2, Brushes.#POWDER_W, 195, 194, 134),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_2, Brushes.#POWDER_W, 218, 211, 165),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_2, Brushes.#POWDER_W, 218, 211, 165),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_2, Brushes.#POWDER_W, 223, 232, 201),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_2, Brushes.#POWDER_W, 186, 183, 128),
     ]);
 
     static SOIL = new RandomBrush([
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 142, 104,  72),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 142, 104,  72),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 142, 104,  72),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 142, 104,  72),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 142, 104,  72),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 142, 104,  72),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 114,  81,  58),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 114,  81,  58),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 114,  81,  58),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 114,  81,  58),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 114,  81,  58),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 114,  81,  58),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1,  82,  64,  30),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1,  82,  64,  30),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1,  82,  64,  30),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 177, 133,  87),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 177, 133,  87),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 177, 133,  87),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 102, 102, 102),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 142, 104,  72),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 142, 104,  72),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 142, 104,  72),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 142, 104,  72),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 142, 104,  72),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 142, 104,  72),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 114,  81,  58),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 114,  81,  58),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 114,  81,  58),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 114,  81,  58),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 114,  81,  58),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 114,  81,  58),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W,  82,  64,  30),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W,  82,  64,  30),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W,  82,  64,  30),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 177, 133,  87),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 177, 133,  87),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 177, 133,  87),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 102, 102, 102),
     ]);
 
     static STONE = new RandomBrush([
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 131, 131, 131),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 131, 131, 131),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 131, 131, 131),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 131, 131, 131),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 131, 131, 131),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 131, 131, 131),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 135, 135, 135),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 135, 135, 135),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 135, 135, 135),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 135, 135, 135),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 135, 135, 135),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 135, 135, 135),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 145, 145, 145),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 145, 145, 145),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 145, 145, 145),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 145, 145, 145),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 145, 145, 145),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 145, 145, 145),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 148, 148, 148),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 148, 148, 148),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 148, 148, 148),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 148, 148, 148),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 148, 148, 148),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 148, 148, 148),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 160, 160, 160),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 160, 160, 160),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 160, 160, 160),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 160, 160, 160),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 160, 160, 160),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 160, 160, 160),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 114, 114, 114),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, 193, 193, 193),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 131, 131, 131),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 131, 131, 131),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 131, 131, 131),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 131, 131, 131),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 131, 131, 131),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 131, 131, 131),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 135, 135, 135),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 135, 135, 135),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 135, 135, 135),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 135, 135, 135),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 135, 135, 135),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 135, 135, 135),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 145, 145, 145),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 145, 145, 145),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 145, 145, 145),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 145, 145, 145),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 145, 145, 145),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 145, 145, 145),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 148, 148, 148),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 148, 148, 148),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 148, 148, 148),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 148, 148, 148),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 148, 148, 148),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 148, 148, 148),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 160, 160, 160),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 160, 160, 160),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 160, 160, 160),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 160, 160, 160),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 160, 160, 160),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 160, 160, 160),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 114, 114, 114),
+        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 193, 193, 193),
+    ]);
+
+    static WATER = new RandomBrush([
+        Elements.of(Elements.ELEMENT_TYPE_FLUID_2, Brushes.#WATER_W, 0, 0, 178),
+        Elements.of(Elements.ELEMENT_TYPE_FLUID_2, Brushes.#WATER_W, 0, 0, 160)
     ]);
 }

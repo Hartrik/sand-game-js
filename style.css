@@ -29,6 +29,10 @@
     background-color: rgb(56, 56, 56);
 }
 
+.sand-game-component .sand-game-toolbar .badge.water {
+    background-color: rgb(0, 0, 165);
+}
+
 .sand-game-component .sand-game-toolbar .sand-game-fps-counter {
     margin-left: 3pt;
     font-size: small;
