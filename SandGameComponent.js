@@ -1,5 +1,5 @@
 import { DomBuilder } from "./DomBuilder.js";
-import { SandGame } from "./SandGame.js";
+import { SandGame, Brushes } from "./SandGame.js";
 
 /**
  * @requires jQuery
@@ -16,9 +16,13 @@ export class SandGameComponent {
     };
 
     #nodeCanvas;
+    #nodeTools;
+    #nodeFPS;
 
     /** @type SandGame */
     #sandGame;
+
+    #brush = Brushes.SAND;
 
     constructor(init) {
         if (init) {
@@ -27,16 +31,20 @@ export class SandGameComponent {
     }
 
     createNode() {
+        this.#nodeTools = DomBuilder.div({ class: 'sand-game-toolbar' });
+        this.#nodeFPS = DomBuilder.span('', { class: 'sand-game-fps-counter' });
+
         let width = this.#init.canvasWidthPx * this.#init.scale;
         let height = this.#init.canvasHeightPx * this.#init.scale;
-
         this.#nodeCanvas = DomBuilder.element('canvas', {
             class: 'sand-game-canvas',
             width: width + 'px',
             height: height + 'px'
         });
+        this.#nodeCanvas.bind('contextmenu', e => false);
 
         return DomBuilder.div({ class: 'sand-game-component' }, [
+            this.#nodeTools,
             this.#nodeCanvas
         ]);
     }
@@ -47,13 +55,25 @@ export class SandGameComponent {
         this.#nodeCanvas.height(this.#init.canvasHeightPx);
 
         // init game
-        let context = this.#nodeCanvas[0].getContext('2d');
+        let context = this.#nodeCanvas[0].getContext('2d');  // TODO: what about 'bitmaprenderer'
         let width = this.#init.canvasWidthPx * this.#init.scale;
         let height = this.#init.canvasHeightPx * this.#init.scale;
         this.#sandGame = new SandGame(context, width, height);
+        this.#sandGame.addOnRendered(() => {
+            this.#nodeFPS.text(this.#sandGame.getFPS() + ' FPS');
+        });
 
         // mouse handling
         this.#initMouseHandling(this.#sandGame);
+
+        // tools
+        this.#nodeTools.append([
+            this.#createBrushButton('Sand', 'sand', Brushes.SAND),
+            this.#createBrushButton('Soil', 'soil', Brushes.SOIL),
+            this.#createBrushButton('Gravel', 'gravel', Brushes.STONE),
+            this.#createBrushButton('Wall', 'wall', Brushes.WALL),
+            this.#nodeFPS
+        ]);
 
         // start game
         this.#sandGame.start();
@@ -62,11 +82,21 @@ export class SandGameComponent {
     #initMouseHandling(sandGame) {
         this.#nodeCanvas[0].addEventListener('mousedown', (e) => {
             const rect = this.#nodeCanvas[0].getBoundingClientRect();
-            const x = Math.max(0, Math.floor((e.clientX - rect.left) * this.#init.scale));
-            const y = Math.max(0, Math.floor((e.clientY - rect.top) * this.#init.scale));
-            console.log("x: " + x + " y: " + y)
+            const x = Math.max(0, Math.trunc((e.clientX - rect.left) * this.#init.scale));
+            const y = Math.max(0, Math.trunc((e.clientY - rect.top) * this.#init.scale));
 
-            sandGame.draw(x, y);
+            if (e.buttons === 1) {
+                sandGame.draw(x, y, this.#brush);
+            } else if (e.buttons === 2) {
+                sandGame.draw(x, y, Brushes.AIR);
+            }
         })
+    }
+
+    #createBrushButton(name, cssName, brush) {
+        return DomBuilder.link(name, {
+            href: '#',
+            class: 'badge badge-secondary ' + cssName
+        }, () => this.#brush = brush)
     }
 }

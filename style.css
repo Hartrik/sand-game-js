@@ -6,4 +6,30 @@
     margin-top: 8pt;
     outline: 1px solid #b7b7b7;
     cursor: crosshair;
+    user-select: none;
+}
+
+.sand-game-component .sand-game-toolbar .badge {
+    margin-right: 3pt;
+}
+
+.sand-game-component .sand-game-toolbar .badge.sand {
+    background-color: rgb(183, 166, 67);
+}
+
+.sand-game-component .sand-game-toolbar .badge.soil {
+    background-color: rgb(142, 104, 72);
+}
+
+.sand-game-component .sand-game-toolbar .badge.gravel {
+    background-color: rgb(101, 101, 101);
+}
+
+.sand-game-component .sand-game-toolbar .badge.wall {
+    background-color: rgb(56, 56, 56);
+}
+
+.sand-game-component .sand-game-toolbar .sand-game-fps-counter {
+    margin-left: 3pt;
+    font-size: small;
 }
