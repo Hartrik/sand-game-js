@@ -70,14 +70,19 @@ export class SandGame {
      * @param brush {Brush}
      */
     draw(x, y, brush) {
-        for (let i = 0; i < 10; i++) {
-            for (let j = 0; j < 10; j++) {
-                let xx = x+5-j;
-                let yy = y+5-i;
-                if (this.#elementArea.isValidPosition(xx, yy)) {
-                    let element = brush.apply(xx, yy);
-                    this.#elementArea.setElement(xx, yy, element);
-                }
+        let element = brush.apply(x, y);
+        this.#elementArea.setElement(x, y, element);
+    }
+
+    drawRectangle(x1, y1, x2, y2, brush) {
+        x1 = Math.max(Math.min(x1, this.#width), 0);
+        x2 = Math.max(Math.min(x2, this.#width), 0);
+        y1 = Math.max(Math.min(y1, this.#height), 0);
+        y2 = Math.max(Math.min(y2, this.#height), 0);
+
+        for (let y = y1; y < y2; y++) {
+            for (let x = x1; x < x2; x++) {
+                this.draw(x, y, brush);
             }
         }
     }

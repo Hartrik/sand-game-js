@@ -10,7 +10,7 @@ import { SandGame, Brushes } from "./SandGame.js";
 export class SandGameComponent {
 
     #init = {
-        scale: 0.25,
+        scale: 0.5,
         canvasWidthPx: 600,
         canvasHeightPx: 400,
     };
@@ -30,16 +30,22 @@ export class SandGameComponent {
         }
     }
 
+    #countElementWidth() {
+        return Math.trunc(this.#init.canvasWidthPx * this.#init.scale);
+    }
+
+    #countElementHeight() {
+        return Math.trunc(this.#init.canvasHeightPx * this.#init.scale);
+    }
+
     createNode() {
         this.#nodeTools = DomBuilder.div({ class: 'sand-game-toolbar' });
         this.#nodeFPS = DomBuilder.span('', { class: 'sand-game-fps-counter' });
 
-        let width = this.#init.canvasWidthPx * this.#init.scale;
-        let height = this.#init.canvasHeightPx * this.#init.scale;
         this.#nodeCanvas = DomBuilder.element('canvas', {
             class: 'sand-game-canvas',
-            width: width + 'px',
-            height: height + 'px'
+            width: this.#countElementWidth() + 'px',
+            height: this.#countElementHeight() + 'px'
         });
         this.#nodeCanvas.bind('contextmenu', e => false);
 
@@ -56,8 +62,8 @@ export class SandGameComponent {
 
         // init game
         let context = this.#nodeCanvas[0].getContext('2d');  // TODO: what about 'bitmaprenderer'
-        let width = this.#init.canvasWidthPx * this.#init.scale;
-        let height = this.#init.canvasHeightPx * this.#init.scale;
+        let width = this.#countElementWidth();
+        let height = this.#countElementHeight();
         let defaultElement = Brushes.AIR.apply(0, 0);
         this.#sandGame = new SandGame(context, width, height, defaultElement);
         this.#sandGame.addOnRendered(() => {
@@ -76,8 +82,9 @@ export class SandGameComponent {
             this.#createBrushButton('Water', 'water', Brushes.WATER),
             this.#nodeFPS
         ]);
+    }
 
-        // start game
+    start() {
         this.#sandGame.start();
     }
 
@@ -88,9 +95,9 @@ export class SandGameComponent {
             const y = Math.max(0, Math.trunc((e.clientY - rect.top) * this.#init.scale));
 
             if (e.buttons === 1) {
-                sandGame.draw(x, y, this.#brush);
+                sandGame.drawRectangle(x-5, y-5, x+5, y+5, this.#brush);
             } else if (e.buttons === 2) {
-                sandGame.draw(x, y, Brushes.AIR);
+                sandGame.drawRectangle(x-5, y-5, x+5, y+5, Brushes.AIR);
             }
         })
     }
@@ -100,5 +107,27 @@ export class SandGameComponent {
             href: '#',
             class: 'badge badge-secondary ' + cssName
         }, () => this.#brush = brush)
+    }
+
+    drawExample() {
+        let w = this.#countElementWidth();
+        let h = this.#countElementHeight();
+
+        // gravel bottom
+        this.#sandGame.drawRectangle(0, h-1-20, w-1, h-1-10, Brushes.STONE);
+
+        // left side
+        this.#sandGame.drawRectangle(0, h-1-40, 120, h-1-20, Brushes.SOIL);
+        this.#sandGame.drawRectangle(0, h-1-60, 80, h-1-40, Brushes.SOIL);
+
+        // right side
+        this.#sandGame.drawRectangle(w-1-120, h-1-34, w-1-10, h-1-20, Brushes.SOIL);
+        this.#sandGame.drawRectangle(w-1-60, h-1-70, w-1, h-1-40, Brushes.SOIL);
+
+        // sand
+        this.#sandGame.drawRectangle(80, h-1-150, w-1-70, h-1-140, Brushes.SAND);
+
+        // water
+        this.#sandGame.drawRectangle(w-1-150, h-1-170, w-1-100, h-1-150, Brushes.WATER);
     }
 }

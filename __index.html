@@ -18,6 +18,8 @@
       $(() => {
           $('#sand-game-root').append(sandGameComponent.createNode());
           sandGameComponent.initialize();
+          sandGameComponent.start();
+          sandGameComponent.drawExample();
       })
   </script>
 </head>
@@ -25,6 +27,10 @@
 <main role="main" class="container flex-fill">
   <h1>Sand Game JS</h1>
   <div id="sand-game-root"></div>
+
+  <p>
+    <a href="https://github.com/Hartrik/sand-game-js" style="font-size: small">https://github.com/Hartrik/sand-game-js</a>
+  </p>
 </main>
 </body>
 </html>
