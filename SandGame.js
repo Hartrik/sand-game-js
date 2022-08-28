@@ -2,7 +2,7 @@
 /**
  *
  * @author Patrik Harag
- * @version 2022-08-27
+ * @version 2022-08-28
  */
 export class SandGame {
 
@@ -45,12 +45,21 @@ export class SandGame {
         let element = 0x01ff0000;
         for (let i = 0; i < 10; i++) {
             for (let j = 0; j < 10; j++) {
-                this.#canvas.setElement(x+5-j, y+5-i, element);
+                let xx = x+5-j;
+                let yy = y+5-i;
+                if (this.#canvas.isValidPosition(xx, yy)) {
+                    this.#canvas.setElement(xx, yy, element);
+                }
             }
         }
     }
 }
 
+/**
+ *
+ * @author Patrik Harag
+ * @version 2022-08-28
+ */
 class Canvas {
     static LITTLE_ENDIAN = true;
 
@@ -76,6 +85,16 @@ class Canvas {
         }
     }
 
+    isValidPosition(x, y) {
+        if (x < 0 || y < 0) {
+            return false;
+        }
+        if (x >= this.#width || y >= this.#height) {
+            return false;
+        }
+        return true;
+    }
+
     setElement(x, y, element) {
         let byteOffset = (this.#width * y + x) * 4;
         this.#buffer.setUint32(byteOffset, element, Canvas.LITTLE_ENDIAN);
@@ -95,6 +114,11 @@ class Canvas {
     }
 }
 
+/**
+ *
+ * @author Patrik Harag
+ * @version 2022-08-27
+ */
 class Elements {
 
     static getType(element) {
@@ -114,6 +138,11 @@ class Elements {
     }
 }
 
+/**
+ *
+ * @author Patrik Harag
+ * @version 2022-08-27
+ */
 class DoubleBufferedRenderer {
 
     #context;
