@@ -6,8 +6,8 @@
  */
 export class SandGame {
 
-    /** @type Canvas */
-    #canvas;
+    /** @type ElementArea */
+    #elementArea;
 
     /** @type DoubleBufferedRenderer */
     #renderer;
@@ -19,7 +19,7 @@ export class SandGame {
     #height;
 
     constructor(context, width, height) {
-        this.#canvas = new Canvas(width, height);
+        this.#elementArea = new ElementArea(width, height);
         this.#renderer = new DoubleBufferedRenderer(width, height, context);
         this.#width = width;
         this.#height = height;
@@ -33,7 +33,7 @@ export class SandGame {
     tick() {
         let t1 = new Date();
 
-        this.#renderer.render(this.#canvas);
+        this.#renderer.render(this.#elementArea);
 
         let t2 = new Date();
         let dt = t2 - t1;
@@ -47,8 +47,8 @@ export class SandGame {
             for (let j = 0; j < 10; j++) {
                 let xx = x+5-j;
                 let yy = y+5-i;
-                if (this.#canvas.isValidPosition(xx, yy)) {
-                    this.#canvas.setElement(xx, yy, element);
+                if (this.#elementArea.isValidPosition(xx, yy)) {
+                    this.#elementArea.setElement(xx, yy, element);
                 }
             }
         }
@@ -60,7 +60,7 @@ export class SandGame {
  * @author Patrik Harag
  * @version 2022-08-28
  */
-class Canvas {
+class ElementArea {
     static LITTLE_ENDIAN = true;
 
     /** @type number */
@@ -97,12 +97,12 @@ class Canvas {
 
     setElement(x, y, element) {
         let byteOffset = (this.#width * y + x) * 4;
-        this.#buffer.setUint32(byteOffset, element, Canvas.LITTLE_ENDIAN);
+        this.#buffer.setUint32(byteOffset, element, ElementArea.LITTLE_ENDIAN);
     }
 
     getElement(x, y) {
         let byteOffset = (this.#width * y + x) * 4;
-        return this.#buffer.getUint32(byteOffset, Canvas.LITTLE_ENDIAN);
+        return this.#buffer.getUint32(byteOffset, ElementArea.LITTLE_ENDIAN);
     }
 
     getWidth() {
@@ -174,14 +174,14 @@ class DoubleBufferedRenderer {
 
     /**
      *
-     * @param canvas Canvas
+     * @param elementArea ElementArea
      */
-    render(canvas) {
+    render(elementArea) {
         let data = this.#buffer.data;
 
         for (let y = 0; y < this.#height; y++) {
             for (let x = 0; x < this.#width; x++) {
-                let element = canvas.getElement(x, y);
+                let element = elementArea.getElement(x, y);
 
                 let index = (this.#width * y + x) * 4;
                 data[index] = Elements.getColorRed(element);
