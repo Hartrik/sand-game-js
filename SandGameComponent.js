@@ -100,25 +100,47 @@ export class SandGameComponent {
         }
 
         let lastX, lastY;
-        let brush = null;
+        let brush = null;  // drawing is not active if null
+        let ctrlPressed = false;
+        let shiftPressed = false;
 
         domNode.addEventListener('mousedown', (e) => {
             const [x, y] = getActualPosition(e);
             lastX = x;
             lastY = y;
             brush = (e.buttons === 1) ? this.#brush : Brushes.AIR;
-            sandGame.drawLine(x, y, x, y, this.#init.brushSize, brush);
+            ctrlPressed = e.ctrlKey;
+            shiftPressed = e.shiftKey;
+            if (!ctrlPressed && !shiftPressed) {
+                sandGame.drawLine(x, y, x, y, this.#init.brushSize, brush);
+            }
         });
         domNode.addEventListener('mousemove', (e) => {
             if (brush === null) {
                 return;
             }
-            const [x, y] = getActualPosition(e);
-            sandGame.drawLine(lastX, lastY, x, y, this.#init.brushSize, brush);
-            lastX = x;
-            lastY = y;
+            if (!ctrlPressed && !shiftPressed) {
+                const [x, y] = getActualPosition(e);
+                sandGame.drawLine(lastX, lastY, x, y, this.#init.brushSize, brush);
+                lastX = x;
+                lastY = y;
+            }
         });
         domNode.addEventListener('mouseup', (e) => {
+            if (brush === null) {
+                return;
+            }
+            if (ctrlPressed) {
+                const [x, y] = getActualPosition(e);
+                let minX = Math.min(lastX, x);
+                let minY = Math.min(lastY, y);
+                let maxX = Math.max(lastX, x);
+                let maxY = Math.max(lastY, y);
+                sandGame.drawRectangle(minX, minY, maxX, maxY, brush);
+            } else if (shiftPressed) {
+                const [x, y] = getActualPosition(e);
+                sandGame.drawLine(lastX, lastY, x, y, this.#init.brushSize, brush);
+            }
             brush = null;
         });
         domNode.addEventListener('mouseout', (e) => {
