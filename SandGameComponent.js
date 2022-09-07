@@ -68,7 +68,8 @@ export class SandGameComponent {
         let defaultElement = Brushes.AIR.apply(0, 0);
         this.#sandGame = new SandGame(context, width, height, defaultElement);
         this.#sandGame.addOnRendered(() => {
-            this.#nodeFPS.text(this.#sandGame.getFPS() + ' FPS');
+            this.#nodeFPS.text(this.#sandGame.getFramesPerSecond() + ' frames/s, '
+                    + this.#sandGame.getCyclesPerSecond() + ' cycles/s');
         });
 
         // mouse handling

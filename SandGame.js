@@ -12,8 +12,11 @@ export class SandGame {
     /** @type FastRandom */
     #random;
 
-    /** @type FPSCounter */
-    #fpsCounter;
+    /** @type Counter */
+    #framesCounter;
+
+    /** @type Counter */
+    #cyclesCounter;
 
     /** @type ElementProcessor */
     #processor;
@@ -40,7 +43,8 @@ export class SandGame {
     constructor(context, width, height, defaultElement) {
         this.#elementArea = new ElementArea(width, height, defaultElement);
         this.#random = new FastRandom(0);
-        this.#fpsCounter = new FPSCounter();
+        this.#framesCounter = new Counter();
+        this.#cyclesCounter = new Counter();
         this.#processor = new ElementProcessor(width, height, this.#random);
         this.#renderer = new DoubleBufferedRenderer(width, height, context);
         this.#width = width;
@@ -48,17 +52,28 @@ export class SandGame {
     }
 
     start() {
-        let interval = Math.trunc(1000 / 100);  // ms
-        setInterval(() => this.next(), interval);
+        // processing
+        {
+            let interval = Math.trunc(1000 / 120);  // ms
+            setInterval(() => this.#doProcessing(), interval);
+        }
+        // rendering
+        {
+            let interval = Math.trunc(1000 / 60);  // ms
+            setInterval(() => this.#doRendering(), interval);
+        }
     }
 
-    next() {
+    #doProcessing() {
         this.#processor.next(this.#elementArea);
+        const t = Date.now();
+        this.#cyclesCounter.tick(t);
+    }
+
+    #doRendering() {
         this.#renderer.render(this.#elementArea);
-
-        let t2 = Date.now();
-        this.#fpsCounter.tick(t2)
-
+        const t = Date.now();
+        this.#framesCounter.tick(t);
         for (let func of this.#onRendered) {
             func();
         }
@@ -127,17 +142,31 @@ export class SandGame {
         this.#onRendered.push(onRenderedFunc);
     }
 
-    getFPS() {
-        return this.#fpsCounter.getFPS();
+    getFramesPerSecond() {
+        return this.#framesCounter.getValue();
+    }
+
+    getCyclesPerSecond() {
+        return this.#cyclesCounter.getValue();
     }
 }
 
+/**
+ *
+ * @author Patrik Harag
+ * @version 2022-08-28
+ */
 class Brush {
     apply(x, y) {
         throw 'Not implemented'
     }
 }
 
+/**
+ *
+ * @author Patrik Harag
+ * @version 2022-08-28
+ */
 class RandomBrush extends Brush {
     #elements;
 
@@ -151,23 +180,28 @@ class RandomBrush extends Brush {
     }
 }
 
-class FPSCounter {
+/**
+ *
+ * @author Patrik Harag
+ * @version 2022-09-07
+ */
+class Counter {
 
-    #currentFPS = 0;
-    #FPS = 0;
+    #currentValue = 0;
+    #lastValue = 0;
     #start = 0;
 
     tick(currentTimeMillis) {
-        this.#currentFPS++;
+        this.#currentValue++;
         if (currentTimeMillis - this.#start >= 1000) {
-            this.#FPS = this.#currentFPS;
-            this.#currentFPS = 0;
+            this.#lastValue = this.#currentValue;
+            this.#currentValue = 0;
             this.#start = currentTimeMillis;
         }
     }
 
-    getFPS() {
-        return this.#FPS;
+    getValue() {
+        return this.#lastValue;
     }
 }
 
