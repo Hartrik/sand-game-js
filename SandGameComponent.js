@@ -11,7 +11,7 @@ export class SandGameComponent {
 
     #init = {
         scale: 0.5,
-        canvasWidthPx: 600,
+        canvasWidthPx: 700,
         canvasHeightPx: 400,
         brushSize: 5
     };
@@ -175,6 +175,6 @@ export class SandGameComponent {
         this.#sandGame.drawRectangle(80, h-1-150, w-1-70, h-1-140, Brushes.SAND);
 
         // water
-        this.#sandGame.drawRectangle(w-1-150, h-1-170, w-1-100, h-1-150, Brushes.WATER);
+        this.#sandGame.drawRectangle(150, h-1-170, w-1-150, h-1-150, Brushes.WATER);
     }
 }

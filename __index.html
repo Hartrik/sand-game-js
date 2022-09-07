@@ -14,9 +14,16 @@
   <script type="module">
       import { SandGameComponent } from "./SandGameComponent.js";
 
-      let sandGameComponent = new SandGameComponent();
       $(() => {
-          $('#sand-game-root').append(sandGameComponent.createNode());
+          let root = $('#sand-game-root');
+          let init = {
+              scale: 0.5,
+              canvasWidthPx: Math.min(700, root.width()),
+              canvasHeightPx: Math.min(400, window.innerHeight - 150),
+              brushSize: 5
+          };
+          let sandGameComponent = new SandGameComponent(init);
+          root.append(sandGameComponent.createNode());
           sandGameComponent.initialize();
           sandGameComponent.start();
           sandGameComponent.drawExample();
