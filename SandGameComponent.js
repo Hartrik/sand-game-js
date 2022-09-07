@@ -18,7 +18,8 @@ export class SandGameComponent {
 
     #nodeCanvas;
     #nodeTools;
-    #nodeFPS;
+    #nodeOptions;
+    #nodeCounter;
 
     /** @type SandGame */
     #sandGame;
@@ -41,7 +42,8 @@ export class SandGameComponent {
 
     createNode() {
         this.#nodeTools = DomBuilder.div({ class: 'sand-game-toolbar' });
-        this.#nodeFPS = DomBuilder.span('', { class: 'sand-game-fps-counter' });
+        this.#nodeOptions = DomBuilder.div({ class: 'sand-game-options' });
+        this.#nodeCounter = DomBuilder.span('', { class: 'sand-game-counter' });
 
         this.#nodeCanvas = DomBuilder.element('canvas', {
             class: 'sand-game-canvas',
@@ -52,7 +54,8 @@ export class SandGameComponent {
 
         return DomBuilder.div({ class: 'sand-game-component' }, [
             this.#nodeTools,
-            this.#nodeCanvas
+            this.#nodeCanvas,
+            this.#nodeOptions
         ]);
     }
 
@@ -68,7 +71,7 @@ export class SandGameComponent {
         let defaultElement = Brushes.AIR.apply(0, 0);
         this.#sandGame = new SandGame(context, width, height, defaultElement);
         this.#sandGame.addOnRendered(() => {
-            this.#nodeFPS.text(this.#sandGame.getFramesPerSecond() + ' frames/s, '
+            this.#nodeCounter.text(this.#sandGame.getFramesPerSecond() + ' frames/s, '
                     + this.#sandGame.getCyclesPerSecond() + ' cycles/s');
         });
 
@@ -82,7 +85,12 @@ export class SandGameComponent {
             this.#createBrushButton('Gravel', 'gravel', Brushes.STONE),
             this.#createBrushButton('Wall', 'wall', Brushes.WALL),
             this.#createBrushButton('Water', 'water', Brushes.WATER),
-            this.#nodeFPS
+            this.#createBrushButton('Erase', 'air', Brushes.AIR),
+        ]);
+
+        // options
+        this.#nodeOptions.append([
+            this.#nodeCounter
         ]);
     }
 
@@ -93,7 +101,7 @@ export class SandGameComponent {
     #initMouseHandling(sandGame) {
         const domNode = this.#nodeCanvas[0];
 
-        let getActualPosition = (e) => {
+        let getActualMousePosition = (e) => {
             const rect = domNode.getBoundingClientRect();
             const x = Math.max(0, Math.trunc((e.clientX - rect.left) * this.#init.scale));
             const y = Math.max(0, Math.trunc((e.clientY - rect.top) * this.#init.scale));
@@ -106,7 +114,7 @@ export class SandGameComponent {
         let shiftPressed = false;
 
         domNode.addEventListener('mousedown', (e) => {
-            const [x, y] = getActualPosition(e);
+            const [x, y] = getActualMousePosition(e);
             lastX = x;
             lastY = y;
             brush = (e.buttons === 1) ? this.#brush : Brushes.AIR;
@@ -121,7 +129,7 @@ export class SandGameComponent {
                 return;
             }
             if (!ctrlPressed && !shiftPressed) {
-                const [x, y] = getActualPosition(e);
+                const [x, y] = getActualMousePosition(e);
                 sandGame.drawLine(lastX, lastY, x, y, this.#init.brushSize, brush);
                 lastX = x;
                 lastY = y;
@@ -132,20 +140,52 @@ export class SandGameComponent {
                 return;
             }
             if (ctrlPressed) {
-                const [x, y] = getActualPosition(e);
+                const [x, y] = getActualMousePosition(e);
                 let minX = Math.min(lastX, x);
                 let minY = Math.min(lastY, y);
                 let maxX = Math.max(lastX, x);
                 let maxY = Math.max(lastY, y);
                 sandGame.drawRectangle(minX, minY, maxX, maxY, brush);
             } else if (shiftPressed) {
-                const [x, y] = getActualPosition(e);
+                const [x, y] = getActualMousePosition(e);
                 sandGame.drawLine(lastX, lastY, x, y, this.#init.brushSize, brush);
             }
             brush = null;
         });
         domNode.addEventListener('mouseout', (e) => {
             brush = null;
+        });
+
+        // touch support
+
+        let getActualTouchPosition = (e) => {
+            let touch = e.touches[0];
+            return getActualMousePosition(touch);
+        }
+        domNode.addEventListener('touchstart', (e) => {
+            const [x, y] = getActualTouchPosition(e);
+            lastX = x;
+            lastY = y;
+            brush = this.#brush;
+            sandGame.drawLine(x, y, x, y, this.#init.brushSize, brush);
+
+            e.preventDefault();
+        });
+        domNode.addEventListener('touchmove', (e) => {
+            if (brush === null) {
+                return;
+            }
+            const [x, y] = getActualTouchPosition(e);
+            sandGame.drawLine(lastX, lastY, x, y, this.#init.brushSize, brush);
+            lastX = x;
+            lastY = y;
+
+            e.preventDefault();
+        });
+        domNode.addEventListener('touchend', (e) => {
+            brush = null;
+
+            e.preventDefault();
         });
     }
 
