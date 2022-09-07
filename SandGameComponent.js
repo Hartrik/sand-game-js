@@ -5,7 +5,7 @@ import { SandGame, Brushes } from "./SandGame.js";
  * @requires jQuery
  *
  * @author Patrik Harag
- * @version 2022-08-28
+ * @version 2022-09-07
  */
 export class SandGameComponent {
 
@@ -13,6 +13,7 @@ export class SandGameComponent {
         scale: 0.5,
         canvasWidthPx: 600,
         canvasHeightPx: 400,
+        brushSize: 5
     };
 
     #nodeCanvas;
@@ -61,7 +62,7 @@ export class SandGameComponent {
         this.#nodeCanvas.height(this.#init.canvasHeightPx);
 
         // init game
-        let context = this.#nodeCanvas[0].getContext('2d');  // TODO: what about 'bitmaprenderer'
+        let context = this.#nodeCanvas[0].getContext('2d');
         let width = this.#countElementWidth();
         let height = this.#countElementHeight();
         let defaultElement = Brushes.AIR.apply(0, 0);
@@ -89,17 +90,40 @@ export class SandGameComponent {
     }
 
     #initMouseHandling(sandGame) {
-        this.#nodeCanvas[0].addEventListener('mousedown', (e) => {
-            const rect = this.#nodeCanvas[0].getBoundingClientRect();
+        const domNode = this.#nodeCanvas[0];
+
+        let getActualPosition = (e) => {
+            const rect = domNode.getBoundingClientRect();
             const x = Math.max(0, Math.trunc((e.clientX - rect.left) * this.#init.scale));
             const y = Math.max(0, Math.trunc((e.clientY - rect.top) * this.#init.scale));
+            return [x, y];
+        }
 
-            if (e.buttons === 1) {
-                sandGame.drawRectangle(x-5, y-5, x+5, y+5, this.#brush);
-            } else if (e.buttons === 2) {
-                sandGame.drawRectangle(x-5, y-5, x+5, y+5, Brushes.AIR);
+        let lastX, lastY;
+        let brush = null;
+
+        domNode.addEventListener('mousedown', (e) => {
+            const [x, y] = getActualPosition(e);
+            lastX = x;
+            lastY = y;
+            brush = (e.buttons === 1) ? this.#brush : Brushes.AIR;
+            sandGame.drawLine(x, y, x, y, this.#init.brushSize, brush);
+        });
+        domNode.addEventListener('mousemove', (e) => {
+            if (brush === null) {
+                return;
             }
-        })
+            const [x, y] = getActualPosition(e);
+            sandGame.drawLine(lastX, lastY, x, y, this.#init.brushSize, brush);
+            lastX = x;
+            lastY = y;
+        });
+        domNode.addEventListener('mouseup', (e) => {
+            brush = null;
+        });
+        domNode.addEventListener('mouseout', (e) => {
+            brush = null;
+        });
     }
 
     #createBrushButton(name, cssName, brush) {

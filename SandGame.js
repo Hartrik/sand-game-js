@@ -2,7 +2,7 @@
 /**
  *
  * @author Patrik Harag
- * @version 2022-08-28
+ * @version 2022-09-07
  */
 export class SandGame {
 
@@ -35,6 +35,7 @@ export class SandGame {
      * @param context {CanvasRenderingContext2D}
      * @param width {number}
      * @param height {number}
+     * @param defaultElement
      */
     constructor(context, width, height, defaultElement) {
         this.#elementArea = new ElementArea(width, height, defaultElement);
@@ -83,6 +84,41 @@ export class SandGame {
         for (let y = y1; y < y2; y++) {
             for (let x = x1; x < x2; x++) {
                 this.draw(x, y, brush);
+            }
+        }
+    }
+
+    drawLine(x1, y1, x2, y2, size, brush) {
+        const d = Math.ceil(size / 2);
+        let consumer = (x, y) => {
+            this.drawRectangle(x-d, y-d, x+d, y+d, brush);
+        };
+        SandGame.#lineAlgorithm(x1, y1, x2, y2, consumer);
+    }
+
+    static #lineAlgorithm(x1, y1, x2, y2, consumer) {
+        consumer(x1, y1);
+
+        if ((x1 !== x2) || (y1 !== y2)) {
+            const moveX = x1 < x2 ? 1 : -1;
+            const moveY = y1 < y2 ? 1 : -1;
+
+            const dx = Math.abs(x2 - x1);
+            const dy = Math.abs(y2 - y1);
+            let diff = dx - dy;
+
+            while ((x1 !== x2) || (y1 !== y2)) {
+                const p = 2 * diff;
+
+                if (p > -dy) {
+                    diff = diff - dy;
+                    x1 = x1 + moveX;
+                }
+                if (p < dx) {
+                    diff = diff + dx;
+                    y1 = y1 + moveY;
+                }
+                consumer(x1, y1);
             }
         }
     }
