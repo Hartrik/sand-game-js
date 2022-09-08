@@ -488,6 +488,9 @@ class DoubleBufferedRenderer extends Renderer {
     /** @type ImageData */
     #buffer;
 
+    static #WATER_EFFECT_COUNTER_MAX = 1000;
+    #waterEffectCounter = DoubleBufferedRenderer.#WATER_EFFECT_COUNTER_MAX;
+
     constructor(width, height, context) {
         super();
         this.#context = context;
@@ -523,13 +526,29 @@ class DoubleBufferedRenderer extends Renderer {
     }
 
     _renderPixel(elementArea, x, y, data) {
-        let element = elementArea.getElement(x, y);
+        const element = elementArea.getElement(x, y);
+        const index = (this._width * y + x) * 4;
+        this._renderElement(index, element, data);
+    }
 
-        let index = (this._width * y + x) * 4;
-        data[index] = Elements.getColorRed(element);
-        data[index + 1] = Elements.getColorGreen(element);
-        data[index + 2] = Elements.getColorBlue(element);
-        // data[index + 3] = 0xFF;
+    _renderElement(index, element, data) {
+        const elementType = Elements.getType(element);
+        if (elementType === Elements.ELEMENT_TYPE_FLUID_2 && this.#waterEffectCounter-- === 0) {
+            // water effect - implemented using alpha blending
+
+            this.#waterEffectCounter = DoubleBufferedRenderer.#WATER_EFFECT_COUNTER_MAX;
+
+            const alpha = 0.5 + Math.random() * 0.5;
+            const whiteBackground = 255 * (1.0 - alpha);
+
+            data[index]     = (Elements.getColorRed(element)   * alpha) + whiteBackground;
+            data[index + 1] = (Elements.getColorGreen(element) * alpha) + whiteBackground;
+            data[index + 2] = (Elements.getColorBlue(element)  * alpha) + whiteBackground;
+        } else {
+            data[index]     = Elements.getColorRed(element);
+            data[index + 1] = Elements.getColorGreen(element);
+            data[index + 2] = Elements.getColorBlue(element);
+        }
     }
 }
 
@@ -592,13 +611,9 @@ class MotionBlurRenderer extends DoubleBufferedRenderer {
         }
 
         // no blur
-
+        super._renderElement(dataIndex, element, data);
         this.#canBeBlurred[pixelIndex] = elementType > Elements.ELEMENT_TYPE_STATIC;
         this.#blur[pixelIndex] = false;
-
-        data[dataIndex] = Elements.getColorRed(element);
-        data[dataIndex + 1] = Elements.getColorGreen(element);
-        data[dataIndex + 2] = Elements.getColorBlue(element);
     }
 
     static #isWhite(element) {
@@ -706,7 +721,7 @@ export class Brushes {
     ]);
 
     static WATER = new RandomBrush([
-        Elements.of(Elements.ELEMENT_TYPE_FLUID_2, Brushes.#WATER_W, 0, 0, 178),
-        Elements.of(Elements.ELEMENT_TYPE_FLUID_2, Brushes.#WATER_W, 0, 0, 160)
+        Elements.of(Elements.ELEMENT_TYPE_FLUID_2, Brushes.#WATER_W, 4, 135, 186),
+        Elements.of(Elements.ELEMENT_TYPE_FLUID_2, Brushes.#WATER_W, 5, 138, 189),
     ]);
 }
