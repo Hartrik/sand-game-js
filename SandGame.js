@@ -2,7 +2,7 @@
 /**
  *
  * @author Patrik Harag
- * @version 2022-09-07
+ * @version 2022-09-08
  */
 export class SandGame {
 
@@ -21,7 +21,7 @@ export class SandGame {
     /** @type ElementProcessor */
     #processor;
 
-    /** @type DoubleBufferedRenderer */
+    /** @type Renderer */
     #renderer;
 
     /** @type number */
@@ -46,7 +46,7 @@ export class SandGame {
         this.#framesCounter = new Counter();
         this.#cyclesCounter = new Counter();
         this.#processor = new ElementProcessor(width, height, this.#random);
-        this.#renderer = new DoubleBufferedRenderer(width, height, context);
+        this.#renderer = new MotionBlurRenderer(width, height, context);
         this.#width = width;
         this.#height = height;
     }
@@ -287,15 +287,16 @@ class ElementArea {
 /**
  *
  * @author Patrik Harag
- * @version 2022-08-28
+ * @version 2022-09-08
  */
 class Elements {
 
-    static ELEMENT_TYPE_STATIC = 0x0;
-    static ELEMENT_TYPE_SAND_1 = 0x1;
-    static ELEMENT_TYPE_SAND_2 = 0x2;
-    static ELEMENT_TYPE_FLUID_1 = 0x3;
-    static ELEMENT_TYPE_FLUID_2 = 0x4;
+    static ELEMENT_TYPE_BACKGROUND = 0x0;
+    static ELEMENT_TYPE_STATIC = 0x1;
+    static ELEMENT_TYPE_SAND_1 = 0x2;
+    static ELEMENT_TYPE_SAND_2 = 0x3;
+    static ELEMENT_TYPE_FLUID_1 = 0x4;
+    static ELEMENT_TYPE_FLUID_2 = 0x5;
 
     static of(type, weight, r, g, b) {
         return (((((((type << 4) | weight) << 8) | r) << 8) | g) << 8) | b
@@ -454,33 +455,51 @@ class ElementProcessor {
 /**
  *
  * @author Patrik Harag
- * @version 2022-08-27
+ * @version 2022-09-08
  */
-class DoubleBufferedRenderer {
+class Renderer {
+
+    /**
+     *
+     * @param elementArea {ElementArea}
+     * @return {void}
+     */
+    render(elementArea) {
+        throw 'Not implemented';
+    }
+}
+
+/**
+ *
+ * @author Patrik Harag
+ * @version 2022-09-08
+ */
+class DoubleBufferedRenderer extends Renderer {
 
     /** @type CanvasRenderingContext2D */
     #context;
 
     /** @type number */
-    #width;
+    _width;
 
     /** @type number */
-    #height;
+    _height;
 
     /** @type ImageData */
     #buffer;
 
     constructor(width, height, context) {
+        super();
         this.#context = context;
-        this.#width = width;
-        this.#height = height;
+        this._width = width;
+        this._height = height;
         this.#buffer = this.#context.createImageData(width, height);
 
         // set up alpha color component
         let data = this.#buffer.data;
-        for (let y = 0; y < this.#height; y++) {
-            for (let x = 0; x < this.#width; x++) {
-                let index = 4 * (this.#width * y + x);
+        for (let y = 0; y < this._height; y++) {
+            for (let x = 0; x < this._width; x++) {
+                let index = 4 * (this._width * y + x);
                 data[index + 3] = 0xFF;
             }
         }
@@ -488,24 +507,108 @@ class DoubleBufferedRenderer {
 
     /**
      *
-     * @param elementArea ElementArea
+     * @param elementArea {ElementArea}
+     * @return {void}
      */
     render(elementArea) {
-        let data = this.#buffer.data;
+        const data = this.#buffer.data;
 
-        for (let y = 0; y < this.#height; y++) {
-            for (let x = 0; x < this.#width; x++) {
-                let element = elementArea.getElement(x, y);
-
-                let index = (this.#width * y + x) * 4;
-                data[index] = Elements.getColorRed(element);
-                data[index + 1] = Elements.getColorGreen(element);
-                data[index + 2] = Elements.getColorBlue(element);
-                // data[index + 3] = 0xFF;
+        for (let y = 0; y < this._height; y++) {
+            for (let x = 0; x < this._width; x++) {
+                this._renderPixel(elementArea, x, y, data);
             }
         }
 
-        this.#context.putImageData(this.#buffer, 0, 0, 0, 0, this.#width, this.#height);
+        this.#context.putImageData(this.#buffer, 0, 0, 0, 0, this._width, this._height);
+    }
+
+    _renderPixel(elementArea, x, y, data) {
+        let element = elementArea.getElement(x, y);
+
+        let index = (this._width * y + x) * 4;
+        data[index] = Elements.getColorRed(element);
+        data[index + 1] = Elements.getColorGreen(element);
+        data[index + 2] = Elements.getColorBlue(element);
+        // data[index + 3] = 0xFF;
+    }
+}
+
+/**
+ *
+ * @author Patrik Harag
+ * @version 2022-09-08
+ */
+class MotionBlurRenderer extends DoubleBufferedRenderer {
+
+    static #ALPHA = 0.90;
+    static #WHITE_BACKGROUND = 255 * (1.0 - MotionBlurRenderer.#ALPHA);
+
+    /** @type boolean[] */
+    #blur;
+
+    /** @type boolean[] */
+    #canBeBlurred;
+
+    constructor(width, height, context) {
+        super(width, height, context);
+        this.#blur = new Array(width * height);
+        this.#blur.fill(false);
+        this.#canBeBlurred = new Array(width * height);
+        this.#canBeBlurred.fill(false);
+    }
+
+    _renderPixel(elementArea, x, y, data) {
+        const element = elementArea.getElement(x, y);
+        const elementType = Elements.getType(element);
+
+        const pixelIndex = this._width * y + x;
+        const dataIndex = pixelIndex * 4;
+
+        if (elementType === Elements.ELEMENT_TYPE_BACKGROUND) {
+            if (this.#canBeBlurred[pixelIndex] && MotionBlurRenderer.#isWhite(element)) {
+                // init fading here
+
+                this.#blur[pixelIndex] = true;
+                this.#canBeBlurred[pixelIndex] = false;
+            }
+
+            if (this.#blur[pixelIndex]) {
+                // continue fading
+
+                const r = data[dataIndex];
+                const g = data[dataIndex + 1];
+                const b = data[dataIndex + 2];
+
+                if (MotionBlurRenderer.#isVisible(r, g, b)) {
+                    data[dataIndex]     = (r * MotionBlurRenderer.#ALPHA) + MotionBlurRenderer.#WHITE_BACKGROUND;
+                    data[dataIndex + 1] = (g * MotionBlurRenderer.#ALPHA) + MotionBlurRenderer.#WHITE_BACKGROUND;
+                    data[dataIndex + 2] = (b * MotionBlurRenderer.#ALPHA) + MotionBlurRenderer.#WHITE_BACKGROUND;
+                    return;
+                } else {
+                    // fading completed
+                    this.#blur[pixelIndex] = false;
+                }
+            }
+        }
+
+        // no blur
+
+        this.#canBeBlurred[pixelIndex] = elementType > Elements.ELEMENT_TYPE_STATIC;
+        this.#blur[pixelIndex] = false;
+
+        data[dataIndex] = Elements.getColorRed(element);
+        data[dataIndex + 1] = Elements.getColorGreen(element);
+        data[dataIndex + 2] = Elements.getColorBlue(element);
+    }
+
+    static #isWhite(element) {
+        return Elements.getColorRed(element) === 255
+                && Elements.getColorGreen(element) === 255
+                && Elements.getColorBlue(element) === 255;
+    }
+
+    static #isVisible(r, g, b) {
+        return r < 250 && g < 250 && b < 250;
     }
 }
 
@@ -516,7 +619,7 @@ export class Brushes {
     static #WALL_W = 0x3;
 
     static AIR = new RandomBrush([
-        Elements.of(Elements.ELEMENT_TYPE_STATIC, Brushes.#AIR_W, 255, 255, 255)
+        Elements.of(Elements.ELEMENT_TYPE_BACKGROUND, Brushes.#AIR_W, 255, 255, 255)
     ]);
 
     static WALL = new RandomBrush([
