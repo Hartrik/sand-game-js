@@ -622,6 +622,11 @@ class ElementProcessor {
                 // grow up
                 let growIndex = ElementHead.getSpecial(elementHead);
                 if (growIndex === 0) {
+                    // maximum height
+                    if (this.#random.nextInt(5) === 0) {
+                        // remove top element to create some movement
+                        elementArea.setElement(x, y, this.#defaultElement);
+                    }
                     return;
                 }
                 if (y === 0) {
