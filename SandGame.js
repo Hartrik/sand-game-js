@@ -33,6 +33,9 @@ export class SandGame {
     /** @type function[] */
     #onRendered = [];
 
+    /** @type function[] */
+    #onProcessed = [];
+
     /**
      *
      * @param context {CanvasRenderingContext2D}
@@ -45,10 +48,13 @@ export class SandGame {
         this.#random = new FastRandom(0);
         this.#framesCounter = new Counter();
         this.#cyclesCounter = new Counter();
-        this.#processor = new ElementProcessor(width, height, this.#random);
+        this.#processor = new ElementProcessor(width, height, this.#random, defaultElement);
         this.#renderer = new MotionBlurRenderer(width, height, context);
         this.#width = width;
         this.#height = height;
+
+        let grassPlantingExtension = new GrassPlantingExtension(this.#elementArea, this.#random, Brushes.GRASS);
+        this.#onProcessed.push(() => grassPlantingExtension.run());
     }
 
     start() {
@@ -68,6 +74,9 @@ export class SandGame {
         this.#processor.next(this.#elementArea);
         const t = Date.now();
         this.#cyclesCounter.tick(t);
+        for (let func of this.#onProcessed) {
+            func();
+        }
     }
 
     #doRendering() {
@@ -175,15 +184,25 @@ class Brush {
  * @version 2022-09-09
  */
 class RandomBrush extends Brush {
+    static of(elements) {
+        return new RandomBrush(elements);
+    }
+
+    static fromHeadAndTails(elementHead, elementTails) {
+        let elements = [];
+        for (let elementTail of elementTails) {
+            elements.push(new Element(elementHead, elementTail));
+        }
+        return new RandomBrush(elements);
+    }
+
+
     /** @type Element[] */
     #elements;
 
-    constructor(elementHead, elementTails) {
+    constructor(elements) {
         super();
-        this.#elements = [];
-        for (let elementTail of elementTails) {
-            this.#elements.push(new Element(elementHead, elementTail));
-        }
+        this.#elements = elements;
     }
 
     apply(x, y) {
@@ -328,8 +347,8 @@ class ElementArea {
  * @version 2022-09-09
  */
 class ElementHead {
-    static TYPE_BACKGROUND = 0x0;
-    static TYPE_STATIC = 0x1;
+    static TYPE_STATIC = 0x0;
+    static TYPE_FALLING = 0x1;
     static TYPE_SAND_1 = 0x2;
     static TYPE_SAND_2 = 0x3;
     static TYPE_FLUID_1 = 0x4;
@@ -340,24 +359,37 @@ class ElementHead {
     static WEIGHT_POWDER = 0x2;
     static WEIGHT_WALL = 0x3;
 
-    static of(type, weight, behaviour) {
+    static BEHAVIOUR_NONE = 0x0;
+    static BEHAVIOUR_SOIL = 0x1;
+    static BEHAVIOUR_GRASS = 0x2;
+
+    static of(type, weight, behaviour=0, special=0) {
         let value = 0;
+        value = (value | special) << 4;
         value = (value | behaviour) << 4;
         value = (value | weight) << 4;
         value = value | type;
         return value;
     }
 
-    static getType(element) {
-        return element & 0x0000000F;
+    static getType(elementHead) {
+        return elementHead & 0x0000000F;
     }
 
-    static getWeight(element) {
-        return (element >> 4) & 0x0000000F;
+    static getWeight(elementHead) {
+        return (elementHead >> 4) & 0x0000000F;
     }
 
-    static getBehaviour(element) {
-        return (element >> 8) & 0x0000000F;
+    static getBehaviour(elementHead) {
+        return (elementHead >> 8) & 0x0000000F;
+    }
+
+    static getSpecial(elementHead) {
+        return (elementHead >> 12) & 0x0000000F;
+    }
+
+    static setSpecial(elementHead, special) {
+        return (elementHead & ~(0x0000F000)) | (special << 12);
     }
 }
 
@@ -436,15 +468,18 @@ class ElementProcessor {
     /** @type FastRandom */
     #random;
 
+    #defaultElement;
+
     static RANDOM_DATA_COUNT = 100;
 
     /** @type Uint32Array[] */
     #randData = [];
 
-    constructor(width, height, random) {
+    constructor(width, height, random, defaultElement) {
         this.#width = width;
         this.#height = height;
         this.#random = random;
+        this.#defaultElement = defaultElement;
 
         // init random data
         this.#randData = [];
@@ -479,6 +514,13 @@ class ElementProcessor {
 
         if (type === ElementHead.TYPE_STATIC) {
             // no action
+
+        } else if (type === ElementHead.TYPE_FALLING) {
+            //  #
+            //  #
+            //  #
+
+            this.#move(elementArea, elementHead, x, y, x, y + 1);
 
         } else if (type === ElementHead.TYPE_SAND_1) {
             //   #
@@ -537,6 +579,11 @@ class ElementProcessor {
                 }
             }
         }
+
+        let behaviour = ElementHead.getBehaviour(elementHead);
+        if (behaviour === ElementHead.BEHAVIOUR_GRASS) {
+            this.#grow(elementArea, elementHead, x, y);
+        }
     }
 
     #move(elementArea, elementHead, x, y, x2, y2) {
@@ -556,6 +603,117 @@ class ElementProcessor {
             return true;
         }
         return false;
+    }
+
+    #grow(elementArea, elementHead, x, y) {
+        let random = this.#random.nextInt(100);
+        if (random < 3) {
+            // check above
+            if (y > 0) {
+                let above1 = elementArea.getElementHead(x, y - 1);
+                let grassAbove = ElementHead.getBehaviour(above1) === ElementHead.BEHAVIOUR_GRASS;
+                if (!grassAbove && ElementHead.getWeight(above1) > ElementHead.WEIGHT_WATER) {
+                    // remove grass
+                    elementArea.setElement(x, y, this.#defaultElement);
+                }
+            }
+
+            if (random === 0) {
+                // grow up
+                let growIndex = ElementHead.getSpecial(elementHead);
+                if (growIndex === 0) {
+                    return;
+                }
+                if (y === 0) {
+                    return;
+                }
+                let above1 = elementArea.getElementHead(x, y - 1);
+                if (ElementHead.getWeight(above1) !== ElementHead.WEIGHT_AIR) {
+                    return;
+                }
+                if (y > 1) {
+                    let above2 = elementArea.getElementHead(x, y - 2);
+                    if (ElementHead.getWeight(above2) !== ElementHead.WEIGHT_AIR) {
+                        return;
+                    }
+                }
+                elementArea.setElementHead(x, y - 1, ElementHead.setSpecial(elementHead, growIndex - 1));
+                elementArea.setElementTail(x, y - 1, elementArea.getElementTail(x, y));
+            } else if (random === 1) {
+                // grow right
+                if (GrassElement.couldGrowUpHere(elementArea, x + 1, y + 1)) {
+                    elementArea.setElement(x + 1, y + 1, Brushes.GRASS.apply(x, y));
+                }
+            } else if (random === 2) {
+                // grow left
+                if (GrassElement.couldGrowUpHere(elementArea, x - 1, y + 1)) {
+                    elementArea.setElement(x - 1, y + 1, Brushes.GRASS.apply(x, y));
+                }
+            }
+        }
+    }
+}
+
+/**
+ *
+ * @author Patrik Harag
+ * @version 2022-09-09
+ */
+class GrassElement {
+    static couldGrowUpHere(elementArea, x, y) {
+        if (x < 0 || y - 1 < 0) {
+            return false;
+        }
+        if (x >= elementArea.getWidth() || y + 1 >= elementArea.getHeight()) {
+            return false;
+        }
+        let e1 = elementArea.getElementHead(x, y);
+        if (ElementHead.getWeight(e1) !== ElementHead.WEIGHT_AIR) {
+            return false;
+        }
+        let e2 = elementArea.getElementHead(x, y + 1);
+        if (ElementHead.getBehaviour(e2) !== ElementHead.BEHAVIOUR_SOIL) {
+            return false;
+        }
+        let e3 = elementArea.getElementHead(x, y - 1);
+        if (ElementHead.getWeight(e3) !== ElementHead.WEIGHT_AIR) {
+            return false;
+        }
+        return true;
+    }
+}
+
+/**
+ *
+ * @author Patrik Harag
+ * @version 2022-09-09
+ */
+class GrassPlantingExtension {
+    static MAX_COUNTER_VALUE = 2;
+
+    #elementArea;
+    #random;
+    #brush;
+
+    #counter = GrassPlantingExtension.MAX_COUNTER_VALUE;
+
+    constructor(elementArea, random, brush) {
+        this.#elementArea = elementArea;
+        this.#random = random;
+        this.#brush = brush;
+    }
+
+    run() {
+        if (this.#counter-- === 0) {
+            this.#counter = GrassPlantingExtension.MAX_COUNTER_VALUE;
+
+            const x = this.#random.nextInt(this.#elementArea.getWidth());
+            const y = this.#random.nextInt(this.#elementArea.getHeight() - 3) + 2;
+
+            if (GrassElement.couldGrowUpHere(this.#elementArea, x, y)) {
+                this.#elementArea.setElement(x, y, this.#brush.apply(x, y));
+            }
+        }
     }
 }
 
@@ -739,16 +897,18 @@ class MotionBlurRenderer extends DoubleBufferedRenderer {
  */
 export class Brushes {
 
-    static AIR = new RandomBrush(ElementHead.of(ElementHead.TYPE_BACKGROUND, ElementHead.WEIGHT_AIR), [
-        ElementTail.of(255, 255, 255, ElementTail.MODIFIER_BACKGROUND)
+    static AIR = RandomBrush.of([
+        new Element(
+                ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_AIR),
+                ElementTail.of(255, 255, 255, ElementTail.MODIFIER_BACKGROUND))
     ]);
 
-    static WALL = new RandomBrush(ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_WALL), [
+    static WALL = RandomBrush.fromHeadAndTails(ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_WALL), [
         ElementTail.of(55, 55, 55, 0),
         ElementTail.of(57, 57, 57, 0)
     ]);
 
-    static SAND = new RandomBrush(ElementHead.of(ElementHead.TYPE_SAND_2, ElementHead.WEIGHT_POWDER), [
+    static SAND = RandomBrush.fromHeadAndTails(ElementHead.of(ElementHead.TYPE_SAND_2, ElementHead.WEIGHT_POWDER), [
         ElementTail.of(214, 212, 154, ElementTail.MODIFIER_BLUR_ENABLED),
         ElementTail.of(214, 212, 154, ElementTail.MODIFIER_BLUR_ENABLED),
         ElementTail.of(214, 212, 154, ElementTail.MODIFIER_BLUR_ENABLED),
@@ -769,7 +929,7 @@ export class Brushes {
         ElementTail.of(186, 183, 128, ElementTail.MODIFIER_BLUR_ENABLED)
     ]);
 
-    static SOIL = new RandomBrush(ElementHead.of(ElementHead.TYPE_SAND_1, ElementHead.WEIGHT_POWDER), [
+    static SOIL = RandomBrush.fromHeadAndTails(ElementHead.of(ElementHead.TYPE_SAND_1, ElementHead.WEIGHT_POWDER, ElementHead.BEHAVIOUR_SOIL), [
         ElementTail.of(142, 104,  72, ElementTail.MODIFIER_BLUR_ENABLED),
         ElementTail.of(142, 104,  72, ElementTail.MODIFIER_BLUR_ENABLED),
         ElementTail.of(142, 104,  72, ElementTail.MODIFIER_BLUR_ENABLED),
@@ -791,7 +951,7 @@ export class Brushes {
         ElementTail.of(102, 102, 102, ElementTail.MODIFIER_BLUR_ENABLED)
     ]);
 
-    static STONE = new RandomBrush(ElementHead.of(ElementHead.TYPE_SAND_1, ElementHead.WEIGHT_POWDER), [
+    static STONE = RandomBrush.fromHeadAndTails(ElementHead.of(ElementHead.TYPE_SAND_1, ElementHead.WEIGHT_POWDER), [
         ElementTail.of(131, 131, 131, ElementTail.MODIFIER_BLUR_ENABLED),
         ElementTail.of(131, 131, 131, ElementTail.MODIFIER_BLUR_ENABLED),
         ElementTail.of(131, 131, 131, ElementTail.MODIFIER_BLUR_ENABLED),
@@ -826,8 +986,20 @@ export class Brushes {
         ElementTail.of(193, 193, 193, ElementTail.MODIFIER_BLUR_ENABLED)
     ]);
 
-    static WATER = new RandomBrush(ElementHead.of(ElementHead.TYPE_FLUID_2, ElementHead.WEIGHT_WATER), [
+    static WATER = RandomBrush.fromHeadAndTails(ElementHead.of(ElementHead.TYPE_FLUID_2, ElementHead.WEIGHT_WATER), [
         ElementTail.of(4, 135, 186, ElementTail.MODIFIER_BLUR_ENABLED | ElementTail.MODIFIER_GLITTER_ENABLED),
         ElementTail.of(5, 138, 189, ElementTail.MODIFIER_BLUR_ENABLED | ElementTail.MODIFIER_GLITTER_ENABLED)
+    ]);
+
+    static GRASS = RandomBrush.of([
+        new Element(
+                ElementHead.of(ElementHead.TYPE_FALLING, ElementHead.WEIGHT_POWDER, ElementHead.BEHAVIOUR_GRASS, 7),
+                ElementTail.of(44, 92, 33, 0)),
+        new Element(
+                ElementHead.of(ElementHead.TYPE_FALLING, ElementHead.WEIGHT_POWDER, ElementHead.BEHAVIOUR_GRASS, 5),
+                ElementTail.of(0, 72,  0, 0)),
+        new Element(
+                ElementHead.of(ElementHead.TYPE_FALLING, ElementHead.WEIGHT_POWDER, ElementHead.BEHAVIOUR_GRASS, 6),
+                ElementTail.of(0, 65,  0, 0))
     ]);
 }
