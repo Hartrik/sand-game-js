@@ -35,10 +35,14 @@
 }
 
 .sand-game-component .sand-game-toolbar .badge.water {
-    background-color: rgb(0, 0, 165);
+    background-color: rgb(4, 135, 186);
+}
+
+.sand-game-component .sand-game-options .sand-game-counter, .sand-game-component .sand-game-options .sand-game-size {
+    font-size: small;
+    color: gray;
 }
 
 .sand-game-component .sand-game-options .sand-game-counter {
-    margin-left: 3pt;
-    font-size: small;
+    margin-left: 2em;
 }

@@ -5,7 +5,7 @@ import { SandGame, Brushes } from "./SandGame.js";
  * @requires jQuery
  *
  * @author Patrik Harag
- * @version 2022-09-07
+ * @version 2022-09-09
  */
 export class SandGameComponent {
 
@@ -16,10 +16,14 @@ export class SandGameComponent {
         brushSize: 5
     };
 
+    #widthPoints;
+    #heightPoints;
+
     #nodeCanvas;
     #nodeTools;
     #nodeOptions;
-    #nodeCounter;
+    #nodeLabelCounter;
+    #nodeLabelSize;
 
     /** @type SandGame */
     #sandGame;
@@ -30,25 +34,22 @@ export class SandGameComponent {
         if (init) {
             this.#init = init;
         }
-    }
-
-    #countElementWidth() {
-        return Math.trunc(this.#init.canvasWidthPx * this.#init.scale);
-    }
-
-    #countElementHeight() {
-        return Math.trunc(this.#init.canvasHeightPx * this.#init.scale);
+        this.#widthPoints = Math.trunc(this.#init.canvasWidthPx * this.#init.scale);
+        this.#heightPoints = Math.trunc(this.#init.canvasHeightPx * this.#init.scale);
     }
 
     createNode() {
         this.#nodeTools = DomBuilder.div({ class: 'sand-game-toolbar' });
         this.#nodeOptions = DomBuilder.div({ class: 'sand-game-options' });
-        this.#nodeCounter = DomBuilder.span('', { class: 'sand-game-counter' });
+        this.#nodeLabelCounter = DomBuilder.span('', { class: 'sand-game-counter' });
+        this.#nodeLabelSize = DomBuilder.span(`${this.#widthPoints} x ${this.#heightPoints}, scale=${this.#init.scale}`,{
+            class: 'sand-game-size'
+        });
 
         this.#nodeCanvas = DomBuilder.element('canvas', {
             class: 'sand-game-canvas',
-            width: this.#countElementWidth() + 'px',
-            height: this.#countElementHeight() + 'px'
+            width: this.#widthPoints + 'px',
+            height: this.#heightPoints + 'px'
         });
         this.#nodeCanvas.bind('contextmenu', e => false);
 
@@ -66,12 +67,10 @@ export class SandGameComponent {
 
         // init game
         let context = this.#nodeCanvas[0].getContext('2d');
-        let width = this.#countElementWidth();
-        let height = this.#countElementHeight();
         let defaultElement = Brushes.AIR.apply(0, 0);
-        this.#sandGame = new SandGame(context, width, height, defaultElement);
+        this.#sandGame = new SandGame(context, this.#widthPoints, this.#heightPoints, defaultElement);
         this.#sandGame.addOnRendered(() => {
-            this.#nodeCounter.text(this.#sandGame.getFramesPerSecond() + ' frames/s, '
+            this.#nodeLabelCounter.text(this.#sandGame.getFramesPerSecond() + ' frames/s, '
                     + this.#sandGame.getCyclesPerSecond() + ' cycles/s');
         });
 
@@ -90,7 +89,8 @@ export class SandGameComponent {
 
         // options
         this.#nodeOptions.append([
-            this.#nodeCounter
+            this.#nodeLabelSize,
+            this.#nodeLabelCounter
         ]);
     }
 
@@ -197,8 +197,8 @@ export class SandGameComponent {
     }
 
     drawExample() {
-        let w = this.#countElementWidth();
-        let h = this.#countElementHeight();
+        let w = this.#widthPoints;
+        let h = this.#heightPoints;
 
         // gravel bottom
         this.#sandGame.drawRectangle(0, h-1-20, w-1, h-1-10, Brushes.STONE);
@@ -212,9 +212,9 @@ export class SandGameComponent {
         this.#sandGame.drawRectangle(w-1-60, h-1-70, w-1, h-1-40, Brushes.SOIL);
 
         // sand
-        this.#sandGame.drawRectangle(80, h-1-150, w-1-70, h-1-140, Brushes.SAND);
+        this.#sandGame.drawRectangle(Math.trunc(1/4*w), h-1-150, w-1-Math.trunc(1/4*w), h-1-140, Brushes.SAND);
 
         // water
-        this.#sandGame.drawRectangle(150, h-1-170, w-1-150, h-1-150, Brushes.WATER);
+        this.#sandGame.drawRectangle(Math.trunc(2/5*w), h-1-170, w-1-Math.trunc(2/5*w), h-1-150, Brushes.WATER);
     }
 }

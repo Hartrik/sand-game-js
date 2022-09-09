@@ -16,10 +16,22 @@
 
       $(() => {
           let root = $('#sand-game-root');
+
+          let width = Math.min(1400, root.width());
+          let height = Math.min(800, window.innerHeight - 120);
+
+          let scale = 0.25;
+          if (width * height < 300000) {
+              scale = 0.5;
+          }
+          if (width * height < 50000) {
+              scale = 1;
+          }
+
           let init = {
-              scale: 0.5,
-              canvasWidthPx: Math.min(700, root.width()),
-              canvasHeightPx: Math.min(400, window.innerHeight - 100),
+              scale: scale,
+              canvasWidthPx: width,
+              canvasHeightPx: height,
               brushSize: 5
           };
           let sandGameComponent = new SandGameComponent(init);
@@ -30,14 +42,15 @@
       })
   </script>
 </head>
-<body class="d-flex flex-column">
-<main role="main" class="container flex-fill">
+<body>
+<main role="main" class="container">
   <h1>Sand Game JS</h1>
   <div id="sand-game-root"></div>
-
+</main>
+<footer class="container">
   <p>
     <a href="https://github.com/Hartrik/sand-game-js" style="font-size: small">https://github.com/Hartrik/sand-game-js</a>
   </p>
-</main>
+</footer>
 </body>
 </html>

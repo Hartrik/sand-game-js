@@ -555,11 +555,11 @@ class DoubleBufferedRenderer extends Renderer {
 /**
  *
  * @author Patrik Harag
- * @version 2022-09-08
+ * @version 2022-09-09
  */
 class MotionBlurRenderer extends DoubleBufferedRenderer {
 
-    static #ALPHA = 0.90;
+    static #ALPHA = 0.875;
     static #WHITE_BACKGROUND = 255 * (1.0 - MotionBlurRenderer.#ALPHA);
 
     /** @type boolean[] */
@@ -623,7 +623,7 @@ class MotionBlurRenderer extends DoubleBufferedRenderer {
     }
 
     static #isVisible(r, g, b) {
-        return r < 250 && g < 250 && b < 250;
+        return r < 251 && g < 251 && b < 251;
     }
 }
 
