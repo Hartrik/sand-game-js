@@ -38,7 +38,7 @@ export class SandGame {
      * @param context {CanvasRenderingContext2D}
      * @param width {number}
      * @param height {number}
-     * @param defaultElement
+     * @param defaultElement {Element}
      */
     constructor(context, width, height, defaultElement) {
         this.#elementArea = new ElementArea(width, height, defaultElement);
@@ -154,9 +154,16 @@ export class SandGame {
 /**
  *
  * @author Patrik Harag
- * @version 2022-08-28
+ * @version 2022-08-29
  */
 class Brush {
+
+    /**
+     *
+     * @param x
+     * @param y
+     * @return {Element}
+     */
     apply(x, y) {
         throw 'Not implemented'
     }
@@ -165,14 +172,18 @@ class Brush {
 /**
  *
  * @author Patrik Harag
- * @version 2022-08-28
+ * @version 2022-09-09
  */
 class RandomBrush extends Brush {
+    /** @type Element[] */
     #elements;
 
-    constructor(elements) {
+    constructor(elementHead, elementTails) {
         super();
-        this.#elements = elements;
+        this.#elements = [];
+        for (let elementTail of elementTails) {
+            this.#elements.push(new Element(elementHead, elementTail));
+        }
     }
 
     apply(x, y) {
@@ -228,7 +239,7 @@ class FastRandom {
 /**
  *
  * @author Patrik Harag
- * @version 2022-08-28
+ * @version 2022-09-09
  */
 class ElementArea {
     static LITTLE_ENDIAN = true;
@@ -245,7 +256,7 @@ class ElementArea {
     constructor(width, height, defaultElement) {
         this.#width = width;
         this.#height = height;
-        this.#buffer = new DataView(new ArrayBuffer(width * height * 4));
+        this.#buffer = new DataView(new ArrayBuffer(width * height * 8));
 
         // set default elements
         for (let y = 0; y < this.#height; y++) {
@@ -266,13 +277,40 @@ class ElementArea {
     }
 
     setElement(x, y, element) {
-        let byteOffset = (this.#width * y + x) * 4;
-        this.#buffer.setUint32(byteOffset, element, ElementArea.LITTLE_ENDIAN);
+        this.setElementHeadAndTail(x, y, element.elementHead, element.elementTail);
+    }
+
+    setElementHeadAndTail(x, y, elementHead, elementTail) {
+        let byteOffset = (this.#width * y + x) * 8;
+        this.#buffer.setUint32(byteOffset, elementHead, ElementArea.LITTLE_ENDIAN);
+        this.#buffer.setUint32(byteOffset + 4, elementTail, ElementArea.LITTLE_ENDIAN);
+    }
+
+    setElementHead(x, y, elementHead) {
+        let byteOffset = (this.#width * y + x) * 8;
+        this.#buffer.setUint32(byteOffset, elementHead, ElementArea.LITTLE_ENDIAN);
+    }
+
+    setElementTail(x, y, elementTail) {
+        let byteOffset = (this.#width * y + x) * 8;
+        this.#buffer.setUint32(byteOffset + 4, elementTail, ElementArea.LITTLE_ENDIAN);
     }
 
     getElement(x, y) {
-        let byteOffset = (this.#width * y + x) * 4;
+        let byteOffset = (this.#width * y + x) * 8;
+        let elementHead = this.#buffer.getUint32(byteOffset, ElementArea.LITTLE_ENDIAN);
+        let elementTail = this.#buffer.getUint32(byteOffset + 4, ElementArea.LITTLE_ENDIAN);
+        return new Element(elementHead, elementTail);
+    }
+
+    getElementHead(x, y) {
+        let byteOffset = (this.#width * y + x) * 8;
         return this.#buffer.getUint32(byteOffset, ElementArea.LITTLE_ENDIAN);
+    }
+
+    getElementTail(x, y) {
+        let byteOffset = (this.#width * y + x) * 8;
+        return this.#buffer.getUint32(byteOffset + 4, ElementArea.LITTLE_ENDIAN);
     }
 
     getWidth() {
@@ -287,42 +325,106 @@ class ElementArea {
 /**
  *
  * @author Patrik Harag
- * @version 2022-09-08
+ * @version 2022-09-09
  */
-class Elements {
+class ElementHead {
+    static TYPE_BACKGROUND = 0x0;
+    static TYPE_STATIC = 0x1;
+    static TYPE_SAND_1 = 0x2;
+    static TYPE_SAND_2 = 0x3;
+    static TYPE_FLUID_1 = 0x4;
+    static TYPE_FLUID_2 = 0x5;
 
-    static ELEMENT_TYPE_BACKGROUND = 0x0;
-    static ELEMENT_TYPE_STATIC = 0x1;
-    static ELEMENT_TYPE_SAND_1 = 0x2;
-    static ELEMENT_TYPE_SAND_2 = 0x3;
-    static ELEMENT_TYPE_FLUID_1 = 0x4;
-    static ELEMENT_TYPE_FLUID_2 = 0x5;
+    static WEIGHT_AIR = 0x0;
+    static WEIGHT_WATER = 0x1;
+    static WEIGHT_POWDER = 0x2;
+    static WEIGHT_WALL = 0x3;
 
-    static of(type, weight, r, g, b) {
-        return (((((((type << 4) | weight) << 8) | r) << 8) | g) << 8) | b
+    static of(type, weight, behaviour) {
+        let value = 0;
+        value = (value | behaviour) << 4;
+        value = (value | weight) << 4;
+        value = value | type;
+        return value;
     }
 
     static getType(element) {
-        return (element >> 28) & 0x0000000F;
+        return element & 0x0000000F;
     }
 
     static getWeight(element) {
-        return (element >> 24) & 0x0000000F;
+        return (element >> 4) & 0x0000000F;
     }
 
-    static getColorRed(element) {
-        return (element >> 16) & 0x000000FF;
-    }
-
-    static getColorGreen(element) {
-        return (element >> 8) & 0x000000FF;
-    }
-
-    static getColorBlue(element) {
-        return element & 0x000000FF;
+    static getBehaviour(element) {
+        return (element >> 8) & 0x0000000F;
     }
 }
 
+/**
+ *
+ * @author Patrik Harag
+ * @version 2022-09-09
+ */
+class ElementTail {
+    static MODIFIER_BACKGROUND = 0x01000000;
+    static MODIFIER_BLUR_ENABLED = 0x02000000;
+    static MODIFIER_GLITTER_ENABLED = 0x04000000;
+
+    static of(r, g, b, renderingModifiers) {
+        let value = 0;
+        value = (value | r) << 8;
+        value = (value | g) << 8;
+        value = value | b;
+        value = value | renderingModifiers
+        return value;
+    }
+
+    static getColorRed(elementTail) {
+        return (elementTail >> 16) & 0x000000FF;
+    }
+
+    static getColorGreen(elementTail) {
+        return (elementTail >> 8) & 0x000000FF;
+    }
+
+    static getColorBlue(elementTail) {
+        return elementTail & 0x000000FF;
+    }
+
+    static isRenderingModifierBackground(elementTail) {
+        return (elementTail & ElementTail.MODIFIER_BACKGROUND) !== 0;
+    }
+
+    static isRenderingModifierBlurEnabled(elementTail) {
+        return (elementTail & ElementTail.MODIFIER_BLUR_ENABLED) !== 0;
+    }
+
+    static isRenderingModifierGlitterEnabled(elementTail) {
+        return (elementTail & ElementTail.MODIFIER_GLITTER_ENABLED) !== 0;
+    }
+}
+
+/**
+ *
+ * @author Patrik Harag
+ * @version 2022-09-09
+ */
+class Element {
+    elementHead;
+    elementTail;
+
+    constructor(elementHead, elementTail) {
+        this.elementHead = elementHead;
+        this.elementTail = elementTail;
+    }
+}
+
+/**
+ *
+ * @author Patrik Harag
+ * @version 2022-09-09
+ */
 class ElementProcessor {
 
     /** @type number */
@@ -372,64 +474,64 @@ class ElementProcessor {
     }
 
     #nextPoint(elementArea, x, y) {
-        let element = elementArea.getElement(x, y);
-        let type = Elements.getType(element);
+        let elementHead = elementArea.getElementHead(x, y);
+        let type = ElementHead.getType(elementHead);
 
-        if (type === Elements.ELEMENT_TYPE_STATIC) {
+        if (type === ElementHead.TYPE_STATIC) {
             // no action
 
-        } else if (type === Elements.ELEMENT_TYPE_SAND_1) {
+        } else if (type === ElementHead.TYPE_SAND_1) {
             //   #
             //  ###
             // #####
 
-            if (!this.#move(elementArea, element, x, y, x, y + 1)) {
+            if (!this.#move(elementArea, elementHead, x, y, x, y + 1)) {
                 let rnd = this.#random.nextInt(2);
                 if (rnd === 0) {
-                    this.#move(elementArea, element, x, y, x + 1, y + 1)
+                    this.#move(elementArea, elementHead, x, y, x + 1, y + 1)
                 } else {
-                    this.#move(elementArea, element, x, y, x - 1, y + 1)
+                    this.#move(elementArea, elementHead, x, y, x - 1, y + 1)
                 }
             }
-        } else if (type === Elements.ELEMENT_TYPE_SAND_2) {
+        } else if (type === ElementHead.TYPE_SAND_2) {
             //     #
             //   #####
             // #########
 
-            if (!this.#move(elementArea, element, x, y, x, y + 1)) {
+            if (!this.#move(elementArea, elementHead, x, y, x, y + 1)) {
                 let rnd = this.#random.nextInt(2);
                 if (rnd === 0) {
-                    if (!this.#move(elementArea, element, x, y, x + 1, y + 1)) {
-                        this.#move(elementArea, element, x, y, x + 2, y + 1)
+                    if (!this.#move(elementArea, elementHead, x, y, x + 1, y + 1)) {
+                        this.#move(elementArea, elementHead, x, y, x + 2, y + 1)
                     }
                 } else {
-                    if (!this.#move(elementArea, element, x, y, x - 1, y + 1)) {
-                        this.#move(elementArea, element, x, y, x - 2, y + 1)
+                    if (!this.#move(elementArea, elementHead, x, y, x - 1, y + 1)) {
+                        this.#move(elementArea, elementHead, x, y, x - 2, y + 1)
                     }
                 }
             }
-        } else if (type === Elements.ELEMENT_TYPE_FLUID_1) {
-            if (!this.#move(elementArea, element, x, y, x, y + 1)) {
+        } else if (type === ElementHead.TYPE_FLUID_1) {
+            if (!this.#move(elementArea, elementHead, x, y, x, y + 1)) {
                 let rnd = this.#random.nextInt(2);
                 if (rnd === 0) {
-                    this.#move(elementArea, element, x, y, x + 1, y)
+                    this.#move(elementArea, elementHead, x, y, x + 1, y)
                 } else {
-                    this.#move(elementArea, element, x, y, x - 1, y)
+                    this.#move(elementArea, elementHead, x, y, x - 1, y)
                 }
             }
-        } else if (type === Elements.ELEMENT_TYPE_FLUID_2) {
-            if (!this.#move(elementArea, element, x, y, x, y + 1)) {
+        } else if (type === ElementHead.TYPE_FLUID_2) {
+            if (!this.#move(elementArea, elementHead, x, y, x, y + 1)) {
                 let rnd = this.#random.nextInt(2);
                 if (rnd === 0) {
-                    if (this.#move(elementArea, element, x, y, x + 1, y)) {
-                        if (this.#move(elementArea, element, x + 1, y, x + 2, y)) {
-                            this.#move(elementArea, element, x + 2, y, x + 3, y)
+                    if (this.#move(elementArea, elementHead, x, y, x + 1, y)) {
+                        if (this.#move(elementArea, elementHead, x + 1, y, x + 2, y)) {
+                            this.#move(elementArea, elementHead, x + 2, y, x + 3, y)
                         }
                     }
                 } else {
-                    if (this.#move(elementArea, element, x, y, x - 1, y)) {
-                        if (this.#move(elementArea, element, x - 1, y, x - 2, y)) {
-                            this.#move(elementArea, element, x - 2, y, x - 3, y)
+                    if (this.#move(elementArea, elementHead, x, y, x - 1, y)) {
+                        if (this.#move(elementArea, elementHead, x - 1, y, x - 2, y)) {
+                            this.#move(elementArea, elementHead, x - 2, y, x - 3, y)
                         }
                     }
                 }
@@ -437,15 +539,20 @@ class ElementProcessor {
         }
     }
 
-    #move(elementArea, element, x, y, x2, y2) {
+    #move(elementArea, elementHead, x, y, x2, y2) {
         if (!elementArea.isValidPosition(x2, y2)) {
             return false;
         }
 
-        let element2 = elementArea.getElement(x2, y2);
-        if (Elements.getWeight(element) > Elements.getWeight(element2)) {
-            elementArea.setElement(x2, y2, element);
-            elementArea.setElement(x, y, element2);
+        let elementHead2 = elementArea.getElementHead(x2, y2);
+        if (ElementHead.getWeight(elementHead) > ElementHead.getWeight(elementHead2)) {
+            let elementTail = elementArea.getElementTail(x, y);
+            let elementTail2 = elementArea.getElementTail(x2, y2);
+
+            elementArea.setElementHead(x2, y2, elementHead);
+            elementArea.setElementHead(x, y, elementHead2);
+            elementArea.setElementTail(x2, y2, elementTail);
+            elementArea.setElementTail(x, y, elementTail2);
             return true;
         }
         return false;
@@ -472,7 +579,7 @@ class Renderer {
 /**
  *
  * @author Patrik Harag
- * @version 2022-09-08
+ * @version 2022-09-09
  */
 class DoubleBufferedRenderer extends Renderer {
 
@@ -488,8 +595,8 @@ class DoubleBufferedRenderer extends Renderer {
     /** @type ImageData */
     #buffer;
 
-    static #WATER_EFFECT_COUNTER_MAX = 1000;
-    #waterEffectCounter = DoubleBufferedRenderer.#WATER_EFFECT_COUNTER_MAX;
+    static #GLITTER_EFFECT_COUNTER_MAX = 2000;
+    #waterEffectCounter = DoubleBufferedRenderer.#GLITTER_EFFECT_COUNTER_MAX;
 
     constructor(width, height, context) {
         super();
@@ -526,28 +633,27 @@ class DoubleBufferedRenderer extends Renderer {
     }
 
     _renderPixel(elementArea, x, y, data) {
-        const element = elementArea.getElement(x, y);
+        const elementTail = elementArea.getElementTail(x, y);
         const index = (this._width * y + x) * 4;
-        this._renderElement(index, element, data);
+        this._renderElement(index, elementTail, data);
     }
 
-    _renderElement(index, element, data) {
-        const elementType = Elements.getType(element);
-        if (elementType === Elements.ELEMENT_TYPE_FLUID_2 && this.#waterEffectCounter-- === 0) {
-            // water effect - implemented using alpha blending
+    _renderElement(index, elementTail, data) {
+        if (ElementTail.isRenderingModifierGlitterEnabled(elementTail) && this.#waterEffectCounter-- === 0) {
+            // glitter effect - implemented using alpha blending
 
-            this.#waterEffectCounter = DoubleBufferedRenderer.#WATER_EFFECT_COUNTER_MAX;
+            this.#waterEffectCounter = Math.trunc(Math.random() * DoubleBufferedRenderer.#GLITTER_EFFECT_COUNTER_MAX);
 
             const alpha = 0.5 + Math.random() * 0.5;
             const whiteBackground = 255 * (1.0 - alpha);
 
-            data[index]     = (Elements.getColorRed(element)   * alpha) + whiteBackground;
-            data[index + 1] = (Elements.getColorGreen(element) * alpha) + whiteBackground;
-            data[index + 2] = (Elements.getColorBlue(element)  * alpha) + whiteBackground;
+            data[index]     = (ElementTail.getColorRed(elementTail)   * alpha) + whiteBackground;
+            data[index + 1] = (ElementTail.getColorGreen(elementTail) * alpha) + whiteBackground;
+            data[index + 2] = (ElementTail.getColorBlue(elementTail)  * alpha) + whiteBackground;
         } else {
-            data[index]     = Elements.getColorRed(element);
-            data[index + 1] = Elements.getColorGreen(element);
-            data[index + 2] = Elements.getColorBlue(element);
+            data[index]     = ElementTail.getColorRed(elementTail);
+            data[index + 1] = ElementTail.getColorGreen(elementTail);
+            data[index + 2] = ElementTail.getColorBlue(elementTail);
         }
     }
 }
@@ -577,14 +683,13 @@ class MotionBlurRenderer extends DoubleBufferedRenderer {
     }
 
     _renderPixel(elementArea, x, y, data) {
-        const element = elementArea.getElement(x, y);
-        const elementType = Elements.getType(element);
+        const elementTail = elementArea.getElementTail(x, y);
 
         const pixelIndex = this._width * y + x;
         const dataIndex = pixelIndex * 4;
 
-        if (elementType === Elements.ELEMENT_TYPE_BACKGROUND) {
-            if (this.#canBeBlurred[pixelIndex] && MotionBlurRenderer.#isWhite(element)) {
+        if (ElementTail.isRenderingModifierBackground(elementTail)) {
+            if (this.#canBeBlurred[pixelIndex] && MotionBlurRenderer.#isWhite(elementTail)) {
                 // init fading here
 
                 this.#blur[pixelIndex] = true;
@@ -611,15 +716,15 @@ class MotionBlurRenderer extends DoubleBufferedRenderer {
         }
 
         // no blur
-        super._renderElement(dataIndex, element, data);
-        this.#canBeBlurred[pixelIndex] = elementType > Elements.ELEMENT_TYPE_STATIC;
+        super._renderElement(dataIndex, elementTail, data);
+        this.#canBeBlurred[pixelIndex] = ElementTail.isRenderingModifierBlurEnabled(elementTail);
         this.#blur[pixelIndex] = false;
     }
 
     static #isWhite(element) {
-        return Elements.getColorRed(element) === 255
-                && Elements.getColorGreen(element) === 255
-                && Elements.getColorBlue(element) === 255;
+        return ElementTail.getColorRed(element) === 255
+                && ElementTail.getColorGreen(element) === 255
+                && ElementTail.getColorBlue(element) === 255;
     }
 
     static #isVisible(r, g, b) {
@@ -627,101 +732,102 @@ class MotionBlurRenderer extends DoubleBufferedRenderer {
     }
 }
 
+/**
+ *
+ * @author Patrik Harag
+ * @version 2022-09-09
+ */
 export class Brushes {
-    static #AIR_W = 0x0;
-    static #WATER_W = 0x1;
-    static #POWDER_W = 0x2;
-    static #WALL_W = 0x3;
 
-    static AIR = new RandomBrush([
-        Elements.of(Elements.ELEMENT_TYPE_BACKGROUND, Brushes.#AIR_W, 255, 255, 255)
+    static AIR = new RandomBrush(ElementHead.of(ElementHead.TYPE_BACKGROUND, ElementHead.WEIGHT_AIR), [
+        ElementTail.of(255, 255, 255, ElementTail.MODIFIER_BACKGROUND)
     ]);
 
-    static WALL = new RandomBrush([
-        Elements.of(Elements.ELEMENT_TYPE_STATIC, Brushes.#WALL_W, 55, 55, 55),
-        Elements.of(Elements.ELEMENT_TYPE_STATIC, Brushes.#WALL_W, 57, 57, 57)
+    static WALL = new RandomBrush(ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_WALL), [
+        ElementTail.of(55, 55, 55, 0),
+        ElementTail.of(57, 57, 57, 0)
     ]);
 
-    static SAND = new RandomBrush([
-        Elements.of(Elements.ELEMENT_TYPE_SAND_2, Brushes.#POWDER_W, 214, 212, 154),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_2, Brushes.#POWDER_W, 214, 212, 154),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_2, Brushes.#POWDER_W, 214, 212, 154),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_2, Brushes.#POWDER_W, 214, 212, 154),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_2, Brushes.#POWDER_W, 225, 217, 171),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_2, Brushes.#POWDER_W, 225, 217, 171),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_2, Brushes.#POWDER_W, 225, 217, 171),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_2, Brushes.#POWDER_W, 225, 217, 171),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_2, Brushes.#POWDER_W, 203, 201, 142),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_2, Brushes.#POWDER_W, 203, 201, 142),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_2, Brushes.#POWDER_W, 203, 201, 142),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_2, Brushes.#POWDER_W, 203, 201, 142),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_2, Brushes.#POWDER_W, 195, 194, 134),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_2, Brushes.#POWDER_W, 195, 194, 134),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_2, Brushes.#POWDER_W, 218, 211, 165),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_2, Brushes.#POWDER_W, 218, 211, 165),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_2, Brushes.#POWDER_W, 223, 232, 201),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_2, Brushes.#POWDER_W, 186, 183, 128),
+    static SAND = new RandomBrush(ElementHead.of(ElementHead.TYPE_SAND_2, ElementHead.WEIGHT_POWDER), [
+        ElementTail.of(214, 212, 154, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(214, 212, 154, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(214, 212, 154, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(214, 212, 154, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(225, 217, 171, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(225, 217, 171, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(225, 217, 171, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(225, 217, 171, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(203, 201, 142, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(203, 201, 142, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(203, 201, 142, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(203, 201, 142, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(195, 194, 134, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(195, 194, 134, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(218, 211, 165, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(218, 211, 165, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(223, 232, 201, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(186, 183, 128, ElementTail.MODIFIER_BLUR_ENABLED)
     ]);
 
-    static SOIL = new RandomBrush([
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 142, 104,  72),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 142, 104,  72),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 142, 104,  72),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 142, 104,  72),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 142, 104,  72),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 142, 104,  72),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 114,  81,  58),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 114,  81,  58),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 114,  81,  58),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 114,  81,  58),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 114,  81,  58),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 114,  81,  58),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W,  82,  64,  30),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W,  82,  64,  30),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W,  82,  64,  30),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 177, 133,  87),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 177, 133,  87),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 177, 133,  87),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 102, 102, 102),
+    static SOIL = new RandomBrush(ElementHead.of(ElementHead.TYPE_SAND_1, ElementHead.WEIGHT_POWDER), [
+        ElementTail.of(142, 104,  72, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(142, 104,  72, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(142, 104,  72, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(142, 104,  72, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(142, 104,  72, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(142, 104,  72, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(114,  81,  58, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(114,  81,  58, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(114,  81,  58, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(114,  81,  58, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(114,  81,  58, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(114,  81,  58, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of( 82,  64,  30, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of( 82,  64,  30, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of( 82,  64,  30, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(177, 133,  87, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(177, 133,  87, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(177, 133,  87, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(102, 102, 102, ElementTail.MODIFIER_BLUR_ENABLED)
     ]);
 
-    static STONE = new RandomBrush([
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 131, 131, 131),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 131, 131, 131),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 131, 131, 131),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 131, 131, 131),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 131, 131, 131),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 131, 131, 131),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 135, 135, 135),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 135, 135, 135),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 135, 135, 135),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 135, 135, 135),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 135, 135, 135),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 135, 135, 135),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 145, 145, 145),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 145, 145, 145),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 145, 145, 145),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 145, 145, 145),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 145, 145, 145),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 145, 145, 145),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 148, 148, 148),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 148, 148, 148),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 148, 148, 148),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 148, 148, 148),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 148, 148, 148),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 148, 148, 148),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 160, 160, 160),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 160, 160, 160),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 160, 160, 160),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 160, 160, 160),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 160, 160, 160),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 160, 160, 160),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 114, 114, 114),
-        Elements.of(Elements.ELEMENT_TYPE_SAND_1, Brushes.#POWDER_W, 193, 193, 193),
+    static STONE = new RandomBrush(ElementHead.of(ElementHead.TYPE_SAND_1, ElementHead.WEIGHT_POWDER), [
+        ElementTail.of(131, 131, 131, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(131, 131, 131, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(131, 131, 131, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(131, 131, 131, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(131, 131, 131, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(131, 131, 131, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(135, 135, 135, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(135, 135, 135, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(135, 135, 135, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(135, 135, 135, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(135, 135, 135, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(135, 135, 135, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(145, 145, 145, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(145, 145, 145, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(145, 145, 145, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(145, 145, 145, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(145, 145, 145, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(145, 145, 145, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(148, 148, 148, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(148, 148, 148, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(148, 148, 148, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(148, 148, 148, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(148, 148, 148, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(148, 148, 148, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(160, 160, 160, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(160, 160, 160, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(160, 160, 160, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(160, 160, 160, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(160, 160, 160, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(160, 160, 160, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(114, 114, 114, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(193, 193, 193, ElementTail.MODIFIER_BLUR_ENABLED)
     ]);
 
-    static WATER = new RandomBrush([
-        Elements.of(Elements.ELEMENT_TYPE_FLUID_2, Brushes.#WATER_W, 4, 135, 186),
-        Elements.of(Elements.ELEMENT_TYPE_FLUID_2, Brushes.#WATER_W, 5, 138, 189),
+    static WATER = new RandomBrush(ElementHead.of(ElementHead.TYPE_FLUID_2, ElementHead.WEIGHT_WATER), [
+        ElementTail.of(4, 135, 186, ElementTail.MODIFIER_BLUR_ENABLED | ElementTail.MODIFIER_GLITTER_ENABLED),
+        ElementTail.of(5, 138, 189, ElementTail.MODIFIER_BLUR_ENABLED | ElementTail.MODIFIER_GLITTER_ENABLED)
     ]);
 }
