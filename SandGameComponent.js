@@ -197,24 +197,31 @@ export class SandGameComponent {
     }
 
     drawExample() {
-        let w = this.#widthPoints;
-        let h = this.#heightPoints;
+        const w = this.#widthPoints;
+        const h = this.#heightPoints;
+
+        const wd = Math.trunc(w / 10);
+        const hd = Math.trunc(Math.min(h, 120) / 10);
+        const wdd = Math.trunc(w / 50);
 
         // gravel bottom
-        this.#sandGame.drawRectangle(0, h-1-20, w-1, h-1-10, Brushes.STONE);
+        this.#sandGame.drawRectangle(0, h-1-2*hd, w-1, h-1-hd, Brushes.STONE);
 
         // left side
-        this.#sandGame.drawRectangle(0, h-1-40, 120, h-1-20, Brushes.SOIL);
-        this.#sandGame.drawRectangle(0, h-1-60, 80, h-1-40, Brushes.SOIL);
+        this.#sandGame.drawRectangle(0, h-1-3*hd, 3*wd, h-1-2*hd, Brushes.SOIL);
+        this.#sandGame.drawRectangle(wd, h-1-4*hd, 4*wd, h-1-3*hd, Brushes.SOIL);
+        this.#sandGame.drawRectangle(wd, h-1-5*hd, 2*wd, h-1-4*hd, Brushes.SOIL);
 
         // right side
-        this.#sandGame.drawRectangle(w-1-120, h-1-34, w-1-10, h-1-20, Brushes.SOIL);
-        this.#sandGame.drawRectangle(w-1-60, h-1-70, w-1, h-1-40, Brushes.SOIL);
+        this.#sandGame.drawRectangle(w-1-3*wd, h-1-3*hd, w-1, h-1-2*hd, Brushes.SOIL);
+        this.#sandGame.drawRectangle(w-1-2*wd, h-1-4*hd, w-1, h-1-3*hd, Brushes.SOIL);
+        this.#sandGame.drawRectangle(w-1-wd, h-1-5*hd, w-1, h-1-4*hd, Brushes.SOIL);
 
         // sand
-        this.#sandGame.drawRectangle(Math.trunc(1/4*w), h-1-150, w-1-Math.trunc(1/4*w), h-1-140, Brushes.SAND);
+        this.#sandGame.drawRectangle(4*wd, h-1-5*hd, w-1-2*wd, h-1-4*hd, Brushes.SAND);
+        this.#sandGame.drawRectangle(3*wd, h-1-6*hd, 5*wd, h-1-4*hd, Brushes.SAND);
 
         // water
-        this.#sandGame.drawRectangle(Math.trunc(2/5*w), h-1-170, w-1-Math.trunc(2/5*w), h-1-150, Brushes.WATER);
+        this.#sandGame.drawRectangle(5*wd+wdd, h-1-9*hd, w-1-3*wd-wdd, h-1-8*hd, Brushes.WATER);
     }
 }
