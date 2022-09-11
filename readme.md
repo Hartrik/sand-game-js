@@ -2,4 +2,4 @@
 
 Work in progress
 
-https://files.harag.cz/sand-game-js
+https://harag.cz/app/sand-game-js
