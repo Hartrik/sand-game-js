@@ -2,9 +2,12 @@
 /**
  *
  * @author Patrik Harag
- * @version 2022-09-08
+ * @version 2022-09-20
  */
 export class SandGame {
+
+    static OPT_CYCLES_PER_SECOND = 120;
+    static OPT_FRAMES_PER_SECOND = 60;
 
     /** @type ElementArea */
     #elementArea;
@@ -55,17 +58,19 @@ export class SandGame {
 
         let grassPlantingExtension = new GrassPlantingExtension(this.#elementArea, this.#random, Brushes.GRASS);
         this.#onProcessed.push(() => grassPlantingExtension.run());
+        let fishSpawningExtension = new FishSpawningExtension(this.#elementArea, this.#random, Brushes.FISH, Brushes.FISH_BODY);
+        this.#onProcessed.push(() => fishSpawningExtension.run());
     }
 
     start() {
         // processing
         {
-            let interval = Math.trunc(1000 / 120);  // ms
+            let interval = Math.trunc(1000 / SandGame.OPT_CYCLES_PER_SECOND);  // ms
             setInterval(() => this.#doProcessing(), interval);
         }
         // rendering
         {
-            let interval = Math.trunc(1000 / 60);  // ms
+            let interval = Math.trunc(1000 / SandGame.OPT_FRAMES_PER_SECOND);  // ms
             setInterval(() => this.#doRendering(), interval);
         }
     }
@@ -258,7 +263,7 @@ class FastRandom {
 /**
  *
  * @author Patrik Harag
- * @version 2022-09-09
+ * @version 2022-09-20
  */
 class ElementArea {
     static LITTLE_ENDIAN = true;
@@ -300,36 +305,48 @@ class ElementArea {
     }
 
     setElementHeadAndTail(x, y, elementHead, elementTail) {
-        let byteOffset = (this.#width * y + x) * 8;
+        const byteOffset = (this.#width * y + x) * 8;
         this.#buffer.setUint32(byteOffset, elementHead, ElementArea.LITTLE_ENDIAN);
         this.#buffer.setUint32(byteOffset + 4, elementTail, ElementArea.LITTLE_ENDIAN);
     }
 
     setElementHead(x, y, elementHead) {
-        let byteOffset = (this.#width * y + x) * 8;
+        const byteOffset = (this.#width * y + x) * 8;
         this.#buffer.setUint32(byteOffset, elementHead, ElementArea.LITTLE_ENDIAN);
     }
 
     setElementTail(x, y, elementTail) {
-        let byteOffset = (this.#width * y + x) * 8;
+        const byteOffset = (this.#width * y + x) * 8;
         this.#buffer.setUint32(byteOffset + 4, elementTail, ElementArea.LITTLE_ENDIAN);
     }
 
     getElement(x, y) {
-        let byteOffset = (this.#width * y + x) * 8;
-        let elementHead = this.#buffer.getUint32(byteOffset, ElementArea.LITTLE_ENDIAN);
-        let elementTail = this.#buffer.getUint32(byteOffset + 4, ElementArea.LITTLE_ENDIAN);
+        const byteOffset = (this.#width * y + x) * 8;
+        const elementHead = this.#buffer.getUint32(byteOffset, ElementArea.LITTLE_ENDIAN);
+        const elementTail = this.#buffer.getUint32(byteOffset + 4, ElementArea.LITTLE_ENDIAN);
         return new Element(elementHead, elementTail);
     }
 
     getElementHead(x, y) {
-        let byteOffset = (this.#width * y + x) * 8;
+        const byteOffset = (this.#width * y + x) * 8;
         return this.#buffer.getUint32(byteOffset, ElementArea.LITTLE_ENDIAN);
     }
 
     getElementTail(x, y) {
-        let byteOffset = (this.#width * y + x) * 8;
+        const byteOffset = (this.#width * y + x) * 8;
         return this.#buffer.getUint32(byteOffset + 4, ElementArea.LITTLE_ENDIAN);
+    }
+
+    swap(x, y, x2, y2) {
+        const elementHead = this.getElementHead(x, y);
+        const elementHead2 = this.getElementHead(x2, y2);
+        this.setElementHead(x2, y2, elementHead);
+        this.setElementHead(x, y, elementHead2);
+
+        const elementTail = this.getElementTail(x, y);
+        const elementTail2 = this.getElementTail(x2, y2);
+        this.setElementTail(x2, y2, elementTail);
+        this.setElementTail(x, y, elementTail2);
     }
 
     getWidth() {
@@ -344,7 +361,7 @@ class ElementArea {
 /**
  *
  * @author Patrik Harag
- * @version 2022-09-09
+ * @version 2022-09-20
  */
 class ElementHead {
     static TYPE_STATIC = 0x0;
@@ -362,6 +379,8 @@ class ElementHead {
     static BEHAVIOUR_NONE = 0x0;
     static BEHAVIOUR_SOIL = 0x1;
     static BEHAVIOUR_GRASS = 0x2;
+    static BEHAVIOUR_FISH = 0x3;
+    static BEHAVIOUR_FISH_BODY = 0x4;
 
     static of(type, weight, behaviour=0, special=0) {
         let value = 0;
@@ -455,7 +474,7 @@ class Element {
 /**
  *
  * @author Patrik Harag
- * @version 2022-09-09
+ * @version 2022-09-20
  */
 class ElementProcessor {
 
@@ -508,82 +527,120 @@ class ElementProcessor {
         }
     }
 
+    /**
+     *
+     * @param elementArea {ElementArea}
+     * @param x {number}
+     * @param y {number}
+     */
     #nextPoint(elementArea, x, y) {
         let elementHead = elementArea.getElementHead(x, y);
+        let moved = this.#performMovingBehaviour(elementArea, elementHead, x, y);
+
+        if (!moved) {
+            let behaviour = ElementHead.getBehaviour(elementHead);
+            if (behaviour === ElementHead.BEHAVIOUR_GRASS) {
+                this.#grow(elementArea, elementHead, x, y);
+            } else if (behaviour === ElementHead.BEHAVIOUR_FISH) {
+                this.#fishLive(elementArea, elementHead, x, y);
+            } else if (behaviour === ElementHead.BEHAVIOUR_FISH_BODY) {
+                this.#fishBodyLive(elementArea, elementHead, x, y);
+            }
+        }
+    }
+
+    /**
+     *
+     * @param elementArea {ElementArea}
+     * @param elementHead
+     * @param x {number}
+     * @param y {number}
+     * @returns {boolean}
+     */
+    #performMovingBehaviour(elementArea, elementHead, x, y) {
         let type = ElementHead.getType(elementHead);
+        switch (type) {
+            case ElementHead.TYPE_STATIC:
+                // no action
+                return false;
 
-        if (type === ElementHead.TYPE_STATIC) {
-            // no action
+            case ElementHead.TYPE_FALLING:
+                //  #
+                //  #
+                //  #
+                return this.#move(elementArea, elementHead, x, y, x, y + 1);
 
-        } else if (type === ElementHead.TYPE_FALLING) {
-            //  #
-            //  #
-            //  #
+            case ElementHead.TYPE_SAND_1:
+                //   #
+                //  ###
+                // #####
 
-            this.#move(elementArea, elementHead, x, y, x, y + 1);
-
-        } else if (type === ElementHead.TYPE_SAND_1) {
-            //   #
-            //  ###
-            // #####
-
-            if (!this.#move(elementArea, elementHead, x, y, x, y + 1)) {
-                let rnd = this.#random.nextInt(2);
-                if (rnd === 0) {
-                    this.#move(elementArea, elementHead, x, y, x + 1, y + 1)
-                } else {
-                    this.#move(elementArea, elementHead, x, y, x - 1, y + 1)
-                }
-            }
-        } else if (type === ElementHead.TYPE_SAND_2) {
-            //     #
-            //   #####
-            // #########
-
-            if (!this.#move(elementArea, elementHead, x, y, x, y + 1)) {
-                let rnd = this.#random.nextInt(2);
-                if (rnd === 0) {
-                    if (!this.#move(elementArea, elementHead, x, y, x + 1, y + 1)) {
-                        this.#move(elementArea, elementHead, x, y, x + 2, y + 1)
-                    }
-                } else {
-                    if (!this.#move(elementArea, elementHead, x, y, x - 1, y + 1)) {
-                        this.#move(elementArea, elementHead, x, y, x - 2, y + 1)
+                if (!this.#move(elementArea, elementHead, x, y, x, y + 1)) {
+                    let rnd = this.#random.nextInt(2);
+                    if (rnd === 0) {
+                        return this.#move(elementArea, elementHead, x, y, x + 1, y + 1)
+                    } else {
+                        return this.#move(elementArea, elementHead, x, y, x - 1, y + 1)
                     }
                 }
-            }
-        } else if (type === ElementHead.TYPE_FLUID_1) {
-            if (!this.#move(elementArea, elementHead, x, y, x, y + 1)) {
-                let rnd = this.#random.nextInt(2);
-                if (rnd === 0) {
-                    this.#move(elementArea, elementHead, x, y, x + 1, y)
-                } else {
-                    this.#move(elementArea, elementHead, x, y, x - 1, y)
-                }
-            }
-        } else if (type === ElementHead.TYPE_FLUID_2) {
-            if (!this.#move(elementArea, elementHead, x, y, x, y + 1)) {
-                let rnd = this.#random.nextInt(2);
-                if (rnd === 0) {
-                    if (this.#move(elementArea, elementHead, x, y, x + 1, y)) {
-                        if (this.#move(elementArea, elementHead, x + 1, y, x + 2, y)) {
-                            this.#move(elementArea, elementHead, x + 2, y, x + 3, y)
+                return true;
+
+            case ElementHead.TYPE_SAND_2:
+                //     #
+                //   #####
+                // #########
+
+                if (!this.#move(elementArea, elementHead, x, y, x, y + 1)) {
+                    let rnd = this.#random.nextInt(2);
+                    if (rnd === 0) {
+                        if (!this.#move(elementArea, elementHead, x, y, x + 1, y + 1)) {
+                            return this.#move(elementArea, elementHead, x, y, x + 2, y + 1)
                         }
-                    }
-                } else {
-                    if (this.#move(elementArea, elementHead, x, y, x - 1, y)) {
-                        if (this.#move(elementArea, elementHead, x - 1, y, x - 2, y)) {
-                            this.#move(elementArea, elementHead, x - 2, y, x - 3, y)
+                        return true;
+                    } else {
+                        if (!this.#move(elementArea, elementHead, x, y, x - 1, y + 1)) {
+                            return this.#move(elementArea, elementHead, x, y, x - 2, y + 1)
                         }
+                        return true;
                     }
                 }
-            }
-        }
+                return true;
 
-        let behaviour = ElementHead.getBehaviour(elementHead);
-        if (behaviour === ElementHead.BEHAVIOUR_GRASS) {
-            this.#grow(elementArea, elementHead, x, y);
+            case ElementHead.TYPE_FLUID_1:
+                if (!this.#move(elementArea, elementHead, x, y, x, y + 1)) {
+                    let rnd = this.#random.nextInt(2);
+                    if (rnd === 0) {
+                        return this.#move(elementArea, elementHead, x, y, x + 1, y)
+                    } else {
+                        return this.#move(elementArea, elementHead, x, y, x - 1, y)
+                    }
+                }
+                return true;
+
+            case ElementHead.TYPE_FLUID_2:
+                if (!this.#move(elementArea, elementHead, x, y, x, y + 1)) {
+                    let rnd = this.#random.nextInt(2);
+                    if (rnd === 0) {
+                        if (this.#move(elementArea, elementHead, x, y, x + 1, y)) {
+                            if (this.#move(elementArea, elementHead, x + 1, y, x + 2, y)) {
+                                this.#move(elementArea, elementHead, x + 2, y, x + 3, y)
+                            }
+                            return true;
+                        }
+                        return false;
+                    } else {
+                        if (this.#move(elementArea, elementHead, x, y, x - 1, y)) {
+                            if (this.#move(elementArea, elementHead, x - 1, y, x - 2, y)) {
+                                this.#move(elementArea, elementHead, x - 2, y, x - 3, y)
+                            }
+                            return true;
+                        }
+                        return false;
+                    }
+                }
+                return true;
         }
+        throw "Unknown element type: " + type;
     }
 
     #move(elementArea, elementHead, x, y, x2, y2) {
@@ -657,6 +714,103 @@ class ElementProcessor {
             }
         }
     }
+
+    #fishLive(elementArea, elementHead, x, y) {
+        // check has body
+        if (x === elementArea.getWidth() - 1
+                || ElementHead.getBehaviour(elementArea.getElementHead(x + 1, y)) !== ElementHead.BEHAVIOUR_FISH_BODY) {
+            // => turn into rock
+            elementArea.setElement(x, y, Brushes.FISH_CORPSE.apply(x, y));
+        }
+
+        // move down if flying
+        if (y < elementArea.getHeight() - 1) {
+            if (ElementHead.getWeight(elementArea.getElementHead(x, y + 1)) < ElementHead.WEIGHT_WATER
+                    && ElementHead.getWeight(elementArea.getElementHead(x + 1, y + 1)) < ElementHead.WEIGHT_WATER) {
+                elementArea.swap(x, y, x, y + 1);
+                elementArea.swap(x + 1, y, x + 1, y + 1);
+                return;
+            }
+        }
+
+        // once a while check if there is a water
+        // once a while move
+
+        const action = this.#random.nextInt(SandGame.OPT_CYCLES_PER_SECOND);
+        if (action === 0) {
+            let w = 0;
+            w += this.#isWaterEnvironment(elementArea, x - 1, y) ? 1 : 0;
+            w += this.#isWaterEnvironment(elementArea, x + 2, y) ? 1 : 0;
+            w += this.#isWaterEnvironment(elementArea, x, y + 1) ? 1 : 0;
+            w += this.#isWaterEnvironment(elementArea, x, y - 1) ? 1 : 0;
+            w += this.#isWaterEnvironment(elementArea, x + 1, y + 1) ? 1 : 0;
+            w += this.#isWaterEnvironment(elementArea, x + 1, y - 1) ? 1 : 0;
+
+            let dried = ElementHead.getSpecial(elementHead);
+            if (w >= 5) {
+                // enough water
+                if (dried > 0) {
+                    // reset counter
+                    elementArea.setElementHead(x, y, ElementHead.setSpecial(elementHead, 0));
+                }
+            } else {
+                // not enough water
+                dried++;
+                if (dried > 5) {
+                    // turn into rock
+                    elementArea.setElement(x, y, Brushes.FISH_CORPSE.apply(x, y));
+                } else {
+                    elementArea.setElementHead(x, y, ElementHead.setSpecial(elementHead, dried));
+                }
+            }
+        } else if (action < SandGame.OPT_CYCLES_PER_SECOND / 10) {
+            const rx = this.#random.nextInt(3) - 1;
+            const ry = this.#random.nextInt(3) - 1;
+            if (rx === 0 && ry === 0) {
+                return;
+            }
+            // move fish and it's body
+            if (this.#isWater(elementArea, rx + x, ry + y)
+                    && this.#isWater(elementArea, rx + x + 1, ry + y)) {
+                elementArea.swap(x, y, rx + x, ry + y);
+                elementArea.swap(x + 1, y, rx + x + 1, ry + y);
+            }
+        }
+    }
+
+    #fishBodyLive(elementArea, elementHead, x, y) {
+        if (x === 0 || ElementHead.getBehaviour(elementArea.getElementHead(x - 1, y)) !== ElementHead.BEHAVIOUR_FISH) {
+            // the fish lost it's head :(
+            // => turn into rock
+            elementArea.setElement(x, y, Brushes.FISH_CORPSE.apply(x, y));
+        }
+    }
+
+    #isWater(elementArea, x, y) {
+        if (!elementArea.isValidPosition(x, y)) {
+            return false;
+        }
+        let targetElementHead = elementArea.getElementHead(x, y);
+        if (ElementHead.getType(targetElementHead) !== ElementHead.TYPE_FLUID_2) {
+            return false;
+        }
+        return true;
+    }
+
+    #isWaterEnvironment(elementArea, x, y) {
+        if (!elementArea.isValidPosition(x, y)) {
+            return false;
+        }
+        let targetElementHead = elementArea.getElementHead(x, y);
+        if (ElementHead.getType(targetElementHead) === ElementHead.TYPE_FLUID_2) {
+            return true;
+        }
+        let behaviour = ElementHead.getBehaviour(targetElementHead);
+        if (behaviour === ElementHead.BEHAVIOUR_FISH || behaviour === ElementHead.BEHAVIOUR_FISH_BODY) {
+            return true;
+        }
+        return false;
+    }
 }
 
 /**
@@ -719,6 +873,90 @@ class GrassPlantingExtension {
                 this.#elementArea.setElement(x, y, this.#brush.apply(x, y));
             }
         }
+    }
+}
+
+/**
+ *
+ * @author Patrik Harag
+ * @version 2022-09-20
+ */
+class FishSpawningExtension {
+
+    #elementArea;
+    #random;
+    #brushHead;
+    #brushBody;
+
+    #counterStartValue = 2;
+    #counter = 2;
+
+    constructor(elementArea, random, brushHead, brushBody) {
+        this.#elementArea = elementArea;
+        this.#random = random;
+        this.#brushHead = brushHead;
+        this.#brushBody = brushBody;
+    }
+
+    run() {
+        if (this.#counter-- === 0) {
+            this.#counter = this.#counterStartValue;
+
+            const x = this.#random.nextInt(this.#elementArea.getWidth() - 2) + 1;
+            const y = this.#random.nextInt(this.#elementArea.getHeight() - 2) + 1;
+
+            if (this.#couldSpawnHere(this.#elementArea, x, y)) {
+                this.#elementArea.setElement(x, y, this.#brushHead.apply(x, y));
+                this.#elementArea.setElement(x + 1, y, this.#brushBody.apply(x + 1, y));
+
+                // increase difficulty of spawning fish again
+                this.#counterStartValue = this.#counterStartValue << 2;
+            }
+        }
+    }
+
+    #couldSpawnHere(elementArea, x, y) {
+        // space around
+        if (x < 1 || y < 1) {
+            return false;
+        }
+        if (x + 1 >= elementArea.getWidth() || y + 1 >= elementArea.getHeight()) {
+            return false;
+        }
+
+        // water around
+        if (!this.#isWater(elementArea, x, y) || !this.#isWater(elementArea, x - 1, y)
+                || !this.#isWater(elementArea, x + 1, y) || !this.#isWater(elementArea, x + 2, y)
+                || !this.#isWater(elementArea, x + 1, y + 1) || !this.#isWater(elementArea, x + 2, y + 1)
+                || !this.#isWater(elementArea, x + 1, y - 1) || !this.#isWater(elementArea, x + 2, y - 1)) {
+            return false;
+        }
+
+        // sand around
+        return this.#isSand(elementArea, x, y + 2)
+                || this.#isSand(elementArea, x + 1, y + 2);
+    }
+
+    #isWater(elementArea, x, y) {
+        if (!elementArea.isValidPosition(x, y)) {
+            return false;
+        }
+        let targetElementHead = elementArea.getElementHead(x, y);
+        if (ElementHead.getType(targetElementHead) !== ElementHead.TYPE_FLUID_2) {
+            return false;
+        }
+        return true;
+    }
+
+    #isSand(elementArea, x, y) {
+        if (!elementArea.isValidPosition(x, y)) {
+            return false;
+        }
+        let targetElementHead = elementArea.getElementHead(x, y);
+        if (ElementHead.getType(targetElementHead) !== ElementHead.TYPE_SAND_2) {
+            return false;
+        }
+        return true;
     }
 }
 
@@ -1006,5 +1244,23 @@ export class Brushes {
         new Element(
                 ElementHead.of(ElementHead.TYPE_FALLING, ElementHead.WEIGHT_POWDER, ElementHead.BEHAVIOUR_GRASS, 6),
                 ElementTail.of(0, 65,  0, 0))
+    ]);
+
+    static FISH = RandomBrush.of([
+        new Element(
+                ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_POWDER, ElementHead.BEHAVIOUR_FISH, 0),
+                ElementTail.of(37, 53, 66, 0)),
+    ]);
+
+    static FISH_BODY = RandomBrush.of([
+        new Element(
+            ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_POWDER, ElementHead.BEHAVIOUR_FISH_BODY, 0),
+            ElementTail.of(37, 53, 66, 0)),
+    ]);
+
+    static FISH_CORPSE = RandomBrush.of([
+        new Element(
+            ElementHead.of(ElementHead.TYPE_SAND_2, ElementHead.WEIGHT_POWDER),
+            ElementTail.of(61, 68, 74, 0)),
     ]);
 }
