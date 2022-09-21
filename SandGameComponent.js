@@ -5,7 +5,7 @@ import { SandGame, Brushes } from "./SandGame.js";
  * @requires jQuery
  *
  * @author Patrik Harag
- * @version 2022-09-09
+ * @version 2022-09-21
  */
 export class SandGameComponent {
 
@@ -20,10 +20,10 @@ export class SandGameComponent {
     #heightPoints;
 
     #nodeCanvas;
-    #nodeTools;
-    #nodeOptions;
     #nodeLabelCounter;
     #nodeLabelSize;
+    #nodeLinkStart;
+    #nodeLinkStop;
 
     /** @type SandGame */
     #sandGame;
@@ -39,13 +39,7 @@ export class SandGameComponent {
     }
 
     createNode() {
-        this.#nodeTools = DomBuilder.div({ class: 'sand-game-toolbar' });
-        this.#nodeOptions = DomBuilder.div({ class: 'sand-game-options' });
-        this.#nodeLabelCounter = DomBuilder.span('', { class: 'sand-game-counter' });
-        this.#nodeLabelSize = DomBuilder.span(`${this.#widthPoints} x ${this.#heightPoints}, scale=${this.#init.scale}`,{
-            class: 'sand-game-size'
-        });
-
+        // prepare canvas
         this.#nodeCanvas = DomBuilder.element('canvas', {
             class: 'sand-game-canvas',
             width: this.#widthPoints + 'px',
@@ -53,10 +47,41 @@ export class SandGameComponent {
         });
         this.#nodeCanvas.bind('contextmenu', e => false);
 
+        // prepare options
+        this.#nodeLabelCounter = DomBuilder.span('', { class: 'sand-game-counter' });
+        this.#nodeLabelSize = DomBuilder.span(`${this.#widthPoints} x ${this.#heightPoints}, scale=${this.#init.scale}`,{
+            class: 'sand-game-size'
+        });
+        this.#nodeLinkStart = DomBuilder.link('[start]', { class: 'start-button' }, e => {
+            this.#sandGame.startProcessing();
+            this.#nodeLinkStop.show();
+            this.#nodeLinkStart.hide();
+        });
+        this.#nodeLinkStart.hide();
+        this.#nodeLinkStop = DomBuilder.link('[stop]', { class: 'stop-button' }, e => {
+            this.#sandGame.stopProcessing();
+            this.#nodeLinkStop.hide();
+            this.#nodeLinkStart.show();
+        });
+        this.#nodeLinkStop.hide();
+
+        // create component node
         return DomBuilder.div({ class: 'sand-game-component' }, [
-            this.#nodeTools,
+            DomBuilder.div({ class: 'sand-game-toolbar' }, [
+                this.#createBrushButton('Sand', 'sand', Brushes.SAND),
+                this.#createBrushButton('Soil', 'soil', Brushes.SOIL),
+                this.#createBrushButton('Gravel', 'gravel', Brushes.STONE),
+                this.#createBrushButton('Wall', 'wall', Brushes.WALL),
+                this.#createBrushButton('Water', 'water', Brushes.WATER),
+                this.#createBrushButton('Erase', 'air', Brushes.AIR)
+            ]),
             this.#nodeCanvas,
-            this.#nodeOptions
+            DomBuilder.div({ class: 'sand-game-options' }, [
+                this.#nodeLabelSize,
+                this.#nodeLabelCounter,
+                this.#nodeLinkStart,
+                this.#nodeLinkStop
+            ])
         ]);
     }
 
@@ -77,25 +102,16 @@ export class SandGameComponent {
         // mouse handling
         this.#initMouseHandling(this.#sandGame);
 
-        // tools
-        this.#nodeTools.append([
-            this.#createBrushButton('Sand', 'sand', Brushes.SAND),
-            this.#createBrushButton('Soil', 'soil', Brushes.SOIL),
-            this.#createBrushButton('Gravel', 'gravel', Brushes.STONE),
-            this.#createBrushButton('Wall', 'wall', Brushes.WALL),
-            this.#createBrushButton('Water', 'water', Brushes.WATER),
-            this.#createBrushButton('Erase', 'air', Brushes.AIR),
-        ]);
+        // start rendering
+        this.#sandGame.startRendering();
 
-        // options
-        this.#nodeOptions.append([
-            this.#nodeLabelSize,
-            this.#nodeLabelCounter
-        ]);
+        this.#nodeLinkStart.show();  // processing can be started now
     }
 
     start() {
-        this.#sandGame.start();
+        this.#sandGame.startProcessing();
+        this.#nodeLinkStop.show();
+        this.#nodeLinkStart.hide();
     }
 
     #initMouseHandling(sandGame) {

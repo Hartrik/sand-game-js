@@ -38,11 +38,18 @@
     background-color: rgb(4, 135, 186);
 }
 
-.sand-game-component .sand-game-options .sand-game-counter, .sand-game-component .sand-game-options .sand-game-size {
+.sand-game-component .sand-game-options .sand-game-counter,
+.sand-game-component .sand-game-options .sand-game-size {
     font-size: small;
     color: gray;
 }
 
 .sand-game-component .sand-game-options .sand-game-counter {
     margin-left: 2em;
+}
+
+.sand-game-component .sand-game-options .start-button,
+.sand-game-component .sand-game-options .stop-button {
+    font-size: small;
+    margin-left: 1em;
 }

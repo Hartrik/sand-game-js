@@ -2,7 +2,7 @@
 /**
  *
  * @author Patrik Harag
- * @version 2022-09-20
+ * @version 2022-09-21
  */
 export class SandGame {
 
@@ -11,6 +11,12 @@ export class SandGame {
 
     /** @type ElementArea */
     #elementArea;
+
+    /** @type number */
+    #width;
+
+    /** @type number */
+    #height;
 
     /** @type FastRandom */
     #random;
@@ -27,11 +33,11 @@ export class SandGame {
     /** @type Renderer */
     #renderer;
 
-    /** @type number */
-    #width;
+    /** @type number|null */
+    #processorIntervalHandle = null;
 
-    /** @type number */
-    #height;
+    /** @type number|null */
+    #rendererIntervalHandle = null;
 
     /** @type function[] */
     #onRendered = [];
@@ -62,16 +68,31 @@ export class SandGame {
         this.#onProcessed.push(() => fishSpawningExtension.run());
     }
 
-    start() {
-        // processing
-        {
-            let interval = Math.trunc(1000 / SandGame.OPT_CYCLES_PER_SECOND);  // ms
-            setInterval(() => this.#doProcessing(), interval);
+    startProcessing() {
+        if (this.#processorIntervalHandle === null) {
+            const interval = Math.trunc(1000 / SandGame.OPT_CYCLES_PER_SECOND);  // ms
+            this.#processorIntervalHandle = setInterval(() => this.#doProcessing(), interval);
         }
-        // rendering
-        {
-            let interval = Math.trunc(1000 / SandGame.OPT_FRAMES_PER_SECOND);  // ms
-            setInterval(() => this.#doRendering(), interval);
+    }
+
+    startRendering() {
+        if (this.#rendererIntervalHandle === null) {
+            const interval = Math.trunc(1000 / SandGame.OPT_FRAMES_PER_SECOND);  // ms
+            this.#rendererIntervalHandle = setInterval(() => this.#doRendering(), interval);
+        }
+    }
+
+    stopProcessing() {
+        if (this.#processorIntervalHandle !== null) {
+            clearInterval(this.#processorIntervalHandle);
+            this.#processorIntervalHandle = null;
+        }
+    }
+
+    stopRendering() {
+        if (this.#rendererIntervalHandle !== null) {
+            clearInterval(this.#rendererIntervalHandle);
+            this.#rendererIntervalHandle = null;
         }
     }
 
@@ -719,7 +740,7 @@ class ElementProcessor {
         // check has body
         if (x === elementArea.getWidth() - 1
                 || ElementHead.getBehaviour(elementArea.getElementHead(x + 1, y)) !== ElementHead.BEHAVIOUR_FISH_BODY) {
-            // => turn into rock
+            // => turn into corpse
             elementArea.setElement(x, y, Brushes.FISH_CORPSE.apply(x, y));
         }
 
@@ -757,7 +778,7 @@ class ElementProcessor {
                 // not enough water
                 dried++;
                 if (dried > 5) {
-                    // turn into rock
+                    // turn into corpse
                     elementArea.setElement(x, y, Brushes.FISH_CORPSE.apply(x, y));
                 } else {
                     elementArea.setElementHead(x, y, ElementHead.setSpecial(elementHead, dried));
@@ -781,7 +802,7 @@ class ElementProcessor {
     #fishBodyLive(elementArea, elementHead, x, y) {
         if (x === 0 || ElementHead.getBehaviour(elementArea.getElementHead(x - 1, y)) !== ElementHead.BEHAVIOUR_FISH) {
             // the fish lost it's head :(
-            // => turn into rock
+            // => turn into corpse
             elementArea.setElement(x, y, Brushes.FISH_CORPSE.apply(x, y));
         }
     }
