@@ -173,6 +173,10 @@ export class SandGame {
         }
     }
 
+    template() {
+        return new TemplatePainter(this);
+    }
+
     addOnRendered(onRenderedFunc) {
         this.#onRendered.push(onRenderedFunc);
     }
@@ -183,6 +187,14 @@ export class SandGame {
 
     getCyclesPerSecond() {
         return this.#cyclesCounter.getValue();
+    }
+
+    getWidth() {
+        return this.#width;
+    }
+
+    getHeight() {
+        return this.#height;
     }
 }
 
@@ -233,6 +245,104 @@ class RandomBrush extends Brush {
 
     apply(x, y) {
         return this.#elements[Math.trunc(Math.random() * this.#elements.length)];
+    }
+}
+
+/**
+ *
+ * @author Patrik Harag
+ * @version 2022-09-21
+ */
+class TemplatePainter {
+
+    /** @type SandGame */
+    #sandGame;
+
+    /** @type string[]|null */
+    #blueprint = null;
+    /** @type object|null */
+    #brushes = null;
+
+    /** @type number */
+    #maxHeight = Number.MAX_SAFE_INTEGER;
+
+    /** @type string */
+    #verticalAlign = 'bottom';
+
+    /**
+     *
+     * @param sandGame {SandGame}
+     */
+    constructor(sandGame) {
+        this.#sandGame = sandGame;
+    }
+
+    /**
+     *
+     * @param blueprint
+     * @returns {TemplatePainter}
+     */
+    withBlueprint(blueprint) {
+        this.#blueprint = blueprint;
+        return this;
+    }
+
+    /**
+     *
+     * @param brushes
+     * @returns {TemplatePainter}
+     */
+    withBrushes(brushes) {
+        this.#brushes = brushes;
+        return this;
+    }
+
+    /**
+     *
+     * @param maxHeight max template height
+     * @param align {string} bottom|top
+     * @returns {TemplatePainter}
+     */
+    withMaxHeight(maxHeight, align='bottom') {
+        this.#maxHeight = maxHeight;
+        this.#verticalAlign = align;
+        return this;
+    }
+
+    paint() {
+        if (this.#blueprint === null || this.#blueprint.length === 0) {
+            throw 'Blueprint not set';
+        }
+        if (this.#brushes === null) {
+            throw 'Brushes not set';
+        }
+
+        const w = this.#blueprint[0].length;
+        const h = this.#blueprint.length;
+
+        const ww = Math.ceil(this.#sandGame.getWidth() / w);
+        const hh = Math.ceil(Math.min(this.#sandGame.getHeight(), this.#maxHeight) / h);
+        // note: rounding up is intentional - we don't want gaps, drawRectangle can handle drawing out of canvas
+
+        const verticalOffset = (this.#verticalAlign === 'bottom' ? this.#sandGame.getHeight() - (hh * h) : 0);
+
+        for (let y = 0; y < h; y++) {
+            const line = this.#blueprint[y];
+            for (let x = 0; x < Math.min(w, line.length); x++) {
+                const char = line.charAt(x);
+                let brush = this.#brushes[char];
+                if (brush === undefined) {
+                    if (char === ' ') {
+                        // let this cell empty
+                        continue;
+                    }
+                    throw 'Brush not found: ' + char;
+                }
+                this.#sandGame.drawRectangle(
+                        x * ww, verticalOffset + (y * hh),
+                        x * ww + ww, verticalOffset + (y * hh) + hh, brush);
+            }
+        }
     }
 }
 
@@ -322,7 +432,10 @@ class ElementArea {
     }
 
     setElement(x, y, element) {
-        this.setElementHeadAndTail(x, y, element.elementHead, element.elementTail);
+        if (element !== null) {
+            this.setElementHeadAndTail(x, y, element.elementHead, element.elementTail);
+        }
+        // brushes can produce nulls
     }
 
     setElementHeadAndTail(x, y, elementHead, elementTail) {
@@ -1284,4 +1397,21 @@ export class Brushes {
             ElementHead.of(ElementHead.TYPE_SAND_2, ElementHead.WEIGHT_POWDER),
             ElementTail.of(61, 68, 74, 0)),
     ]);
+
+    /**
+     *
+     * @param brush
+     * @param intensity {number} 0..1
+     */
+    static withIntensity(brush, intensity) {
+        class WrappingBrush extends Brush {
+            apply(x, y) {
+                if (Math.random() < intensity) {
+                    return brush.apply(x, y);
+                }
+                return null;
+            }
+        }
+        return new WrappingBrush();
+    }
 }
