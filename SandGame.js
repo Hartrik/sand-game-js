@@ -2,7 +2,7 @@
 /**
  *
  * @author Patrik Harag
- * @version 2022-09-21
+ * @version 2022-09-22
  */
 export class SandGame {
 
@@ -114,6 +114,49 @@ export class SandGame {
         }
     }
 
+    graphics() {
+        return new SandGameGraphics(this.#elementArea);
+    }
+
+    template() {
+        return new TemplatePainter(this.graphics());
+    }
+
+    addOnRendered(onRenderedFunc) {
+        this.#onRendered.push(onRenderedFunc);
+    }
+
+    getFramesPerSecond() {
+        return this.#framesCounter.getValue();
+    }
+
+    getCyclesPerSecond() {
+        return this.#cyclesCounter.getValue();
+    }
+
+    getWidth() {
+        return this.#width;
+    }
+
+    getHeight() {
+        return this.#height;
+    }
+}
+
+/**
+ *
+ * @author Patrik Harag
+ * @version 2022-09-22
+ */
+class SandGameGraphics {
+
+    /** @type ElementArea */
+    #elementArea;
+
+    constructor(elementArea) {
+        this.#elementArea = elementArea;
+    }
+
     /**
      *
      * @param x {number}
@@ -126,10 +169,10 @@ export class SandGame {
     }
 
     drawRectangle(x1, y1, x2, y2, brush) {
-        x1 = Math.max(Math.min(x1, this.#width), 0);
-        x2 = Math.max(Math.min(x2, this.#width), 0);
-        y1 = Math.max(Math.min(y1, this.#height), 0);
-        y2 = Math.max(Math.min(y2, this.#height), 0);
+        x1 = Math.max(Math.min(x1, this.getWidth()), 0);
+        x2 = Math.max(Math.min(x2, this.getWidth()), 0);
+        y1 = Math.max(Math.min(y1, this.getHeight()), 0);
+        y2 = Math.max(Math.min(y2, this.getHeight()), 0);
 
         for (let y = y1; y < y2; y++) {
             for (let x = x1; x < x2; x++) {
@@ -143,7 +186,7 @@ export class SandGame {
         let consumer = (x, y) => {
             this.drawRectangle(x-d, y-d, x+d, y+d, brush);
         };
-        SandGame.#lineAlgorithm(x1, y1, x2, y2, consumer);
+        SandGameGraphics.#lineAlgorithm(x1, y1, x2, y2, consumer);
     }
 
     static #lineAlgorithm(x1, y1, x2, y2, consumer) {
@@ -173,28 +216,17 @@ export class SandGame {
         }
     }
 
-    template() {
-        return new TemplatePainter(this);
-    }
-
-    addOnRendered(onRenderedFunc) {
-        this.#onRendered.push(onRenderedFunc);
-    }
-
-    getFramesPerSecond() {
-        return this.#framesCounter.getValue();
-    }
-
-    getCyclesPerSecond() {
-        return this.#cyclesCounter.getValue();
+    floodFill(x, y, brush) {
+        let floodFillPainter = new FloodFillPainter(this.#elementArea);
+        floodFillPainter.paint(x, y, brush);
     }
 
     getWidth() {
-        return this.#width;
+        return this.#elementArea.getWidth();
     }
 
     getHeight() {
-        return this.#height;
+        return this.#elementArea.getHeight();
     }
 }
 
@@ -255,8 +287,8 @@ class RandomBrush extends Brush {
  */
 class TemplatePainter {
 
-    /** @type SandGame */
-    #sandGame;
+    /** @type SandGameGraphics */
+    #graphics;
 
     /** @type string[]|null */
     #blueprint = null;
@@ -271,10 +303,10 @@ class TemplatePainter {
 
     /**
      *
-     * @param sandGame {SandGame}
+     * @param graphics {SandGameGraphics}
      */
-    constructor(sandGame) {
-        this.#sandGame = sandGame;
+    constructor(graphics) {
+        this.#graphics = graphics;
     }
 
     /**
@@ -320,11 +352,11 @@ class TemplatePainter {
         const w = this.#blueprint[0].length;
         const h = this.#blueprint.length;
 
-        const ww = Math.ceil(this.#sandGame.getWidth() / w);
-        const hh = Math.ceil(Math.min(this.#sandGame.getHeight(), this.#maxHeight) / h);
+        const ww = Math.ceil(this.#graphics.getWidth() / w);
+        const hh = Math.ceil(Math.min(this.#graphics.getHeight(), this.#maxHeight) / h);
         // note: rounding up is intentional - we don't want gaps, drawRectangle can handle drawing out of canvas
 
-        const verticalOffset = (this.#verticalAlign === 'bottom' ? this.#sandGame.getHeight() - (hh * h) : 0);
+        const verticalOffset = (this.#verticalAlign === 'bottom' ? this.#graphics.getHeight() - (hh * h) : 0);
 
         for (let y = 0; y < h; y++) {
             const line = this.#blueprint[y];
@@ -338,11 +370,92 @@ class TemplatePainter {
                     }
                     throw 'Brush not found: ' + char;
                 }
-                this.#sandGame.drawRectangle(
+                this.#graphics.drawRectangle(
                         x * ww, verticalOffset + (y * hh),
                         x * ww + ww, verticalOffset + (y * hh) + hh, brush);
             }
         }
+    }
+}
+
+/**
+ *
+ * @author Patrik Harag
+ * @version 2022-09-22
+ */
+class FloodFillPainter {
+
+    /** @type ElementArea */
+    #elementArea;
+
+    /**
+     *
+     * @param elementArea {ElementArea}
+     */
+    constructor(elementArea) {
+        this.#elementArea = elementArea;
+    }
+
+    /**
+     *
+     * @param x {number}
+     * @param y {number}
+     * @param brush {Brush}
+     */
+    paint(x, y, brush) {
+        const pattern = 0x00000FFF;  // type, weight, behaviour
+        const matcher = this.#elementArea.getElementHead(x, y) & pattern;
+
+        const w = this.#elementArea.getWidth();
+        const h = this.#elementArea.getHeight();
+
+        let point = x + y*w;
+
+        const pointSet = new Set();
+        const queue = [];
+
+        do {
+            let x = point % w;
+            let y = Math.trunc(point / w);
+
+            while (x > 0 && this.#equals(x - 1, y, pattern, matcher)) {
+                x--;
+            }
+
+            let spanUp = false;
+            let spanDown = false;
+
+            while (x < w && this.#equals(x, y, pattern, matcher)) {
+                const nextPoint = x + y*w;
+                if (pointSet.has(nextPoint)) {
+                    break;
+                }
+
+                this.#elementArea.setElement(x, y, brush.apply(x, y));
+                pointSet.add(nextPoint);
+
+                if (!spanUp && y > 0 && this.#equals(x, y - 1, pattern, matcher)) {
+                    queue.push(x + (y - 1)*w);
+                    spanUp = true;
+                } else if (spanUp && y > 0 && this.#equals(x, y - 1, pattern, matcher)) {
+                    spanUp = false;
+                }
+
+                if (!spanDown && y < h - 1 && this.#equals(x, y + 1, pattern, matcher)) {
+                    queue.push(x + (y + 1)*w);
+                    spanDown = true;
+                } else if (spanDown && y < h - 1 && this.#equals(x, y + 1, pattern, matcher)) {
+                    spanDown = false;
+                }
+
+                x++;
+            }
+        } while ((point = queue.pop()) != null);
+    }
+
+    #equals(x, y, pattern, matcher) {
+        let elementHead = this.#elementArea.getElementHead(x, y);
+        return (elementHead & pattern) === matcher;
     }
 }
 

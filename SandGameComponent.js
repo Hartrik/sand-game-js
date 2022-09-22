@@ -5,7 +5,7 @@ import { SandGame, Brushes } from "./SandGame.js";
  * @requires jQuery
  *
  * @author Patrik Harag
- * @version 2022-09-21
+ * @version 2022-09-22
  */
 export class SandGameComponent {
 
@@ -133,11 +133,21 @@ export class SandGameComponent {
             const [x, y] = getActualMousePosition(e);
             lastX = x;
             lastY = y;
+            if (e.buttons === 1) {
+                brush = this.#brush;
+            } else if (e.buttons === 2) {
+                brush = Brushes.AIR;
+            } else if (e.buttons === 4) {
+                e.preventDefault();
+                sandGame.graphics().floodFill(x, y, this.#brush);
+                brush = null;
+                return;
+            }
             brush = (e.buttons === 1) ? this.#brush : Brushes.AIR;
             ctrlPressed = e.ctrlKey;
             shiftPressed = e.shiftKey;
             if (!ctrlPressed && !shiftPressed) {
-                sandGame.drawLine(x, y, x, y, this.#init.brushSize, brush);
+                sandGame.graphics().drawLine(x, y, x, y, this.#init.brushSize, brush);
             }
         });
         domNode.addEventListener('mousemove', (e) => {
@@ -146,7 +156,7 @@ export class SandGameComponent {
             }
             if (!ctrlPressed && !shiftPressed) {
                 const [x, y] = getActualMousePosition(e);
-                sandGame.drawLine(lastX, lastY, x, y, this.#init.brushSize, brush);
+                sandGame.graphics().drawLine(lastX, lastY, x, y, this.#init.brushSize, brush);
                 lastX = x;
                 lastY = y;
             }
@@ -161,10 +171,10 @@ export class SandGameComponent {
                 let minY = Math.min(lastY, y);
                 let maxX = Math.max(lastX, x);
                 let maxY = Math.max(lastY, y);
-                sandGame.drawRectangle(minX, minY, maxX, maxY, brush);
+                sandGame.graphics().drawRectangle(minX, minY, maxX, maxY, brush);
             } else if (shiftPressed) {
                 const [x, y] = getActualMousePosition(e);
-                sandGame.drawLine(lastX, lastY, x, y, this.#init.brushSize, brush);
+                sandGame.graphics().drawLine(lastX, lastY, x, y, this.#init.brushSize, brush);
             }
             brush = null;
         });
@@ -183,7 +193,7 @@ export class SandGameComponent {
             lastX = x;
             lastY = y;
             brush = this.#brush;
-            sandGame.drawLine(x, y, x, y, this.#init.brushSize, brush);
+            sandGame.graphics().drawLine(x, y, x, y, this.#init.brushSize, brush);
 
             e.preventDefault();
         });
@@ -192,7 +202,7 @@ export class SandGameComponent {
                 return;
             }
             const [x, y] = getActualTouchPosition(e);
-            sandGame.drawLine(lastX, lastY, x, y, this.#init.brushSize, brush);
+            sandGame.graphics().drawLine(lastX, lastY, x, y, this.#init.brushSize, brush);
             lastX = x;
             lastY = y;
 
