@@ -731,6 +731,8 @@ class ElementProcessor {
     /** @type number */
     #height;
 
+    #iteration;
+
     /** @type FastRandom */
     #random;
 
@@ -744,6 +746,7 @@ class ElementProcessor {
     constructor(width, height, random, defaultElement) {
         this.#width = width;
         this.#height = height;
+        this.#iteration = 0;
         this.#random = random;
         this.#defaultElement = defaultElement;
 
@@ -772,6 +775,7 @@ class ElementProcessor {
                 this.#nextPoint(elementArea, x, y);
             }
         }
+        this.#iteration++;
     }
 
     /**
@@ -990,11 +994,13 @@ class ElementProcessor {
             w += this.#isWaterEnvironment(elementArea, x + 2, y) ? 1 : 0;
             w += this.#isWaterEnvironment(elementArea, x, y + 1) ? 1 : 0;
             w += this.#isWaterEnvironment(elementArea, x, y - 1) ? 1 : 0;
-            w += this.#isWaterEnvironment(elementArea, x + 1, y + 1) ? 1 : 0;
-            w += this.#isWaterEnvironment(elementArea, x + 1, y - 1) ? 1 : 0;
+            if (w < 4) {
+                w += this.#isWaterEnvironment(elementArea, x + 1, y + 1) ? 1 : 0;
+                w += this.#isWaterEnvironment(elementArea, x + 1, y - 1) ? 1 : 0;
+            }
 
             let dried = ElementHead.getSpecial(elementHead);
-            if (w >= 5) {
+            if (w >= 4) {
                 // enough water
                 if (dried > 0) {
                     // reset counter
@@ -1484,13 +1490,13 @@ export class Brushes {
     static GRASS = RandomBrush.of([
         new Element(
                 ElementHead.of(ElementHead.TYPE_FALLING, ElementHead.WEIGHT_POWDER, ElementHead.BEHAVIOUR_GRASS, 7),
-                ElementTail.of(44, 92, 33, 0)),
+                ElementTail.of(44, 92, 33, ElementTail.MODIFIER_BLUR_ENABLED)),
         new Element(
                 ElementHead.of(ElementHead.TYPE_FALLING, ElementHead.WEIGHT_POWDER, ElementHead.BEHAVIOUR_GRASS, 5),
-                ElementTail.of(0, 72,  0, 0)),
+                ElementTail.of(0, 72,  0, ElementTail.MODIFIER_BLUR_ENABLED)),
         new Element(
                 ElementHead.of(ElementHead.TYPE_FALLING, ElementHead.WEIGHT_POWDER, ElementHead.BEHAVIOUR_GRASS, 6),
-                ElementTail.of(0, 65,  0, 0))
+                ElementTail.of(0, 65,  0, ElementTail.MODIFIER_BLUR_ENABLED))
     ]);
 
     static FISH = RandomBrush.of([
@@ -1510,6 +1516,7 @@ export class Brushes {
             ElementHead.of(ElementHead.TYPE_SAND_2, ElementHead.WEIGHT_POWDER),
             ElementTail.of(61, 68, 74, 0)),
     ]);
+
 
     /**
      *
