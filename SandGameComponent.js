@@ -133,16 +133,15 @@ export class SandGameComponent {
             const [x, y] = getActualMousePosition(e);
             lastX = x;
             lastY = y;
-            if (e.buttons === 1) {
-                brush = this.#brush;
-            } else if (e.buttons === 2) {
-                brush = Brushes.AIR;
-            } else if (e.buttons === 4) {
+
+            if (e.buttons === 4) {
+                // middle button
                 e.preventDefault();
                 sandGame.graphics().floodFill(x, y, this.#brush);
                 brush = null;
                 return;
             }
+
             brush = (e.buttons === 1) ? this.#brush : Brushes.AIR;
             ctrlPressed = e.ctrlKey;
             shiftPressed = e.shiftKey;
