@@ -34,9 +34,9 @@
               canvasHeightPx: height,
               brushSize: 5
           };
-          let sandGameComponent = new SandGameComponent(init);
-          root.append(sandGameComponent.createNode());
+          let sandGameComponent = new SandGameComponent(root, init);
           sandGameComponent.initialize();
+          sandGameComponent.enableBrushes();
           sandGameComponent.enableOptions();
           sandGameComponent.enableTemplateEditor();
           sandGameComponent.drawExample();

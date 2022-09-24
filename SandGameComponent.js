@@ -16,10 +16,15 @@ export class SandGameComponent {
         brushSize: 5
     };
 
-    #widthPoints;
-    #heightPoints;
+    #currentWidthPoints;
+    #currentHeightPoints;
+    #currentScale;
 
     #node = null;
+    #nodeHolderTopToolbar;
+    #nodeHolderCanvas;
+    #nodeHolderBottomToolbar;
+    #nodeHolderAdditionalTools;
 
     #nodeCanvas;
     #nodeLabelCounter;
@@ -32,22 +37,23 @@ export class SandGameComponent {
 
     #brush = Brushes.SAND;
 
-    constructor(init) {
+    constructor(rootNode, init) {
         if (init) {
             this.#init = init;
         }
-        this.#widthPoints = Math.trunc(this.#init.canvasWidthPx * this.#init.scale);
-        this.#heightPoints = Math.trunc(this.#init.canvasHeightPx * this.#init.scale);
-    }
 
-    createNode() {
-        // prepare canvas
-        this.#nodeCanvas = DomBuilder.element('canvas', {
-            class: 'sand-game-canvas',
-            width: this.#widthPoints + 'px',
-            height: this.#heightPoints + 'px'
-        });
-        this.#nodeCanvas.bind('contextmenu', e => false);
+        this.#currentWidthPoints = Math.trunc(this.#init.canvasWidthPx * this.#init.scale);
+        this.#currentHeightPoints = Math.trunc(this.#init.canvasHeightPx * this.#init.scale);
+        this.#currentScale = this.#init.scale;
+
+        // create component node
+        this.#node = DomBuilder.div({ class: 'sand-game-component' }, [
+            this.#nodeHolderTopToolbar = DomBuilder.div(),
+            this.#nodeHolderCanvas = DomBuilder.div(),
+            this.#nodeHolderBottomToolbar = DomBuilder.div(),
+            this.#nodeHolderAdditionalTools = DomBuilder.div(),
+        ]);
+        rootNode.append(this.#node);
 
         // prepare options
         this.#nodeLabelCounter = DomBuilder.span('', { class: 'sand-game-counter' });
@@ -64,20 +70,6 @@ export class SandGameComponent {
             this.#nodeLinkStart.show();
         });
         this.#nodeLinkStop.hide();
-
-        // create component node
-        this.#node = DomBuilder.div({ class: 'sand-game-component' }, [
-            DomBuilder.div({ class: 'sand-game-toolbar' }, [
-                this.#createBrushButton('Sand', 'sand', Brushes.SAND),
-                this.#createBrushButton('Soil', 'soil', Brushes.SOIL),
-                this.#createBrushButton('Gravel', 'gravel', Brushes.STONE),
-                this.#createBrushButton('Wall', 'wall', Brushes.WALL),
-                this.#createBrushButton('Water', 'water', Brushes.WATER),
-                this.#createBrushButton('Erase', 'air', Brushes.AIR)
-            ]),
-            this.#nodeCanvas
-        ]);
-        return this.#node;
     }
 
     #createBrushButton(name, cssName, brush) {
@@ -88,28 +80,31 @@ export class SandGameComponent {
     }
 
     initialize() {
-        if (this.#node === null) {
-            throw 'Illegal state: Node is not created yet';
-        }
+        this.#nodeCanvas = this.#createCanvas();
+        this.#nodeHolderCanvas.append(this.#nodeCanvas);
 
         // scale up
-        this.#nodeCanvas.width(this.#init.canvasWidthPx);
-        this.#nodeCanvas.height(this.#init.canvasHeightPx);
+        this.#nodeCanvas.width(this.#currentWidthPoints / this.#currentScale);
+        this.#nodeCanvas.height(this.#currentHeightPoints / this.#currentScale);
 
         // set size
-        this.#nodeLabelSize.text(`${this.#widthPoints} x ${this.#heightPoints}, scale=${this.#init.scale}`);
+        this.#nodeLabelSize.text(`${this.#currentWidthPoints} x ${this.#currentHeightPoints}, scale=${this.#currentScale}`);
 
         // init game
-        let context = this.#nodeCanvas[0].getContext('2d');
+        let domCanvasNode = this.#nodeCanvas[0];
+        let context = domCanvasNode.getContext('2d');
+        // TODO: domCanvasNode.style.imageRendering = "pixelated";
+
         let defaultElement = Brushes.AIR.apply(0, 0);
-        this.#sandGame = new SandGame(context, this.#widthPoints, this.#heightPoints, defaultElement);
+        this.#sandGame = new SandGame(context, this.#currentWidthPoints, this.#currentHeightPoints, defaultElement);
         this.#sandGame.addOnRendered(() => {
             this.#nodeLabelCounter.text(this.#sandGame.getFramesPerSecond() + ' frames/s, '
                     + this.#sandGame.getCyclesPerSecond() + ' cycles/s');
         });
 
         // mouse handling
-        this.#initMouseHandling(this.#sandGame);
+        this.#nodeCanvas.bind('contextmenu', e => false);
+        this.#initMouseHandling(domCanvasNode, this.#sandGame);
 
         // start rendering
         this.#sandGame.startRendering();
@@ -117,13 +112,19 @@ export class SandGameComponent {
         this.#nodeLinkStart.show();  // processing can be started now
     }
 
-    #initMouseHandling(sandGame) {
-        const domNode = this.#nodeCanvas[0];
+    #createCanvas() {
+        return DomBuilder.element('canvas', {
+            class: 'sand-game-canvas',
+            width: this.#currentWidthPoints + 'px',
+            height: this.#currentHeightPoints + 'px'
+        });
+    }
 
+    #initMouseHandling(domNode, sandGame) {
         let getActualMousePosition = (e) => {
             const rect = domNode.getBoundingClientRect();
-            const x = Math.max(0, Math.trunc((e.clientX - rect.left) * this.#init.scale));
-            const y = Math.max(0, Math.trunc((e.clientY - rect.top) * this.#init.scale));
+            const x = Math.max(0, Math.trunc((e.clientX - rect.left) * this.#currentScale));
+            const y = Math.max(0, Math.trunc((e.clientY - rect.top) * this.#currentScale));
             return [x, y];
         }
 
@@ -217,26 +218,87 @@ export class SandGameComponent {
         });
     }
 
-    enableOptions() {
-        if (this.#node === null) {
-            throw 'Illegal state: Node is not created yet';
+    #changeCanvasSize(width, height, scale) {
+        if (typeof width !== 'number' || !(width > 0 && width < 2500)) {
+            throw 'Incorrect width';
+        }
+        if (typeof height !== 'number' || !(height > 0 && height < 2500)) {
+            throw 'Incorrect height';
+        }
+        if (typeof scale !== 'number' || !(scale > 0 && scale <= 1)) {
+            throw 'Incorrect scale';
         }
 
+        let oldSandGame = this.#sandGame;
+        if (this.#sandGame !== null) {
+            this.#sandGame.stopProcessing();
+            this.#sandGame.stopRendering();
+            this.#nodeLinkStop.hide();
+            this.#nodeLinkStart.hide();
+        }
+        this.#nodeHolderCanvas.empty();
+
+        this.#currentWidthPoints = width;
+        this.#currentHeightPoints = height;
+        this.#currentScale = scale;
+
+        this.initialize();
+        if (oldSandGame !== null) {
+            oldSandGame.copyElementsTo(this.#sandGame);
+        }
+
+        this.start();
+    }
+
+    enableBrushes() {
+        let toolbar = DomBuilder.div({ class: 'sand-game-toolbar' }, [
+            this.#createBrushButton('Sand', 'sand', Brushes.SAND),
+            this.#createBrushButton('Soil', 'soil', Brushes.SOIL),
+            this.#createBrushButton('Gravel', 'gravel', Brushes.STONE),
+            this.#createBrushButton('Wall', 'wall', Brushes.WALL),
+            this.#createBrushButton('Water', 'water', Brushes.WATER),
+            this.#createBrushButton('Erase', 'air', Brushes.AIR)
+        ]);
+        this.#nodeHolderTopToolbar.prepend(toolbar);
+    }
+
+    enableOptions() {
+        let changeCanvasSize = DomBuilder.link('[\u2B0C]', { class: 'change-canvas-size-button' }, e => {
+            let formBuilder = new DomBuilder.BootstrapSimpleForm();
+            formBuilder.addInput('Width', 'width', this.#currentWidthPoints);
+            formBuilder.addInput('Height', 'height', this.#currentHeightPoints);
+            formBuilder.addInput('Scale', 'scale', this.#currentScale);
+
+            let dialog = new DomBuilder.BootstrapDialog();
+            dialog.setHeaderContent('Change canvas size');
+            dialog.setBodyContent(formBuilder.createNode());
+            dialog.addSubmitButton('Submit', () => {
+                let data = formBuilder.getData();
+                let w = Number.parseInt(data['width']);
+                let h = Number.parseInt(data['height']);
+                let s = Number.parseFloat(data['scale']);
+                this.#changeCanvasSize(w, h, s);
+            });
+            dialog.addCloseButton('Close');
+            dialog.show(this.#node);
+        });
+
         let options = DomBuilder.div({ class: 'sand-game-options' }, [
-            this.#nodeLabelSize,
-            this.#nodeLabelCounter,
-            this.#nodeLinkStart,
-            this.#nodeLinkStop
+            DomBuilder.div({ class: 'sand-game-canvas-size-options' }, [
+                this.#nodeLabelSize,
+                changeCanvasSize
+            ]),
+            DomBuilder.div({ class: 'sand-game-performance-options' }, [
+                this.#nodeLabelCounter,
+                this.#nodeLinkStart,
+                this.#nodeLinkStop
+            ])
         ]);
 
-        this.#node.append(options);
+        this.#nodeHolderBottomToolbar.append(options);
     }
 
     enableTemplateEditor() {
-        if (this.#node === null) {
-            throw 'Illegal state: Node is not created yet';
-        }
-
         let brushes = {
             '.': Brushes.AIR,
             'w': Brushes.WATER,
@@ -245,37 +307,33 @@ export class SandGameComponent {
             '3': Brushes.STONE
         };
         let info = '. = air, w = water, 1 = sand, 2 = soil, 3 = stone';
-        let blueprint = '111\n...\n...\n...';
+        let defaultBlueprint = '111\n...\n...\n...';
 
-        let textArea = DomBuilder.element('textarea', { class: 'form-control', rows: 8 }, blueprint);
+        let formBuilder = new DomBuilder.BootstrapSimpleForm();
+
+        let textArea = formBuilder.addTextArea('Template', 'blueprint', defaultBlueprint, 8);
         DomBuilder.Bootstrap.initTooltip(info, textArea);
 
-        let form = DomBuilder.element('form', { action: 'javascript:void(0);' }, [
-            DomBuilder.div({ class: 'form-group' }, [
-                DomBuilder.element('label', null, 'Template'),
-                textArea
-            ]),
-            DomBuilder.link('Apply', { class: 'btn btn-primary' }, e => {
-                try {
-                    this.#sandGame.template().withBrushes(brushes).withBlueprint(textArea.val()).paint();
-                } catch (e) {
-                    console.log(e);
+        formBuilder.addSubmitButton('Submit', data => {
+            try {
+                this.#sandGame.template().withBrushes(brushes).withBlueprint(data['blueprint']).paint();
+            } catch (e) {
+                console.log(e);
 
-                    let dialog = new DomBuilder.BootstrapDialog();
-                    dialog.setHeaderContent('Error');
-                    dialog.setBodyContent(DomBuilder.element('code', null, e));
-                    dialog.addCloseButton('Close');
-                    dialog.show(this.#node);
-                }
-            })
-        ]);
+                let dialog = new DomBuilder.BootstrapDialog();
+                dialog.setHeaderContent('Error');
+                dialog.setBodyContent(DomBuilder.element('code', null, e));
+                dialog.addCloseButton('Close');
+                dialog.show(this.#node);
+            }
+        })
 
-        this.#node.append(DomBuilder.Bootstrap.cardCollapsed('Template editor', form));
+        this.#nodeHolderAdditionalTools.append(DomBuilder.Bootstrap.cardCollapsed('Template editor', formBuilder.createNode()));
     }
 
     drawExample() {
         if (this.#sandGame === null) {
-            throw 'Illegal state: Sand Game is not initialized yet';
+            throw 'Illegal state: Sand Game is not initialized';
         }
 
         this.#sandGame.template()
@@ -302,7 +360,7 @@ export class SandGameComponent {
 
     start() {
         if (this.#sandGame === null) {
-            throw 'Illegal state: Sand Game is not initialized yet';
+            throw 'Illegal state: Sand Game is not initialized';
         }
 
         this.#sandGame.startProcessing();

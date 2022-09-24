@@ -2,7 +2,7 @@
 /**
  *
  * @author Patrik Harag
- * @version 2022-09-22
+ * @version 2022-09-24
  */
 export class SandGame {
 
@@ -140,6 +140,15 @@ export class SandGame {
 
     getHeight() {
         return this.#height;
+    }
+
+    copyElementsTo(sandGame) {
+        for (let y = 0; y < Math.min(this.#height, sandGame.#height); y++) {
+            for (let x = 0; x < Math.min(this.#width, sandGame.#width); x++) {
+                sandGame.#elementArea.setElementHead(x, y, this.#elementArea.getElementHead(x, y));
+                sandGame.#elementArea.setElementTail(x, y, this.#elementArea.getElementTail(x, y));
+            }
+        }
     }
 }
 

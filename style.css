@@ -38,20 +38,27 @@
     background-color: rgb(4, 135, 186);
 }
 
+.sand-game-component .sand-game-canvas-size-options,
+.sand-game-component .sand-game-performance-options {
+    white-space: nowrap;
+    display: inline-block;
+}
+
 .sand-game-component .sand-game-options .sand-game-counter,
 .sand-game-component .sand-game-options .sand-game-size {
     font-size: small;
     color: gray;
 }
 
-.sand-game-component .sand-game-options .sand-game-counter {
-    margin-left: 2em;
+.sand-game-component .sand-game-options .change-canvas-size-button {
+    margin-right: 2em;
 }
 
+.sand-game-component .sand-game-options .change-canvas-size-button,
 .sand-game-component .sand-game-options .start-button,
 .sand-game-component .sand-game-options .stop-button {
     font-size: small;
-    margin-left: 1em;
+    margin-left: 0.75em;
 }
 
 .sand-game-component .card {

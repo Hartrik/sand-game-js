@@ -201,7 +201,7 @@ DomBuilder.BootstrapTable = class {
 
 /**
  *
- * @version 2022-03-18
+ * @version 2022-09-24
  * @author Patrik Harag
  */
 DomBuilder.BootstrapDialog = class {
@@ -213,7 +213,11 @@ DomBuilder.BootstrapDialog = class {
     #dialog = null;
 
     setHeaderContent(headerNode) {
-        this.#headerNode = headerNode;
+        if (typeof headerNode === 'string') {
+            this.#headerNode = DomBuilder.element('strong', null, headerNode);
+        } else {
+            this.#headerNode = headerNode;
+        }
     }
 
     setBodyContent(bodyNode) {
@@ -223,6 +227,14 @@ DomBuilder.BootstrapDialog = class {
     addCloseButton(buttonText) {
         let button = $(`<button type="button" class="btn btn-secondary" data-dismiss="modal"></button>`)
             .text(buttonText);
+        this.#footerNodeChildren.push(button)
+    }
+
+    addSubmitButton(buttonText, handler) {
+        let button = $(`<button type="button" class="btn btn-primary" data-dismiss="modal"></button>`)
+            .text(buttonText)
+            .on("click", handler);
+
         this.#footerNodeChildren.push(button)
     }
 
@@ -255,5 +267,70 @@ DomBuilder.BootstrapDialog = class {
         if (this.#dialog !== null) {
             this.#dialog.modal('hide');
         }
+    }
+}
+
+/**
+ *
+ * @version 2022-09-24
+ * @author Patrik Harag
+ */
+DomBuilder.BootstrapSimpleForm = class {
+
+    #formFields = [];
+    #submitButton = null;
+
+    addTextArea(label, key, initialValue = '', rows = 8) {
+        let input = DomBuilder.element('textarea', { class: 'form-control', rows: rows }, initialValue);
+        this.#formFields.push({
+            key: key,
+            label: label,
+            input: input
+        });
+        return input;
+    }
+
+    addInput(label, key, initialValue = '') {
+        let input = DomBuilder.element('input', { class: 'form-control' });
+        if (initialValue) {
+            input.val(initialValue);
+        }
+        this.#formFields.push({
+            key: key,
+            label: label,
+            input: input
+        });
+        return input;
+    }
+
+    addSubmitButton(text, handler) {
+        this.#submitButton = DomBuilder.link(text, { class: 'btn btn-primary' }, e => {
+            handler(this.getData());
+        });
+    }
+
+    createNode() {
+        let form = DomBuilder.element('form', { action: 'javascript:void(0);' });
+
+        for (let formField of this.#formFields) {
+            form.append(DomBuilder.div({ class: 'form-group' }, [
+                DomBuilder.element('label', null, formField.label),
+                formField.input
+            ]));
+        }
+
+        if (this.#submitButton) {
+            form.append(this.#submitButton);
+        }
+
+        return form;
+    }
+
+    getData() {
+        let data = {};
+        for (let formField of this.#formFields) {
+            data[formField.key] = formField.input.val();
+        }
+        return data;
     }
 }
