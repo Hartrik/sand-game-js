@@ -53,3 +53,11 @@
     font-size: small;
     margin-left: 1em;
 }
+
+.sand-game-component .card {
+    margin: 2em 0;
+}
+
+.sand-game-component textarea {
+    font-family: monospace;
+}

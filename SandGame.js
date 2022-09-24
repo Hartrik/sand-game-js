@@ -290,7 +290,7 @@ class TemplatePainter {
     /** @type SandGameGraphics */
     #graphics;
 
-    /** @type string[]|null */
+    /** @type string|string[]|null */
     #blueprint = null;
     /** @type object|null */
     #brushes = null;
@@ -311,7 +311,7 @@ class TemplatePainter {
 
     /**
      *
-     * @param blueprint
+     * @param blueprint {string|string[]}
      * @returns {TemplatePainter}
      */
     withBlueprint(blueprint) {
@@ -349,8 +349,12 @@ class TemplatePainter {
             throw 'Brushes not set';
         }
 
-        const w = this.#blueprint[0].length;
-        const h = this.#blueprint.length;
+        const blueprint = (typeof this.#blueprint === 'string')
+                ? this.#blueprint.split('\n')
+                : this.#blueprint;
+
+        const w = blueprint[0].length;
+        const h = blueprint.length;
 
         const ww = Math.ceil(this.#graphics.getWidth() / w);
         const hh = Math.ceil(Math.min(this.#graphics.getHeight(), this.#maxHeight) / h);
@@ -359,7 +363,7 @@ class TemplatePainter {
         const verticalOffset = (this.#verticalAlign === 'bottom' ? this.#graphics.getHeight() - (hh * h) : 0);
 
         for (let y = 0; y < h; y++) {
-            const line = this.#blueprint[y];
+            const line = blueprint[y];
             for (let x = 0; x < Math.min(w, line.length); x++) {
                 const char = line.charAt(x);
                 let brush = this.#brushes[char];

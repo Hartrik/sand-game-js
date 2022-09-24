@@ -5,7 +5,7 @@ import { SandGame, Brushes } from "./SandGame.js";
  * @requires jQuery
  *
  * @author Patrik Harag
- * @version 2022-09-22
+ * @version 2022-09-24
  */
 export class SandGameComponent {
 
@@ -18,6 +18,8 @@ export class SandGameComponent {
 
     #widthPoints;
     #heightPoints;
+
+    #node;
 
     #nodeCanvas;
     #nodeLabelCounter;
@@ -66,7 +68,7 @@ export class SandGameComponent {
         this.#nodeLinkStop.hide();
 
         // create component node
-        return DomBuilder.div({ class: 'sand-game-component' }, [
+        this.#node = DomBuilder.div({ class: 'sand-game-component' }, [
             DomBuilder.div({ class: 'sand-game-toolbar' }, [
                 this.#createBrushButton('Sand', 'sand', Brushes.SAND),
                 this.#createBrushButton('Soil', 'soil', Brushes.SOIL),
@@ -83,6 +85,7 @@ export class SandGameComponent {
                 this.#nodeLinkStop
             ])
         ]);
+        return this.#node;
     }
 
     initialize() {
@@ -242,5 +245,37 @@ export class SandGameComponent {
                     3: Brushes.STONE
                 })
                 .paint();
+    }
+
+    enableTemplateEditor() {
+        let brushes = {
+            '.': Brushes.AIR,
+            'w': Brushes.WATER,
+            '1': Brushes.SAND,
+            '2': Brushes.SOIL,
+            '3': Brushes.STONE
+        };
+        let info = '. = air, w = water, 1 = sand, 2 = soil, 3 = stone';
+        let blueprint = '111\n...\n...\n...';
+
+        let textArea = DomBuilder.element('textarea', { class: 'form-control', rows: 8 }, blueprint);
+        DomBuilder.Bootstrap.initTooltip(info, textArea);
+
+        let form = DomBuilder.element('form', { action: 'javascript:void(0);' }, [
+            DomBuilder.div({ class: 'form-group' }, [
+                DomBuilder.element('label', null, 'Template'),
+                textArea
+            ]),
+            DomBuilder.link('Apply', { class: 'btn btn-primary' }, e => {
+                try {
+                    this.#sandGame.template().withBrushes(brushes).withBlueprint(textArea.val()).paint();
+                } catch (e) {
+                    console.log(e);
+                    alert(e);
+                }
+            })
+        ]);
+
+        this.#node.append(DomBuilder.Bootstrap.cardCollapsed('Template editor', form));
     }
 }
