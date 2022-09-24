@@ -37,6 +37,7 @@
           let sandGameComponent = new SandGameComponent(init);
           root.append(sandGameComponent.createNode());
           sandGameComponent.initialize();
+          sandGameComponent.enableOptions();
           sandGameComponent.enableTemplateEditor();
           sandGameComponent.drawExample();
           sandGameComponent.start();

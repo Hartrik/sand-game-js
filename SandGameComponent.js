@@ -19,7 +19,7 @@ export class SandGameComponent {
     #widthPoints;
     #heightPoints;
 
-    #node;
+    #node = null;
 
     #nodeCanvas;
     #nodeLabelCounter;
@@ -28,7 +28,7 @@ export class SandGameComponent {
     #nodeLinkStop;
 
     /** @type SandGame */
-    #sandGame;
+    #sandGame = null;
 
     #brush = Brushes.SAND;
 
@@ -51,9 +51,7 @@ export class SandGameComponent {
 
         // prepare options
         this.#nodeLabelCounter = DomBuilder.span('', { class: 'sand-game-counter' });
-        this.#nodeLabelSize = DomBuilder.span(`${this.#widthPoints} x ${this.#heightPoints}, scale=${this.#init.scale}`,{
-            class: 'sand-game-size'
-        });
+        this.#nodeLabelSize = DomBuilder.span('',{ class: 'sand-game-size' });
         this.#nodeLinkStart = DomBuilder.link('[start]', { class: 'start-button' }, e => {
             this.#sandGame.startProcessing();
             this.#nodeLinkStop.show();
@@ -77,21 +75,29 @@ export class SandGameComponent {
                 this.#createBrushButton('Water', 'water', Brushes.WATER),
                 this.#createBrushButton('Erase', 'air', Brushes.AIR)
             ]),
-            this.#nodeCanvas,
-            DomBuilder.div({ class: 'sand-game-options' }, [
-                this.#nodeLabelSize,
-                this.#nodeLabelCounter,
-                this.#nodeLinkStart,
-                this.#nodeLinkStop
-            ])
+            this.#nodeCanvas
         ]);
         return this.#node;
     }
 
+    #createBrushButton(name, cssName, brush) {
+        return DomBuilder.link(name, {
+            href: '#',
+            class: 'badge badge-secondary ' + cssName
+        }, () => this.#brush = brush)
+    }
+
     initialize() {
+        if (this.#node === null) {
+            throw 'Illegal state: Node is not created yet';
+        }
+
         // scale up
         this.#nodeCanvas.width(this.#init.canvasWidthPx);
         this.#nodeCanvas.height(this.#init.canvasHeightPx);
+
+        // set size
+        this.#nodeLabelSize.text(`${this.#widthPoints} x ${this.#heightPoints}, scale=${this.#init.scale}`);
 
         // init game
         let context = this.#nodeCanvas[0].getContext('2d');
@@ -109,12 +115,6 @@ export class SandGameComponent {
         this.#sandGame.startRendering();
 
         this.#nodeLinkStart.show();  // processing can be started now
-    }
-
-    start() {
-        this.#sandGame.startProcessing();
-        this.#nodeLinkStop.show();
-        this.#nodeLinkStart.hide();
     }
 
     #initMouseHandling(sandGame) {
@@ -217,37 +217,26 @@ export class SandGameComponent {
         });
     }
 
-    #createBrushButton(name, cssName, brush) {
-        return DomBuilder.link(name, {
-            href: '#',
-            class: 'badge badge-secondary ' + cssName
-        }, () => this.#brush = brush)
-    }
+    enableOptions() {
+        if (this.#node === null) {
+            throw 'Illegal state: Node is not created yet';
+        }
 
-    drawExample() {
-        this.#sandGame.template()
-                .withMaxHeight(120)
-                .withBlueprint([
-                    '     ww   ',
-                    '          ',
-                    '          ',
-                    '   11     ',
-                    ' 2 11111 2',
-                    ' 222    22',
-                    '222    222',
-                    '3333333333',
-                    '          ',
-                ])
-                .withBrushes({
-                    w: Brushes.withIntensity(Brushes.WATER, 0.95),
-                    1: Brushes.SAND,
-                    2: Brushes.SOIL,
-                    3: Brushes.STONE
-                })
-                .paint();
+        let options = DomBuilder.div({ class: 'sand-game-options' }, [
+            this.#nodeLabelSize,
+            this.#nodeLabelCounter,
+            this.#nodeLinkStart,
+            this.#nodeLinkStop
+        ]);
+
+        this.#node.append(options);
     }
 
     enableTemplateEditor() {
+        if (this.#node === null) {
+            throw 'Illegal state: Node is not created yet';
+        }
+
         let brushes = {
             '.': Brushes.AIR,
             'w': Brushes.WATER,
@@ -277,5 +266,42 @@ export class SandGameComponent {
         ]);
 
         this.#node.append(DomBuilder.Bootstrap.cardCollapsed('Template editor', form));
+    }
+
+    drawExample() {
+        if (this.#sandGame === null) {
+            throw 'Illegal state: Sand Game is not initialized yet';
+        }
+
+        this.#sandGame.template()
+                .withMaxHeight(120)
+                .withBlueprint([
+                    '     ww   ',
+                    '          ',
+                    '          ',
+                    '   11     ',
+                    ' 2 11111 2',
+                    ' 222    22',
+                    '222    222',
+                    '3333333333',
+                    '          ',
+                ])
+                .withBrushes({
+                    w: Brushes.withIntensity(Brushes.WATER, 0.95),
+                    1: Brushes.SAND,
+                    2: Brushes.SOIL,
+                    3: Brushes.STONE
+                })
+                .paint();
+    }
+
+    start() {
+        if (this.#sandGame === null) {
+            throw 'Illegal state: Sand Game is not initialized yet';
+        }
+
+        this.#sandGame.startProcessing();
+        this.#nodeLinkStop.show();
+        this.#nodeLinkStart.hide();
     }
 }
