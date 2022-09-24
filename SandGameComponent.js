@@ -260,7 +260,12 @@ export class SandGameComponent {
                     this.#sandGame.template().withBrushes(brushes).withBlueprint(textArea.val()).paint();
                 } catch (e) {
                     console.log(e);
-                    alert(e);
+
+                    let dialog = new DomBuilder.BootstrapDialog();
+                    dialog.setHeaderContent('Error');
+                    dialog.setBodyContent(DomBuilder.element('code', null, e));
+                    dialog.addCloseButton('Close');
+                    dialog.show(this.#node);
                 }
             })
         ]);
