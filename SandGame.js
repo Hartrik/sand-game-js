@@ -124,6 +124,10 @@ export class SandGame {
         return new TemplatePainter(this.graphics());
     }
 
+    setFallThroughEnabled(enable) {
+        this.#processor.setFallThroughEnabled(enable);
+    }
+
     addOnRendered(onRenderedFunc) {
         this.#onRendered.push(onRenderedFunc);
     }
@@ -740,7 +744,7 @@ class Element {
 /**
  *
  * @author Patrik Harag
- * @version 2022-09-20
+ * @version 2022-09-25
  */
 class ElementProcessor {
 
@@ -754,6 +758,9 @@ class ElementProcessor {
 
     /** @type FastRandom */
     #random;
+
+    /** @type boolean */
+    #fallThroughEnabled = false;
 
     #defaultElement;
 
@@ -778,6 +785,10 @@ class ElementProcessor {
             }
             this.#randData.push(array);
         }
+    }
+
+    setFallThroughEnabled(enabled) {
+        this.#fallThroughEnabled = enabled;
     }
 
     /**
@@ -915,7 +926,12 @@ class ElementProcessor {
 
     #move(elementArea, elementHead, x, y, x2, y2) {
         if (!elementArea.isValidPosition(x2, y2)) {
-            return false;
+            if (this.#fallThroughEnabled && y === this.#height - 1) {
+                // try fall through
+                return this.#move(elementArea, elementHead, x, y, x2, 0);
+            } else {
+                return false;
+            }
         }
 
         let elementHead2 = elementArea.getElementHead(x2, y2);

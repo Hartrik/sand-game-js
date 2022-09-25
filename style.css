@@ -9,33 +9,42 @@
     user-select: none;
 }
 
-.sand-game-component .sand-game-toolbar .badge {
+.sand-game-component .sand-game-brushes {
+    display: inline-block;
+}
+
+.sand-game-component .sand-game-brushes .badge {
     margin-right: 3pt;
 }
 
-.sand-game-component .sand-game-toolbar .badge.air {
+.sand-game-component .sand-game-brushes .badge.air {
     background-color: rgb(230, 230, 230);
     color: black;
 }
 
-.sand-game-component .sand-game-toolbar .badge.sand {
+.sand-game-component .sand-game-brushes .badge.sand {
     background-color: rgb(183, 166, 67);
 }
 
-.sand-game-component .sand-game-toolbar .badge.soil {
+.sand-game-component .sand-game-brushes .badge.soil {
     background-color: rgb(142, 104, 72);
 }
 
-.sand-game-component .sand-game-toolbar .badge.gravel {
+.sand-game-component .sand-game-brushes .badge.gravel {
     background-color: rgb(101, 101, 101);
 }
 
-.sand-game-component .sand-game-toolbar .badge.wall {
+.sand-game-component .sand-game-brushes .badge.wall {
     background-color: rgb(56, 56, 56);
 }
 
-.sand-game-component .sand-game-toolbar .badge.water {
+.sand-game-component .sand-game-brushes .badge.water {
     background-color: rgb(4, 135, 186);
+}
+
+.sand-game-component .sand-game-modes {
+    margin-left: 1em;
+    display: inline-block;
 }
 
 .sand-game-component .sand-game-canvas-size-options,

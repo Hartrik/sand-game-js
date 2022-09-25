@@ -29,6 +29,8 @@ export class SandGameComponent {
     #currentHeightPoints;
     #currentScale;
 
+    #fallThroughEnabled = false;
+
     #node = null;
     #nodeHolderTopToolbar;
     #nodeHolderCanvas;
@@ -104,6 +106,7 @@ export class SandGameComponent {
 
         let defaultElement = Brushes.AIR.apply(0, 0);
         this.#sandGame = new SandGame(context, this.#currentWidthPoints, this.#currentHeightPoints, defaultElement);
+        this.#sandGame.setFallThroughEnabled(this.#fallThroughEnabled);
         this.#sandGame.addOnRendered(() => {
             this.#nodeLabelCounter.text(this.#sandGame.getFramesPerSecond() + ' FPS, '
                     + this.#sandGame.getCyclesPerSecond() + ' CPS');
@@ -258,18 +261,28 @@ export class SandGameComponent {
     }
 
     enableBrushes() {
-        let toolbar = DomBuilder.div({ class: 'sand-game-toolbar' });
+        let toolbar = DomBuilder.div({ class: 'sand-game-brushes' });
         for (let d of this.#brushDeclarations) {
             toolbar.append(this.#createBrushButton(d.name, d.cssName, d.brush));
         }
-        this.#nodeHolderTopToolbar.prepend(toolbar);
+        this.#nodeHolderTopToolbar.append(toolbar);
     }
 
     #createBrushButton(name, cssName, brush) {
         return DomBuilder.link(name, {
-            href: '#',
             class: 'badge badge-secondary ' + cssName
         }, () => this.#brush = brush)
+    }
+
+    enableModes() {
+        let toolbar = DomBuilder.div({ class: 'sand-game-modes' });
+
+        let fallThroughLabel = window.innerWidth > 400 ? 'Fall-through' : '\u2B73'
+        toolbar.append(DomBuilder.link(fallThroughLabel, { class: 'badge badge-danger' }, () => {
+            this.#fallThroughEnabled = !this.#fallThroughEnabled;
+            this.#sandGame.setFallThroughEnabled(this.#fallThroughEnabled);
+        }));
+        this.#nodeHolderTopToolbar.append(toolbar);
     }
 
     enableOptions() {
