@@ -367,8 +367,8 @@ export class SandGameComponent {
         this.#sandGame.template()
                 .withMaxHeight(120)
                 .withBlueprint([
-                    '     ww   ',
                     '          ',
+                    '     ww   ',
                     '          ',
                     '   11     ',
                     ' 2 11111 2',
