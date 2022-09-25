@@ -18,7 +18,7 @@
           let root = $('#sand-game-root');
 
           let width = Math.min(1400, root.width());
-          let height = Math.min(800, window.innerHeight - 160);
+          let height = Math.min(800, Math.trunc(window.innerHeight * 0.75));
 
           let scale = 0.25;
           if (width * height < 300000) {

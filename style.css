@@ -68,3 +68,8 @@
 .sand-game-component textarea {
     font-family: monospace;
 }
+
+.tooltip-inner {
+    max-width: 350px;
+    text-align: left;
+}

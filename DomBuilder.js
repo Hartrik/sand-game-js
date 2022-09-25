@@ -79,7 +79,7 @@ export class DomBuilder {
 
 /**
  *
- * @version 2022-09-24
+ * @version 2022-09-25
  * @author Patrik Harag
  */
 DomBuilder.Bootstrap = class {
@@ -131,15 +131,20 @@ DomBuilder.Bootstrap = class {
     /**
      *
      * @param node {jQuery<HTMLElement>}
-     * @param text {string}
+     * @param content {string|jQuery<HTMLElement>}
      * @return {jQuery<HTMLElement>}
      */
-    static initTooltip(text, node) {
+    static initTooltip(content, node) {
         node.tooltip('dispose');  // remove old one if present
 
         node.attr('data-toggle', 'tooltip');
         node.attr('data-placement', 'top');
-        node.attr('title', text);
+        if (typeof content === 'object') {
+            node.attr('data-html', 'true');
+            node.attr('title', content.html());
+        } else {
+            node.attr('title', content);
+        }
         node.tooltip();
         return node;
     }

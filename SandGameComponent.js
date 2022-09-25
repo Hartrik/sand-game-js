@@ -5,7 +5,7 @@ import { SandGame, Brushes } from "./SandGame.js";
  * @requires jQuery
  *
  * @author Patrik Harag
- * @version 2022-09-24
+ * @version 2022-09-25
  */
 export class SandGameComponent {
 
@@ -15,6 +15,15 @@ export class SandGameComponent {
         canvasHeightPx: 400,
         brushSize: 5
     };
+
+    #brushDeclarations = [
+        { name: 'Sand',   cssName: 'sand',   code: '1', brush: Brushes.SAND },
+        { name: 'Soil',   cssName: 'soil',   code: '2', brush: Brushes.SOIL },
+        { name: 'Gravel', cssName: 'gravel', code: '3', brush: Brushes.STONE },
+        { name: 'Wall',   cssName: 'wall',   code: 's', brush: Brushes.WALL },
+        { name: 'Water',  cssName: 'water',  code: 'w', brush: Brushes.WATER },
+        { name: 'Erase',  cssName: 'air',    code: '.', brush: Brushes.AIR }
+    ];
 
     #currentWidthPoints;
     #currentHeightPoints;
@@ -56,7 +65,12 @@ export class SandGameComponent {
         rootNode.append(this.#node);
 
         // prepare options
-        this.#nodeLabelCounter = DomBuilder.span('', { class: 'sand-game-counter' });
+        this.#nodeLabelCounter = DomBuilder.Bootstrap.initTooltip(
+            DomBuilder.element('ul', null, [
+                DomBuilder.element('li', null, 'FPS = rendered Frames Per Second'),
+                DomBuilder.element('li', null, 'CPS = simulation Cycles Per Second')
+            ]),
+            DomBuilder.span('', { class: 'sand-game-counter' }));
         this.#nodeLabelSize = DomBuilder.span('',{ class: 'sand-game-size' });
         this.#nodeLinkStart = DomBuilder.link('[start]', { class: 'start-button' }, e => {
             this.#sandGame.startProcessing();
@@ -70,13 +84,6 @@ export class SandGameComponent {
             this.#nodeLinkStart.show();
         });
         this.#nodeLinkStop.hide();
-    }
-
-    #createBrushButton(name, cssName, brush) {
-        return DomBuilder.link(name, {
-            href: '#',
-            class: 'badge badge-secondary ' + cssName
-        }, () => this.#brush = brush)
     }
 
     initialize() {
@@ -98,8 +105,8 @@ export class SandGameComponent {
         let defaultElement = Brushes.AIR.apply(0, 0);
         this.#sandGame = new SandGame(context, this.#currentWidthPoints, this.#currentHeightPoints, defaultElement);
         this.#sandGame.addOnRendered(() => {
-            this.#nodeLabelCounter.text(this.#sandGame.getFramesPerSecond() + ' frames/s, '
-                    + this.#sandGame.getCyclesPerSecond() + ' cycles/s');
+            this.#nodeLabelCounter.text(this.#sandGame.getFramesPerSecond() + ' FPS, '
+                    + this.#sandGame.getCyclesPerSecond() + ' CPS');
         });
 
         // mouse handling
@@ -219,10 +226,10 @@ export class SandGameComponent {
     }
 
     #changeCanvasSize(width, height, scale) {
-        if (typeof width !== 'number' || !(width > 0 && width < 2500)) {
+        if (typeof width !== 'number' || !(width > 0 && width < 2048)) {
             throw 'Incorrect width';
         }
-        if (typeof height !== 'number' || !(height > 0 && height < 2500)) {
+        if (typeof height !== 'number' || !(height > 0 && height < 2048)) {
             throw 'Incorrect height';
         }
         if (typeof scale !== 'number' || !(scale > 0 && scale <= 1)) {
@@ -251,15 +258,18 @@ export class SandGameComponent {
     }
 
     enableBrushes() {
-        let toolbar = DomBuilder.div({ class: 'sand-game-toolbar' }, [
-            this.#createBrushButton('Sand', 'sand', Brushes.SAND),
-            this.#createBrushButton('Soil', 'soil', Brushes.SOIL),
-            this.#createBrushButton('Gravel', 'gravel', Brushes.STONE),
-            this.#createBrushButton('Wall', 'wall', Brushes.WALL),
-            this.#createBrushButton('Water', 'water', Brushes.WATER),
-            this.#createBrushButton('Erase', 'air', Brushes.AIR)
-        ]);
+        let toolbar = DomBuilder.div({ class: 'sand-game-toolbar' });
+        for (let d of this.#brushDeclarations) {
+            toolbar.append(this.#createBrushButton(d.name, d.cssName, d.brush));
+        }
         this.#nodeHolderTopToolbar.prepend(toolbar);
+    }
+
+    #createBrushButton(name, cssName, brush) {
+        return DomBuilder.link(name, {
+            href: '#',
+            class: 'badge badge-secondary ' + cssName
+        }, () => this.#brush = brush)
     }
 
     enableOptions() {
@@ -299,21 +309,26 @@ export class SandGameComponent {
     }
 
     enableTemplateEditor() {
-        let brushes = {
-            '.': Brushes.AIR,
-            'w': Brushes.WATER,
-            '1': Brushes.SAND,
-            '2': Brushes.SOIL,
-            '3': Brushes.STONE
-        };
-        let info = '. = air, w = water, 1 = sand, 2 = soil, 3 = stone';
         let defaultBlueprint = '111\n...\n...\n...';
+
+        let brushes = {};
+        for (let d of this.#brushDeclarations) {
+            brushes[d.code] = d.brush;
+        }
 
         let formBuilder = new DomBuilder.BootstrapSimpleForm();
 
+        // add editor
         let textArea = formBuilder.addTextArea('Template', 'blueprint', defaultBlueprint, 8);
+
+        // build tooltip
+        let info = DomBuilder.element('ul');
+        for (let d of this.#brushDeclarations) {
+            info.append(DomBuilder.element('li', null, d.name + ' = ' + d.code))
+        }
         DomBuilder.Bootstrap.initTooltip(info, textArea);
 
+        // add submit button
         formBuilder.addSubmitButton('Submit', data => {
             try {
                 this.#sandGame.template().withBrushes(brushes).withBlueprint(data['blueprint']).paint();

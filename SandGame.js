@@ -2,7 +2,7 @@
 /**
  *
  * @author Patrik Harag
- * @version 2022-09-24
+ * @version 2022-09-25
  */
 export class SandGame {
 
@@ -87,6 +87,7 @@ export class SandGame {
             clearInterval(this.#processorIntervalHandle);
             this.#processorIntervalHandle = null;
         }
+        this.#cyclesCounter.clear();
     }
 
     stopRendering() {
@@ -94,6 +95,7 @@ export class SandGame {
             clearInterval(this.#rendererIntervalHandle);
             this.#rendererIntervalHandle = null;
         }
+        this.#framesCounter.clear();
     }
 
     #doProcessing() {
@@ -475,7 +477,7 @@ class FloodFillPainter {
 /**
  *
  * @author Patrik Harag
- * @version 2022-09-07
+ * @version 2022-09-25
  */
 class Counter {
 
@@ -494,6 +496,10 @@ class Counter {
 
     getValue() {
         return this.#lastValue;
+    }
+
+    clear() {
+        this.#lastValue = 0;
     }
 }
 
