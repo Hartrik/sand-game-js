@@ -2,7 +2,7 @@
 /**
  *
  * @author Patrik Harag
- * @version 2022-09-25
+ * @version 2022-09-29
  */
 export class SandGame {
 
@@ -64,6 +64,8 @@ export class SandGame {
 
         let grassPlantingExtension = new GrassPlantingExtension(this.#elementArea, this.#random, Brushes.GRASS);
         this.#onProcessed.push(() => grassPlantingExtension.run());
+        let treePlantingExtension = new TreePlantingExtension(this.#elementArea, this.#random, Brushes.TREE);
+        this.#onProcessed.push(() => treePlantingExtension.run());
         let fishSpawningExtension = new FishSpawningExtension(this.#elementArea, this.#random, Brushes.FISH, Brushes.FISH_BODY);
         this.#onProcessed.push(() => fishSpawningExtension.run());
     }
@@ -161,7 +163,7 @@ export class SandGame {
 /**
  *
  * @author Patrik Harag
- * @version 2022-09-22
+ * @version 2022-09-29
  */
 class SandGameGraphics {
 
@@ -183,14 +185,21 @@ class SandGameGraphics {
         this.#elementArea.setElement(x, y, element);
     }
 
-    drawRectangle(x1, y1, x2, y2, brush) {
-        x1 = Math.max(Math.min(x1, this.getWidth()), 0);
-        x2 = Math.max(Math.min(x2, this.getWidth()), 0);
-        y1 = Math.max(Math.min(y1, this.getHeight()), 0);
-        y2 = Math.max(Math.min(y2, this.getHeight()), 0);
+    drawRectangle(x1, y1, x2, y2, brush, supportNegativeCoordinates = false) {
+        if (supportNegativeCoordinates) {
+            x1 = (x1 >= 0) ? x1 : this.getWidth() + x1 + 1;
+            x2 = (x2 >= 0) ? x2 : this.getWidth() + x2 + 1;
+            y1 = (y1 >= 0) ? y1 : this.getHeight() + y1 + 1;
+            y2 = (y2 >= 0) ? y2 : this.getHeight() + y2 + 1;
+        }
 
-        for (let y = y1; y < y2; y++) {
-            for (let x = x1; x < x2; x++) {
+        x1 = Math.max(Math.min(x1, this.getWidth() - 1), 0);
+        x2 = Math.max(Math.min(x2, this.getWidth() - 1), 0);
+        y1 = Math.max(Math.min(y1, this.getHeight() - 1), 0);
+        y2 = Math.max(Math.min(y2, this.getHeight() - 1), 0);
+
+        for (let y = y1; y <= y2; y++) {
+            for (let x = x1; x <= x2; x++) {
                 this.draw(x, y, brush);
             }
         }
@@ -229,6 +238,10 @@ class SandGameGraphics {
                 consumer(x1, y1);
             }
         }
+    }
+
+    fill(brush) {
+        this.drawRectangle(0, 0, this.#elementArea.getWidth() - 1, this.#elementArea.getHeight() - 1, brush);
     }
 
     floodFill(x, y, brush) {
@@ -292,6 +305,29 @@ class RandomBrush extends Brush {
 
     apply(x, y) {
         return this.#elements[Math.trunc(Math.random() * this.#elements.length)];
+    }
+}
+
+/**
+ *
+ * @author Patrik Harag
+ * @version 2022-09-29
+ */
+class CustomBrush extends Brush {
+    static of(func) {
+        return new CustomBrush(func);
+    }
+
+    /** @type function(x, y) */
+    #func;
+
+    constructor(func) {
+        super();
+        this.#func = func;
+    }
+
+    apply(x, y) {
+        return this.#func(x, y);
     }
 }
 
@@ -631,7 +667,7 @@ class ElementArea {
 /**
  *
  * @author Patrik Harag
- * @version 2022-09-20
+ * @version 2022-09-29
  */
 class ElementHead {
     static TYPE_STATIC = 0x0;
@@ -651,6 +687,10 @@ class ElementHead {
     static BEHAVIOUR_GRASS = 0x2;
     static BEHAVIOUR_FISH = 0x3;
     static BEHAVIOUR_FISH_BODY = 0x4;
+    static BEHAVIOUR_TREE = 0x5;
+    static BEHAVIOUR_TREE_ROOT = 0x6;
+    static BEHAVIOUR_TREE_TRUNK = 0x7;
+    static BEHAVIOUR_TREE_LEAF = 0x8;
 
     static of(type, weight, behaviour=0, special=0) {
         let value = 0;
@@ -675,6 +715,10 @@ class ElementHead {
 
     static getSpecial(elementHead) {
         return (elementHead >> 12) & 0x0000000F;
+    }
+
+    static setType(elementHead, type) {
+        return (elementHead & ~(0x0000000F)) | type;
     }
 
     static setSpecial(elementHead, special) {
@@ -744,7 +788,7 @@ class Element {
 /**
  *
  * @author Patrik Harag
- * @version 2022-09-25
+ * @version 2022-09-29
  */
 class ElementProcessor {
 
@@ -815,17 +859,36 @@ class ElementProcessor {
      * @param y {number}
      */
     #nextPoint(elementArea, x, y) {
-        let elementHead = elementArea.getElementHead(x, y);
-        let moved = this.#performMovingBehaviour(elementArea, elementHead, x, y);
+        const elementHead = elementArea.getElementHead(x, y);
+        const moved = this.#performMovingBehaviour(elementArea, elementHead, x, y);
 
         if (!moved) {
-            let behaviour = ElementHead.getBehaviour(elementHead);
-            if (behaviour === ElementHead.BEHAVIOUR_GRASS) {
-                this.#grow(elementArea, elementHead, x, y);
-            } else if (behaviour === ElementHead.BEHAVIOUR_FISH) {
-                this.#fishLive(elementArea, elementHead, x, y);
-            } else if (behaviour === ElementHead.BEHAVIOUR_FISH_BODY) {
-                this.#fishBodyLive(elementArea, elementHead, x, y);
+            const behaviour = ElementHead.getBehaviour(elementHead);
+            switch (behaviour) {
+                case ElementHead.BEHAVIOUR_NONE:
+                case ElementHead.BEHAVIOUR_SOIL:
+                case ElementHead.BEHAVIOUR_TREE_TRUNK:
+                    break;
+                case ElementHead.BEHAVIOUR_GRASS:
+                    this.#behaviourGrass(elementArea, elementHead, x, y);
+                    break;
+                case ElementHead.BEHAVIOUR_TREE:
+                    this.#behaviourTree(elementArea, elementHead, x, y);
+                    break;
+                case ElementHead.BEHAVIOUR_TREE_ROOT:
+                    this.#behaviourTreeRoot(elementArea, elementHead, x, y);
+                    break;
+                case ElementHead.BEHAVIOUR_TREE_LEAF:
+                    this.#behaviourTreeLeaf(elementArea, elementHead, x, y);
+                    break;
+                case ElementHead.BEHAVIOUR_FISH:
+                    this.#behaviourFish(elementArea, elementHead, x, y);
+                    break;
+                case ElementHead.BEHAVIOUR_FISH_BODY:
+                    this.#behaviourFishBody(elementArea, elementHead, x, y);
+                    break;
+                default:
+                    throw "Unknown element behaviour: " + behaviour;
             }
         }
     }
@@ -948,7 +1011,7 @@ class ElementProcessor {
         return false;
     }
 
-    #grow(elementArea, elementHead, x, y) {
+    #behaviourGrass(elementArea, elementHead, x, y) {
         let random = this.#random.nextInt(100);
         if (random < 3) {
             // check above
@@ -1001,7 +1064,150 @@ class ElementProcessor {
         }
     }
 
-    #fishLive(elementArea, elementHead, x, y) {
+    #behaviourTree(elementArea, elementHead, x, y) {
+        let random = this.#random.nextInt(SandGame.OPT_CYCLES_PER_SECOND);
+        if (random === 0) {
+            let root = TreeTemplates.getTemplate(ElementHead.getSpecial(elementHead));
+
+            let stack = [];
+            for (let child of root.children) {
+                stack.push(child);
+            }
+
+            while (stack.length > 0) {
+                let node = stack.pop();
+
+                let nx = x + node.x;
+                let ny = y + node.y;
+                if (elementArea.isValidPosition(nx, ny)) {
+                    let isHereAlready = false;
+                    let canGrowHere = false;
+
+                    const currentElementHead = elementArea.getElementHead(nx, ny);
+                    const currentElementBehaviour = ElementHead.getBehaviour(currentElementHead);
+
+                    switch (node.type) {
+                        case TreeTemplateNode.TYPE_TRUNK:
+                        case TreeTemplateNode.TYPE_ROOT:
+                            if (currentElementBehaviour === ElementHead.BEHAVIOUR_TREE_TRUNK) {
+                                isHereAlready = true;
+                            } else if (currentElementBehaviour === ElementHead.BEHAVIOUR_TREE_LEAF) {
+                                canGrowHere = true;
+                            } else if (ElementHead.getWeight(currentElementHead) === ElementHead.WEIGHT_AIR) {
+                                canGrowHere = true;
+                            } else if (currentElementBehaviour === ElementHead.BEHAVIOUR_SOIL) {
+                                canGrowHere = true;
+                            } else if (currentElementBehaviour === ElementHead.BEHAVIOUR_GRASS) {
+                                canGrowHere = true;
+                            } else if (ElementHead.getType(currentElementHead) !== ElementHead.TYPE_STATIC) {
+                                canGrowHere = true;
+                            }
+                            break;
+                        case TreeTemplateNode.TYPE_LEAF:
+                            if (currentElementBehaviour === ElementHead.BEHAVIOUR_TREE_LEAF) {
+                                isHereAlready = true;
+                            } else if (currentElementBehaviour === ElementHead.BEHAVIOUR_TREE_TRUNK) {
+                                isHereAlready = true;
+                            } else if (ElementHead.getWeight(currentElementHead) === ElementHead.WEIGHT_AIR) {
+                                canGrowHere = true;
+                            }
+                            break;
+                        default:
+                            throw 'Unknown type: ' + node.type;
+                    }
+
+                    if (canGrowHere) {
+                        elementArea.setElement(nx, ny, node.brush.apply(nx, ny));
+                    }
+
+                    if (isHereAlready) {
+                        for (let child of node.children) {
+                            stack.push(child);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    #behaviourTreeRoot(elementArea, elementHead, x, y) {
+        let growIndex = ElementHead.getSpecial(elementHead);
+        if (growIndex === 0) {
+            // maximum size
+
+            if (this.#iteration % 1000 === 0) {
+                // harden surrounding elements
+
+                const targetX = x + this.#random.nextInt(3) - 1;
+                const targetY = y + this.#random.nextInt(3) - 1;
+
+                if (elementArea.isValidPosition(targetX, targetY)) {
+                    let targetElementHead = elementArea.getElementHead(targetX, targetY);
+                    let type = ElementHead.getType(targetElementHead);
+                    if (type === ElementHead.TYPE_SAND_1 || type === ElementHead.TYPE_SAND_2) {
+                        let modifiedElementHead = ElementHead.setType(targetElementHead, ElementHead.TYPE_STATIC);
+                        elementArea.setElementHead(targetX, targetY, modifiedElementHead);
+                    }
+                }
+            }
+
+            return;
+        }
+
+        let random = this.#random.nextInt(SandGame.OPT_CYCLES_PER_SECOND * 10);
+        if (random < 10) {
+
+            function doGrow(nx, ny) {
+                elementArea.setElementHead(x, y, ElementHead.setSpecial(elementHead, 0));
+
+                let element = Brushes.TREE_ROOT.apply(nx, ny);
+                let modifiedHead = ElementHead.setSpecial(element.elementHead, growIndex - 1);
+                elementArea.setElementHead(nx, ny, modifiedHead);
+                elementArea.setElementTail(nx, ny, element.elementTail);
+            }
+
+            // grow down first if there is a free space
+            if (y < elementArea.getHeight() - 1) {
+                let targetElementHead = elementArea.getElementHead(x, y + 1);
+                if (ElementHead.getWeight(targetElementHead) === ElementHead.WEIGHT_AIR) {
+                    doGrow(x, y + 1);
+                    return;
+                }
+            }
+
+            // grow in random way
+            let nx = x;
+            let ny = y;
+            if (random === 9 || random === 8 || random === 7) {
+                nx += 1;
+                ny += 1;
+            } else if (random === 6 || random === 5 || random === 4) {
+                nx += -1;
+                ny += 1;
+            } else {
+                ny += 1;
+            }
+
+            if (elementArea.isValidPosition(nx, ny)) {
+                let targetElementHead = elementArea.getElementHead(nx, ny);
+                if (ElementHead.getType(targetElementHead) !== ElementHead.TYPE_STATIC) {
+                    doGrow(nx, ny);
+                }
+            }
+        }
+    }
+
+    #behaviourTreeLeaf(elementArea, elementHead, x, y) {
+        // TODO
+
+        // let random = this.#random.nextInt(SandGame.OPT_CYCLES_PER_SECOND * 10);
+        // if (random === 0) {
+        //     // remove element to create some movement
+        //     elementArea.setElement(x, y, Brushes.AIR.apply(x, y));
+        // }
+    }
+
+    #behaviourFish(elementArea, elementHead, x, y) {
         // check has body
         if (x === elementArea.getWidth() - 1
                 || ElementHead.getBehaviour(elementArea.getElementHead(x + 1, y)) !== ElementHead.BEHAVIOUR_FISH_BODY) {
@@ -1066,7 +1272,7 @@ class ElementProcessor {
         }
     }
 
-    #fishBodyLive(elementArea, elementHead, x, y) {
+    #behaviourFishBody(elementArea, elementHead, x, y) {
         if (x === 0 || ElementHead.getBehaviour(elementArea.getElementHead(x - 1, y)) !== ElementHead.BEHAVIOUR_FISH) {
             // the fish lost it's head :(
             // => turn into corpse
@@ -1133,6 +1339,187 @@ class GrassElement {
 /**
  *
  * @author Patrik Harag
+ * @version 2022-09-29
+ */
+class TreeTemplates {
+
+    static TEMPLATES = [];
+
+    /**
+     *
+     * @param id {number} template id
+     * @returns {TreeTemplateNode} root
+     */
+    static getTemplate(id) {
+        let template = TreeTemplates.TEMPLATES[id];
+        if (!template) {
+            template = TreeTemplates.#generate(id);
+            TreeTemplates.TEMPLATES[id] = template;
+        }
+        return template;
+    }
+
+    static #generate(id) {
+        let root = new TreeTemplateNode(0, 0, TreeTemplateNode.TYPE_TRUNK, Brushes.TREE_WOOD);
+        root.children.push(new TreeTemplateNode(0, 1, TreeTemplateNode.TYPE_ROOT, Brushes.TREE_ROOT));
+
+        let size = [20, 37, 35, 42][(id & 0b1100) >> 2];
+        let firstSplit = ((id & 0b0010) !== 0) ? 1 : -1;
+        let firstIncrement = ((id & 0b0001) !== 0) ? 1 : -1;
+
+        let splits = [15, 19, 22, 25, 29, 32, 35];
+        if (size < 25) {
+            splits.unshift(12);  // small trees
+        }
+        let splitDirection = firstSplit;
+
+        let incrementWidth = [12, 20, 28, 32];
+        let incrementX = [1, -1, 2, -2, 3, -3].map(v => v * firstIncrement);
+        let incrementNext = 0;
+
+        let centerTrunkNodes = [root];
+
+        for (let i = 1; i <= size; i++) {
+            const remainingSize = size - i;
+
+            // increment trunk size
+            if (incrementWidth.includes(i)) {
+                let nx = incrementX[incrementNext++];
+                let node = new TreeTemplateNode(nx, 0, TreeTemplateNode.TYPE_TRUNK, Brushes.TREE_WOOD);
+                node.children.push(new TreeTemplateNode(nx, 1, TreeTemplateNode.TYPE_ROOT, Brushes.TREE_ROOT));
+
+                centerTrunkNodes[0].children.push(node);
+                centerTrunkNodes.push(node);
+            }
+
+            // add split
+            if (splits.includes(i)) {
+                let branchLength = 12;
+                if (remainingSize < 10) {
+                    branchLength = 8;
+                }
+                if (remainingSize < 6) {
+                    branchLength = 5;
+                }
+
+                let branchRoot = this.#generateBranch(branchLength, splitDirection, i, remainingSize);
+                centerTrunkNodes[0].children.push(branchRoot);
+
+                splitDirection = splitDirection * -1;
+            }
+
+            // add next trunk level
+            for (let j = 0; j < centerTrunkNodes.length; j++) {
+                let last = centerTrunkNodes[j];
+
+                let node = (j !== 0 || remainingSize > 3)
+                        ? new TreeTemplateNode(last.x, last.y - 1, TreeTemplateNode.TYPE_TRUNK, Brushes.TREE_WOOD)
+                        : new TreeTemplateNode(last.x, last.y - 1, TreeTemplateNode.TYPE_LEAF, Brushes.TREE_LEAF_DARKER);
+
+                last.children.push(node);
+                centerTrunkNodes[j] = node;
+            }
+
+            // add trunk leaves
+            if (i > 20) {
+                let brush = (remainingSize > 3) ? Brushes.TREE_LEAF_DARKER : Brushes.TREE_LEAF_LIGHTER;
+
+                let leafR = new TreeTemplateNode(1, -i, TreeTemplateNode.TYPE_LEAF, brush);
+                centerTrunkNodes[0].children.push(leafR);
+                let leafL = new TreeTemplateNode(-1, -i, TreeTemplateNode.TYPE_LEAF, brush);
+                centerTrunkNodes[0].children.push(leafL);
+
+                if (remainingSize > 1) {
+                    leafR.children.push(new TreeTemplateNode(2, -i, TreeTemplateNode.TYPE_LEAF, Brushes.TREE_LEAF_LIGHTER));
+                    leafL.children.push(new TreeTemplateNode(-2, -i, TreeTemplateNode.TYPE_LEAF, Brushes.TREE_LEAF_LIGHTER));
+                }
+            }
+        }
+        return root;
+    }
+
+    static #generateBranch(branchLength, splitDirection, i, remainingSize) {
+        let shift = 0;
+        let branchRoot = null;
+        let branchLast = null;
+
+        for (let j = 1; j <= branchLength; j++) {
+            const remainingBranchSize = branchLength - j;
+
+            if (j > 3 && Math.random() < 0.2) {
+                shift++;
+            }
+            let nx = splitDirection * j;
+            let ny = -i - shift;
+
+            let next = (remainingSize > 3 && remainingBranchSize > 1)
+                ? new TreeTemplateNode(nx, ny, TreeTemplateNode.TYPE_TRUNK, Brushes.TREE_WOOD)
+                : new TreeTemplateNode(nx, ny, TreeTemplateNode.TYPE_LEAF, Brushes.TREE_LEAF_LIGHTER);
+
+            if (branchRoot === null) {
+                branchRoot = next;
+            }
+
+            if (branchLast !== null) {
+                branchLast.children.push(next);
+            }
+            branchLast = next;
+
+            // generate branch leaves
+
+            let leafAbove = new TreeTemplateNode(nx, ny - 1, TreeTemplateNode.TYPE_LEAF, Brushes.TREE_LEAF_LIGHTER);
+            let leafBelow = new TreeTemplateNode(nx, ny + 1, TreeTemplateNode.TYPE_LEAF,
+                (remainingBranchSize > 3) ? Brushes.TREE_LEAF_DARKER : Brushes.TREE_LEAF_LIGHTER);
+
+            if (remainingBranchSize > 3) {
+                leafAbove.children.push(new TreeTemplateNode(nx, ny - 2, TreeTemplateNode.TYPE_LEAF, Brushes.TREE_LEAF_LIGHTER));
+                leafBelow.children.push(new TreeTemplateNode(nx, ny + 2, TreeTemplateNode.TYPE_LEAF, Brushes.TREE_LEAF_LIGHTER));
+            }
+
+            next.children.push(leafAbove);
+            next.children.push(leafBelow);
+        }
+        return branchRoot;
+    }
+}
+
+/**
+ *
+ * @author Patrik Harag
+ * @version 2022-09-29
+ */
+class TreeTemplateNode {
+    static TYPE_TRUNK = 1;
+    static TYPE_LEAF = 2;
+    static TYPE_ROOT = 3;
+
+
+    /** @type number */
+    x;
+
+    /** @type number */
+    y;
+
+    /** @type number */
+    type;
+
+    /** @type Brush */
+    brush;
+
+    /** @type TreeTemplateNode[] */
+    children = [];
+
+    constructor(x, y, type, brush) {
+        this.x = x;
+        this.y = y;
+        this.type = type;
+        this.brush = brush;
+    }
+}
+
+/**
+ *
+ * @author Patrik Harag
  * @version 2022-09-09
  */
 class GrassPlantingExtension {
@@ -1161,6 +1548,104 @@ class GrassPlantingExtension {
                 this.#elementArea.setElement(x, y, this.#brush.apply(x, y));
             }
         }
+    }
+}
+
+/**
+ *
+ * @author Patrik Harag
+ * @version 2022-09-29
+ */
+class TreePlantingExtension {
+    static STARTING_COUNTER_VALUE = 1000;
+    static MAX_COUNTER_VALUE = 4;
+
+    #elementArea;
+    #random;
+    #brush;
+
+    #counter = TreePlantingExtension.STARTING_COUNTER_VALUE;
+
+    constructor(elementArea, random, brush) {
+        this.#elementArea = elementArea;
+        this.#random = random;
+        this.#brush = brush;
+    }
+
+    run() {
+        if (this.#counter-- === 0) {
+            this.#counter = TreePlantingExtension.MAX_COUNTER_VALUE;
+
+            const x = this.#random.nextInt(this.#elementArea.getWidth() - 12) + 6;
+            const y = this.#random.nextInt(this.#elementArea.getHeight() - 16) + 15;
+
+            if (TreePlantingExtension.couldGrowUpHere(this.#elementArea, x, y)) {
+                this.#elementArea.setElement(x, y, this.#brush.apply(x, y));
+            }
+        }
+    }
+
+    static couldGrowUpHere(elementArea, x, y) {
+        if (x < 0 || y < 12) {
+            return false;
+        }
+        if (x > elementArea.getWidth() - 5 || y > elementArea.getHeight() - 2) {
+            return false;
+        }
+        let e1 = elementArea.getElementHead(x, y);
+        if (ElementHead.getBehaviour(e1) !== ElementHead.BEHAVIOUR_GRASS) {
+            return false;
+        }
+        let e2 = elementArea.getElementHead(x, y + 1);
+        if (ElementHead.getBehaviour(e2) !== ElementHead.BEHAVIOUR_SOIL) {
+            return false;
+        }
+
+        // check space directly above
+        for (let dy = 1; dy < 18; dy++) {
+            if (!TreePlantingExtension.#isSpaceHere(elementArea, x, y - dy)) {
+                return false;
+            }
+        }
+
+        // check trees around
+        for (let dx = -8; dx < 8; dx++) {
+            if (TreePlantingExtension.#isOtherThreeThere(elementArea, x + dx, y - 4)) {
+                return false;
+            }
+        }
+
+        // check space above - left & right
+        for (let dy = 10; dy < 15; dy++) {
+            if (!TreePlantingExtension.#isSpaceHere(elementArea, x - 8, y - dy)) {
+                return false;
+            }
+            if (!TreePlantingExtension.#isSpaceHere(elementArea, x + 8, y - dy)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    static #isSpaceHere(elementArea, tx, ty) {
+        let targetElementHead = elementArea.getElementHead(tx, ty);
+        if (ElementHead.getWeight(targetElementHead) === ElementHead.WEIGHT_AIR) {
+            return true;
+        }
+        if (ElementHead.getBehaviour(targetElementHead) === ElementHead.BEHAVIOUR_GRASS) {
+            return true;
+        }
+        return false;
+    }
+
+    static #isOtherThreeThere(elementArea, tx, ty) {
+        let targetElementHead = elementArea.getElementHead(tx, ty);
+        let behaviour = ElementHead.getBehaviour(targetElementHead);
+        if (behaviour === ElementHead.BEHAVIOUR_TREE_TRUNK || behaviour === ElementHead.BEHAVIOUR_TREE) {
+            return true;
+        }
+        return false;
     }
 }
 
@@ -1424,9 +1909,19 @@ class MotionBlurRenderer extends DoubleBufferedRenderer {
 /**
  *
  * @author Patrik Harag
- * @version 2022-09-09
+ * @version 2022-09-29
  */
 export class Brushes {
+
+    // bright red color for testing purposes
+    static _TEST_SOLID = RandomBrush.fromHeadAndTails(ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_WALL), [
+        ElementTail.of(255, 0, 0, 0),
+    ]);
+
+    // bright red color for testing purposes
+    static _TEST_AIR = RandomBrush.fromHeadAndTails(ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_AIR), [
+        ElementTail.of(255, 0, 0, 0),
+    ]);
 
     static AIR = RandomBrush.of([
         new Element(
@@ -1524,14 +2019,14 @@ export class Brushes {
 
     static GRASS = RandomBrush.of([
         new Element(
-                ElementHead.of(ElementHead.TYPE_FALLING, ElementHead.WEIGHT_POWDER, ElementHead.BEHAVIOUR_GRASS, 7),
-                ElementTail.of(44, 92, 33, ElementTail.MODIFIER_BLUR_ENABLED)),
-        new Element(
                 ElementHead.of(ElementHead.TYPE_FALLING, ElementHead.WEIGHT_POWDER, ElementHead.BEHAVIOUR_GRASS, 5),
-                ElementTail.of(0, 72,  0, ElementTail.MODIFIER_BLUR_ENABLED)),
+                ElementTail.of(56, 126, 38, ElementTail.MODIFIER_BLUR_ENABLED)),
         new Element(
-                ElementHead.of(ElementHead.TYPE_FALLING, ElementHead.WEIGHT_POWDER, ElementHead.BEHAVIOUR_GRASS, 6),
-                ElementTail.of(0, 65,  0, ElementTail.MODIFIER_BLUR_ENABLED))
+                ElementHead.of(ElementHead.TYPE_FALLING, ElementHead.WEIGHT_POWDER, ElementHead.BEHAVIOUR_GRASS, 3),
+                ElementTail.of(46, 102,  31, ElementTail.MODIFIER_BLUR_ENABLED)),
+        new Element(
+                ElementHead.of(ElementHead.TYPE_FALLING, ElementHead.WEIGHT_POWDER, ElementHead.BEHAVIOUR_GRASS, 4),
+                ElementTail.of(72, 130,  70, ElementTail.MODIFIER_BLUR_ENABLED))
     ]);
 
     static FISH = RandomBrush.of([
@@ -1552,6 +2047,34 @@ export class Brushes {
             ElementTail.of(61, 68, 74, 0)),
     ]);
 
+    static TREE = CustomBrush.of((x, y) => {
+        let treeType = Math.trunc(Math.random() * 17);
+        return new Element(
+            ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_WALL, ElementHead.BEHAVIOUR_TREE, treeType),
+            ElementTail.of(77, 41, 13, 0));
+    });
+
+    static TREE_ROOT = RandomBrush.of([
+        new Element(
+                ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_WALL, ElementHead.BEHAVIOUR_TREE_ROOT, 8),
+                ElementTail.of(96, 50, 14, 0)),
+        new Element(
+                ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_WALL, ElementHead.BEHAVIOUR_TREE_ROOT, 5),
+                ElementTail.of(77, 41, 13, 0))
+    ]);
+
+    static TREE_WOOD = RandomBrush.fromHeadAndTails(ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_WALL, ElementHead.BEHAVIOUR_TREE_TRUNK), [
+        ElementTail.of(96, 50, 14, 0),
+        ElementTail.of(115, 64, 21, 0)
+    ]);
+
+    static TREE_LEAF_LIGHTER = RandomBrush.fromHeadAndTails(ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_WALL, ElementHead.BEHAVIOUR_TREE_LEAF), [
+        ElementTail.of(0, 129, 73, 0),
+    ]);
+
+    static TREE_LEAF_DARKER = RandomBrush.fromHeadAndTails(ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_WALL, ElementHead.BEHAVIOUR_TREE_LEAF), [
+        ElementTail.of(0, 76, 72, 0),
+    ]);
 
     /**
      *

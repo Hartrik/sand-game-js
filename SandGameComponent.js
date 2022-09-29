@@ -5,7 +5,7 @@ import { SandGame, Brushes } from "./SandGame.js";
  * @requires jQuery
  *
  * @author Patrik Harag
- * @version 2022-09-25
+ * @version 2022-09-29
  */
 export class SandGameComponent {
 
@@ -357,6 +357,23 @@ export class SandGameComponent {
         })
 
         this.#nodeHolderAdditionalTools.append(DomBuilder.Bootstrap.cardCollapsed('Template editor', formBuilder.createNode()));
+    }
+
+    enableTestTools() {
+        let content = DomBuilder.div(null, [
+            DomBuilder.link('Tree spawn test', { class: 'btn btn-secondary' }, e => {
+                this.#sandGame.graphics().fill(Brushes.AIR);
+                this.#sandGame.graphics().drawRectangle(0, -10, -1, -1, Brushes.SOIL, true);
+                this.#sandGame.graphics().drawRectangle(0, -11, -1, -11, Brushes.GRASS, true);
+
+                let c = Math.trunc(this.#sandGame.getHeight() / 2);
+                this.#sandGame.graphics().drawRectangle(0, c, -1, c, Brushes.WALL, true);
+                this.#sandGame.graphics().drawRectangle(0, c-10, -1, c-1, Brushes.SOIL, true);
+                this.#sandGame.graphics().drawRectangle(0, c-11, -1, c-11, Brushes.GRASS, true);
+            })
+        ]);
+
+        this.#nodeHolderAdditionalTools.append(DomBuilder.Bootstrap.cardCollapsed('Test tools', content));
     }
 
     drawExample() {
