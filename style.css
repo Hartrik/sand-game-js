@@ -64,8 +64,7 @@
 }
 
 .sand-game-component .sand-game-options .change-canvas-size-button,
-.sand-game-component .sand-game-options .start-button,
-.sand-game-component .sand-game-options .stop-button {
+.sand-game-component .sand-game-options .start-stop-button  {
     font-size: small;
     margin-left: 0.75em;
 }

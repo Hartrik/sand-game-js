@@ -5,7 +5,7 @@ import { SandGame, Brushes } from "./SandGame.js";
  * @requires jQuery
  *
  * @author Patrik Harag
- * @version 2022-09-29
+ * @version 2022-09-30
  */
 export class SandGameComponent {
 
@@ -29,7 +29,14 @@ export class SandGameComponent {
     #currentHeightPoints;
     #currentScale;
 
+    /** @type SandGame */
+    #sandGame = null;
+    /** @type boolean */
+    #simulationEnabled = false;
+    /** @type boolean */
     #fallThroughEnabled = false;
+    /** @type Brush */
+    #brush = Brushes.SAND;
 
     #node = null;
     #nodeHolderTopToolbar;
@@ -40,13 +47,7 @@ export class SandGameComponent {
     #nodeCanvas;
     #nodeLabelCounter;
     #nodeLabelSize;
-    #nodeLinkStart;
-    #nodeLinkStop;
-
-    /** @type SandGame */
-    #sandGame = null;
-
-    #brush = Brushes.SAND;
+    #nodeLinkStartStop;
 
     constructor(rootNode, init) {
         if (init) {
@@ -74,21 +75,24 @@ export class SandGameComponent {
             ]),
             DomBuilder.span('', { class: 'sand-game-counter' }));
         this.#nodeLabelSize = DomBuilder.span('',{ class: 'sand-game-size' });
-        this.#nodeLinkStart = DomBuilder.link('[start]', { class: 'start-button' }, e => {
-            this.#sandGame.startProcessing();
-            this.#nodeLinkStop.show();
-            this.#nodeLinkStart.hide();
+        this.#nodeLinkStartStop = DomBuilder.link('', { class: 'start-stop-button' }, e => {
+            if (this.#sandGame !== null) {
+                if (this.#simulationEnabled) {
+                    this.#sandGame.stopProcessing();
+                } else {
+                    this.#sandGame.startProcessing();
+                }
+                this.#simulationEnabled = !this.#simulationEnabled;
+                this.#updateStartStopButton();
+            }
         });
-        this.#nodeLinkStart.hide();
-        this.#nodeLinkStop = DomBuilder.link('[stop]', { class: 'stop-button' }, e => {
-            this.#sandGame.stopProcessing();
-            this.#nodeLinkStop.hide();
-            this.#nodeLinkStart.show();
-        });
-        this.#nodeLinkStop.hide();
     }
 
-    initialize() {
+    #updateStartStopButton() {
+        this.#nodeLinkStartStop.text(this.#simulationEnabled ? '[pause]' : '[start]');
+    }
+
+    initialize(oldSandGameInstanceToCopy = null) {
         this.#nodeCanvas = this.#createCanvas();
         this.#nodeHolderCanvas.append(this.#nodeCanvas);
 
@@ -108,9 +112,13 @@ export class SandGameComponent {
         this.#sandGame = new SandGame(context, this.#currentWidthPoints, this.#currentHeightPoints, defaultElement);
         this.#sandGame.setFallThroughEnabled(this.#fallThroughEnabled);
         this.#sandGame.addOnRendered(() => {
-            this.#nodeLabelCounter.text(this.#sandGame.getFramesPerSecond() + ' FPS, '
-                    + this.#sandGame.getCyclesPerSecond() + ' CPS');
+            const fps = this.#sandGame.getFramesPerSecond();
+            const cps = this.#sandGame.getCyclesPerSecond();
+            this.#nodeLabelCounter.text(`${fps} FPS, ${cps} CPS`);
         });
+        if (oldSandGameInstanceToCopy !== null) {
+            oldSandGameInstanceToCopy.copyElementsTo(this.#sandGame);
+        }
 
         // mouse handling
         this.#nodeCanvas.bind('contextmenu', e => false);
@@ -119,7 +127,10 @@ export class SandGameComponent {
         // start rendering
         this.#sandGame.startRendering();
 
-        this.#nodeLinkStart.show();  // processing can be started now
+        // start processing - if enabled
+        if (this.#simulationEnabled) {
+            this.#sandGame.startProcessing();
+        }
     }
 
     #createCanvas() {
@@ -239,12 +250,9 @@ export class SandGameComponent {
             throw 'Incorrect scale';
         }
 
-        let oldSandGame = this.#sandGame;
         if (this.#sandGame !== null) {
             this.#sandGame.stopProcessing();
             this.#sandGame.stopRendering();
-            this.#nodeLinkStop.hide();
-            this.#nodeLinkStart.hide();
         }
         this.#nodeHolderCanvas.empty();
 
@@ -252,12 +260,7 @@ export class SandGameComponent {
         this.#currentHeightPoints = height;
         this.#currentScale = scale;
 
-        this.initialize();
-        if (oldSandGame !== null) {
-            oldSandGame.copyElementsTo(this.#sandGame);
-        }
-
-        this.start();
+        this.initialize(this.#sandGame);
     }
 
     enableBrushes() {
@@ -313,8 +316,7 @@ export class SandGameComponent {
             ]),
             DomBuilder.div({ class: 'sand-game-performance-options' }, [
                 this.#nodeLabelCounter,
-                this.#nodeLinkStart,
-                this.#nodeLinkStop
+                this.#nodeLinkStartStop
             ])
         ]);
 
@@ -404,12 +406,12 @@ export class SandGameComponent {
     }
 
     start() {
-        if (this.#sandGame === null) {
-            throw 'Illegal state: Sand Game is not initialized';
+        if (!this.#simulationEnabled) {
+            this.#simulationEnabled = true;
+            this.#updateStartStopButton();
+            if (this.#sandGame !== null) {
+                this.#sandGame.startProcessing();
+            }
         }
-
-        this.#sandGame.startProcessing();
-        this.#nodeLinkStop.show();
-        this.#nodeLinkStart.hide();
     }
 }
