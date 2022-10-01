@@ -788,7 +788,7 @@ class Element {
 /**
  *
  * @author Patrik Harag
- * @version 2022-09-29
+ * @version 2022-10-01
  */
 class ElementProcessor {
 
@@ -1103,8 +1103,11 @@ class ElementProcessor {
                                 canGrowHere = true;
                             } else if (currentElementBehaviour === ElementHead.BEHAVIOUR_GRASS) {
                                 canGrowHere = true;
-                            } else if (ElementHead.getType(currentElementHead) !== ElementHead.TYPE_STATIC) {
-                                canGrowHere = true;
+                            } else if (node.y > Math.min(-4, -7 + Math.abs(node.x))) {
+                                // roots & bottom trunk only...
+                                if (ElementHead.getType(currentElementHead) !== ElementHead.TYPE_STATIC) {
+                                    canGrowHere = true;
+                                }
                             }
                             break;
                         case TreeTemplateNode.TYPE_LEAF:
@@ -1202,13 +1205,25 @@ class ElementProcessor {
     }
 
     #behaviourTreeLeaf(elementArea, elementHead, x, y) {
-        // TODO
+        // approx one times per 5 seconds... check if it's not buried
 
-        // let random = this.#random.nextInt(SandGame.OPT_CYCLES_PER_SECOND * 10);
-        // if (random === 0) {
-        //     // remove element to create some movement
-        //     elementArea.setElement(x, y, Brushes.AIR.apply(x, y));
-        // }
+        if (this.#iteration % SandGame.OPT_CYCLES_PER_SECOND === 0) {
+            const random = this.#random.nextInt(5);
+            if (random === 0) {
+                const directions = [[0, -1], [-1, -1], [1, -1], [-1, 0], [1, 0]];
+                const randomDirection = directions[this.#random.nextInt(directions.length)];
+                const targetX = x + randomDirection[0];
+                const targetY = y + randomDirection[1];
+
+                if (elementArea.isValidPosition(targetX, targetY)) {
+                    const elementHeadAbove = elementArea.getElementHead(targetX, targetY);
+                    if (ElementHead.getType(elementHeadAbove) !== ElementHead.TYPE_STATIC
+                            && ElementHead.getWeight(elementHeadAbove) >= ElementHead.WEIGHT_WATER) {
+                        elementArea.setElement(x, y, this.#defaultElement);
+                    }
+                }
+            }
+        }
     }
 
     #behaviourFish(elementArea, elementHead, x, y) {
