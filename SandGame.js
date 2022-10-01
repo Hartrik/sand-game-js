@@ -991,7 +991,11 @@ class ElementProcessor {
         if (!elementArea.isValidPosition(x2, y2)) {
             if (this.#fallThroughEnabled && y === this.#height - 1) {
                 // try fall through
-                return this.#move(elementArea, elementHead, x, y, x2, 0);
+                y2 = 0;
+                if (!elementArea.isValidPosition(x2, y2)) {
+                    return false;
+                }
+                // move
             } else {
                 return false;
             }
