@@ -1021,10 +1021,15 @@ class ElementProcessor {
             // check above
             if (y > 0) {
                 let above1 = elementArea.getElementHead(x, y - 1);
-                let grassAbove = ElementHead.getBehaviour(above1) === ElementHead.BEHAVIOUR_GRASS;
-                if (!grassAbove && ElementHead.getWeight(above1) > ElementHead.WEIGHT_WATER) {
-                    // remove grass
-                    elementArea.setElement(x, y, this.#defaultElement);
+                if (ElementHead.getBehaviour(above1) !== ElementHead.BEHAVIOUR_GRASS) {
+                    let weightAbove1 = ElementHead.getWeight(above1);
+                    // note: it takes longer for water to suffocate the grass
+                    if (weightAbove1 > ElementHead.WEIGHT_WATER
+                            || (weightAbove1 === ElementHead.WEIGHT_WATER && this.#random.nextInt(100) === 0)) {
+                        // remove grass
+                        elementArea.setElement(x, y, this.#defaultElement);
+                        return;
+                    }
                 }
             }
 
