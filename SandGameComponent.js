@@ -5,7 +5,7 @@ import { SandGame, Brushes } from "./SandGame.js";
  * @requires jQuery
  *
  * @author Patrik Harag
- * @version 2022-09-30
+ * @version 2022-10-01
  */
 export class SandGameComponent {
 
@@ -31,6 +31,8 @@ export class SandGameComponent {
 
     /** @type SandGame */
     #sandGame = null;
+    /** @type string */
+    #imageRendering = 'pixelated';
     /** @type boolean */
     #simulationEnabled = false;
     /** @type boolean */
@@ -75,41 +77,45 @@ export class SandGameComponent {
             ]),
             DomBuilder.span('', { class: 'sand-game-counter' }));
         this.#nodeLabelSize = DomBuilder.span('',{ class: 'sand-game-size' });
-        this.#nodeLinkStartStop = DomBuilder.link('', { class: 'start-stop-button' }, e => {
-            if (this.#sandGame !== null) {
-                if (this.#simulationEnabled) {
-                    this.#sandGame.stopProcessing();
-                } else {
-                    this.#sandGame.startProcessing();
+        this.#nodeLinkStartStop = DomBuilder.element('button', { type: 'button', class: 'btn btn-light' }, '[Start]')
+            .on("click", e => {
+                if (this.#sandGame !== null) {
+                    if (this.#simulationEnabled) {
+                        this.#sandGame.stopProcessing();
+                    } else {
+                        this.#sandGame.startProcessing();
+                    }
+                    this.#simulationEnabled = !this.#simulationEnabled;
+                    this.#updateStartStopButton();
                 }
-                this.#simulationEnabled = !this.#simulationEnabled;
-                this.#updateStartStopButton();
-            }
-        });
+            });
     }
 
     #updateStartStopButton() {
-        this.#nodeLinkStartStop.text(this.#simulationEnabled ? '[pause]' : '[start]');
+        this.#nodeLinkStartStop.text(this.#simulationEnabled ? '[Pause]' : '[Start]');
     }
 
     initialize(oldSandGameInstanceToCopy = null) {
         this.#nodeCanvas = this.#createCanvas();
         this.#nodeHolderCanvas.append(this.#nodeCanvas);
 
+        const w = this.#currentWidthPoints;
+        const h = this.#currentHeightPoints;
+
         // scale up
-        this.#nodeCanvas.width(this.#currentWidthPoints / this.#currentScale);
-        this.#nodeCanvas.height(this.#currentHeightPoints / this.#currentScale);
+        this.#nodeCanvas.width(w / this.#currentScale);
+        this.#nodeCanvas.height(h / this.#currentScale);
 
         // set size
-        this.#nodeLabelSize.text(`${this.#currentWidthPoints} x ${this.#currentHeightPoints}, scale=${this.#currentScale}`);
+        this.#nodeLabelSize.text(`${w} x ${h}, scale=${this.#currentScale}`);
+        DomBuilder.Bootstrap.initTooltip(`Simulated elements = ${(w * h).toLocaleString()} `, this.#nodeLabelSize);
 
         // init game
         let domCanvasNode = this.#nodeCanvas[0];
         let context = domCanvasNode.getContext('2d');
-        // TODO: domCanvasNode.style.imageRendering = "pixelated";
 
         let defaultElement = Brushes.AIR.apply(0, 0);
-        this.#sandGame = new SandGame(context, this.#currentWidthPoints, this.#currentHeightPoints, defaultElement);
+        this.#sandGame = new SandGame(context, w, h, defaultElement);
         this.#sandGame.setFallThroughEnabled(this.#fallThroughEnabled);
         this.#sandGame.addOnRendered(() => {
             const fps = this.#sandGame.getFramesPerSecond();
@@ -134,11 +140,14 @@ export class SandGameComponent {
     }
 
     #createCanvas() {
-        return DomBuilder.element('canvas', {
+        let canvas = DomBuilder.element('canvas', {
             class: 'sand-game-canvas',
             width: this.#currentWidthPoints + 'px',
             height: this.#currentHeightPoints + 'px'
         });
+        let domCanvasNode = canvas[0];
+        domCanvasNode.style.imageRendering = this.#imageRendering;
+        return canvas;
     }
 
     #initMouseHandling(domNode, sandGame) {
@@ -289,35 +298,61 @@ export class SandGameComponent {
     }
 
     enableOptions() {
-        let changeCanvasSize = DomBuilder.link('[\u2B0C]', { class: 'change-canvas-size-button' }, e => {
-            let formBuilder = new DomBuilder.BootstrapSimpleForm();
-            formBuilder.addInput('Width', 'width', this.#currentWidthPoints);
-            formBuilder.addInput('Height', 'height', this.#currentHeightPoints);
-            formBuilder.addInput('Scale', 'scale', this.#currentScale);
+        let changeCanvasSizeLabel = window.innerWidth > 400 ? '[Change size]' : '[\u2B0C]'
+        let changeCanvasSize = DomBuilder.element('button', { type: 'button', class: 'btn btn-light' }, changeCanvasSizeLabel)
+            .on("click", e => {
+                let formBuilder = new DomBuilder.BootstrapSimpleForm();
+                formBuilder.addInput('Width', 'width', this.#currentWidthPoints);
+                formBuilder.addInput('Height', 'height', this.#currentHeightPoints);
+                formBuilder.addInput('Scale', 'scale', this.#currentScale);
 
-            let dialog = new DomBuilder.BootstrapDialog();
-            dialog.setHeaderContent('Change canvas size');
-            dialog.setBodyContent(formBuilder.createNode());
-            dialog.addSubmitButton('Submit', () => {
-                let data = formBuilder.getData();
-                let w = Number.parseInt(data['width']);
-                let h = Number.parseInt(data['height']);
-                let s = Number.parseFloat(data['scale']);
-                this.#changeCanvasSize(w, h, s);
+                let dialog = new DomBuilder.BootstrapDialog();
+                dialog.setHeaderContent('Change canvas size');
+                dialog.setBodyContent(formBuilder.createNode());
+                dialog.addSubmitButton('Submit', () => {
+                    let data = formBuilder.getData();
+                    let w = Number.parseInt(data['width']);
+                    let h = Number.parseInt(data['height']);
+                    let s = Number.parseFloat(data['scale']);
+                    this.#changeCanvasSize(w, h, s);
+                });
+                dialog.addCloseButton('Close');
+                dialog.show(this.#node);
             });
-            dialog.addCloseButton('Close');
-            dialog.show(this.#node);
-        });
+
+        let renderingOptions = DomBuilder.div({ class: 'btn-group' }, [
+            DomBuilder.element('button', {
+                type: 'button',
+                class: 'btn btn-light dropdown-toggle',
+                'data-toggle': 'dropdown',
+                'aria-haspopup': 'true',
+                'aria-expanded': 'false'
+            }, 'Rendering'),
+            DomBuilder.element('form', { class: 'dropdown-menu p-2' }, [
+                DomBuilder.div({ class: 'form-check' }, [
+                    DomBuilder.element('input', { type: 'checkbox', checked: 'true', disabled: 'true', class: 'form-check-input', id: 'rend-check-mb' }),
+                    DomBuilder.element('label', { class: 'form-check-label', for: 'rend-check-mb' }, 'Motion blur')
+                ]),
+                DomBuilder.div({ class: 'form-check' }, [
+                    DomBuilder.element('input', { type: 'checkbox', checked: 'true', class: 'form-check-input', id: 'rend-check-pixelated' }).change((e) => {
+                        let checked = e.target.checked;
+                        this.#setCanvasImageRenderingStyle(checked ? 'pixelated' : 'unset')
+                    }),
+                    DomBuilder.element('label', { class: 'form-check-label', for: 'rend-check-pixelated' }, 'Pixelated')
+                ])
+            ])
+        ]);
 
         let options = DomBuilder.div({ class: 'sand-game-options' }, [
             DomBuilder.div({ class: 'sand-game-canvas-size-options' }, [
                 this.#nodeLabelSize,
-                changeCanvasSize
+                changeCanvasSize,
+                renderingOptions
             ]),
             DomBuilder.div({ class: 'sand-game-performance-options' }, [
                 this.#nodeLabelCounter,
                 this.#nodeLinkStartStop
-            ])
+            ]),
         ]);
 
         this.#nodeHolderBottomToolbar.append(options);
@@ -403,6 +438,14 @@ export class SandGameComponent {
                     3: Brushes.STONE
                 })
                 .paint();
+    }
+
+    #setCanvasImageRenderingStyle(style) {
+        this.#imageRendering = style;
+        if (this.#nodeCanvas !== null) {
+            let domCanvasNode = this.#nodeCanvas[0];
+            domCanvasNode.style.imageRendering = style;
+        }
     }
 
     start() {

@@ -51,22 +51,26 @@
 .sand-game-component .sand-game-performance-options {
     white-space: nowrap;
     display: inline-block;
+    border-left: lightgray solid 1pt;
+    padding-left: 0.5em;
 }
 
-.sand-game-component .sand-game-options .sand-game-counter,
-.sand-game-component .sand-game-options .sand-game-size {
-    font-size: small;
+.sand-game-component .sand-game-canvas-size-options {
+    margin-right: 1.5em;
+}
+
+.sand-game-component .sand-game-options span {
     color: gray;
+    margin-right: 0.5em;
+    font-size: 75%;
 }
 
-.sand-game-component .sand-game-options .change-canvas-size-button {
-    margin-right: 2em;
-}
-
-.sand-game-component .sand-game-options .change-canvas-size-button,
-.sand-game-component .sand-game-options .start-stop-button  {
-    font-size: small;
-    margin-left: 0.75em;
+.sand-game-component .sand-game-options .btn {
+    color: gray;
+    padding: 0 0.5em 0 0.5em;
+    margin-left: 0.25em;
+    vertical-align: baseline;
+    font-size: 75%;
 }
 
 .sand-game-component .card {
