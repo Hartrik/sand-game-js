@@ -1076,10 +1076,11 @@ class ElementProcessor {
     #behaviourTree(elementArea, elementHead, x, y) {
         let random = this.#random.nextInt(SandGame.OPT_CYCLES_PER_SECOND);
         if (random === 0) {
-            let root = TreeTemplates.getTemplate(ElementHead.getSpecial(elementHead));
+            let template = TreeTemplates.getTemplate(ElementHead.getSpecial(elementHead));
 
+            let level = 0;
             let stack = [];
-            for (let child of root.children) {
+            for (let child of template.root.children) {
                 stack.push(child);
             }
 
@@ -1118,6 +1119,10 @@ class ElementProcessor {
                         case TreeTemplateNode.TYPE_LEAF:
                             if (currentElementBehaviour === ElementHead.BEHAVIOUR_TREE_LEAF) {
                                 isHereAlready = true;
+                                // update leaf vitality (if not dead already)
+                                if (ElementHead.getSpecial(currentElementHead) < 15) {
+                                    elementArea.setElementHead(nx, ny, ElementHead.setSpecial(currentElementHead, 0));
+                                }
                             } else if (currentElementBehaviour === ElementHead.BEHAVIOUR_TREE_TRUNK) {
                                 isHereAlready = true;
                             } else if (ElementHead.getWeight(currentElementHead) === ElementHead.WEIGHT_AIR) {
@@ -1128,6 +1133,10 @@ class ElementProcessor {
                             throw 'Unknown type: ' + node.type;
                     }
 
+                    if (canGrowHere || isHereAlready) {
+                        level++;
+                    }
+
                     if (canGrowHere) {
                         elementArea.setElement(nx, ny, node.brush.apply(nx, ny));
                     }
@@ -1136,6 +1145,25 @@ class ElementProcessor {
                         for (let child of node.children) {
                             stack.push(child);
                         }
+                    }
+                }
+            }
+
+            // check tree status
+            // - last tree status is carried by tree trunk above
+            if (y > 0) {
+                let carrierElementHead = elementArea.getElementHead(x, y - 1);
+                if (ElementHead.getBehaviour(carrierElementHead) === ElementHead.BEHAVIOUR_TREE_TRUNK) {
+                    const maxStage = 15;
+                    let lastStage = ElementHead.getSpecial(carrierElementHead);
+                    let currentStage = Math.trunc(level / template.nodes * maxStage);
+                    if (lastStage - currentStage > 5) {
+                        // too big damage taken => kill tree
+                        elementArea.setElementHead(x, y - 1, ElementHead.setSpecial(carrierElementHead, 0));
+                        elementArea.setElement(x, y, Brushes.TREE_WOOD.apply(x, y));
+                    } else {
+                        // update stage
+                        elementArea.setElementHead(x, y - 1, ElementHead.setSpecial(carrierElementHead, currentStage));
                     }
                 }
             }
@@ -1210,11 +1238,30 @@ class ElementProcessor {
     }
 
     #behaviourTreeLeaf(elementArea, elementHead, x, y) {
-        // approx one times per 5 seconds... check if it's not buried
+        // decrement vitality (if not dead already)
+        let vitality = ElementHead.getSpecial(elementHead);
+        if (vitality < 15) {
+            if (this.#iteration % 32 === 0) {
+                if (this.#random.nextInt(10) === 0) {
+                    vitality++;
+                    if (vitality >= 15) {
+                        elementArea.setElement(x, y, Brushes.TREE_LEAF_DEAD.apply(x, y));
+                        return;
+                    } else {
+                        elementHead = ElementHead.setSpecial(elementHead, vitality);
+                        elementArea.setElementHead(x, y, elementHead);
+                    }
+                }
+            }
+        }
 
+        // approx one times per 5 seconds... check if it's not buried or levitating
         if (this.#iteration % SandGame.OPT_CYCLES_PER_SECOND === 0) {
             const random = this.#random.nextInt(5);
+
             if (random === 0) {
+                // - check if it's not buried
+
                 const directions = [[0, -1], [-1, -1], [1, -1], [-1, 0], [1, 0]];
                 const randomDirection = directions[this.#random.nextInt(directions.length)];
                 const targetX = x + randomDirection[0];
@@ -1227,6 +1274,10 @@ class ElementProcessor {
                         elementArea.setElement(x, y, this.#defaultElement);
                     }
                 }
+            }
+            if (random === 1) {
+                // - check it's not levitating
+                // TODO
             }
         }
     }
@@ -1363,7 +1414,7 @@ class GrassElement {
 /**
  *
  * @author Patrik Harag
- * @version 2022-09-29
+ * @version 2022-10-01
  */
 class TreeTemplates {
 
@@ -1372,12 +1423,14 @@ class TreeTemplates {
     /**
      *
      * @param id {number} template id
-     * @returns {TreeTemplateNode} root
+     * @returns {TreeTemplate} template
      */
     static getTemplate(id) {
         let template = TreeTemplates.TEMPLATES[id];
         if (!template) {
-            template = TreeTemplates.#generate(id);
+            let root = TreeTemplates.#generate(id);
+            let count = TreeTemplates.#countNodes(root);
+            template = new TreeTemplate(root, count);
             TreeTemplates.TEMPLATES[id] = template;
         }
         return template;
@@ -1504,6 +1557,39 @@ class TreeTemplates {
             next.children.push(leafBelow);
         }
         return branchRoot;
+    }
+
+    static #countNodes(root) {
+        let count = 0;
+
+        let stack = [root];
+        while (stack.length > 0) {
+            let node = stack.pop();
+            count++;
+            for (let child of node.children) {
+                stack.push(child);
+            }
+        }
+        return count;
+    }
+}
+
+/**
+ *
+ * @author Patrik Harag
+ * @version 2022-10-01
+ */
+class TreeTemplate {
+
+    /** @type TreeTemplateNode */
+    root;
+
+    /** @type number */
+    nodes;
+
+    constructor(root, nodes) {
+        this.root = root;
+        this.nodes = nodes;
     }
 }
 
@@ -2099,6 +2185,13 @@ export class Brushes {
     static TREE_LEAF_DARKER = RandomBrush.fromHeadAndTails(ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_WALL, ElementHead.BEHAVIOUR_TREE_LEAF), [
         ElementTail.of(0, 76, 72, 0),
     ]);
+
+    static TREE_LEAF_DEAD = RandomBrush.fromHeadAndTails(ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_WALL, ElementHead.BEHAVIOUR_TREE_LEAF, 15), [
+        ElementTail.of(150, 69, 41, 0),
+        ElementTail.of(185, 99, 75, 0),
+        ElementTail.of(174, 97, 81, 0),
+    ]);
+
 
     /**
      *
