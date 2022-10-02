@@ -2,7 +2,7 @@
 /**
  *
  * @author Patrik Harag
- * @version 2022-09-29
+ * @version 2022-10-02
  */
 export class SandGame {
 
@@ -126,8 +126,19 @@ export class SandGame {
         return new TemplatePainter(this.graphics());
     }
 
-    setFallThroughEnabled(enable) {
-        this.#processor.setFallThroughEnabled(enable);
+    setBoxedMode() {
+        this.#processor.setFallThroughEnabled(false);
+        this.#processor.setErasingEnabled(false);
+    }
+
+    setFallThroughMode() {
+        this.#processor.setFallThroughEnabled(true);
+        this.#processor.setErasingEnabled(false);
+    }
+
+    setErasingMode() {
+        this.#processor.setFallThroughEnabled(false);
+        this.#processor.setErasingEnabled(true);
     }
 
     addOnRendered(onRenderedFunc) {
@@ -150,13 +161,15 @@ export class SandGame {
         return this.#height;
     }
 
-    copyElementsTo(sandGame) {
+    copyStateTo(sandGame) {
         for (let y = 0; y < Math.min(this.#height, sandGame.#height); y++) {
             for (let x = 0; x < Math.min(this.#width, sandGame.#width); x++) {
                 sandGame.#elementArea.setElementHead(x, y, this.#elementArea.getElementHead(x, y));
                 sandGame.#elementArea.setElementTail(x, y, this.#elementArea.getElementTail(x, y));
             }
         }
+        sandGame.#processor.setFallThroughEnabled(this.#processor.isFallThroughEnabled());
+        sandGame.#processor.setErasingEnabled(this.#processor.isErasingEnabled());
     }
 }
 
@@ -788,7 +801,7 @@ class Element {
 /**
  *
  * @author Patrik Harag
- * @version 2022-10-01
+ * @version 2022-10-02
  */
 class ElementProcessor {
 
@@ -805,6 +818,8 @@ class ElementProcessor {
 
     /** @type boolean */
     #fallThroughEnabled = false;
+    /** @type boolean */
+    #erasingEnabled = false;
 
     #defaultElement;
 
@@ -835,6 +850,18 @@ class ElementProcessor {
         this.#fallThroughEnabled = enabled;
     }
 
+    setErasingEnabled(enabled) {
+        this.#erasingEnabled = enabled;
+    }
+
+    isFallThroughEnabled() {
+        return this.#fallThroughEnabled;
+    }
+
+    isErasingEnabled() {
+        return this.#erasingEnabled;
+    }
+
     /**
      *
      * @param elementArea {ElementArea}
@@ -849,6 +876,18 @@ class ElementProcessor {
                 this.#nextPoint(elementArea, x, y);
             }
         }
+
+        if (this.#erasingEnabled) {
+            for (let x = 0; x < this.#width; x++) {
+                elementArea.setElement(x, 0, this.#defaultElement);
+                elementArea.setElement(x, this.#height - 1, this.#defaultElement);
+            }
+            for (let y = 1; y < this.#height - 1; y++) {
+                elementArea.setElement(0, y, this.#defaultElement);
+                elementArea.setElement(this.#width - 1, y, this.#defaultElement);
+            }
+        }
+
         this.#iteration++;
     }
 

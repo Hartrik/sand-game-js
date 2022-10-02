@@ -18,7 +18,7 @@
           let root = $('#sand-game-root');
 
           let width = Math.min(1400, root.width());
-          let height = Math.min(800, Math.trunc(window.innerHeight * 0.75));
+          let height = Math.min(800, Math.trunc(window.innerHeight * 0.70));
 
           let scale = 0.25;
           if (width * height < 300000) {
@@ -32,16 +32,15 @@
               scale: scale,
               canvasWidthPx: width,
               canvasHeightPx: height,
-              brushSize: 5
+              brushSize: 5,
+              scene: 'landscape'
           };
           let sandGameComponent = new SandGameComponent(root, init);
-          sandGameComponent.initialize();
           sandGameComponent.enableBrushes();
-          sandGameComponent.enableModes();
           sandGameComponent.enableOptions();
+          sandGameComponent.enableScenes();
           sandGameComponent.enableTestTools();
           sandGameComponent.enableTemplateEditor();
-          sandGameComponent.drawExample();
           sandGameComponent.start();
       })
   </script>

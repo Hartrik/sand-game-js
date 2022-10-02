@@ -79,7 +79,7 @@ export class DomBuilder {
 
 /**
  *
- * @version 2022-09-25
+ * @version 2022-10-02
  * @author Patrik Harag
  */
 DomBuilder.Bootstrap = class {
@@ -99,30 +99,31 @@ DomBuilder.Bootstrap = class {
             attributes.class = 'card';
         }
 
-        return DomBuilder.div(attributes, [
-            DomBuilder.div({ class: 'card-header' }, [
-                headerContent
-            ]),
-            DomBuilder.div({ class: 'card-body' }, [
-                bodyContent
-            ])
-        ]);
+        let card = DomBuilder.div(attributes);
+
+        if (headerContent) {
+            card.append(DomBuilder.div({ class: 'card-header' }, headerContent));
+        }
+
+        card.append(DomBuilder.div({ class: 'card-body' }, bodyContent));
+        return card;
     }
 
     /**
      *
      * @param title {string}
+     * @param collapsed {boolean}
      * @param bodyContent {string|jQuery<HTMLElement>|jQuery<HTMLElement>[]}
      * @return {jQuery<HTMLElement>}
      */
-    static cardCollapsed(title, bodyContent) {
+    static cardCollapsable(title, collapsed, bodyContent) {
         let id = 'collapsable_' + Math.floor(Math.random() * 999_999_999);
 
         return DomBuilder.div({ class: 'card' }, [
             DomBuilder.div({ class: 'card-header' }, [
                 DomBuilder.element('a', { class: 'card-link', 'data-toggle': 'collapse', href: '#' + id}, title)
             ]),
-            DomBuilder.div({ id: id, class: 'collapse' }, [
+            DomBuilder.div({ id: id, class: (collapsed ? 'collapse' : 'collapse show') }, [
                 DomBuilder.div({ class: 'card-body' }, bodyContent)
             ])
         ]);

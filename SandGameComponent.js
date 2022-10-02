@@ -5,7 +5,7 @@ import { SandGame, Brushes } from "./SandGame.js";
  * @requires jQuery
  *
  * @author Patrik Harag
- * @version 2022-10-01
+ * @version 2022-10-02
  */
 export class SandGameComponent {
 
@@ -13,7 +13,8 @@ export class SandGameComponent {
         scale: 0.5,
         canvasWidthPx: 700,
         canvasHeightPx: 400,
-        brushSize: 5
+        brushSize: 5,
+        scene: 'empty'
     };
 
     #brushDeclarations = [
@@ -35,8 +36,6 @@ export class SandGameComponent {
     #imageRendering = 'pixelated';
     /** @type boolean */
     #simulationEnabled = false;
-    /** @type boolean */
-    #fallThroughEnabled = false;
     /** @type Brush */
     #brush = Brushes.SAND;
 
@@ -44,7 +43,7 @@ export class SandGameComponent {
     #nodeHolderTopToolbar;
     #nodeHolderCanvas;
     #nodeHolderBottomToolbar;
-    #nodeHolderAdditionalTools;
+    #nodeHolderAdditionalViews;
 
     #nodeCanvas;
     #nodeLabelCounter;
@@ -65,7 +64,7 @@ export class SandGameComponent {
             this.#nodeHolderTopToolbar = DomBuilder.div(),
             this.#nodeHolderCanvas = DomBuilder.div(),
             this.#nodeHolderBottomToolbar = DomBuilder.div(),
-            this.#nodeHolderAdditionalTools = DomBuilder.div(),
+            this.#nodeHolderAdditionalViews = DomBuilder.div({ class: 'sand-game-views' }),
         ]);
         rootNode.append(this.#node);
 
@@ -77,7 +76,7 @@ export class SandGameComponent {
             ]),
             DomBuilder.span('', { class: 'sand-game-counter' }));
         this.#nodeLabelSize = DomBuilder.span('',{ class: 'sand-game-size' });
-        this.#nodeLinkStartStop = DomBuilder.element('button', { type: 'button', class: 'btn btn-light' }, '[Start]')
+        this.#nodeLinkStartStop = DomBuilder.element('button', { type: 'button', class: 'btn btn-light' }, 'Start')
             .on("click", e => {
                 if (this.#sandGame !== null) {
                     if (this.#simulationEnabled) {
@@ -89,13 +88,24 @@ export class SandGameComponent {
                     this.#updateStartStopButton();
                 }
             });
+
+        this.#initialize(sandGame => {
+            let scene = SandGameScenes.SCENES[this.#init.scene];
+            if (scene) {
+                scene.apply(sandGame);
+            }
+        });
     }
 
     #updateStartStopButton() {
-        this.#nodeLinkStartStop.text(this.#simulationEnabled ? '[Pause]' : '[Start]');
+        this.#nodeLinkStartStop.text(this.#simulationEnabled ? 'Pause' : 'Start');
     }
 
-    initialize(oldSandGameInstanceToCopy = null) {
+    /**
+     *
+     * @param sandGameInitializer {function(SandGame)}
+     */
+    #initialize(sandGameInitializer) {
         this.#nodeCanvas = this.#createCanvas();
         this.#nodeHolderCanvas.append(this.#nodeCanvas);
 
@@ -107,7 +117,7 @@ export class SandGameComponent {
         this.#nodeCanvas.height(h / this.#currentScale);
 
         // set size
-        this.#nodeLabelSize.text(`${w} x ${h}, scale=${this.#currentScale}`);
+        this.#nodeLabelSize.text(`${w}\u00D7${h}, scale=${this.#currentScale}`);
         DomBuilder.Bootstrap.initTooltip(`Simulated elements = ${(w * h).toLocaleString()} `, this.#nodeLabelSize);
 
         // init game
@@ -116,15 +126,12 @@ export class SandGameComponent {
 
         let defaultElement = Brushes.AIR.apply(0, 0);
         this.#sandGame = new SandGame(context, w, h, defaultElement);
-        this.#sandGame.setFallThroughEnabled(this.#fallThroughEnabled);
         this.#sandGame.addOnRendered(() => {
             const fps = this.#sandGame.getFramesPerSecond();
             const cps = this.#sandGame.getCyclesPerSecond();
             this.#nodeLabelCounter.text(`${fps} FPS, ${cps} CPS`);
         });
-        if (oldSandGameInstanceToCopy !== null) {
-            oldSandGameInstanceToCopy.copyElementsTo(this.#sandGame);
-        }
+        sandGameInitializer(this.#sandGame);
 
         // mouse handling
         this.#nodeCanvas.bind('contextmenu', e => false);
@@ -148,6 +155,15 @@ export class SandGameComponent {
         let domCanvasNode = canvas[0];
         domCanvasNode.style.imageRendering = this.#imageRendering;
         return canvas;
+    }
+
+    #close() {
+        if (this.#sandGame !== null) {
+            this.#sandGame.stopProcessing();
+            this.#sandGame.stopRendering();
+        }
+        this.#nodeHolderCanvas.empty();
+        this.#nodeCanvas = null;
     }
 
     #initMouseHandling(domNode, sandGame) {
@@ -259,17 +275,16 @@ export class SandGameComponent {
             throw 'Incorrect scale';
         }
 
-        if (this.#sandGame !== null) {
-            this.#sandGame.stopProcessing();
-            this.#sandGame.stopRendering();
-        }
-        this.#nodeHolderCanvas.empty();
+        this.#close();
 
         this.#currentWidthPoints = width;
         this.#currentHeightPoints = height;
         this.#currentScale = scale;
 
-        this.initialize(this.#sandGame);
+        let oldSandGameInstanceToCopy = this.#sandGame;
+        this.#initialize(sandGame => {
+            oldSandGameInstanceToCopy.copyStateTo(sandGame);
+        });
     }
 
     enableBrushes() {
@@ -286,19 +301,8 @@ export class SandGameComponent {
         }, () => this.#brush = brush)
     }
 
-    enableModes() {
-        let toolbar = DomBuilder.div({ class: 'sand-game-modes' });
-
-        let fallThroughLabel = window.innerWidth > 400 ? 'Fall-through' : '\u2B73'
-        toolbar.append(DomBuilder.link(fallThroughLabel, { class: 'badge badge-danger' }, () => {
-            this.#fallThroughEnabled = !this.#fallThroughEnabled;
-            this.#sandGame.setFallThroughEnabled(this.#fallThroughEnabled);
-        }));
-        this.#nodeHolderTopToolbar.append(toolbar);
-    }
-
     enableOptions() {
-        let changeCanvasSizeLabel = window.innerWidth > 400 ? '[Change size]' : '[\u2B0C]'
+        let changeCanvasSizeLabel = window.innerWidth > 500 ? 'Change size' : '\u2B0C'
         let changeCanvasSize = DomBuilder.element('button', { type: 'button', class: 'btn btn-light' }, changeCanvasSizeLabel)
             .on("click", e => {
                 let formBuilder = new DomBuilder.BootstrapSimpleForm();
@@ -320,6 +324,7 @@ export class SandGameComponent {
                 dialog.show(this.#node);
             });
 
+        let renderingOptionsLabel = window.innerWidth > 500 ? 'Rendering' : '\u2752'
         let renderingOptions = DomBuilder.div({ class: 'btn-group' }, [
             DomBuilder.element('button', {
                 type: 'button',
@@ -327,7 +332,7 @@ export class SandGameComponent {
                 'data-toggle': 'dropdown',
                 'aria-haspopup': 'true',
                 'aria-expanded': 'false'
-            }, 'Rendering'),
+            }, renderingOptionsLabel),
             DomBuilder.element('form', { class: 'dropdown-menu p-2' }, [
                 DomBuilder.div({ class: 'form-check' }, [
                     DomBuilder.element('input', { type: 'checkbox', checked: 'true', disabled: 'true', class: 'form-check-input', id: 'rend-check-mb' }),
@@ -356,6 +361,17 @@ export class SandGameComponent {
         ]);
 
         this.#nodeHolderBottomToolbar.append(options);
+    }
+
+    enableScenes() {
+        let component = new SandGameScenesComponent(scene => {
+            this.#close();
+            this.#initialize(sandGame => {
+                scene.apply(sandGame);
+            });
+        }, this.#init.scene);
+
+        this.#nodeHolderAdditionalViews.append(component.createNode());
     }
 
     enableTemplateEditor() {
@@ -393,7 +409,7 @@ export class SandGameComponent {
             }
         })
 
-        this.#nodeHolderAdditionalTools.append(DomBuilder.Bootstrap.cardCollapsed('Template editor', formBuilder.createNode()));
+        this.#nodeHolderAdditionalViews.append(DomBuilder.Bootstrap.cardCollapsable('Template editor', true, formBuilder.createNode()));
     }
 
     enableTestTools() {
@@ -410,34 +426,7 @@ export class SandGameComponent {
             })
         ]);
 
-        this.#nodeHolderAdditionalTools.append(DomBuilder.Bootstrap.cardCollapsed('Test tools', content));
-    }
-
-    drawExample() {
-        if (this.#sandGame === null) {
-            throw 'Illegal state: Sand Game is not initialized';
-        }
-
-        this.#sandGame.template()
-                .withMaxHeight(120)
-                .withBlueprint([
-                    '          ',
-                    '     ww   ',
-                    '          ',
-                    '   11     ',
-                    ' 2 11111 2',
-                    ' 222    22',
-                    '222    222',
-                    '3333333333',
-                    '          ',
-                ])
-                .withBrushes({
-                    w: Brushes.withIntensity(Brushes.WATER, 0.95),
-                    1: Brushes.SAND,
-                    2: Brushes.SOIL,
-                    3: Brushes.STONE
-                })
-                .paint();
+        this.#nodeHolderAdditionalViews.append(DomBuilder.Bootstrap.cardCollapsable('Test tools', false, content));
     }
 
     #setCanvasImageRenderingStyle(style) {
@@ -457,4 +446,173 @@ export class SandGameComponent {
             }
         }
     }
+}
+
+/**
+ *
+ * @author Patrik Harag
+ * @version 2022-10-02
+ */
+class SandGameScenesComponent {
+
+    /** @type function(SandGameScene) */
+    #selectFunction;
+
+    #initialScene;
+
+    #selected = null;
+
+    constructor(selectFunction, initialScene) {
+        this.#selectFunction = selectFunction;
+        this.#initialScene = initialScene;
+    }
+
+    createNode() {
+        let content = DomBuilder.div({ class: 'scenes' }, []);
+        for (let id in SandGameScenes.SCENES) {
+            let scene = SandGameScenes.SCENES[id];
+            let node = this.#createSceneCard(scene);
+
+            if (id === this.#initialScene) {
+                this.#selected = node;
+                node.addClass('selected-scene');
+            }
+
+            node.on('click', e => {
+                if (this.#selected) {
+                    this.#selected.removeClass('selected-scene');
+                }
+                node.addClass('selected-scene');
+                this.#selected = node;
+                this.#selectFunction(scene);
+            })
+            content.append(node);
+        }
+
+        return content;
+    }
+
+    /**
+     *
+     * @param scene {SandGameScene}
+     */
+    #createSceneCard(scene) {
+        let bodyContent = [
+            DomBuilder.element('h5', { class: 'card-title' }, scene.name)
+        ];
+        bodyContent.push(DomBuilder.par({ class: 'card-text' }, scene.description ? scene.description : '\u00A0'));
+        return DomBuilder.Bootstrap.card(null, bodyContent);
+    }
+}
+
+/**
+ *
+ * @author Patrik Harag
+ * @version 2022-10-02
+ */
+class SandGameScenes {
+
+    static SCENES = {
+        empty: {
+            name: 'Empty',
+            description: 'Boxed mode',
+            apply: function (sandGame) {
+                sandGame.setBoxedMode();
+                // empty
+            }
+        },
+        landscape: {
+            name: 'Landscape',
+            description: 'Boxed mode',
+            apply: function (sandGame) {
+                sandGame.setBoxedMode();
+                sandGame.template()
+                    .withMaxHeight(120)
+                    .withBlueprint([
+                        '          ',
+                        '     ww   ',
+                        '          ',
+                        '   11     ',
+                        ' 2 11111 2',
+                        ' 222    22',
+                        '222    222',
+                        '3333333333',
+                        '          ',
+                    ])
+                    .withBrushes({
+                        w: Brushes.withIntensity(Brushes.WATER, 0.95),
+                        1: Brushes.SAND,
+                        2: Brushes.SOIL,
+                        3: Brushes.STONE
+                    })
+                    .paint();
+            }
+        },
+        fallthrough: {
+            name: 'Fall-through',
+            description: 'Fall-through mode',
+            apply: function (sandGame) {
+                sandGame.setFallThroughMode();
+                sandGame.template()
+                    .withBlueprint([
+                        '          ',
+                        '     ww   ',
+                        '          ',
+                        'ss ssss ss',
+                        '          ',
+                        '  s   ss  ',
+                        '          ',
+                        '          ',
+                        '          ',
+                        '          ',
+                    ])
+                    .withBrushes({
+                        w: Brushes.withIntensity(Brushes.WATER, 0.5),
+                        s: Brushes.WALL
+                    })
+                    .paint();
+            }
+        },
+        platform: {
+            name: 'Platform',
+            description: 'Erasing mode',
+            apply: function (sandGame) {
+                sandGame.setErasingMode();
+                sandGame.template()
+                    .withBlueprint([
+                        '          ',
+                        '          ',
+                        '        w ',
+                        '        w ',
+                        '          ',
+                        '          ',
+                        ' ssssssss ',
+                        '          ',
+                        '          ',
+                    ])
+                    .withBrushes({
+                        w: Brushes.SAND,
+                        s: Brushes.WALL
+                    })
+                    .paint();
+            }
+        }
+    };
+}
+
+/**
+ *
+ * @author Patrik Harag
+ * @version 2022-10-02
+ */
+class SandGameScene {
+
+    /** @type string */
+    name;
+
+    /** @type function(SandGame) */
+    apply;
+
+    /** @type string */
+    description;
 }
