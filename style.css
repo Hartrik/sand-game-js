@@ -69,7 +69,7 @@
     font-size: 75%;
 }
 
-.sand-game-component .sand-game-views {
+.sand-game-component .sand-game-views:has(div) {
     margin: 2em 0;
 }
 
