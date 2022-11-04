@@ -73,6 +73,29 @@
     margin: 2em 0;
 }
 
+.sand-game-component .sand-game-views .element-size-options {
+    white-space: nowrap;
+}
+
+.sand-game-component .sand-game-views .element-size-options .card {
+    cursor: pointer;
+    display: inline-block;
+    margin: 0.5em 0.5em 0.5em 0;
+    width: 48pt;
+    height: 32pt;
+    user-select: none;
+}
+
+.sand-game-component .sand-game-views .element-size-options .card img {
+    width: 47pt;
+    height: 31pt;
+    border-radius: 0.25rem;
+}
+
+.sand-game-component .sand-game-views .element-size-options .card.selected-size {
+    background-color: #ffffbd;
+}
+
 .sand-game-component .sand-game-views .scenes {
     overflow-x: auto;
     overflow-y: hidden;
@@ -81,7 +104,7 @@
 }
 
 .sand-game-component .sand-game-views .scenes .card {
-    cursor:pointer;
+    cursor: pointer;
     display: inline-block;
     margin: 0.5em 0.5em 0.5em 0;
     width: 110pt;

@@ -5,7 +5,7 @@ import { SandGame, Brushes } from "./SandGame.js";
  * @requires jQuery
  *
  * @author Patrik Harag
- * @version 2022-10-02
+ * @version 2022-11-04
  */
 export class SandGameComponent {
 
@@ -363,6 +363,16 @@ export class SandGameComponent {
         this.#nodeHolderBottomToolbar.append(options);
     }
 
+    enableSizeOptions() {
+        let component = new SandGameElementSizeComponent(newScale => {
+            let w = Math.trunc(this.#currentWidthPoints / this.#currentScale * newScale);
+            let h = Math.trunc(this.#currentHeightPoints / this.#currentScale * newScale);
+            this.#changeCanvasSize(w, h, newScale);
+        }, this.#init.scale);
+
+        this.#nodeHolderAdditionalViews.append(component.createNode());
+    }
+
     enableScenes() {
         let component = new SandGameScenesComponent(scene => {
             this.#close();
@@ -446,6 +456,87 @@ export class SandGameComponent {
             }
         }
     }
+}
+
+/**
+ *
+ * @author Patrik Harag
+ * @version 2022-11-04
+ */
+class SandGameElementSizeComponent {
+
+    /** @type function(scale) */
+    #selectFunction;
+
+    #initialScale;
+
+    #selected = null;
+
+    constructor(selectFunction, initialScale) {
+        this.#selectFunction = selectFunction;
+        this.#initialScale = initialScale;
+    }
+
+    createNode() {
+        let content = DomBuilder.div({ class: 'element-size-options' }, []);
+        for (let sizeDef of SandGameElementSizes.SIZES) {
+            let node = this.#createSizeCard(sizeDef.scale, sizeDef.image);
+
+            if (sizeDef.scale === this.#initialScale) {
+                this.#selected = node;
+                node.addClass('selected-size');
+            }
+
+            node.on('click', e => {
+                if (this.#selected) {
+                    this.#selected.removeClass('selected-size');
+                }
+                node.addClass('selected-size');
+                this.#selected = node;
+                this.#selectFunction(sizeDef.scale);
+            })
+            content.append(node);
+        }
+
+        return content;
+    }
+
+    /**
+     *
+     * @param scale {number}
+     * @param image {string}
+     */
+    #createSizeCard(scale, image) {
+        return DomBuilder.div({ class: 'card' }, [
+            DomBuilder.element('img', { src: image })
+        ]);
+    }
+}
+
+/**
+ *
+ * @author Patrik Harag
+ * @version 2022-11-04
+ */
+class SandGameElementSizes {
+    static SIZES = [
+        {
+            scale: 0.75,
+            image: './assets/element-size-1.png'
+        },
+        {
+            scale: 0.5,
+            image: './assets/element-size-2.png'
+        },
+        {
+            scale: 0.375,
+            image: './assets/element-size-3.png'
+        },
+        {
+            scale: 0.25,
+            image: './assets/element-size-4.png'
+        },
+    ];
 }
 
 /**
