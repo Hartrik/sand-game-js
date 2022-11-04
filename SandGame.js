@@ -2,7 +2,7 @@
 /**
  *
  * @author Patrik Harag
- * @version 2022-10-02
+ * @version 2022-11-04
  */
 export class SandGame {
 
@@ -162,10 +162,22 @@ export class SandGame {
     }
 
     copyStateTo(sandGame) {
+        let sourceY0;
+        let targetY0;
+        if (sandGame.#height >= this.#height) {
+            sourceY0 = 0;
+            targetY0 = sandGame.#height - this.#height
+        } else {
+            sourceY0 = this.#height - sandGame.#height;
+            targetY0 = 0;
+        }
+
         for (let y = 0; y < Math.min(this.#height, sandGame.#height); y++) {
             for (let x = 0; x < Math.min(this.#width, sandGame.#width); x++) {
-                sandGame.#elementArea.setElementHead(x, y, this.#elementArea.getElementHead(x, y));
-                sandGame.#elementArea.setElementTail(x, y, this.#elementArea.getElementTail(x, y));
+                let elementHead = this.#elementArea.getElementHead(x, y + sourceY0);
+                let elementTail = this.#elementArea.getElementTail(x, y + sourceY0);
+                sandGame.#elementArea.setElementHead(x, targetY0 + y, elementHead);
+                sandGame.#elementArea.setElementTail(x, targetY0 + y, elementTail);
             }
         }
         sandGame.#processor.setFallThroughEnabled(this.#processor.isFallThroughEnabled());
