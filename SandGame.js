@@ -18,7 +18,7 @@ export class SandGame {
     /** @type number */
     #height;
 
-    /** @type FastRandom */
+    /** @type DeterministicRandom */
     #random;
 
     /** @type Counter */
@@ -54,7 +54,7 @@ export class SandGame {
      */
     constructor(context, width, height, defaultElement) {
         this.#elementArea = new ElementArea(width, height, defaultElement);
-        this.#random = new FastRandom(0);
+        this.#random = new DeterministicRandom(0);
         this.#framesCounter = new Counter();
         this.#cyclesCounter = new Counter();
         this.#processor = new ElementProcessor(width, height, this.#random, defaultElement);
@@ -119,7 +119,7 @@ export class SandGame {
     }
 
     graphics() {
-        return new SandGameGraphics(this.#elementArea);
+        return new SandGameGraphics(this.#elementArea, this.#random);
     }
 
     template() {
@@ -188,15 +188,19 @@ export class SandGame {
 /**
  *
  * @author Patrik Harag
- * @version 2022-09-29
+ * @version 2022-11-04
  */
 class SandGameGraphics {
 
     /** @type ElementArea */
     #elementArea;
 
-    constructor(elementArea) {
+    /** @type DeterministicRandom */
+    #random;
+
+    constructor(elementArea, random) {
         this.#elementArea = elementArea;
+        this.#random = random;
     }
 
     /**
@@ -206,7 +210,7 @@ class SandGameGraphics {
      * @param brush {Brush}
      */
     draw(x, y, brush) {
-        let element = brush.apply(x, y);
+        let element = brush.apply(x, y, this.#random);
         this.#elementArea.setElement(x, y, element);
     }
 
@@ -270,7 +274,7 @@ class SandGameGraphics {
     }
 
     floodFill(x, y, brush) {
-        let floodFillPainter = new FloodFillPainter(this.#elementArea);
+        let floodFillPainter = new FloodFillPainter(this.#elementArea, this.#random);
         floodFillPainter.paint(x, y, brush);
     }
 
@@ -286,7 +290,7 @@ class SandGameGraphics {
 /**
  *
  * @author Patrik Harag
- * @version 2022-08-29
+ * @version 2022-11-04
  */
 class Brush {
 
@@ -294,9 +298,10 @@ class Brush {
      *
      * @param x
      * @param y
+     * @param random {DeterministicRandom|undefined}
      * @return {Element}
      */
-    apply(x, y) {
+    apply(x, y, random = undefined) {
         throw 'Not implemented'
     }
 }
@@ -304,7 +309,7 @@ class Brush {
 /**
  *
  * @author Patrik Harag
- * @version 2022-09-09
+ * @version 2022-11-04
  */
 class RandomBrush extends Brush {
     static of(elements) {
@@ -328,8 +333,18 @@ class RandomBrush extends Brush {
         this.#elements = elements;
     }
 
-    apply(x, y) {
-        return this.#elements[Math.trunc(Math.random() * this.#elements.length)];
+    apply(x, y, random) {
+        if (this.#elements.length > 1) {
+            let i;
+            if (random) {
+                i = random.nextInt(this.#elements.length);
+            } else {
+                i = Math.trunc(Math.random() * this.#elements.length);
+            }
+            return this.#elements[i];
+        } else {
+            return this.#elements[0];
+        }
     }
 }
 
@@ -343,7 +358,7 @@ class CustomBrush extends Brush {
         return new CustomBrush(func);
     }
 
-    /** @type function(x, y) */
+    /** @type function(x, y, DeterministicRandom) */
     #func;
 
     constructor(func) {
@@ -351,8 +366,8 @@ class CustomBrush extends Brush {
         this.#func = func;
     }
 
-    apply(x, y) {
-        return this.#func(x, y);
+    apply(x, y, random) {
+        return this.#func(x, y, random);
     }
 }
 
@@ -461,19 +476,24 @@ class TemplatePainter {
 /**
  *
  * @author Patrik Harag
- * @version 2022-09-22
+ * @version 2022-11-04
  */
 class FloodFillPainter {
 
     /** @type ElementArea */
     #elementArea;
 
+    /** @type DeterministicRandom */
+    #random;
+
     /**
      *
      * @param elementArea {ElementArea}
+     * @param random {DeterministicRandom}
      */
-    constructor(elementArea) {
+    constructor(elementArea, random) {
         this.#elementArea = elementArea;
+        this.#random = random;
     }
 
     /**
@@ -511,7 +531,7 @@ class FloodFillPainter {
                     break;
                 }
 
-                this.#elementArea.setElement(x, y, brush.apply(x, y));
+                this.#elementArea.setElement(x, y, brush.apply(x, y, this.#random));
                 pointSet.add(nextPoint);
 
                 if (!spanUp && y > 0 && this.#equals(x, y - 1, pattern, matcher)) {
@@ -571,9 +591,9 @@ class Counter {
 /**
  *
  * @author Patrik Harag
- * @version 2022-08-28
+ * @version 2022-11-04
  */
-class FastRandom {
+class DeterministicRandom {
     /** @type number */
     #last;
 
@@ -581,10 +601,17 @@ class FastRandom {
         this.#last = seed;
     }
 
-    // TODO: Deterministic fast random.
+    next() {
+        // Mulberry32
+        // https://stackoverflow.com/questions/521295/seeding-the-random-number-generator-in-javascript/47593316#47593316
+        let t = this.#last += 0x6D2B79F5;
+        t = Math.imul(t ^ t >>> 15, t | 1);
+        t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    }
 
     nextInt(max) {
-        return Math.trunc(Math.random() * max);
+        return Math.trunc(this.next() * max);
     }
 }
 
@@ -825,7 +852,7 @@ class ElementProcessor {
 
     #iteration;
 
-    /** @type FastRandom */
+    /** @type DeterministicRandom */
     #random;
 
     /** @type boolean */
@@ -1113,12 +1140,12 @@ class ElementProcessor {
             } else if (random === 1) {
                 // grow right
                 if (GrassElement.couldGrowUpHere(elementArea, x + 1, y + 1)) {
-                    elementArea.setElement(x + 1, y + 1, Brushes.GRASS.apply(x, y));
+                    elementArea.setElement(x + 1, y + 1, Brushes.GRASS.apply(x, y, this.#random));
                 }
             } else if (random === 2) {
                 // grow left
                 if (GrassElement.couldGrowUpHere(elementArea, x - 1, y + 1)) {
-                    elementArea.setElement(x - 1, y + 1, Brushes.GRASS.apply(x, y));
+                    elementArea.setElement(x - 1, y + 1, Brushes.GRASS.apply(x, y, this.#random));
                 }
             }
         }
@@ -1189,7 +1216,7 @@ class ElementProcessor {
                     }
 
                     if (canGrowHere) {
-                        elementArea.setElement(nx, ny, node.brush.apply(nx, ny));
+                        elementArea.setElement(nx, ny, node.brush.apply(nx, ny, this.#random));
                     }
 
                     if (isHereAlready) {
@@ -1211,7 +1238,7 @@ class ElementProcessor {
                     if (lastStage - currentStage > 5) {
                         // too big damage taken => kill tree
                         elementArea.setElementHead(x, y - 1, ElementHead.setSpecial(carrierElementHead, 0));
-                        elementArea.setElement(x, y, Brushes.TREE_WOOD.apply(x, y));
+                        elementArea.setElement(x, y, Brushes.TREE_WOOD.apply(x, y, this.#random));
                     } else {
                         // update stage
                         elementArea.setElementHead(x, y - 1, ElementHead.setSpecial(carrierElementHead, currentStage));
@@ -1248,10 +1275,10 @@ class ElementProcessor {
         let random = this.#random.nextInt(SandGame.OPT_CYCLES_PER_SECOND * 10);
         if (random < 10) {
 
-            function doGrow(nx, ny) {
+            let doGrow = (nx, ny) => {
                 elementArea.setElementHead(x, y, ElementHead.setSpecial(elementHead, 0));
 
-                let element = Brushes.TREE_ROOT.apply(nx, ny);
+                let element = Brushes.TREE_ROOT.apply(nx, ny, this.#random);
                 let modifiedHead = ElementHead.setSpecial(element.elementHead, growIndex - 1);
                 elementArea.setElementHead(nx, ny, modifiedHead);
                 elementArea.setElementTail(nx, ny, element.elementTail);
@@ -1296,7 +1323,7 @@ class ElementProcessor {
                 if (this.#random.nextInt(10) === 0) {
                     vitality++;
                     if (vitality >= 15) {
-                        elementArea.setElement(x, y, Brushes.TREE_LEAF_DEAD.apply(x, y));
+                        elementArea.setElement(x, y, Brushes.TREE_LEAF_DEAD.apply(x, y, this.#random));
                         return;
                     } else {
                         elementHead = ElementHead.setSpecial(elementHead, vitality);
@@ -1338,7 +1365,7 @@ class ElementProcessor {
         if (x === elementArea.getWidth() - 1
                 || ElementHead.getBehaviour(elementArea.getElementHead(x + 1, y)) !== ElementHead.BEHAVIOUR_FISH_BODY) {
             // => turn into corpse
-            elementArea.setElement(x, y, Brushes.FISH_CORPSE.apply(x, y));
+            elementArea.setElement(x, y, Brushes.FISH_CORPSE.apply(x, y, this.#random));
         }
 
         // move down if flying
@@ -1378,7 +1405,7 @@ class ElementProcessor {
                 dried++;
                 if (dried > 5) {
                     // turn into corpse
-                    elementArea.setElement(x, y, Brushes.FISH_CORPSE.apply(x, y));
+                    elementArea.setElement(x, y, Brushes.FISH_CORPSE.apply(x, y, this.#random));
                 } else {
                     elementArea.setElementHead(x, y, ElementHead.setSpecial(elementHead, dried));
                 }
@@ -1402,7 +1429,7 @@ class ElementProcessor {
         if (x === 0 || ElementHead.getBehaviour(elementArea.getElementHead(x - 1, y)) !== ElementHead.BEHAVIOUR_FISH) {
             // the fish lost it's head :(
             // => turn into corpse
-            elementArea.setElement(x, y, Brushes.FISH_CORPSE.apply(x, y));
+            elementArea.setElement(x, y, Brushes.FISH_CORPSE.apply(x, y, this.#random));
         }
     }
 
@@ -1465,9 +1492,10 @@ class GrassElement {
 /**
  *
  * @author Patrik Harag
- * @version 2022-10-01
+ * @version 2022-11-04
  */
 class TreeTemplates {
+    static #random = new DeterministicRandom(0);
 
     static TEMPLATES = [];
 
@@ -1574,7 +1602,7 @@ class TreeTemplates {
         for (let j = 1; j <= branchLength; j++) {
             const remainingBranchSize = branchLength - j;
 
-            if (j > 3 && Math.random() < 0.2) {
+            if (j > 3 && TreeTemplates.#random.next() < 0.2) {
                 shift++;
             }
             let nx = splitDirection * j;
@@ -1706,7 +1734,7 @@ class GrassPlantingExtension {
             const y = this.#random.nextInt(this.#elementArea.getHeight() - 3) + 2;
 
             if (GrassElement.couldGrowUpHere(this.#elementArea, x, y)) {
-                this.#elementArea.setElement(x, y, this.#brush.apply(x, y));
+                this.#elementArea.setElement(x, y, this.#brush.apply(x, y, this.#random));
             }
         }
     }
@@ -1741,7 +1769,7 @@ class TreePlantingExtension {
             const y = this.#random.nextInt(this.#elementArea.getHeight() - 16) + 15;
 
             if (TreePlantingExtension.couldGrowUpHere(this.#elementArea, x, y)) {
-                this.#elementArea.setElement(x, y, this.#brush.apply(x, y));
+                this.#elementArea.setElement(x, y, this.#brush.apply(x, y, this.#random));
             }
         }
     }
@@ -1840,8 +1868,8 @@ class FishSpawningExtension {
             const y = this.#random.nextInt(this.#elementArea.getHeight() - 2) + 1;
 
             if (this.#couldSpawnHere(this.#elementArea, x, y)) {
-                this.#elementArea.setElement(x, y, this.#brushHead.apply(x, y));
-                this.#elementArea.setElement(x + 1, y, this.#brushBody.apply(x + 1, y));
+                this.#elementArea.setElement(x, y, this.#brushHead.apply(x, y, this.#random));
+                this.#elementArea.setElement(x + 1, y, this.#brushBody.apply(x + 1, y, this.#random));
 
                 // increase difficulty of spawning fish again
                 this.#counterStartValue = this.#counterStartValue << 2;
@@ -2070,7 +2098,7 @@ class MotionBlurRenderer extends DoubleBufferedRenderer {
 /**
  *
  * @author Patrik Harag
- * @version 2022-09-29
+ * @version 2022-11-04
  */
 export class Brushes {
 
@@ -2208,8 +2236,8 @@ export class Brushes {
             ElementTail.of(61, 68, 74, 0)),
     ]);
 
-    static TREE = CustomBrush.of((x, y) => {
-        let treeType = Math.trunc(Math.random() * 17);
+    static TREE = CustomBrush.of((x, y, random) => {
+        let treeType = random.nextInt(17);
         return new Element(
             ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_WALL, ElementHead.BEHAVIOUR_TREE, treeType),
             ElementTail.of(77, 41, 13, 0));
@@ -2251,9 +2279,10 @@ export class Brushes {
      */
     static withIntensity(brush, intensity) {
         class WrappingBrush extends Brush {
-            apply(x, y) {
-                if (Math.random() < intensity) {
-                    return brush.apply(x, y);
+            apply(x, y, random) {
+                let rnd = (random) ? random.next() : Math.random();
+                if (rnd < intensity) {
+                    return brush.apply(x, y, random);
                 }
                 return null;
             }

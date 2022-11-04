@@ -124,7 +124,7 @@ export class SandGameComponent {
         let domCanvasNode = this.#nodeCanvas[0];
         let context = domCanvasNode.getContext('2d');
 
-        let defaultElement = Brushes.AIR.apply(0, 0);
+        let defaultElement = Brushes.AIR.apply(0, 0, undefined);
         this.#sandGame = new SandGame(context, w, h, defaultElement);
         this.#sandGame.addOnRendered(() => {
             const fps = this.#sandGame.getFramesPerSecond();
