@@ -19,6 +19,9 @@
 
           let width = Math.min(1400, root.width());
           let height = Math.min(800, Math.trunc(window.innerHeight * 0.70));
+          if (width / height < 0.5) {
+              height = Math.trunc(width / 0.5);
+          }
 
           let scale = 0.25;
           if (width * height < 300000) {
