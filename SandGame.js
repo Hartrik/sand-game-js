@@ -1959,7 +1959,7 @@ class DoubleBufferedRenderer extends Renderer {
     #buffer;
 
     static #GLITTER_EFFECT_COUNTER_MAX = 2000;
-    #waterEffectCounter = DoubleBufferedRenderer.#GLITTER_EFFECT_COUNTER_MAX;
+    #glitterEffectCounter = DoubleBufferedRenderer.#GLITTER_EFFECT_COUNTER_MAX;
 
     constructor(width, height, context) {
         super();
@@ -2002,10 +2002,10 @@ class DoubleBufferedRenderer extends Renderer {
     }
 
     _renderElement(index, elementTail, data) {
-        if (ElementTail.isRenderingModifierGlitterEnabled(elementTail) && this.#waterEffectCounter-- === 0) {
+        if (ElementTail.isRenderingModifierGlitterEnabled(elementTail) && this.#glitterEffectCounter-- === 0) {
             // glitter effect - implemented using alpha blending
 
-            this.#waterEffectCounter = Math.trunc(Math.random() * DoubleBufferedRenderer.#GLITTER_EFFECT_COUNTER_MAX);
+            this.#glitterEffectCounter = Math.trunc(Math.random() * DoubleBufferedRenderer.#GLITTER_EFFECT_COUNTER_MAX);
 
             const alpha = 0.5 + Math.random() * 0.5;
             const whiteBackground = 255 * (1.0 - alpha);
