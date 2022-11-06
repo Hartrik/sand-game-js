@@ -14,7 +14,8 @@ export class SandGameComponent {
         canvasWidthPx: 700,
         canvasHeightPx: 400,
         brushSize: 5,
-        scene: 'empty'
+        scene: 'empty',
+        assetsContextPath: './assets'
     };
 
     #brushDeclarations = [
@@ -368,7 +369,7 @@ export class SandGameComponent {
             let w = Math.trunc(this.#currentWidthPoints / this.#currentScale * newScale);
             let h = Math.trunc(this.#currentHeightPoints / this.#currentScale * newScale);
             this.#changeCanvasSize(w, h, newScale);
-        }, this.#init.scale);
+        }, this.#init.scale, this.#init.assetsContextPath);
 
         this.#nodeHolderAdditionalViews.append(component.createNode());
     }
@@ -461,7 +462,7 @@ export class SandGameComponent {
 /**
  *
  * @author Patrik Harag
- * @version 2022-11-04
+ * @version 2022-11-06
  */
 class SandGameElementSizeComponent {
 
@@ -469,18 +470,20 @@ class SandGameElementSizeComponent {
     #selectFunction;
 
     #initialScale;
+    #assetsContextPath;
 
     #selected = null;
 
-    constructor(selectFunction, initialScale) {
+    constructor(selectFunction, initialScale, assetsContextPath) {
         this.#selectFunction = selectFunction;
         this.#initialScale = initialScale;
+        this.#assetsContextPath = assetsContextPath;
     }
 
     createNode() {
         let content = DomBuilder.div({ class: 'element-size-options' }, []);
         for (let sizeDef of SandGameElementSizes.SIZES) {
-            let node = this.#createSizeCard(sizeDef.scale, sizeDef.image);
+            let node = this.#createSizeCard(sizeDef.scale, this.#assetsContextPath + '/' + sizeDef.image);
 
             if (sizeDef.scale === this.#initialScale) {
                 this.#selected = node;
@@ -522,19 +525,19 @@ class SandGameElementSizes {
     static SIZES = [
         {
             scale: 0.75,
-            image: './assets/element-size-1.png'
+            image: 'element-size-1.png'
         },
         {
             scale: 0.5,
-            image: './assets/element-size-2.png'
+            image: 'element-size-2.png'
         },
         {
             scale: 0.375,
-            image: './assets/element-size-3.png'
+            image: 'element-size-3.png'
         },
         {
             scale: 0.25,
-            image: './assets/element-size-4.png'
+            image: 'element-size-4.png'
         },
     ];
 }
