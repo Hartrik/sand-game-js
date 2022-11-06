@@ -273,8 +273,8 @@ class SandGameGraphics {
         this.drawRectangle(0, 0, this.#elementArea.getWidth() - 1, this.#elementArea.getHeight() - 1, brush);
     }
 
-    floodFill(x, y, brush) {
-        let floodFillPainter = new FloodFillPainter(this.#elementArea, this.#random);
+    floodFill(x, y, brush, neighbourhood) {
+        let floodFillPainter = new FloodFillPainter(this.#elementArea, this.#random, neighbourhood);
         floodFillPainter.paint(x, y, brush);
     }
 
@@ -476,9 +476,13 @@ class TemplatePainter {
 /**
  *
  * @author Patrik Harag
- * @version 2022-11-04
+ * @version 2022-11-06
  */
 class FloodFillPainter {
+
+    static NEIGHBOURHOOD_VON_NEUMANN = 0;
+    static NEIGHBOURHOOD_MOORE = 1;
+
 
     /** @type ElementArea */
     #elementArea;
@@ -486,14 +490,18 @@ class FloodFillPainter {
     /** @type DeterministicRandom */
     #random;
 
+    #neighbourhood;
+
     /**
      *
      * @param elementArea {ElementArea}
      * @param random {DeterministicRandom}
+     * @param neighbourhood
      */
-    constructor(elementArea, random) {
+    constructor(elementArea, random, neighbourhood = FloodFillPainter.NEIGHBOURHOOD_VON_NEUMANN) {
         this.#elementArea = elementArea;
         this.#random = random;
+        this.#neighbourhood = neighbourhood;
     }
 
     /**
@@ -507,50 +515,59 @@ class FloodFillPainter {
         const matcher = this.#elementArea.getElementHead(x, y) & pattern;
 
         const w = this.#elementArea.getWidth();
-        const h = this.#elementArea.getHeight();
-
-        let point = x + y*w;
 
         const pointSet = new Set();
         const queue = [];
 
+        let point = x + y*w;
         do {
             let x = point % w;
             let y = Math.trunc(point / w);
 
-            while (x > 0 && this.#equals(x - 1, y, pattern, matcher)) {
-                x--;
+            if (pointSet.has(point)) {
+                continue;  // already completed
             }
 
-            let spanUp = false;
-            let spanDown = false;
+            this.#elementArea.setElement(x, y, brush.apply(x, y, this.#random));
+            pointSet.add(point);
 
-            while (x < w && this.#equals(x, y, pattern, matcher)) {
-                const nextPoint = x + y*w;
-                if (pointSet.has(nextPoint)) {
-                    break;
-                }
+            // add neighbours
+            this.#tryAdd(x, y-1, pattern, matcher, pointSet, queue);
+            this.#tryAdd(x+1, y, pattern, matcher, pointSet, queue);
+            this.#tryAdd(x, y+1, pattern, matcher, pointSet, queue);
+            this.#tryAdd(x-1, y, pattern, matcher, pointSet, queue);
 
-                this.#elementArea.setElement(x, y, brush.apply(x, y, this.#random));
-                pointSet.add(nextPoint);
-
-                if (!spanUp && y > 0 && this.#equals(x, y - 1, pattern, matcher)) {
-                    queue.push(x + (y - 1)*w);
-                    spanUp = true;
-                } else if (spanUp && y > 0 && this.#equals(x, y - 1, pattern, matcher)) {
-                    spanUp = false;
-                }
-
-                if (!spanDown && y < h - 1 && this.#equals(x, y + 1, pattern, matcher)) {
-                    queue.push(x + (y + 1)*w);
-                    spanDown = true;
-                } else if (spanDown && y < h - 1 && this.#equals(x, y + 1, pattern, matcher)) {
-                    spanDown = false;
-                }
-
-                x++;
+            if (this.#neighbourhood === FloodFillPainter.NEIGHBOURHOOD_MOORE) {
+                this.#tryAdd(x+1, y+1, pattern, matcher, pointSet, queue);
+                this.#tryAdd(x+1, y-1, pattern, matcher, pointSet, queue);
+                this.#tryAdd(x-1, y+1, pattern, matcher, pointSet, queue);
+                this.#tryAdd(x-1, y-1, pattern, matcher, pointSet, queue);
             }
+
         } while ((point = queue.pop()) != null);
+    }
+
+    #tryAdd(x, y, pattern, matcher, pointSet, queue) {
+        const w = this.#elementArea.getWidth();
+        const h = this.#elementArea.getHeight();
+
+        if (x < 0 || y < 0) {
+            return;
+        }
+        if (x >= w || y >= h) {
+            return;
+        }
+
+        if (!this.#equals(x, y, pattern, matcher)) {
+            return;
+        }
+
+        const point = x + y*w;
+        if (pointSet.has(point)) {
+            return;
+        }
+
+        queue.push(point);
     }
 
     #equals(x, y, pattern, matcher) {

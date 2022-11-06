@@ -187,7 +187,7 @@ export class SandGameComponent {
             if (e.buttons === 4) {
                 // middle button
                 e.preventDefault();
-                sandGame.graphics().floodFill(x, y, this.#brush);
+                sandGame.graphics().floodFill(x, y, this.#brush, 1);
                 brush = null;
                 return;
             }
