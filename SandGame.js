@@ -274,7 +274,7 @@ class SandGameGraphics {
     }
 
     floodFill(x, y, brush, neighbourhood) {
-        let floodFillPainter = new FloodFillPainter(this.#elementArea, this.#random, neighbourhood);
+        let floodFillPainter = new FloodFillPainter(this.#elementArea, neighbourhood, this);
         floodFillPainter.paint(x, y, brush);
     }
 
@@ -487,21 +487,21 @@ class FloodFillPainter {
     /** @type ElementArea */
     #elementArea;
 
-    /** @type DeterministicRandom */
-    #random;
+    /** @type SandGameGraphics */
+    #graphics;
 
     #neighbourhood;
 
     /**
      *
      * @param elementArea {ElementArea}
-     * @param random {DeterministicRandom}
      * @param neighbourhood
+     * @param graphics {SandGameGraphics}
      */
-    constructor(elementArea, random, neighbourhood = FloodFillPainter.NEIGHBOURHOOD_VON_NEUMANN) {
+    constructor(elementArea, neighbourhood = FloodFillPainter.NEIGHBOURHOOD_VON_NEUMANN, graphics) {
         this.#elementArea = elementArea;
-        this.#random = random;
         this.#neighbourhood = neighbourhood;
+        this.#graphics = graphics;
     }
 
     /**
@@ -528,7 +528,7 @@ class FloodFillPainter {
                 continue;  // already completed
             }
 
-            this.#elementArea.setElement(x, y, brush.apply(x, y, this.#random));
+            this.#graphics.draw(x, y, brush);
             pointSet.add(point);
 
             // add neighbours
