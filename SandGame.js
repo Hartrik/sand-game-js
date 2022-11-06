@@ -2024,7 +2024,7 @@ class DoubleBufferedRenderer extends Renderer {
 /**
  *
  * @author Patrik Harag
- * @version 2022-09-09
+ * @version 2022-11-06
  */
 class MotionBlurRenderer extends DoubleBufferedRenderer {
 
@@ -2066,14 +2066,22 @@ class MotionBlurRenderer extends DoubleBufferedRenderer {
                 const g = data[dataIndex + 1];
                 const b = data[dataIndex + 2];
 
-                if (MotionBlurRenderer.#isVisible(r, g, b)) {
-                    data[dataIndex]     = (r * MotionBlurRenderer.#ALPHA) + MotionBlurRenderer.#WHITE_BACKGROUND;
-                    data[dataIndex + 1] = (g * MotionBlurRenderer.#ALPHA) + MotionBlurRenderer.#WHITE_BACKGROUND;
-                    data[dataIndex + 2] = (b * MotionBlurRenderer.#ALPHA) + MotionBlurRenderer.#WHITE_BACKGROUND;
+                const nr = Math.trunc((r * MotionBlurRenderer.#ALPHA) + MotionBlurRenderer.#WHITE_BACKGROUND);
+                const ng = Math.trunc((g * MotionBlurRenderer.#ALPHA) + MotionBlurRenderer.#WHITE_BACKGROUND);
+                const nb = Math.trunc((b * MotionBlurRenderer.#ALPHA) + MotionBlurRenderer.#WHITE_BACKGROUND);
+
+                if (r === nr && g === ng && b === nb) {
+                    // no change => fading completed
+                    this.#blur[pixelIndex] = false;
+                    data[dataIndex]     = 0xFF;
+                    data[dataIndex + 1] = 0xFF;
+                    data[dataIndex + 2] = 0xFF;
                     return;
                 } else {
-                    // fading completed
-                    this.#blur[pixelIndex] = false;
+                    data[dataIndex]     = nr;
+                    data[dataIndex + 1] = ng;
+                    data[dataIndex + 2] = nb;
+                    return;
                 }
             }
         }
@@ -2088,10 +2096,6 @@ class MotionBlurRenderer extends DoubleBufferedRenderer {
         return ElementTail.getColorRed(element) === 255
                 && ElementTail.getColorGreen(element) === 255
                 && ElementTail.getColorBlue(element) === 255;
-    }
-
-    static #isVisible(r, g, b) {
-        return r < 251 && g < 251 && b < 251;
     }
 }
 
