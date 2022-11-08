@@ -2,7 +2,7 @@
 /**
  *
  * @author Patrik Harag
- * @version 2022-11-04
+ * @version 2022-11-08
  */
 export class SandGame {
 
@@ -39,6 +39,9 @@ export class SandGame {
     /** @type number|null */
     #rendererIntervalHandle = null;
 
+    /** @type boolean */
+    #rendererShowActiveChunks = false;
+
     /** @type function[] */
     #onRendered = [];
 
@@ -57,8 +60,8 @@ export class SandGame {
         this.#random = new DeterministicRandom(0);
         this.#framesCounter = new Counter();
         this.#cyclesCounter = new Counter();
-        this.#processor = new ElementProcessor(width, height, this.#random, defaultElement);
-        this.#renderer = new MotionBlurRenderer(width, height, context);
+        this.#processor = new ElementProcessor(this.#elementArea, 16, this.#random, defaultElement);
+        this.#renderer = new Renderer(this.#elementArea, 16, context);
         this.#width = width;
         this.#height = height;
 
@@ -101,7 +104,7 @@ export class SandGame {
     }
 
     #doProcessing() {
-        this.#processor.next(this.#elementArea);
+        this.#processor.next();
         const t = Date.now();
         this.#cyclesCounter.tick(t);
         for (let func of this.#onProcessed) {
@@ -110,7 +113,7 @@ export class SandGame {
     }
 
     #doRendering() {
-        this.#renderer.render(this.#elementArea);
+        this.#renderer.render(this.#processor.getActiveChunks(), this.#rendererShowActiveChunks);
         const t = Date.now();
         this.#framesCounter.tick(t);
         for (let func of this.#onRendered) {
@@ -119,11 +122,18 @@ export class SandGame {
     }
 
     graphics() {
-        return new SandGameGraphics(this.#elementArea, this.#random);
+        return new SandGameGraphics(this.#elementArea, this.#random, (x, y) => {
+            this.#processor.trigger(x, y);
+            this.#renderer.trigger(x, y);
+        });
     }
 
     template() {
         return new TemplatePainter(this.graphics());
+    }
+
+    setRendererShowActiveChunks(show) {
+        this.#rendererShowActiveChunks = show;
     }
 
     setBoxedMode() {
@@ -188,7 +198,7 @@ export class SandGame {
 /**
  *
  * @author Patrik Harag
- * @version 2022-11-04
+ * @version 2022-11-07
  */
 class SandGameGraphics {
 
@@ -198,9 +208,13 @@ class SandGameGraphics {
     /** @type DeterministicRandom */
     #random;
 
-    constructor(elementArea, random) {
+    /** @type function(number, number) */
+    #triggerFunction;
+
+    constructor(elementArea, random, triggerFunction) {
         this.#elementArea = elementArea;
         this.#random = random;
+        this.#triggerFunction = triggerFunction;
     }
 
     /**
@@ -212,6 +226,7 @@ class SandGameGraphics {
     draw(x, y, brush) {
         let element = brush.apply(x, y, this.#random);
         this.#elementArea.setElement(x, y, element);
+        this.#triggerFunction(x, y);
     }
 
     drawRectangle(x1, y1, x2, y2, brush, supportNegativeCoordinates = false) {
@@ -803,7 +818,6 @@ class ElementHead {
 class ElementTail {
     static MODIFIER_BACKGROUND = 0x01000000;
     static MODIFIER_BLUR_ENABLED = 0x02000000;
-    static MODIFIER_GLITTER_ENABLED = 0x04000000;
 
     static of(r, g, b, renderingModifiers) {
         let value = 0;
@@ -833,10 +847,6 @@ class ElementTail {
     static isRenderingModifierBlurEnabled(elementTail) {
         return (elementTail & ElementTail.MODIFIER_BLUR_ENABLED) !== 0;
     }
-
-    static isRenderingModifierGlitterEnabled(elementTail) {
-        return (elementTail & ElementTail.MODIFIER_GLITTER_ENABLED) !== 0;
-    }
 }
 
 /**
@@ -857,17 +867,30 @@ class Element {
 /**
  *
  * @author Patrik Harag
- * @version 2022-10-02
+ * @version 2022-11-08
  */
 class ElementProcessor {
 
+    /** @type ElementArea */
+    #elementArea;
+
     /** @type number */
     #width;
-
     /** @type number */
     #height;
 
-    #iteration;
+    /** @type number */
+    #chunkSize;
+    /** @type number */
+    #horChunkCount;
+    /** @type number */
+    #verChunkCount;
+
+    /** @type boolean[] */
+    #activeChunks
+
+    /** @type number */
+    #iteration = 0;
 
     /** @type DeterministicRandom */
     #random;
@@ -879,27 +902,81 @@ class ElementProcessor {
 
     #defaultElement;
 
-    static RANDOM_DATA_COUNT = 100;
+    static RANDOM_DATA_COUNT = 32;
 
     /** @type Uint32Array[] */
-    #randData = [];
+    #rndChunkOrder = [];
+    /** @type Uint32Array[] */
+    #rndChunkXRnd = [];
+    /** @type Uint32Array[] */
+    #rndChunkXOrder = [];
 
-    constructor(width, height, random, defaultElement) {
-        this.#width = width;
-        this.#height = height;
-        this.#iteration = 0;
-        this.#random = random;
-        this.#defaultElement = defaultElement;
+    constructor(elementArea, chunkSize, random, defaultElement) {
+        this.#elementArea = elementArea;
+        this.#width = elementArea.getWidth();
+        this.#height = elementArea.getHeight();
 
-        // init random data
-        this.#randData = [];
-        for (let i = 0; i < ElementProcessor.RANDOM_DATA_COUNT; i++) {
-            let array = new Uint32Array(width);
-            for (let j = 0; j < width; j++) {
-                array[j] = this.#random.nextInt(width);
-            }
-            this.#randData.push(array);
+        this.#chunkSize = chunkSize;
+        if (this.#chunkSize > 255) {
+            throw 'Chunk size limit: 255';
         }
+        this.#horChunkCount = Math.ceil(this.#width / this.#chunkSize);
+        this.#verChunkCount = Math.ceil(this.#height / this.#chunkSize);
+        this.#activeChunks = new Array(this.#horChunkCount * this.#verChunkCount).fill(true);
+
+        this.#random = random;
+        this.#rndChunkOrder = ElementProcessor.#generateArrayOfOrderData(
+                ElementProcessor.RANDOM_DATA_COUNT, this.#horChunkCount, this.#random);
+        this.#rndChunkXRnd = ElementProcessor.#generateArrayOfRandomData(
+                ElementProcessor.RANDOM_DATA_COUNT, this.#chunkSize, this.#chunkSize, this.#random);
+        this.#rndChunkXOrder = ElementProcessor.#generateArrayOfOrderData(
+                ElementProcessor.RANDOM_DATA_COUNT, this.#chunkSize, this.#random);
+
+        this.#defaultElement = defaultElement;
+    }
+
+    static #shuffle(array, iterations, random) {
+        for (let i = 0; i < iterations; i++) {
+            let a = random.nextInt(array.length);
+            let b = random.nextInt(array.length);
+            [array[a], array[b]] = [array[b], array[a]];
+        }
+    }
+
+    static #generateArrayOfOrderData(arrayLength, count, random) {
+        let data = ElementProcessor.#generateOrderData(count);
+        ElementProcessor.#shuffle(data, arrayLength, random);
+
+        let array = Array(arrayLength);
+        for (let i = 0; i < arrayLength; i++) {
+            ElementProcessor.#shuffle(data, Math.ceil(arrayLength / 4), random);
+            array[i] = new Uint8Array(data);
+        }
+        return array;
+    }
+
+    static #generateOrderData(count) {
+        let array = new Uint8Array(count);
+        for (let i = 0; i < count; i++) {
+            array[i] = i;
+        }
+        return array;
+    }
+
+    static #generateArrayOfRandomData(arrayLength, count, max, random) {
+        let array = Array(arrayLength);
+        for (let i = 0; i < arrayLength; i++) {
+            array[i] = ElementProcessor.#generateRandomData(count, max, random);
+        }
+        return array;
+    }
+
+    static #generateRandomData(count, max, random) {
+        let array = new Uint8Array(count);
+        for (let i = 0; i < count; i++) {
+            array[i] = random.nextInt(max);
+        }
+        return array;
     }
 
     setFallThroughEnabled(enabled) {
@@ -918,44 +995,162 @@ class ElementProcessor {
         return this.#erasingEnabled;
     }
 
-    /**
-     *
-     * @param elementArea {ElementArea}
-     */
-    next(elementArea) {
-        for (let y = this.#height - 1; y >= 0; y--) {
-            let dataIndex = Math.trunc(this.#random.nextInt(ElementProcessor.RANDOM_DATA_COUNT));
-            let data = this.#randData[dataIndex];
+    trigger(x, y) {
+        const cx = Math.floor(x / this.#chunkSize);
+        const cy = Math.floor(y / this.#chunkSize);
+        const chunkIndex = cy * this.#horChunkCount + cx;
+        this.#activeChunks[chunkIndex] = true;
+    }
 
-            for (let i = 0; i < this.#width; i++) {
-                let x = data[i];
-                this.#nextPoint(elementArea, x, y);
+    getActiveChunks() {
+        return this.#activeChunks;
+    }
+
+    next() {
+        const activeChunks = Array.from(this.#activeChunks);
+        this.#activeChunks.fill(false);
+
+        for (let cy = this.#verChunkCount - 1; cy >= 0; cy--) {
+            const cyTop = cy * this.#chunkSize;
+            const cyBottom = Math.min((cy + 1) * this.#chunkSize - 1, this.#height - 1);
+
+            const chunkOrder = this.#rndChunkOrder[this.#random.nextInt(ElementProcessor.RANDOM_DATA_COUNT)];
+            const fullChunkLoop = this.#random.nextInt(2) === 0;
+
+            const chunkActiveElements = new Uint16Array(this.#horChunkCount);
+
+            for (let y = cyBottom; y >= cyTop; y--) {
+                for (let i = 0; i < this.#horChunkCount; i++) {
+                    const cx = chunkOrder[i];
+                    const chunkIndex = cy * this.#horChunkCount + cx;
+
+                    const idx = this.#random.nextInt(ElementProcessor.RANDOM_DATA_COUNT);
+                    const chunkXOder = (fullChunkLoop) ? this.#rndChunkXOrder[idx] : this.#rndChunkXRnd[idx];
+
+                    if (activeChunks[chunkIndex]) {
+                        // standard iteration
+                        let activeElements = chunkActiveElements[cx];
+                        for (let j = 0; j < this.#chunkSize; j++) {
+                            let x = cx * this.#chunkSize + chunkXOder[j];
+                            if (x < this.#width) {
+                                let activeElement = this.#nextPoint(x, y);
+                                if (activeElement) {
+                                    activeElements++;
+                                }
+                            }
+                        }
+                        chunkActiveElements[cx] = activeElements;
+                    }
+                }
+            }
+
+            // fast check deactivated chunks (borders only - if they have active neighbours)
+            for (let cx = 0; cx < this.#horChunkCount; cx++) {
+                const chunkIndex = cy * this.#horChunkCount + cx;
+                if (!activeChunks[chunkIndex]) {
+                    if (this.#fastTest(cx, cy, activeChunks)) {
+                        // wake up chunk
+                        activeChunks[chunkIndex] = true;
+                        chunkActiveElements[cx] = 1;
+                    }
+                }
+            }
+
+            // deactivate chunks if possible
+            if (fullChunkLoop) {
+                for (let cx = 0; cx < this.#horChunkCount; cx++) {
+                    const chunkIndex = cy * this.#horChunkCount + cx;
+                    if (activeChunks[chunkIndex] && chunkActiveElements[cx] === 0) {
+                        activeChunks[chunkIndex] = false;
+                    }
+                }
             }
         }
 
+        // erasing mode
         if (this.#erasingEnabled) {
             for (let x = 0; x < this.#width; x++) {
-                elementArea.setElement(x, 0, this.#defaultElement);
-                elementArea.setElement(x, this.#height - 1, this.#defaultElement);
+                this.#elementArea.setElement(x, 0, this.#defaultElement);
+                this.#elementArea.setElement(x, this.#height - 1, this.#defaultElement);
             }
             for (let y = 1; y < this.#height - 1; y++) {
-                elementArea.setElement(0, y, this.#defaultElement);
-                elementArea.setElement(this.#width - 1, y, this.#defaultElement);
+                this.#elementArea.setElement(0, y, this.#defaultElement);
+                this.#elementArea.setElement(this.#width - 1, y, this.#defaultElement);
             }
+        }
+
+        // merge active chunks
+        for (let i = 0; i < this.#horChunkCount * this.#verChunkCount; i++) {
+            this.#activeChunks[i] |= activeChunks[i];
         }
 
         this.#iteration++;
     }
 
+    #fastTest(cx, cy, activeChunks) {
+        // left
+        if (cx > 0 && activeChunks[(cy * this.#horChunkCount) + cx - 1]) {
+            const x = cx * this.#chunkSize;
+            const my = Math.min((cy + 1) * this.#chunkSize, this.#height);
+            for (let y = cy * this.#chunkSize; y < my; y++) {
+                if (this.#testPoint(x, y)) {
+                    return true;
+                }
+            }
+        }
+
+        // right
+        if (cx < (this.#horChunkCount - 1) && activeChunks[(cy * this.#horChunkCount) + cx + 1]) {
+            const x = Math.min(((cx + 1) * this.#chunkSize) - 1, this.#width - 1);
+            const my = Math.min((cy + 1) * this.#chunkSize, this.#height);
+            for (let y = cy * this.#chunkSize; y < my; y++) {
+                if (this.#testPoint(x, y)) {
+                    return true;
+                }
+            }
+        }
+
+        // top
+        if ((cy > 0) && activeChunks[((cy - 1) * this.#horChunkCount) + cx]
+                || (this.#fallThroughEnabled
+                        && cy === 0
+                        && activeChunks[((this.#verChunkCount - 1) * this.#horChunkCount) + cx])) {
+
+            const y = cy * this.#chunkSize;
+            const mx = Math.min((cx + 1) * this.#chunkSize, this.#width);
+            for (let x = cx * this.#chunkSize; x < mx; x++) {
+                if (this.#testPoint(x, y)) {
+                    return true;
+                }
+            }
+        }
+
+        // bottom
+        if (cy < (this.#verChunkCount - 1) && activeChunks[((cy + 1) * this.#horChunkCount) + cx]) {
+            const y = (cy + 1) * this.#chunkSize - 1;
+            const mx = Math.min((cx + 1) * this.#chunkSize, this.#width);
+            for (let x = cx * this.#chunkSize; x < mx; x++) {
+                if (this.#testPoint(x, y)) {
+                    return true;
+                }
+            }
+        }
+    }
+
+    #testPoint(x, y) {
+        const elementHead = this.#elementArea.getElementHead(x, y);
+        return elementHead !== 0;
+    }
+
     /**
      *
-     * @param elementArea {ElementArea}
      * @param x {number}
      * @param y {number}
+     * @return {boolean}
      */
-    #nextPoint(elementArea, x, y) {
-        const elementHead = elementArea.getElementHead(x, y);
-        const moved = this.#performMovingBehaviour(elementArea, elementHead, x, y);
+    #nextPoint(x, y) {
+        const elementHead = this.#elementArea.getElementHead(x, y);
+        const moved = this.#performMovingBehaviour(elementHead, x, y);
 
         if (!moved) {
             const behaviour = ElementHead.getBehaviour(elementHead);
@@ -965,38 +1160,39 @@ class ElementProcessor {
                 case ElementHead.BEHAVIOUR_TREE_TRUNK:
                     break;
                 case ElementHead.BEHAVIOUR_GRASS:
-                    this.#behaviourGrass(elementArea, elementHead, x, y);
+                    this.#behaviourGrass(elementHead, x, y);
                     break;
                 case ElementHead.BEHAVIOUR_TREE:
-                    this.#behaviourTree(elementArea, elementHead, x, y);
+                    this.#behaviourTree(elementHead, x, y);
                     break;
                 case ElementHead.BEHAVIOUR_TREE_ROOT:
-                    this.#behaviourTreeRoot(elementArea, elementHead, x, y);
+                    this.#behaviourTreeRoot(elementHead, x, y);
                     break;
                 case ElementHead.BEHAVIOUR_TREE_LEAF:
-                    this.#behaviourTreeLeaf(elementArea, elementHead, x, y);
+                    this.#behaviourTreeLeaf(elementHead, x, y);
                     break;
                 case ElementHead.BEHAVIOUR_FISH:
-                    this.#behaviourFish(elementArea, elementHead, x, y);
+                    this.#behaviourFish(elementHead, x, y);
                     break;
                 case ElementHead.BEHAVIOUR_FISH_BODY:
-                    this.#behaviourFishBody(elementArea, elementHead, x, y);
+                    this.#behaviourFishBody(elementHead, x, y);
                     break;
                 default:
                     throw "Unknown element behaviour: " + behaviour;
             }
         }
+
+        return elementHead !== 0;
     }
 
     /**
      *
-     * @param elementArea {ElementArea}
      * @param elementHead
      * @param x {number}
      * @param y {number}
      * @returns {boolean}
      */
-    #performMovingBehaviour(elementArea, elementHead, x, y) {
+    #performMovingBehaviour(elementHead, x, y) {
         let type = ElementHead.getType(elementHead);
         switch (type) {
             case ElementHead.TYPE_STATIC:
@@ -1007,19 +1203,19 @@ class ElementProcessor {
                 //  #
                 //  #
                 //  #
-                return this.#move(elementArea, elementHead, x, y, x, y + 1);
+                return this.#move(elementHead, x, y, x, y + 1);
 
             case ElementHead.TYPE_SAND_1:
                 //   #
                 //  ###
                 // #####
 
-                if (!this.#move(elementArea, elementHead, x, y, x, y + 1)) {
+                if (!this.#move(elementHead, x, y, x, y + 1)) {
                     let rnd = this.#random.nextInt(2);
                     if (rnd === 0) {
-                        return this.#move(elementArea, elementHead, x, y, x + 1, y + 1)
+                        return this.#move(elementHead, x, y, x + 1, y + 1)
                     } else {
-                        return this.#move(elementArea, elementHead, x, y, x - 1, y + 1)
+                        return this.#move(elementHead, x, y, x - 1, y + 1)
                     }
                 }
                 return true;
@@ -1029,16 +1225,24 @@ class ElementProcessor {
                 //   #####
                 // #########
 
-                if (!this.#move(elementArea, elementHead, x, y, x, y + 1)) {
+                if (!this.#move(elementHead, x, y, x, y + 1)) {
                     let rnd = this.#random.nextInt(2);
                     if (rnd === 0) {
-                        if (!this.#move(elementArea, elementHead, x, y, x + 1, y + 1)) {
-                            return this.#move(elementArea, elementHead, x, y, x + 2, y + 1)
+                        if (!this.#move(elementHead, x, y, x + 1, y + 1)) {
+                            if (this.#move(elementHead, x, y, x + 2, y + 1)) {
+                                this.trigger(x + 2, y + 1);
+                                return true;
+                            }
+                            return false;
                         }
                         return true;
                     } else {
-                        if (!this.#move(elementArea, elementHead, x, y, x - 1, y + 1)) {
-                            return this.#move(elementArea, elementHead, x, y, x - 2, y + 1)
+                        if (!this.#move(elementHead, x, y, x - 1, y + 1)) {
+                            if (this.#move(elementHead, x, y, x - 2, y + 1)) {
+                                this.trigger(x - 2, y + 1);
+                                return true;
+                            }
+                            return false;
                         }
                         return true;
                     }
@@ -1046,31 +1250,39 @@ class ElementProcessor {
                 return true;
 
             case ElementHead.TYPE_FLUID_1:
-                if (!this.#move(elementArea, elementHead, x, y, x, y + 1)) {
+                if (!this.#move(elementHead, x, y, x, y + 1)) {
                     let rnd = this.#random.nextInt(2);
                     if (rnd === 0) {
-                        return this.#move(elementArea, elementHead, x, y, x + 1, y)
+                        return this.#move(elementHead, x, y, x + 1, y)
                     } else {
-                        return this.#move(elementArea, elementHead, x, y, x - 1, y)
+                        return this.#move(elementHead, x, y, x - 1, y)
                     }
                 }
                 return true;
 
             case ElementHead.TYPE_FLUID_2:
-                if (!this.#move(elementArea, elementHead, x, y, x, y + 1)) {
+                if (!this.#move(elementHead, x, y, x, y + 1)) {
                     let rnd = this.#random.nextInt(2);
                     if (rnd === 0) {
-                        if (this.#move(elementArea, elementHead, x, y, x + 1, y)) {
-                            if (this.#move(elementArea, elementHead, x + 1, y, x + 2, y)) {
-                                this.#move(elementArea, elementHead, x + 2, y, x + 3, y)
+                        if (this.#move(elementHead, x, y, x + 1, y)) {
+                            if (this.#move(elementHead, x + 1, y, x + 2, y)) {
+                                if (this.#move(elementHead, x + 2, y, x + 3, y)) {
+                                    this.trigger(x + 3, y);
+                                } else {
+                                    this.trigger(x + 2, y);
+                                }
                             }
                             return true;
                         }
                         return false;
                     } else {
-                        if (this.#move(elementArea, elementHead, x, y, x - 1, y)) {
-                            if (this.#move(elementArea, elementHead, x - 1, y, x - 2, y)) {
-                                this.#move(elementArea, elementHead, x - 2, y, x - 3, y)
+                        if (this.#move(elementHead, x, y, x - 1, y)) {
+                            if (this.#move(elementHead, x - 1, y, x - 2, y)) {
+                                if (this.#move(elementHead, x - 2, y, x - 3, y)) {
+                                    this.trigger(x - 3, y);
+                                } else {
+                                    this.trigger(x - 2, y);
+                                }
                             }
                             return true;
                         }
@@ -1082,12 +1294,12 @@ class ElementProcessor {
         throw "Unknown element type: " + type;
     }
 
-    #move(elementArea, elementHead, x, y, x2, y2) {
-        if (!elementArea.isValidPosition(x2, y2)) {
+    #move(elementHead, x, y, x2, y2) {
+        if (!this.#elementArea.isValidPosition(x2, y2)) {
             if (this.#fallThroughEnabled && y === this.#height - 1) {
                 // try fall through
                 y2 = 0;
-                if (!elementArea.isValidPosition(x2, y2)) {
+                if (!this.#elementArea.isValidPosition(x2, y2)) {
                     return false;
                 }
                 // move
@@ -1096,33 +1308,33 @@ class ElementProcessor {
             }
         }
 
-        let elementHead2 = elementArea.getElementHead(x2, y2);
+        let elementHead2 = this.#elementArea.getElementHead(x2, y2);
         if (ElementHead.getWeight(elementHead) > ElementHead.getWeight(elementHead2)) {
-            let elementTail = elementArea.getElementTail(x, y);
-            let elementTail2 = elementArea.getElementTail(x2, y2);
+            let elementTail = this.#elementArea.getElementTail(x, y);
+            let elementTail2 = this.#elementArea.getElementTail(x2, y2);
 
-            elementArea.setElementHead(x2, y2, elementHead);
-            elementArea.setElementHead(x, y, elementHead2);
-            elementArea.setElementTail(x2, y2, elementTail);
-            elementArea.setElementTail(x, y, elementTail2);
+            this.#elementArea.setElementHead(x2, y2, elementHead);
+            this.#elementArea.setElementHead(x, y, elementHead2);
+            this.#elementArea.setElementTail(x2, y2, elementTail);
+            this.#elementArea.setElementTail(x, y, elementTail2);
             return true;
         }
         return false;
     }
 
-    #behaviourGrass(elementArea, elementHead, x, y) {
+    #behaviourGrass(elementHead, x, y) {
         let random = this.#random.nextInt(100);
         if (random < 3) {
             // check above
             if (y > 0) {
-                let above1 = elementArea.getElementHead(x, y - 1);
+                let above1 = this.#elementArea.getElementHead(x, y - 1);
                 if (ElementHead.getBehaviour(above1) !== ElementHead.BEHAVIOUR_GRASS) {
                     let weightAbove1 = ElementHead.getWeight(above1);
                     // note: it takes longer for water to suffocate the grass
                     if (weightAbove1 > ElementHead.WEIGHT_WATER
                             || (weightAbove1 === ElementHead.WEIGHT_WATER && this.#random.nextInt(100) === 0)) {
                         // remove grass
-                        elementArea.setElement(x, y, this.#defaultElement);
+                        this.#elementArea.setElement(x, y, this.#defaultElement);
                         return;
                     }
                 }
@@ -1135,40 +1347,40 @@ class ElementProcessor {
                     // maximum height
                     if (this.#random.nextInt(5) === 0) {
                         // remove top element to create some movement
-                        elementArea.setElement(x, y, this.#defaultElement);
+                        this.#elementArea.setElement(x, y, this.#defaultElement);
                     }
                     return;
                 }
                 if (y === 0) {
                     return;
                 }
-                let above1 = elementArea.getElementHead(x, y - 1);
+                let above1 = this.#elementArea.getElementHead(x, y - 1);
                 if (ElementHead.getWeight(above1) !== ElementHead.WEIGHT_AIR) {
                     return;
                 }
                 if (y > 1) {
-                    let above2 = elementArea.getElementHead(x, y - 2);
+                    let above2 = this.#elementArea.getElementHead(x, y - 2);
                     if (ElementHead.getWeight(above2) !== ElementHead.WEIGHT_AIR) {
                         return;
                     }
                 }
-                elementArea.setElementHead(x, y - 1, ElementHead.setSpecial(elementHead, growIndex - 1));
-                elementArea.setElementTail(x, y - 1, elementArea.getElementTail(x, y));
+                this.#elementArea.setElementHead(x, y - 1, ElementHead.setSpecial(elementHead, growIndex - 1));
+                this.#elementArea.setElementTail(x, y - 1, this.#elementArea.getElementTail(x, y));
             } else if (random === 1) {
                 // grow right
-                if (GrassElement.couldGrowUpHere(elementArea, x + 1, y + 1)) {
-                    elementArea.setElement(x + 1, y + 1, Brushes.GRASS.apply(x, y, this.#random));
+                if (GrassElement.couldGrowUpHere(this.#elementArea, x + 1, y + 1)) {
+                    this.#elementArea.setElement(x + 1, y + 1, Brushes.GRASS.apply(x, y, this.#random));
                 }
             } else if (random === 2) {
                 // grow left
-                if (GrassElement.couldGrowUpHere(elementArea, x - 1, y + 1)) {
-                    elementArea.setElement(x - 1, y + 1, Brushes.GRASS.apply(x, y, this.#random));
+                if (GrassElement.couldGrowUpHere(this.#elementArea, x - 1, y + 1)) {
+                    this.#elementArea.setElement(x - 1, y + 1, Brushes.GRASS.apply(x, y, this.#random));
                 }
             }
         }
     }
 
-    #behaviourTree(elementArea, elementHead, x, y) {
+    #behaviourTree(elementHead, x, y) {
         let random = this.#random.nextInt(SandGame.OPT_CYCLES_PER_SECOND);
         if (random === 0) {
             let template = TreeTemplates.getTemplate(ElementHead.getSpecial(elementHead));
@@ -1184,11 +1396,11 @@ class ElementProcessor {
 
                 let nx = x + node.x;
                 let ny = y + node.y;
-                if (elementArea.isValidPosition(nx, ny)) {
+                if (this.#elementArea.isValidPosition(nx, ny)) {
                     let isHereAlready = false;
                     let canGrowHere = false;
 
-                    const currentElementHead = elementArea.getElementHead(nx, ny);
+                    const currentElementHead = this.#elementArea.getElementHead(nx, ny);
                     const currentElementBehaviour = ElementHead.getBehaviour(currentElementHead);
 
                     switch (node.type) {
@@ -1216,7 +1428,7 @@ class ElementProcessor {
                                 isHereAlready = true;
                                 // update leaf vitality (if not dead already)
                                 if (ElementHead.getSpecial(currentElementHead) < 15) {
-                                    elementArea.setElementHead(nx, ny, ElementHead.setSpecial(currentElementHead, 0));
+                                    this.#elementArea.setElementHead(nx, ny, ElementHead.setSpecial(currentElementHead, 0));
                                 }
                             } else if (currentElementBehaviour === ElementHead.BEHAVIOUR_TREE_TRUNK) {
                                 isHereAlready = true;
@@ -1233,7 +1445,7 @@ class ElementProcessor {
                     }
 
                     if (canGrowHere) {
-                        elementArea.setElement(nx, ny, node.brush.apply(nx, ny, this.#random));
+                        this.#elementArea.setElement(nx, ny, node.brush.apply(nx, ny, this.#random));
                     }
 
                     if (isHereAlready) {
@@ -1247,25 +1459,25 @@ class ElementProcessor {
             // check tree status
             // - last tree status is carried by tree trunk above
             if (y > 0) {
-                let carrierElementHead = elementArea.getElementHead(x, y - 1);
+                let carrierElementHead = this.#elementArea.getElementHead(x, y - 1);
                 if (ElementHead.getBehaviour(carrierElementHead) === ElementHead.BEHAVIOUR_TREE_TRUNK) {
                     const maxStage = 15;
                     let lastStage = ElementHead.getSpecial(carrierElementHead);
                     let currentStage = Math.trunc(level / template.nodes * maxStage);
                     if (lastStage - currentStage > 5) {
                         // too big damage taken => kill tree
-                        elementArea.setElementHead(x, y - 1, ElementHead.setSpecial(carrierElementHead, 0));
-                        elementArea.setElement(x, y, Brushes.TREE_WOOD.apply(x, y, this.#random));
+                        this.#elementArea.setElementHead(x, y - 1, ElementHead.setSpecial(carrierElementHead, 0));
+                        this.#elementArea.setElement(x, y, Brushes.TREE_WOOD.apply(x, y, this.#random));
                     } else {
                         // update stage
-                        elementArea.setElementHead(x, y - 1, ElementHead.setSpecial(carrierElementHead, currentStage));
+                        this.#elementArea.setElementHead(x, y - 1, ElementHead.setSpecial(carrierElementHead, currentStage));
                     }
                 }
             }
         }
     }
 
-    #behaviourTreeRoot(elementArea, elementHead, x, y) {
+    #behaviourTreeRoot(elementHead, x, y) {
         let growIndex = ElementHead.getSpecial(elementHead);
         if (growIndex === 0) {
             // maximum size
@@ -1276,12 +1488,12 @@ class ElementProcessor {
                 const targetX = x + this.#random.nextInt(3) - 1;
                 const targetY = y + this.#random.nextInt(3) - 1;
 
-                if (elementArea.isValidPosition(targetX, targetY)) {
-                    let targetElementHead = elementArea.getElementHead(targetX, targetY);
+                if (this.#elementArea.isValidPosition(targetX, targetY)) {
+                    let targetElementHead = this.#elementArea.getElementHead(targetX, targetY);
                     let type = ElementHead.getType(targetElementHead);
                     if (type === ElementHead.TYPE_SAND_1 || type === ElementHead.TYPE_SAND_2) {
                         let modifiedElementHead = ElementHead.setType(targetElementHead, ElementHead.TYPE_STATIC);
-                        elementArea.setElementHead(targetX, targetY, modifiedElementHead);
+                        this.#elementArea.setElementHead(targetX, targetY, modifiedElementHead);
                     }
                 }
             }
@@ -1293,17 +1505,17 @@ class ElementProcessor {
         if (random < 10) {
 
             let doGrow = (nx, ny) => {
-                elementArea.setElementHead(x, y, ElementHead.setSpecial(elementHead, 0));
+                this.#elementArea.setElementHead(x, y, ElementHead.setSpecial(elementHead, 0));
 
                 let element = Brushes.TREE_ROOT.apply(nx, ny, this.#random);
                 let modifiedHead = ElementHead.setSpecial(element.elementHead, growIndex - 1);
-                elementArea.setElementHead(nx, ny, modifiedHead);
-                elementArea.setElementTail(nx, ny, element.elementTail);
+                this.#elementArea.setElementHead(nx, ny, modifiedHead);
+                this.#elementArea.setElementTail(nx, ny, element.elementTail);
             }
 
             // grow down first if there is a free space
-            if (y < elementArea.getHeight() - 1) {
-                let targetElementHead = elementArea.getElementHead(x, y + 1);
+            if (y < this.#elementArea.getHeight() - 1) {
+                let targetElementHead = this.#elementArea.getElementHead(x, y + 1);
                 if (ElementHead.getWeight(targetElementHead) === ElementHead.WEIGHT_AIR) {
                     doGrow(x, y + 1);
                     return;
@@ -1323,8 +1535,8 @@ class ElementProcessor {
                 ny += 1;
             }
 
-            if (elementArea.isValidPosition(nx, ny)) {
-                let targetElementHead = elementArea.getElementHead(nx, ny);
+            if (this.#elementArea.isValidPosition(nx, ny)) {
+                let targetElementHead = this.#elementArea.getElementHead(nx, ny);
                 if (ElementHead.getType(targetElementHead) !== ElementHead.TYPE_STATIC) {
                     doGrow(nx, ny);
                 }
@@ -1332,7 +1544,7 @@ class ElementProcessor {
         }
     }
 
-    #behaviourTreeLeaf(elementArea, elementHead, x, y) {
+    #behaviourTreeLeaf(elementHead, x, y) {
         // decrement vitality (if not dead already)
         let vitality = ElementHead.getSpecial(elementHead);
         if (vitality < 15) {
@@ -1340,11 +1552,11 @@ class ElementProcessor {
                 if (this.#random.nextInt(10) === 0) {
                     vitality++;
                     if (vitality >= 15) {
-                        elementArea.setElement(x, y, Brushes.TREE_LEAF_DEAD.apply(x, y, this.#random));
+                        this.#elementArea.setElement(x, y, Brushes.TREE_LEAF_DEAD.apply(x, y, this.#random));
                         return;
                     } else {
                         elementHead = ElementHead.setSpecial(elementHead, vitality);
-                        elementArea.setElementHead(x, y, elementHead);
+                        this.#elementArea.setElementHead(x, y, elementHead);
                     }
                 }
             }
@@ -1362,11 +1574,11 @@ class ElementProcessor {
                 const targetX = x + randomDirection[0];
                 const targetY = y + randomDirection[1];
 
-                if (elementArea.isValidPosition(targetX, targetY)) {
-                    const elementHeadAbove = elementArea.getElementHead(targetX, targetY);
+                if (this.#elementArea.isValidPosition(targetX, targetY)) {
+                    const elementHeadAbove = this.#elementArea.getElementHead(targetX, targetY);
                     if (ElementHead.getType(elementHeadAbove) !== ElementHead.TYPE_STATIC
                             && ElementHead.getWeight(elementHeadAbove) >= ElementHead.WEIGHT_WATER) {
-                        elementArea.setElement(x, y, this.#defaultElement);
+                        this.#elementArea.setElement(x, y, this.#defaultElement);
                     }
                 }
             }
@@ -1377,20 +1589,20 @@ class ElementProcessor {
         }
     }
 
-    #behaviourFish(elementArea, elementHead, x, y) {
+    #behaviourFish(elementHead, x, y) {
         // check has body
-        if (x === elementArea.getWidth() - 1
-                || ElementHead.getBehaviour(elementArea.getElementHead(x + 1, y)) !== ElementHead.BEHAVIOUR_FISH_BODY) {
+        if (x === this.#elementArea.getWidth() - 1
+                || ElementHead.getBehaviour(this.#elementArea.getElementHead(x + 1, y)) !== ElementHead.BEHAVIOUR_FISH_BODY) {
             // => turn into corpse
-            elementArea.setElement(x, y, Brushes.FISH_CORPSE.apply(x, y, this.#random));
+            this.#elementArea.setElement(x, y, Brushes.FISH_CORPSE.apply(x, y, this.#random));
         }
 
         // move down if flying
-        if (y < elementArea.getHeight() - 1) {
-            if (ElementHead.getWeight(elementArea.getElementHead(x, y + 1)) < ElementHead.WEIGHT_WATER
-                    && ElementHead.getWeight(elementArea.getElementHead(x + 1, y + 1)) < ElementHead.WEIGHT_WATER) {
-                elementArea.swap(x, y, x, y + 1);
-                elementArea.swap(x + 1, y, x + 1, y + 1);
+        if (y < this.#elementArea.getHeight() - 1) {
+            if (ElementHead.getWeight(this.#elementArea.getElementHead(x, y + 1)) < ElementHead.WEIGHT_WATER
+                    && ElementHead.getWeight(this.#elementArea.getElementHead(x + 1, y + 1)) < ElementHead.WEIGHT_WATER) {
+                this.#elementArea.swap(x, y, x, y + 1);
+                this.#elementArea.swap(x + 1, y, x + 1, y + 1);
                 return;
             }
         }
@@ -1401,13 +1613,13 @@ class ElementProcessor {
         const action = this.#random.nextInt(SandGame.OPT_CYCLES_PER_SECOND);
         if (action === 0) {
             let w = 0;
-            w += this.#isWaterEnvironment(elementArea, x - 1, y) ? 1 : 0;
-            w += this.#isWaterEnvironment(elementArea, x + 2, y) ? 1 : 0;
-            w += this.#isWaterEnvironment(elementArea, x, y + 1) ? 1 : 0;
-            w += this.#isWaterEnvironment(elementArea, x, y - 1) ? 1 : 0;
+            w += this.#isWaterEnvironment(x - 1, y) ? 1 : 0;
+            w += this.#isWaterEnvironment(x + 2, y) ? 1 : 0;
+            w += this.#isWaterEnvironment(x, y + 1) ? 1 : 0;
+            w += this.#isWaterEnvironment(x, y - 1) ? 1 : 0;
             if (w < 4) {
-                w += this.#isWaterEnvironment(elementArea, x + 1, y + 1) ? 1 : 0;
-                w += this.#isWaterEnvironment(elementArea, x + 1, y - 1) ? 1 : 0;
+                w += this.#isWaterEnvironment(x + 1, y + 1) ? 1 : 0;
+                w += this.#isWaterEnvironment(x + 1, y - 1) ? 1 : 0;
             }
 
             let dried = ElementHead.getSpecial(elementHead);
@@ -1415,16 +1627,16 @@ class ElementProcessor {
                 // enough water
                 if (dried > 0) {
                     // reset counter
-                    elementArea.setElementHead(x, y, ElementHead.setSpecial(elementHead, 0));
+                    this.#elementArea.setElementHead(x, y, ElementHead.setSpecial(elementHead, 0));
                 }
             } else {
                 // not enough water
                 dried++;
                 if (dried > 5) {
                     // turn into corpse
-                    elementArea.setElement(x, y, Brushes.FISH_CORPSE.apply(x, y, this.#random));
+                    this.#elementArea.setElement(x, y, Brushes.FISH_CORPSE.apply(x, y, this.#random));
                 } else {
-                    elementArea.setElementHead(x, y, ElementHead.setSpecial(elementHead, dried));
+                    this.#elementArea.setElementHead(x, y, ElementHead.setSpecial(elementHead, dried));
                 }
             }
         } else if (action < SandGame.OPT_CYCLES_PER_SECOND / 10) {
@@ -1434,38 +1646,37 @@ class ElementProcessor {
                 return;
             }
             // move fish and it's body
-            if (this.#isWater(elementArea, rx + x, ry + y)
-                    && this.#isWater(elementArea, rx + x + 1, ry + y)) {
-                elementArea.swap(x, y, rx + x, ry + y);
-                elementArea.swap(x + 1, y, rx + x + 1, ry + y);
+            if (this.#isWater(rx + x, ry + y) && this.#isWater(rx + x + 1, ry + y)) {
+                this.#elementArea.swap(x, y, rx + x, ry + y);
+                this.#elementArea.swap(x + 1, y, rx + x + 1, ry + y);
             }
         }
     }
 
-    #behaviourFishBody(elementArea, elementHead, x, y) {
-        if (x === 0 || ElementHead.getBehaviour(elementArea.getElementHead(x - 1, y)) !== ElementHead.BEHAVIOUR_FISH) {
+    #behaviourFishBody(elementHead, x, y) {
+        if (x === 0 || ElementHead.getBehaviour(this.#elementArea.getElementHead(x - 1, y)) !== ElementHead.BEHAVIOUR_FISH) {
             // the fish lost it's head :(
             // => turn into corpse
-            elementArea.setElement(x, y, Brushes.FISH_CORPSE.apply(x, y, this.#random));
+            this.#elementArea.setElement(x, y, Brushes.FISH_CORPSE.apply(x, y, this.#random));
         }
     }
 
-    #isWater(elementArea, x, y) {
-        if (!elementArea.isValidPosition(x, y)) {
+    #isWater(x, y) {
+        if (!this.#elementArea.isValidPosition(x, y)) {
             return false;
         }
-        let targetElementHead = elementArea.getElementHead(x, y);
+        let targetElementHead = this.#elementArea.getElementHead(x, y);
         if (ElementHead.getType(targetElementHead) !== ElementHead.TYPE_FLUID_2) {
             return false;
         }
         return true;
     }
 
-    #isWaterEnvironment(elementArea, x, y) {
-        if (!elementArea.isValidPosition(x, y)) {
+    #isWaterEnvironment(x, y) {
+        if (!this.#elementArea.isValidPosition(x, y)) {
             return false;
         }
-        let targetElementHead = elementArea.getElementHead(x, y);
+        let targetElementHead = this.#elementArea.getElementHead(x, y);
         if (ElementHead.getType(targetElementHead) === ElementHead.TYPE_FLUID_2) {
             return true;
         }
@@ -1940,113 +2151,36 @@ class FishSpawningExtension {
 }
 
 /**
+ * Double buffered renderer. With motion blur.
  *
  * @author Patrik Harag
- * @version 2022-09-08
+ * @version 2022-11-08
  */
 class Renderer {
-
-    /**
-     *
-     * @param elementArea {ElementArea}
-     * @return {void}
-     */
-    render(elementArea) {
-        throw 'Not implemented';
-    }
-}
-
-/**
- *
- * @author Patrik Harag
- * @version 2022-09-09
- */
-class DoubleBufferedRenderer extends Renderer {
 
     /** @type CanvasRenderingContext2D */
     #context;
 
-    /** @type number */
-    _width;
+    /** @type ElementArea */
+    #elementArea;
 
     /** @type number */
-    _height;
+    #width;
+    /** @type number */
+    #height;
+
+    /** @type number */
+    #chunkSize;
+    /** @type number */
+    #horChunkCount;
+    /** @type number */
+    #verChunkCount;
+
+    /** @type boolean[] */
+    #triggeredChunks
 
     /** @type ImageData */
     #buffer;
-
-    static #GLITTER_EFFECT_COUNTER_MAX = 2000;
-    #glitterEffectCounter = DoubleBufferedRenderer.#GLITTER_EFFECT_COUNTER_MAX;
-
-    constructor(width, height, context) {
-        super();
-        this.#context = context;
-        this._width = width;
-        this._height = height;
-        this.#buffer = this.#context.createImageData(width, height);
-
-        // set up alpha color component
-        let data = this.#buffer.data;
-        for (let y = 0; y < this._height; y++) {
-            for (let x = 0; x < this._width; x++) {
-                let index = 4 * (this._width * y + x);
-                data[index + 3] = 0xFF;
-            }
-        }
-    }
-
-    /**
-     *
-     * @param elementArea {ElementArea}
-     * @return {void}
-     */
-    render(elementArea) {
-        const data = this.#buffer.data;
-
-        for (let y = 0; y < this._height; y++) {
-            for (let x = 0; x < this._width; x++) {
-                this._renderPixel(elementArea, x, y, data);
-            }
-        }
-
-        this.#context.putImageData(this.#buffer, 0, 0, 0, 0, this._width, this._height);
-    }
-
-    _renderPixel(elementArea, x, y, data) {
-        const elementTail = elementArea.getElementTail(x, y);
-        const index = (this._width * y + x) * 4;
-        this._renderElement(index, elementTail, data);
-    }
-
-    _renderElement(index, elementTail, data) {
-        if (ElementTail.isRenderingModifierGlitterEnabled(elementTail) && this.#glitterEffectCounter-- === 0) {
-            // glitter effect - implemented using alpha blending
-
-            this.#glitterEffectCounter = Math.trunc(Math.random() * DoubleBufferedRenderer.#GLITTER_EFFECT_COUNTER_MAX);
-
-            const alpha = 0.5 + Math.random() * 0.5;
-            const whiteBackground = 255 * (1.0 - alpha);
-
-            data[index]     = (ElementTail.getColorRed(elementTail)   * alpha) + whiteBackground;
-            data[index + 1] = (ElementTail.getColorGreen(elementTail) * alpha) + whiteBackground;
-            data[index + 2] = (ElementTail.getColorBlue(elementTail)  * alpha) + whiteBackground;
-        } else {
-            data[index]     = ElementTail.getColorRed(elementTail);
-            data[index + 1] = ElementTail.getColorGreen(elementTail);
-            data[index + 2] = ElementTail.getColorBlue(elementTail);
-        }
-    }
-}
-
-/**
- *
- * @author Patrik Harag
- * @version 2022-11-06
- */
-class MotionBlurRenderer extends DoubleBufferedRenderer {
-
-    static #ALPHA = 0.875;
-    static #WHITE_BACKGROUND = 255 * (1.0 - MotionBlurRenderer.#ALPHA);
 
     /** @type boolean[] */
     #blur;
@@ -2054,22 +2188,120 @@ class MotionBlurRenderer extends DoubleBufferedRenderer {
     /** @type boolean[] */
     #canBeBlurred;
 
-    constructor(width, height, context) {
-        super(width, height, context);
-        this.#blur = new Array(width * height);
-        this.#blur.fill(false);
-        this.#canBeBlurred = new Array(width * height);
-        this.#canBeBlurred.fill(false);
+    constructor(elementArea, chunkSize, context) {
+        this.#context = context;
+        this.#elementArea = elementArea;
+        this.#width = elementArea.getWidth();
+        this.#height = elementArea.getHeight();
+
+        this.#chunkSize = chunkSize;
+        this.#horChunkCount = Math.ceil(this.#width / this.#chunkSize);
+        this.#verChunkCount = Math.ceil(this.#height / this.#chunkSize);
+        this.#triggeredChunks = new Array(this.#horChunkCount * this.#verChunkCount).fill(true);
+
+        this.#buffer = this.#context.createImageData(this.#width, this.#height);
+        // set up alpha color component
+        const data = this.#buffer.data;
+        for (let y = 0; y < this.#height; y++) {
+            for (let x = 0; x < this.#width; x++) {
+                let index = 4 * (this.#width * y + x);
+                data[index + 3] = 0xFF;
+            }
+        }
+
+        this.#blur = new Array(this.#width * this.#height).fill(false);
+        this.#canBeBlurred = new Array(this.#width * this.#height).fill(false);
     }
 
-    _renderPixel(elementArea, x, y, data) {
-        const elementTail = elementArea.getElementTail(x, y);
+    trigger(x, y) {
+        const cx = Math.trunc(x / this.#chunkSize);
+        const cy = Math.trunc(y / this.#chunkSize);
+        const chunkIndex = cy * this.#horChunkCount + cx;
+        this.#triggeredChunks[chunkIndex] = true;
+    }
 
-        const pixelIndex = this._width * y + x;
+    triggerChunk(cx, cy) {
+        const chunkIndex = cy * this.#horChunkCount + cx;
+        this.#triggeredChunks[chunkIndex] = true;
+    }
+
+    /**
+     *
+     * @param activeChunks {boolean[]}
+     * @param showActiveChunks {boolean}
+     * @return {void}
+     */
+    render(activeChunks, showActiveChunks) {
+        for (let cy = 0; cy < this.#verChunkCount; cy++) {
+            for (let cx = 0; cx < this.#horChunkCount; cx++) {
+                const chunkIndex = cy * this.#horChunkCount + cx;
+                const active = activeChunks[chunkIndex];
+                const triggered = this.#triggeredChunks[chunkIndex];
+                if (active) {
+                    // repaint at least once more because of motion blur
+                    this.#triggeredChunks[chunkIndex] = true;
+                } else if (triggered) {
+                    // unset
+                    this.#triggeredChunks[chunkIndex] = false;
+                }
+                if (active || triggered) {
+                    this.#renderChunk(cx, cy, active && showActiveChunks);
+                }
+            }
+        }
+
+        this.#context.putImageData(this.#buffer, 0, 0, 0, 0, this.#width, this.#height);
+    }
+
+    #renderChunk(cx, cy, highlight) {
+        if (highlight) {
+            const setHighlightingPixel = (x, y) => {
+                if (x < this.#width && y < this.#height) {
+                    const index = (this.#width * y + x) * 4;
+                    this.#buffer.data[index]     = 0x00;
+                    this.#buffer.data[index + 1] = 0xFF;
+                    this.#buffer.data[index + 2] = 0x00;
+                }
+            }
+            for (let i = 0; i < this.#chunkSize; i++) {
+                // top
+                setHighlightingPixel(cx * this.#chunkSize + i, cy * this.#chunkSize);
+                // bottom
+                setHighlightingPixel(cx * this.#chunkSize + i, (cy + 1) * this.#chunkSize - 1);
+                // left
+                setHighlightingPixel(cx * this.#chunkSize, cy * this.#chunkSize + i);
+                // right
+                setHighlightingPixel((cx + 1) * this.#chunkSize - 1, cy * this.#chunkSize + i);
+            }
+            const mx = Math.min((cx + 1) * this.#chunkSize - 1, this.#width);
+            const my = Math.min((cy + 1) * this.#chunkSize - 1, this.#height);
+            for (let y = cy * this.#chunkSize + 1; y < my; y++) {
+                for (let x = cx * this.#chunkSize + 1; x < mx; x++) {
+                    this.#renderPixel(x, y, this.#buffer.data);
+                }
+            }
+            this.triggerChunk(cx, cy);  // to repaint highlighting
+        } else {
+            const mx = Math.min((cx + 1) * this.#chunkSize, this.#width);
+            const my = Math.min((cy + 1) * this.#chunkSize, this.#height);
+            for (let y = cy * this.#chunkSize; y < my; y++) {
+                for (let x = cx * this.#chunkSize; x < mx; x++) {
+                    this.#renderPixel(x, y, this.#buffer.data);
+                }
+            }
+        }
+    }
+
+    #renderPixel(x, y, data) {
+        const elementTail = this.#elementArea.getElementTail(x, y);
+
+        const pixelIndex = this.#width * y + x;
         const dataIndex = pixelIndex * 4;
 
         if (ElementTail.isRenderingModifierBackground(elementTail)) {
-            if (this.#canBeBlurred[pixelIndex] && MotionBlurRenderer.#isWhite(elementTail)) {
+            // motion blur
+
+            if (this.#canBeBlurred[pixelIndex] && Renderer.#isWhite(elementTail)) {
                 // init fading here
 
                 this.#blur[pixelIndex] = true;
@@ -2077,15 +2309,18 @@ class MotionBlurRenderer extends DoubleBufferedRenderer {
             }
 
             if (this.#blur[pixelIndex]) {
-                // continue fading
+                // paint - continue fading
 
                 const r = data[dataIndex];
                 const g = data[dataIndex + 1];
                 const b = data[dataIndex + 2];
 
-                const nr = Math.trunc((r * MotionBlurRenderer.#ALPHA) + MotionBlurRenderer.#WHITE_BACKGROUND);
-                const ng = Math.trunc((g * MotionBlurRenderer.#ALPHA) + MotionBlurRenderer.#WHITE_BACKGROUND);
-                const nb = Math.trunc((b * MotionBlurRenderer.#ALPHA) + MotionBlurRenderer.#WHITE_BACKGROUND);
+                const alpha = 0.875 + (Math.random() * 0.1 - 0.05);
+                const whiteBackground = 255 * (1.0 - alpha);
+
+                const nr = Math.trunc((r * alpha) + whiteBackground);
+                const ng = Math.trunc((g * alpha) + whiteBackground);
+                const nb = Math.trunc((b * alpha) + whiteBackground);
 
                 if (r === nr && g === ng && b === nb) {
                     // no change => fading completed
@@ -2093,18 +2328,20 @@ class MotionBlurRenderer extends DoubleBufferedRenderer {
                     data[dataIndex]     = 0xFF;
                     data[dataIndex + 1] = 0xFF;
                     data[dataIndex + 2] = 0xFF;
-                    return;
                 } else {
                     data[dataIndex]     = nr;
                     data[dataIndex + 1] = ng;
                     data[dataIndex + 2] = nb;
-                    return;
+                    this.trigger(x, y);  // request next repaint
                 }
+                return;
             }
         }
 
-        // no blur
-        super._renderElement(dataIndex, elementTail, data);
+        // paint - no blur
+        data[dataIndex]     = ElementTail.getColorRed(elementTail);
+        data[dataIndex + 1] = ElementTail.getColorGreen(elementTail);
+        data[dataIndex + 2] = ElementTail.getColorBlue(elementTail);
         this.#canBeBlurred[pixelIndex] = ElementTail.isRenderingModifierBlurEnabled(elementTail);
         this.#blur[pixelIndex] = false;
     }
@@ -2223,8 +2460,8 @@ export class Brushes {
     ]);
 
     static WATER = RandomBrush.fromHeadAndTails(ElementHead.of(ElementHead.TYPE_FLUID_2, ElementHead.WEIGHT_WATER), [
-        ElementTail.of(4, 135, 186, ElementTail.MODIFIER_BLUR_ENABLED | ElementTail.MODIFIER_GLITTER_ENABLED),
-        ElementTail.of(5, 138, 189, ElementTail.MODIFIER_BLUR_ENABLED | ElementTail.MODIFIER_GLITTER_ENABLED)
+        ElementTail.of(4, 135, 186, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(5, 138, 189, ElementTail.MODIFIER_BLUR_ENABLED)
     ]);
 
     static GRASS = RandomBrush.of([

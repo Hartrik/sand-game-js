@@ -5,7 +5,7 @@ import { SandGame, Brushes } from "./SandGame.js";
  * @requires jQuery
  *
  * @author Patrik Harag
- * @version 2022-11-04
+ * @version 2022-11-08
  */
 export class SandGameComponent {
 
@@ -37,6 +37,8 @@ export class SandGameComponent {
     #imageRendering = 'pixelated';
     /** @type boolean */
     #simulationEnabled = false;
+    /** @type boolean */
+    #showActiveChunks = false;
     /** @type Brush */
     #brush = Brushes.SAND;
 
@@ -127,6 +129,7 @@ export class SandGameComponent {
 
         let defaultElement = Brushes.AIR.apply(0, 0, undefined);
         this.#sandGame = new SandGame(context, w, h, defaultElement);
+        this.#sandGame.setRendererShowActiveChunks(this.#showActiveChunks);
         this.#sandGame.addOnRendered(() => {
             const fps = this.#sandGame.getFramesPerSecond();
             const cps = this.#sandGame.getCyclesPerSecond();
@@ -342,9 +345,16 @@ export class SandGameComponent {
                 DomBuilder.div({ class: 'form-check' }, [
                     DomBuilder.element('input', { type: 'checkbox', checked: 'true', class: 'form-check-input', id: 'rend-check-pixelated' }).change((e) => {
                         let checked = e.target.checked;
-                        this.#setCanvasImageRenderingStyle(checked ? 'pixelated' : 'unset')
+                        this.#setCanvasImageRenderingStyle(checked ? 'pixelated' : 'unset');
                     }),
                     DomBuilder.element('label', { class: 'form-check-label', for: 'rend-check-pixelated' }, 'Pixelated')
+                ]),
+                DomBuilder.div({ class: 'form-check' }, [
+                    DomBuilder.element('input', { type: 'checkbox', checked: this.#showActiveChunks, class: 'form-check-input', id: 'rend-check-show-active-chunks' }).change((e) => {
+                        let checked = e.target.checked;
+                        this.#setShowActiveChunks(checked);
+                    }),
+                    DomBuilder.element('label', { class: 'form-check-label', for: 'rend-check-show-active-chunks' }, 'Show active chunks')
                 ])
             ])
         ]);
@@ -445,6 +455,13 @@ export class SandGameComponent {
         if (this.#nodeCanvas !== null) {
             let domCanvasNode = this.#nodeCanvas[0];
             domCanvasNode.style.imageRendering = style;
+        }
+    }
+
+    #setShowActiveChunks(show) {
+        this.#showActiveChunks = show;
+        if (this.#sandGame) {
+            this.#sandGame.setRendererShowActiveChunks(show);
         }
     }
 
