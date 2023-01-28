@@ -11,6 +11,7 @@
 
 .sand-game-component .sand-game-brushes {
     display: inline-block;
+    user-select: none;
 }
 
 .sand-game-component .sand-game-brushes .badge {
