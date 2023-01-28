@@ -22,7 +22,7 @@ export class SandGameComponent {
         { name: 'Sand',   cssName: 'sand',   code: '1', brush: Brushes.SAND },
         { name: 'Soil',   cssName: 'soil',   code: '2', brush: Brushes.SOIL },
         { name: 'Gravel', cssName: 'gravel', code: '3', brush: Brushes.STONE },
-        { name: 'Wall',   cssName: 'wall',   code: 's', brush: Brushes.WALL },
+        { name: 'Rock',   cssName: 'wall',   code: 'r', brush: Brushes.ROCK },
         { name: 'Water',  cssName: 'water',  code: 'w', brush: Brushes.WATER },
         { name: 'Erase',  cssName: 'air',    code: '.', brush: Brushes.AIR }
     ];
