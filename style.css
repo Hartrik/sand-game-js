@@ -3,7 +3,7 @@
 }
 
 .sand-game-component .sand-game-canvas {
-    margin-top: 8pt;
+    margin-top: 4pt;
     outline: 1px solid #b7b7b7;
     cursor: crosshair;
     user-select: none;
@@ -16,6 +16,7 @@
 
 .sand-game-component .sand-game-brushes .badge {
     margin-right: 3pt;
+    padding: 0.4em 0.4em;
 }
 
 .sand-game-component .sand-game-brushes .badge.air {
@@ -41,6 +42,10 @@
 
 .sand-game-component .sand-game-brushes .badge.water {
     background-color: rgb(4, 135, 186);
+}
+
+.sand-game-component .sand-game-brushes .badge.selected {
+    outline: red solid 1px;
 }
 
 .sand-game-component .sand-game-canvas-size-options,

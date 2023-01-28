@@ -5,7 +5,7 @@ import { SandGame, Brushes } from "./SandGame.js";
  * @requires jQuery
  *
  * @author Patrik Harag
- * @version 2022-11-08
+ * @version 2023-01-28
  */
 export class SandGameComponent {
 
@@ -293,16 +293,30 @@ export class SandGameComponent {
 
     enableBrushes() {
         let toolbar = DomBuilder.div({ class: 'sand-game-brushes' });
-        for (let d of this.#brushDeclarations) {
-            toolbar.append(this.#createBrushButton(d.name, d.cssName, d.brush));
-        }
-        this.#nodeHolderTopToolbar.append(toolbar);
-    }
+        let buttons = [];
 
-    #createBrushButton(name, cssName, brush) {
-        return DomBuilder.link(name, {
-            class: 'badge badge-secondary ' + cssName
-        }, () => this.#brush = brush)
+        for (let d of this.#brushDeclarations) {
+            let button = DomBuilder.link(d.name, { class: 'badge badge-secondary ' + d.cssName }, () => {
+                // unselect last
+                for (let b of buttons) {
+                    b.removeClass('selected');
+                }
+
+                // select
+                button.addClass('selected');
+
+                this.#brush = d.brush;
+            });
+            // initial select
+            if (d.brush === this.#brush) {
+                button.addClass('selected');
+            }
+
+            buttons.push(button);
+        }
+
+        toolbar.append(buttons);
+        this.#nodeHolderTopToolbar.append(toolbar);
     }
 
     enableOptions() {
