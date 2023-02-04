@@ -1,5 +1,6 @@
-import { DomBuilder } from "./DomBuilder.js";
-import { SandGame, Brushes } from "./SandGame.js";
+import {DomBuilder} from "./DomBuilder.js";
+import {SandGame} from "./core/SandGame.js";
+import {Brushes} from "./core/Brushes.js";
 
 /**
  * @requires jQuery
