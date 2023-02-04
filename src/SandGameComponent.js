@@ -4,12 +4,13 @@ import {Brushes} from "./core/Brushes.js";
 import {SandGameScenesComponent} from "./SandGameScenesComponent.js";
 import {SandGameScenes} from "./SandGameScenes.js";
 import {SandGameElementSizeComponent} from "./SandGameElementSizeComponent.js";
+import {SandGameSaveComponent} from "./SandGameSaveComponent.js";
 
 /**
  * @requires jQuery
  *
  * @author Patrik Harag
- * @version 2023-01-28
+ * @version 2023-02-04
  */
 export class SandGameComponent {
 
@@ -57,6 +58,8 @@ export class SandGameComponent {
     #nodeLabelSize;
     #nodeLinkStartStop;
 
+    #onSnapshotLoaded = [];
+
     constructor(rootNode, init) {
         if (init) {
             this.#init = init;
@@ -96,7 +99,7 @@ export class SandGameComponent {
                 }
             });
 
-        this.#initialize(sandGame => {
+        this.#initialize(null, sandGame => {
             let scene = SandGameScenes.SCENES[this.#init.scene];
             if (scene) {
                 scene.apply(sandGame);
@@ -110,9 +113,10 @@ export class SandGameComponent {
 
     /**
      *
+     * @param snapshot {Snapshot}
      * @param sandGameInitializer {function(SandGame)}
      */
-    #initialize(sandGameInitializer) {
+    #initialize(snapshot, sandGameInitializer) {
         this.#nodeCanvas = this.#createCanvas();
         this.#nodeHolderCanvas.append(this.#nodeCanvas);
 
@@ -132,7 +136,7 @@ export class SandGameComponent {
         let context = domCanvasNode.getContext('2d');
 
         let defaultElement = Brushes.AIR.apply(0, 0, undefined);
-        this.#sandGame = new SandGame(context, w, h, defaultElement);
+        this.#sandGame = new SandGame(context, w, h, snapshot, defaultElement);
         this.#sandGame.setRendererShowActiveChunks(this.#showActiveChunks);
         this.#sandGame.addOnRendered(() => {
             const fps = this.#sandGame.getFramesPerSecond();
@@ -290,7 +294,7 @@ export class SandGameComponent {
         this.#currentScale = scale;
 
         let oldSandGameInstanceToCopy = this.#sandGame;
-        this.#initialize(sandGame => {
+        this.#initialize(null, sandGame => {
             oldSandGameInstanceToCopy.copyStateTo(sandGame);
         });
     }
@@ -400,16 +404,34 @@ export class SandGameComponent {
         }, this.#init.scale, this.#init.assetsContextPath);
 
         this.#nodeHolderAdditionalViews.append(component.createNode());
+        this.#onSnapshotLoaded.push(() => component.unselect());
     }
 
     enableScenes() {
         let component = new SandGameScenesComponent(scene => {
             this.#close();
-            this.#initialize(sandGame => {
+            this.#initialize(null, sandGame => {
                 scene.apply(sandGame);
             });
         }, this.#init.scene);
 
+        this.#nodeHolderAdditionalViews.append(component.createNode());
+        this.#onSnapshotLoaded.push(() => component.unselect());
+    }
+
+    enableSavingAndLoading() {
+        let component = new SandGameSaveComponent(() => this.#sandGame.createSnapshot(), snapshot => {
+            this.#close();
+            for (let handler of this.#onSnapshotLoaded) {
+                handler();
+            }
+
+            this.#currentScale = (snapshot.metadata.width / this.#init.canvasWidthPx).toFixed(3);
+            this.#currentWidthPoints = snapshot.metadata.width;
+            this.#currentHeightPoints = snapshot.metadata.height;
+
+            this.#initialize(snapshot, sandGame => {});
+        });
         this.#nodeHolderAdditionalViews.append(component.createNode());
     }
 

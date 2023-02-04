@@ -1,12 +1,15 @@
-import {DomBuilder} from "./DomBuilder";
-import {SandGameScenes} from "./SandGameScenes";
+import {DomBuilder} from "./DomBuilder.js";
+import {SandGameScenes} from "./SandGameScenes.js";
 
 /**
  *
  * @author Patrik Harag
- * @version 2022-10-02
+ * @version 2023-02-04
  */
 export class SandGameScenesComponent {
+
+    static CLASS_SELECTED = 'selected-scene';
+
 
     /** @type function(SandGameScene) */
     #selectFunction;
@@ -28,14 +31,14 @@ export class SandGameScenesComponent {
 
             if (id === this.#initialScene) {
                 this.#selected = node;
-                node.addClass('selected-scene');
+                node.addClass(SandGameScenesComponent.CLASS_SELECTED);
             }
 
             node.on('click', e => {
                 if (this.#selected) {
-                    this.#selected.removeClass('selected-scene');
+                    this.#selected.removeClass(SandGameScenesComponent.CLASS_SELECTED);
                 }
-                node.addClass('selected-scene');
+                node.addClass(SandGameScenesComponent.CLASS_SELECTED);
                 this.#selected = node;
                 this.#selectFunction(scene);
             })
@@ -55,6 +58,13 @@ export class SandGameScenesComponent {
         ];
         bodyContent.push(DomBuilder.par({class: 'card-text'}, scene.description ? scene.description : '\u00A0'));
         return DomBuilder.Bootstrap.card(null, bodyContent);
+    }
+
+    unselect() {
+        if (this.#selected) {
+            this.#selected.removeClass(SandGameScenesComponent.CLASS_SELECTED);
+        }
+        this.#selected = null;
     }
 }
 

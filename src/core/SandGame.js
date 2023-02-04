@@ -8,13 +8,15 @@ import {FishSpawningExtension} from "./FishSpawningExtension.js";
 import {GrassPlantingExtension} from "./GrassPlantingExtension.js";
 import {Renderer} from "./Renderer.js";
 import {SandGameGraphics} from "./SandGameGraphics.js";
+import {Snapshot} from "./Snapshot.js";
+import {SnapshotMetadata} from "./SnapshotMetadata.js";
 import {TemplatePainter} from "./TemplatePainter.js";
 import {TreePlantingExtension} from "./TreePlantingExtension.js";
 
 /**
  *
  * @author Patrik Harag
- * @version 2022-11-08
+ * @version 2023-02-04
  */
 export class SandGame {
 
@@ -63,13 +65,16 @@ export class SandGame {
      * @param width {number}
      * @param height {number}
      * @param defaultElement {Element}
+     * @param snapshot {Snapshot|null}
      */
-    constructor(context, width, height, defaultElement) {
-        this.#elementArea = new ElementArea(width, height, defaultElement);
-        this.#random = new DeterministicRandom(0);
+    constructor(context, width, height, snapshot, defaultElement) {
+        this.#elementArea = (snapshot)
+                ? ElementArea.from(width, height, snapshot.data)
+                : ElementArea.create(width, height, defaultElement);
+        this.#random = new DeterministicRandom((snapshot) ? snapshot.metadata.random : 0);
         this.#framesCounter = new Counter();
         this.#cyclesCounter = new Counter();
-        this.#processor = new ElementProcessor(this.#elementArea, 16, this.#random, defaultElement);
+        this.#processor = new ElementProcessor(this.#elementArea, 16, this.#random, defaultElement, snapshot);
         this.#renderer = new Renderer(this.#elementArea, 16, context);
         this.#width = width;
         this.#height = height;
@@ -201,5 +206,24 @@ export class SandGame {
         }
         sandGame.#processor.setFallThroughEnabled(this.#processor.isFallThroughEnabled());
         sandGame.#processor.setErasingEnabled(this.#processor.isErasingEnabled());
+    }
+
+    /**
+     * @returns {Snapshot}
+     */
+    createSnapshot() {
+        let metadata = new SnapshotMetadata();
+        metadata.formatVersion = Snapshot.CURRENT_FORMAT_VERSION;
+        metadata.width = this.#width;
+        metadata.height = this.#height;
+        metadata.random = this.#random.getState();
+        metadata.iteration = this.#processor.getIteration();
+        metadata.fallThroughEnabled = this.#processor.isFallThroughEnabled();
+        metadata.erasingEnabled = this.#processor.isErasingEnabled();
+
+        let snapshot = new Snapshot();
+        snapshot.metadata = metadata;
+        snapshot.data = this.#elementArea.getData();
+        return snapshot;
     }
 }

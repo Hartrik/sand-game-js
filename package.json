@@ -3,7 +3,10 @@
   "version": "1.0.0-SNAPSHOT",
   "module": "dist/sand-game-js.esm.js",
   "browser": "dist/sand-game-js.umd.js",
-  "dependencies": {},
+  "dependencies": {
+    "file-saver": "^2.0.5",
+    "fflate": "^0.7.4"
+  },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^24.0.1",
     "@rollup/plugin-node-resolve": "^15.0.1",

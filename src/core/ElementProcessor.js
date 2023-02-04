@@ -2,11 +2,12 @@ import {Brushes} from "./Brushes.js";
 import {ElementHead} from "./ElementHead.js";
 import {GrassElement} from "./GrassElement.js";
 import {TreeTemplateNode, TreeTemplates} from "./TreeTemplates.js";
+import {DeterministicRandom} from "./DeterministicRandom.js";
 
 /**
  *
  * @author Patrik Harag
- * @version 2022-11-08
+ * @version 2023-02-04
  */
 export class ElementProcessor {
 
@@ -53,7 +54,7 @@ export class ElementProcessor {
     /** @type Uint32Array[] */
     #rndChunkXOrder = [];
 
-    constructor(elementArea, chunkSize, random, defaultElement) {
+    constructor(elementArea, chunkSize, random, defaultElement, snapshot) {
         this.#elementArea = elementArea;
         this.#width = elementArea.getWidth();
         this.#height = elementArea.getHeight();
@@ -66,15 +67,22 @@ export class ElementProcessor {
         this.#verChunkCount = Math.ceil(this.#height / this.#chunkSize);
         this.#activeChunks = new Array(this.#horChunkCount * this.#verChunkCount).fill(true);
 
-        this.#random = random;
+        let rndDataRandom = new DeterministicRandom(0);
         this.#rndChunkOrder = ElementProcessor.#generateArrayOfOrderData(
-            ElementProcessor.RANDOM_DATA_COUNT, this.#horChunkCount, this.#random);
+            ElementProcessor.RANDOM_DATA_COUNT, this.#horChunkCount, rndDataRandom);
         this.#rndChunkXRnd = ElementProcessor.#generateArrayOfRandomData(
-            ElementProcessor.RANDOM_DATA_COUNT, this.#chunkSize, this.#chunkSize, this.#random);
+            ElementProcessor.RANDOM_DATA_COUNT, this.#chunkSize, this.#chunkSize, rndDataRandom);
         this.#rndChunkXOrder = ElementProcessor.#generateArrayOfOrderData(
-            ElementProcessor.RANDOM_DATA_COUNT, this.#chunkSize, this.#random);
+            ElementProcessor.RANDOM_DATA_COUNT, this.#chunkSize, rndDataRandom);
 
+        this.#random = random;
         this.#defaultElement = defaultElement;
+
+        if (snapshot) {
+            this.#iteration = snapshot.metadata.iteration;
+            this.#fallThroughEnabled = snapshot.metadata.fallThroughEnabled;
+            this.#erasingEnabled = snapshot.metadata.erasingEnabled;
+        }
     }
 
     static #shuffle(array, iterations, random) {
@@ -119,6 +127,10 @@ export class ElementProcessor {
             array[i] = random.nextInt(max);
         }
         return array;
+    }
+
+    getIteration() {
+        return this.#iteration;
     }
 
     setFallThroughEnabled(enabled) {

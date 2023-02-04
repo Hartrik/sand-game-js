@@ -24,4 +24,8 @@ export class DeterministicRandom {
     nextInt(max) {
         return Math.trunc(this.next() * max);
     }
+
+    getState() {
+        return this.#last;
+    }
 }

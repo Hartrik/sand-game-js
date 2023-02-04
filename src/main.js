@@ -29,6 +29,7 @@ export function initStandard(root, assetsContextPath) {
     sandGameComponent.enableOptions();
     sandGameComponent.enableSizeOptions();
     sandGameComponent.enableScenes();
+    sandGameComponent.enableSavingAndLoading();
     sandGameComponent.start();
 }
 
@@ -82,6 +83,7 @@ export function initTest(root, assetsContextPath) {
     sandGameComponent.enableOptions();
     sandGameComponent.enableSizeOptions();
     sandGameComponent.enableScenes();
+    sandGameComponent.enableSavingAndLoading();
     sandGameComponent.enableTestTools();
     sandGameComponent.enableTemplateEditor();
     sandGameComponent.start();

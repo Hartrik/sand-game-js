@@ -106,7 +106,6 @@
     overflow-x: auto;
     overflow-y: hidden;
     white-space: nowrap;
-    padding-bottom: 10pt;
 }
 
 .sand-game-component .sand-game-views .scenes .card {
@@ -136,6 +135,18 @@
 
 .sand-game-component .sand-game-views .card textarea {
     font-family: monospace;
+}
+
+.sand-game-component .load-and-save {
+    margin: 0.5em 0.5em 0.5em 0;
+}
+
+.sand-game-component .load-and-save .btn {
+    margin-right: 0.5em;
+
+    color: gray;
+    padding: 0 0.5em 0 0.5em;
+    font-size: 75%;
 }
 
 .tooltip-inner {

@@ -8,6 +8,8 @@ import {DomBuilder} from "./DomBuilder.js";
  */
 export class SandGameElementSizeComponent {
 
+    static CLASS_SELECTED = 'selected-size';
+
     static SIZES = [
         { scale: 0.750, image: Assets.IMG_ELEMENT_SIZE_1 },
         { scale: 0.500, image: Assets.IMG_ELEMENT_SIZE_2 },
@@ -37,14 +39,14 @@ export class SandGameElementSizeComponent {
 
             if (sizeDef.scale === this.#initialScale) {
                 this.#selected = node;
-                node.addClass('selected-size');
+                node.addClass(SandGameElementSizeComponent.CLASS_SELECTED);
             }
 
             node.on('click', e => {
                 if (this.#selected) {
-                    this.#selected.removeClass('selected-size');
+                    this.#selected.removeClass(SandGameElementSizeComponent.CLASS_SELECTED);
                 }
-                node.addClass('selected-size');
+                node.addClass(SandGameElementSizeComponent.CLASS_SELECTED);
                 this.#selected = node;
                 this.#selectFunction(sizeDef.scale);
             })
@@ -63,5 +65,12 @@ export class SandGameElementSizeComponent {
         return DomBuilder.div({class: 'card'}, [
             DomBuilder.element('img', {src: image})
         ]);
+    }
+
+    unselect() {
+        if (this.#selected) {
+            this.#selected.removeClass(SandGameElementSizeComponent.CLASS_SELECTED);
+        }
+        this.#selected = null;
     }
 }

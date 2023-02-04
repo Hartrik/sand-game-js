@@ -3,10 +3,27 @@ import {Element} from "./Element.js";
 /**
  *
  * @author Patrik Harag
- * @version 2022-09-20
+ * @version 2023-02-04
  */
 export class ElementArea {
     static LITTLE_ENDIAN = true;
+
+    static create(width, height, defaultElement) {
+        let instance = new ElementArea(width, height, new DataView(new ArrayBuffer(width * height * 8)));
+
+        // set default elements
+        for (let y = 0; y < instance.#height; y++) {
+            for (let x = 0; x < instance.#width; x++) {
+                instance.setElement(x, y, defaultElement);
+            }
+        }
+        return instance;
+    }
+
+    static from(width, height, arrayBuffer) {
+        return new ElementArea(width, height, new DataView(arrayBuffer));
+    }
+
 
     /** @type number */
     #width;
@@ -17,17 +34,10 @@ export class ElementArea {
     /** @type DataView */
     #buffer;
 
-    constructor(width, height, defaultElement) {
+    constructor(width, height, buffer) {
         this.#width = width;
         this.#height = height;
-        this.#buffer = new DataView(new ArrayBuffer(width * height * 8));
-
-        // set default elements
-        for (let y = 0; y < this.#height; y++) {
-            for (let x = 0; x < this.#width; x++) {
-                this.setElement(x, y, defaultElement);
-            }
-        }
+        this.#buffer = buffer;
     }
 
     isValidPosition(x, y) {
@@ -92,10 +102,26 @@ export class ElementArea {
         this.setElementTail(x, y, elementTail2);
     }
 
+    /**
+     *
+     * @return {ArrayBuffer}
+     */
+    getData() {
+        return this.#buffer.buffer;
+    }
+
+    /**
+     *
+     * @return {number}
+     */
     getWidth() {
         return this.#width;
     }
 
+    /**
+     *
+     * @return {number}
+     */
     getHeight() {
         return this.#height;
     }
