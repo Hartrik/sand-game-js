@@ -9,44 +9,17 @@
         integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"
           integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+  <script src="dist/sand-game-js.umd.js"></script>
 <!--  <link rel="stylesheet" type="text/css" href="./../../main.css" />-->
   <link rel="stylesheet" type="text/css" href="style.css" />
-  <script type="module">
-      import { SandGameComponent } from "./SandGameComponent.js";
-
+  <script>
       $(() => {
           let root = $('#sand-game-root');
+          let assetsContextPath = './assets';
 
-          let width = Math.min(1400, root.width());
-          let height = Math.min(800, Math.trunc(window.innerHeight * 0.70));
-          if (width / height < 0.5) {
-              height = Math.trunc(width / 0.5);
-          }
-
-          let scale = 0.25;
-          if (width * height < 300000) {
-              scale = 0.5;
-          }
-          if (width * height < 50000) {
-              scale = 1;
-          }
-
-          let init = {
-              scale: scale,
-              canvasWidthPx: width,
-              canvasHeightPx: height,
-              brushSize: 5,
-              scene: 'landscape',
-              assetsContextPath: './assets'
-          };
-          let sandGameComponent = new SandGameComponent(root, init);
-          sandGameComponent.enableBrushes();
-          sandGameComponent.enableOptions();
-          sandGameComponent.enableSizeOptions();
-          sandGameComponent.enableScenes();
-          sandGameComponent.enableTestTools();
-          sandGameComponent.enableTemplateEditor();
-          sandGameComponent.start();
+          // SandGameJS.initMinimalistic(root, assetsContextPath);
+          // SandGameJS.initStandard(root, assetsContextPath);
+          SandGameJS.initTest(root, assetsContextPath);
       })
   </script>
 </head>
