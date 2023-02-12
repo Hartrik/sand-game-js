@@ -214,6 +214,7 @@ export class SandGame {
     createSnapshot() {
         let metadata = new SnapshotMetadata();
         metadata.formatVersion = Snapshot.CURRENT_FORMAT_VERSION;
+        metadata.created = new Date().getTime();
         metadata.width = this.#width;
         metadata.height = this.#height;
         metadata.random = this.#random.getState();

@@ -2,12 +2,15 @@
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-04
+ * @version 2023-02-12
  */
 export class SnapshotMetadata {
 
     /** @type number */
     formatVersion;
+
+    /** @type number */
+    created;
 
     /** @type number */
     width;
