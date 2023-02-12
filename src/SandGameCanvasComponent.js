@@ -116,7 +116,14 @@ export class SandGameCanvasComponent {
             brush = null;
         });
         domNode.addEventListener('mouseout', (e) => {
-            brush = null;
+            // nothing
+        });
+        domNode.addEventListener('mouseenter', (e) => {
+            if (brush !== null && e.buttons === 0) {
+                // mouse released outside...
+                brush = null;
+                e.preventDefault();
+            }
         });
 
         // touch support
