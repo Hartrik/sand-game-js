@@ -10,6 +10,7 @@ import {SandGameOptionsComponent} from "./SandGameOptionsComponent.js";
 import {SandGameTestComponent} from "./SandGameTestComponent.js";
 import {SandGameTemplateComponent} from "./SandGameTemplateComponent.js";
 import {SandGameBrushComponent} from "./SandGameBrushComponent.js";
+import {SandGameCanvasComponent} from "./SandGameCanvasComponent.js";
 
 /**
  * @requires jQuery
@@ -54,11 +55,15 @@ export class SandGameComponent extends SandGameControls {
     #brush = Brushes.SAND;
 
     #node = null;
-    #nodeCanvas;
     #nodeHolderTopToolbar;
     #nodeHolderCanvas;
     #nodeHolderBottomToolbar;
     #nodeHolderAdditionalViews;
+
+    /** @type function|null */
+    #canvasFinalizer = null;
+    /** @type function|null */
+    #canvasSettingsUpdater = null;
 
     /** @type function[] */
     #onSnapshotLoaded = [];
@@ -97,22 +102,15 @@ export class SandGameComponent extends SandGameControls {
      * @param sandGameInitializer {function(SandGame)}
      */
     #initialize(snapshot, sandGameInitializer) {
-        this.#nodeCanvas = this.#createCanvas();
-        this.#nodeHolderCanvas.append(this.#nodeCanvas);
-
-        const w = this.#currentWidthPoints;
-        const h = this.#currentHeightPoints;
-
-        // scale up
-        this.#nodeCanvas.width(w / this.#currentScale);
-        this.#nodeCanvas.height(h / this.#currentScale);
+        const canvasComponent = new SandGameCanvasComponent(this);
+        this.#nodeHolderCanvas.append(canvasComponent.createNode());
 
         // init game
-        let domCanvasNode = this.#nodeCanvas[0];
-        let context = domCanvasNode.getContext('2d');
+        const w = this.#currentWidthPoints;
+        const h = this.#currentHeightPoints;
+        const defaultElement = Brushes.AIR.apply(0, 0, undefined);
 
-        let defaultElement = Brushes.AIR.apply(0, 0, undefined);
-        this.#sandGame = new SandGame(context, w, h, snapshot, defaultElement);
+        this.#sandGame = new SandGame(canvasComponent.getContext(), w, h, snapshot, defaultElement);
         this.#sandGame.setRendererShowActiveChunks(this.#showActiveChunks);
         this.#sandGame.addOnRendered(() => {
             const fps = this.#sandGame.getFramesPerSecond();
@@ -122,8 +120,16 @@ export class SandGameComponent extends SandGameControls {
         sandGameInitializer(this.#sandGame);
 
         // mouse handling
-        this.#nodeCanvas.bind('contextmenu', e => false);
-        this.#initMouseHandling(domCanvasNode, this.#sandGame);
+        canvasComponent.initMouseHandling(this.#sandGame);
+
+        // handlers
+        this.#canvasSettingsUpdater = () => {
+            canvasComponent.setImageRenderingStyle(this.#imageRendering);
+        };
+        this.#canvasFinalizer = () => {
+            canvasComponent.close();
+            this.#nodeHolderCanvas.empty();
+        };
 
         // start rendering
         this.#sandGame.startRendering();
@@ -136,122 +142,16 @@ export class SandGameComponent extends SandGameControls {
         this.#onInitialized.forEach(f => f());
     }
 
-    #createCanvas() {
-        let canvas = DomBuilder.element('canvas', {
-            class: 'sand-game-canvas',
-            width: this.#currentWidthPoints + 'px',
-            height: this.#currentHeightPoints + 'px'
-        });
-        let domCanvasNode = canvas[0];
-        domCanvasNode.style.imageRendering = this.#imageRendering;
-        return canvas;
-    }
-
     #close() {
         if (this.#sandGame !== null) {
             this.#sandGame.stopProcessing();
             this.#sandGame.stopRendering();
         }
-        this.#nodeHolderCanvas.empty();
-        this.#nodeCanvas = null;
-    }
-
-    #initMouseHandling(domNode, sandGame) {
-        let getActualMousePosition = (e) => {
-            const rect = domNode.getBoundingClientRect();
-            const x = Math.max(0, Math.trunc((e.clientX - rect.left) * this.#currentScale));
-            const y = Math.max(0, Math.trunc((e.clientY - rect.top) * this.#currentScale));
-            return [x, y];
+        if (this.#canvasFinalizer !== null) {
+            this.#canvasFinalizer();
         }
-
-        let lastX, lastY;
-        let brush = null;  // drawing is not active if null
-        let ctrlPressed = false;
-        let shiftPressed = false;
-
-        domNode.addEventListener('mousedown', (e) => {
-            const [x, y] = getActualMousePosition(e);
-            lastX = x;
-            lastY = y;
-
-            if (e.buttons === 4) {
-                // middle button
-                e.preventDefault();
-                sandGame.graphics().floodFill(x, y, this.#brush, 1);
-                brush = null;
-                return;
-            }
-
-            brush = (e.buttons === 1) ? this.#brush : Brushes.AIR;
-            ctrlPressed = e.ctrlKey;
-            shiftPressed = e.shiftKey;
-            if (!ctrlPressed && !shiftPressed) {
-                sandGame.graphics().drawLine(x, y, x, y, this.#init.brushSize, brush);
-            }
-        });
-        domNode.addEventListener('mousemove', (e) => {
-            if (brush === null) {
-                return;
-            }
-            if (!ctrlPressed && !shiftPressed) {
-                const [x, y] = getActualMousePosition(e);
-                sandGame.graphics().drawLine(lastX, lastY, x, y, this.#init.brushSize, brush);
-                lastX = x;
-                lastY = y;
-            }
-        });
-        domNode.addEventListener('mouseup', (e) => {
-            if (brush === null) {
-                return;
-            }
-            if (ctrlPressed) {
-                const [x, y] = getActualMousePosition(e);
-                let minX = Math.min(lastX, x);
-                let minY = Math.min(lastY, y);
-                let maxX = Math.max(lastX, x);
-                let maxY = Math.max(lastY, y);
-                sandGame.graphics().drawRectangle(minX, minY, maxX, maxY, brush);
-            } else if (shiftPressed) {
-                const [x, y] = getActualMousePosition(e);
-                sandGame.graphics().drawLine(lastX, lastY, x, y, this.#init.brushSize, brush);
-            }
-            brush = null;
-        });
-        domNode.addEventListener('mouseout', (e) => {
-            brush = null;
-        });
-
-        // touch support
-
-        let getActualTouchPosition = (e) => {
-            let touch = e.touches[0];
-            return getActualMousePosition(touch);
-        }
-        domNode.addEventListener('touchstart', (e) => {
-            const [x, y] = getActualTouchPosition(e);
-            lastX = x;
-            lastY = y;
-            brush = this.#brush;
-            sandGame.graphics().drawLine(x, y, x, y, this.#init.brushSize, brush);
-
-            e.preventDefault();
-        });
-        domNode.addEventListener('touchmove', (e) => {
-            if (brush === null) {
-                return;
-            }
-            const [x, y] = getActualTouchPosition(e);
-            sandGame.graphics().drawLine(lastX, lastY, x, y, this.#init.brushSize, brush);
-            lastX = x;
-            lastY = y;
-
-            e.preventDefault();
-        });
-        domNode.addEventListener('touchend', (e) => {
-            brush = null;
-
-            e.preventDefault();
-        });
+        this.#canvasFinalizer = null;
+        this.#canvasSettingsUpdater = null;
     }
 
     enableBrushes() {
@@ -416,9 +316,8 @@ export class SandGameComponent extends SandGameControls {
 
     setCanvasImageRenderingStyle(style) {
         this.#imageRendering = style;
-        if (this.#nodeCanvas !== null) {
-            let domCanvasNode = this.#nodeCanvas[0];
-            domCanvasNode.style.imageRendering = style;
+        if (this.#canvasSettingsUpdater !== null) {
+            this.#canvasSettingsUpdater();
         }
     }
 
@@ -443,5 +342,9 @@ export class SandGameComponent extends SandGameControls {
 
     getBrush() {
         return this.#brush;
+    }
+
+    getBrushSize() {
+        return this.#init.brushSize;
     }
 }

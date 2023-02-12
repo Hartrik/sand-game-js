@@ -160,4 +160,11 @@ export class SandGameControls {
     getBrush() {
         throw 'Not implemented';
     }
+
+    /**
+     * @returns {number}
+     */
+    getBrushSize() {
+        throw 'Not implemented';
+    }
 }
