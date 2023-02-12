@@ -48,31 +48,46 @@
     outline: red solid 1px;
 }
 
-.sand-game-component .sand-game-canvas-size-options,
-.sand-game-component .sand-game-performance-options {
+.sand-game-component .sand-game-options {
     white-space: nowrap;
     display: inline-block;
-    border-left: lightgray solid 1pt;
-    padding-left: 0.5em;
-}
-
-.sand-game-component .sand-game-canvas-size-options {
-    margin-right: 1em;
-}
-
-.sand-game-component .sand-game-options span {
-    color: gray;
-    margin-right: 0.5em;
-    font-size: 75%;
-    user-select: none;
 }
 
 .sand-game-component .sand-game-options .btn {
     color: gray;
     padding: 0 0.5em 0 0.5em;
-    margin-left: 0.25em;
+    margin-right: 0.5em;
     vertical-align: baseline;
     font-size: 75%;
+}
+
+.sand-game-component .sand-game-options .dropdown-menu {
+    user-select: none;
+    font-size: small;
+}
+
+.sand-game-component .sand-game-options .status-stopped {
+    color: blue;
+}
+
+.sand-game-component .sand-game-options .status-best {
+    color: green;
+}
+
+.sand-game-component .sand-game-options .status-good {
+    color: green;
+}
+
+.sand-game-component .sand-game-options .status-medium {
+    color: #ffcc00;
+}
+
+.sand-game-component .sand-game-options .status-low {
+    color: #ff4400;
+}
+
+.sand-game-component .sand-game-options .status-poor {
+    color: red;
 }
 
 .sand-game-component .sand-game-views:has(div) {

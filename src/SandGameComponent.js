@@ -5,14 +5,16 @@ import {SandGameScenesComponent} from "./SandGameScenesComponent.js";
 import {SandGameScenes} from "./SandGameScenes.js";
 import {SandGameElementSizeComponent} from "./SandGameElementSizeComponent.js";
 import {SandGameSaveComponent} from "./SandGameSaveComponent.js";
+import {SandGameOptionsComponent} from "./SandGameOptionsComponent.js";
+import {SandGameControls} from "./SandGameControls.js";
 
 /**
  * @requires jQuery
  *
  * @author Patrik Harag
- * @version 2023-02-04
+ * @version 2023-02-11
  */
-export class SandGameComponent {
+export class SandGameComponent extends SandGameControls {
 
     #init = {
         scale: 0.5,
@@ -48,19 +50,18 @@ export class SandGameComponent {
     #brush = Brushes.SAND;
 
     #node = null;
+    #nodeCanvas;
     #nodeHolderTopToolbar;
     #nodeHolderCanvas;
     #nodeHolderBottomToolbar;
     #nodeHolderAdditionalViews;
 
-    #nodeCanvas;
-    #nodeLabelCounter;
-    #nodeLabelSize;
-    #nodeLinkStartStop;
-
+    /** @type function[] */
     #onSnapshotLoaded = [];
 
     constructor(rootNode, init) {
+        super();
+
         if (init) {
             this.#init = init;
         }
@@ -78,37 +79,12 @@ export class SandGameComponent {
         ]);
         rootNode.append(this.#node);
 
-        // prepare options
-        this.#nodeLabelCounter = DomBuilder.Bootstrap.initTooltip(
-            DomBuilder.element('ul', null, [
-                DomBuilder.element('li', null, 'FPS = rendered Frames Per Second'),
-                DomBuilder.element('li', null, 'CPS = simulation Cycles Per Second')
-            ]),
-            DomBuilder.span('', { class: 'sand-game-counter' }));
-        this.#nodeLabelSize = DomBuilder.span('',{ class: 'sand-game-size' });
-        this.#nodeLinkStartStop = DomBuilder.element('button', { type: 'button', class: 'btn btn-light' }, 'Start')
-            .on("click", e => {
-                if (this.#sandGame !== null) {
-                    if (this.#simulationEnabled) {
-                        this.#sandGame.stopProcessing();
-                    } else {
-                        this.#sandGame.startProcessing();
-                    }
-                    this.#simulationEnabled = !this.#simulationEnabled;
-                    this.#updateStartStopButton();
-                }
-            });
-
         this.#initialize(null, sandGame => {
             let scene = SandGameScenes.SCENES[this.#init.scene];
             if (scene) {
                 scene.apply(sandGame);
             }
         });
-    }
-
-    #updateStartStopButton() {
-        this.#nodeLinkStartStop.text(this.#simulationEnabled ? 'Pause' : 'Start');
     }
 
     /**
@@ -127,10 +103,6 @@ export class SandGameComponent {
         this.#nodeCanvas.width(w / this.#currentScale);
         this.#nodeCanvas.height(h / this.#currentScale);
 
-        // set size
-        this.#nodeLabelSize.text(`${w}\u00D7${h}, scale=${this.#currentScale}`);
-        DomBuilder.Bootstrap.initTooltip(`Simulated elements = ${(w * h).toLocaleString()} `, this.#nodeLabelSize);
-
         // init game
         let domCanvasNode = this.#nodeCanvas[0];
         let context = domCanvasNode.getContext('2d');
@@ -141,7 +113,7 @@ export class SandGameComponent {
         this.#sandGame.addOnRendered(() => {
             const fps = this.#sandGame.getFramesPerSecond();
             const cps = this.#sandGame.getCyclesPerSecond();
-            this.#nodeLabelCounter.text(`${fps} FPS, ${cps} CPS`);
+            this.#onPerformanceUpdate.forEach(f => f(cps, fps))
         });
         sandGameInitializer(this.#sandGame);
 
@@ -156,6 +128,8 @@ export class SandGameComponent {
         if (this.#simulationEnabled) {
             this.#sandGame.startProcessing();
         }
+
+        this.#onInitialized.forEach(f => f());
     }
 
     #createCanvas() {
@@ -276,29 +250,6 @@ export class SandGameComponent {
         });
     }
 
-    #changeCanvasSize(width, height, scale) {
-        if (typeof width !== 'number' || !(width > 0 && width < 2048)) {
-            throw 'Incorrect width';
-        }
-        if (typeof height !== 'number' || !(height > 0 && height < 2048)) {
-            throw 'Incorrect height';
-        }
-        if (typeof scale !== 'number' || !(scale > 0 && scale <= 1)) {
-            throw 'Incorrect scale';
-        }
-
-        this.#close();
-
-        this.#currentWidthPoints = width;
-        this.#currentHeightPoints = height;
-        this.#currentScale = scale;
-
-        let oldSandGameInstanceToCopy = this.#sandGame;
-        this.#initialize(null, sandGame => {
-            oldSandGameInstanceToCopy.copyStateTo(sandGame);
-        });
-    }
-
     enableBrushes() {
         let toolbar = DomBuilder.div({ class: 'sand-game-brushes' });
         let buttons = [];
@@ -328,79 +279,15 @@ export class SandGameComponent {
     }
 
     enableOptions() {
-        let changeCanvasSizeLabel = window.innerWidth > 500 ? 'Change size' : '\u2B0C'
-        let changeCanvasSize = DomBuilder.element('button', { type: 'button', class: 'btn btn-light' }, changeCanvasSizeLabel)
-            .on("click", e => {
-                let formBuilder = new DomBuilder.BootstrapSimpleForm();
-                formBuilder.addInput('Width', 'width', this.#currentWidthPoints);
-                formBuilder.addInput('Height', 'height', this.#currentHeightPoints);
-                formBuilder.addInput('Scale', 'scale', this.#currentScale);
-
-                let dialog = new DomBuilder.BootstrapDialog();
-                dialog.setHeaderContent('Change canvas size');
-                dialog.setBodyContent(formBuilder.createNode());
-                dialog.addSubmitButton('Submit', () => {
-                    let data = formBuilder.getData();
-                    let w = Number.parseInt(data['width']);
-                    let h = Number.parseInt(data['height']);
-                    let s = Number.parseFloat(data['scale']);
-                    this.#changeCanvasSize(w, h, s);
-                });
-                dialog.addCloseButton('Close');
-                dialog.show(this.#node);
-            });
-
-        let renderingOptionsLabel = window.innerWidth > 500 ? 'Rendering' : '\u2752'
-        let renderingOptions = DomBuilder.div({ class: 'btn-group' }, [
-            DomBuilder.element('button', {
-                type: 'button',
-                class: 'btn btn-light dropdown-toggle',
-                'data-toggle': 'dropdown',
-                'aria-haspopup': 'true',
-                'aria-expanded': 'false'
-            }, renderingOptionsLabel),
-            DomBuilder.element('form', { class: 'dropdown-menu p-2' }, [
-                DomBuilder.div({ class: 'form-check' }, [
-                    DomBuilder.element('input', { type: 'checkbox', checked: 'true', disabled: 'true', class: 'form-check-input', id: 'rend-check-mb' }),
-                    DomBuilder.element('label', { class: 'form-check-label', for: 'rend-check-mb' }, 'Motion blur')
-                ]),
-                DomBuilder.div({ class: 'form-check' }, [
-                    DomBuilder.element('input', { type: 'checkbox', checked: 'true', class: 'form-check-input', id: 'rend-check-pixelated' }).change((e) => {
-                        let checked = e.target.checked;
-                        this.#setCanvasImageRenderingStyle(checked ? 'pixelated' : 'unset');
-                    }),
-                    DomBuilder.element('label', { class: 'form-check-label', for: 'rend-check-pixelated' }, 'Pixelated')
-                ]),
-                DomBuilder.div({ class: 'form-check' }, [
-                    DomBuilder.element('input', { type: 'checkbox', checked: this.#showActiveChunks, class: 'form-check-input', id: 'rend-check-show-active-chunks' }).change((e) => {
-                        let checked = e.target.checked;
-                        this.#setShowActiveChunks(checked);
-                    }),
-                    DomBuilder.element('label', { class: 'form-check-label', for: 'rend-check-show-active-chunks' }, 'Show active chunks')
-                ])
-            ])
-        ]);
-
-        let options = DomBuilder.div({ class: 'sand-game-options' }, [
-            DomBuilder.div({ class: 'sand-game-canvas-size-options' }, [
-                this.#nodeLabelSize,
-                changeCanvasSize,
-                renderingOptions
-            ]),
-            DomBuilder.div({ class: 'sand-game-performance-options' }, [
-                this.#nodeLabelCounter,
-                this.#nodeLinkStartStop
-            ]),
-        ]);
-
-        this.#nodeHolderBottomToolbar.append(options);
+        let optionsComponent = new SandGameOptionsComponent(this);
+        this.#nodeHolderBottomToolbar.append(optionsComponent.createNode());
     }
 
     enableSizeOptions() {
         let component = new SandGameElementSizeComponent(newScale => {
             let w = Math.trunc(this.#currentWidthPoints / this.#currentScale * newScale);
             let h = Math.trunc(this.#currentHeightPoints / this.#currentScale * newScale);
-            this.#changeCanvasSize(w, h, newScale);
+            this.changeCanvasSize(w, h, newScale);
         }, this.#init.scale, this.#init.assetsContextPath);
 
         this.#nodeHolderAdditionalViews.append(component.createNode());
@@ -490,7 +377,102 @@ export class SandGameComponent {
         this.#nodeHolderAdditionalViews.append(DomBuilder.Bootstrap.cardCollapsable('Test tools', false, content));
     }
 
-    #setCanvasImageRenderingStyle(style) {
+    // SandGameControls
+
+    /** @type function[] */
+    #onInitialized = [];
+    /** @type function[] */
+    #onStarted = [];
+    /** @type function[] */
+    #onStopped = [];
+
+    addOnInitialized(handler) {
+        this.#onInitialized.push(handler);
+    }
+
+    addOnStarted(handler) {
+        this.#onStarted.push(handler);
+    }
+
+    addOnStopped(handler) {
+        this.#onStopped.push(handler);
+    }
+
+    start() {
+        if (this.#sandGame !== null) {
+            if (!this.#simulationEnabled) {
+                this.#simulationEnabled = true;
+                this.#sandGame.startProcessing();
+                this.#onStarted.forEach(f => f());
+            }
+        }
+    }
+
+    switchStartStop() {
+        if (this.#sandGame !== null) {
+            if (this.#simulationEnabled) {
+                this.#simulationEnabled = false;
+                this.#sandGame.stopProcessing();
+                this.#onStopped.forEach(f => f());
+            } else {
+                this.#simulationEnabled = true;
+                this.#sandGame.startProcessing();
+                this.#onStarted.forEach(f => f());
+            }
+        }
+    }
+
+    // SandGameControls / canvas size
+
+    getCurrentWidthPoints() {
+        return this.#currentWidthPoints;
+    }
+
+    getCurrentHeightPoints() {
+        return this.#currentHeightPoints;
+    }
+
+    getCurrentScale() {
+        return this.#currentScale;
+    }
+
+    changeCanvasSize(width, height, scale) {
+        if (typeof width !== 'number' || !(width > 0 && width < 2048)) {
+            throw 'Incorrect width';
+        }
+        if (typeof height !== 'number' || !(height > 0 && height < 2048)) {
+            throw 'Incorrect height';
+        }
+        if (typeof scale !== 'number' || !(scale > 0 && scale <= 1)) {
+            throw 'Incorrect scale';
+        }
+
+        this.#close();
+
+        this.#currentWidthPoints = width;
+        this.#currentHeightPoints = height;
+        this.#currentScale = scale;
+
+        let oldSandGameInstanceToCopy = this.#sandGame;
+        this.#initialize(null, sandGame => {
+            oldSandGameInstanceToCopy.copyStateTo(sandGame);
+        });
+    }
+
+    // SandGameControls / options
+
+    setShowActiveChunks(show) {
+        this.#showActiveChunks = show;
+        if (this.#sandGame) {
+            this.#sandGame.setRendererShowActiveChunks(show);
+        }
+    }
+
+    isShowActiveChunks() {
+        return this.#showActiveChunks;
+    }
+
+    setCanvasImageRenderingStyle(style) {
         this.#imageRendering = style;
         if (this.#nodeCanvas !== null) {
             let domCanvasNode = this.#nodeCanvas[0];
@@ -498,20 +480,17 @@ export class SandGameComponent {
         }
     }
 
-    #setShowActiveChunks(show) {
-        this.#showActiveChunks = show;
-        if (this.#sandGame) {
-            this.#sandGame.setRendererShowActiveChunks(show);
-        }
+    getCanvasImageRenderingStyle() {
+        return this.#imageRendering;
     }
 
-    start() {
-        if (!this.#simulationEnabled) {
-            this.#simulationEnabled = true;
-            this.#updateStartStopButton();
-            if (this.#sandGame !== null) {
-                this.#sandGame.startProcessing();
-            }
-        }
+    // SandGameControls / performance
+
+    /** @type function[] */
+    #onPerformanceUpdate = [];
+
+    addOnPerformanceUpdate(handler) {
+        this.#onPerformanceUpdate.push(handler);
     }
+
 }
