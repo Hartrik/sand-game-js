@@ -11,6 +11,7 @@ export class SandGameTemplateComponent {
     /** @type SandGameControls */
     #controls;
 
+    /** @type BrushDeclaration[] */
     #brushDeclarations;
 
 

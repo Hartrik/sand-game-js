@@ -2,13 +2,14 @@ import {DomBuilder} from "./DomBuilder.js";
 import {SandGame} from "./core/SandGame.js";
 import {Brushes} from "./core/Brushes.js";
 import {Scenes} from "./core/Scenes.js";
+import {SandGameControls} from "./SandGameControls.js";
 import {SandGameScenesComponent} from "./SandGameScenesComponent.js";
 import {SandGameElementSizeComponent} from "./SandGameElementSizeComponent.js";
 import {SandGameSaveComponent} from "./SandGameSaveComponent.js";
 import {SandGameOptionsComponent} from "./SandGameOptionsComponent.js";
-import {SandGameControls} from "./SandGameControls.js";
 import {SandGameTestComponent} from "./SandGameTestComponent.js";
 import {SandGameTemplateComponent} from "./SandGameTemplateComponent.js";
+import {SandGameBrushComponent} from "./SandGameBrushComponent.js";
 
 /**
  * @requires jQuery
@@ -254,31 +255,8 @@ export class SandGameComponent extends SandGameControls {
     }
 
     enableBrushes() {
-        let toolbar = DomBuilder.div({ class: 'sand-game-brushes' });
-        let buttons = [];
-
-        for (let d of this.#brushDeclarations) {
-            let button = DomBuilder.link(d.name, { class: 'badge badge-secondary ' + d.cssName }, () => {
-                // unselect last
-                for (let b of buttons) {
-                    b.removeClass('selected');
-                }
-
-                // select
-                button.addClass('selected');
-
-                this.#brush = d.brush;
-            });
-            // initial select
-            if (d.brush === this.#brush) {
-                button.addClass('selected');
-            }
-
-            buttons.push(button);
-        }
-
-        toolbar.append(buttons);
-        this.#nodeHolderTopToolbar.append(toolbar);
+        let component = new SandGameBrushComponent(this, this.#brushDeclarations);
+        this.#nodeHolderTopToolbar.append(component.createNode());
     }
 
     enableOptions() {
@@ -457,4 +435,13 @@ export class SandGameComponent extends SandGameControls {
         this.#onPerformanceUpdate.push(handler);
     }
 
+    // SandGameControls / tools
+
+    setBrush(brush) {
+        this.#brush = brush;
+    }
+
+    getBrush() {
+        return this.#brush;
+    }
 }

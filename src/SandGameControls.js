@@ -143,4 +143,21 @@ export class SandGameControls {
         throw 'Not implemented';
     }
 
+    // tools
+
+    /**
+     *
+     * @param brush {Brush}
+     * @returns void
+     */
+    setBrush(brush) {
+        throw 'Not implemented';
+    }
+
+    /**
+     * @returns {Brush}
+     */
+    getBrush() {
+        throw 'Not implemented';
+    }
 }
