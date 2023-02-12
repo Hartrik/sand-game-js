@@ -1,10 +1,27 @@
+
+/**
+ * @typedef {Object} BrushDeclaration
+ * @property {string} name
+ * @property {string} cssName
+ * @property {string} code
+ * @property {Brush} brush
+ */
+
 /**
  * @interface
  *
  * @author Patrik Harag
- * @version 2023-02-11
+ * @version 2023-02-12
  */
 export class SandGameControls {
+
+    /**
+     *
+     * @returns {SandGame|null}
+     */
+    getSandGame() {
+        throw 'Not implemented';
+    }
 
     // simulation state
 

@@ -1,5 +1,6 @@
 
 /**
+ * @interface
  *
  * @author Patrik Harag
  * @version 2022-11-04

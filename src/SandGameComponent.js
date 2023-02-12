@@ -1,18 +1,20 @@
 import {DomBuilder} from "./DomBuilder.js";
 import {SandGame} from "./core/SandGame.js";
 import {Brushes} from "./core/Brushes.js";
+import {Scenes} from "./core/Scenes.js";
 import {SandGameScenesComponent} from "./SandGameScenesComponent.js";
-import {SandGameScenes} from "./SandGameScenes.js";
 import {SandGameElementSizeComponent} from "./SandGameElementSizeComponent.js";
 import {SandGameSaveComponent} from "./SandGameSaveComponent.js";
 import {SandGameOptionsComponent} from "./SandGameOptionsComponent.js";
 import {SandGameControls} from "./SandGameControls.js";
+import {SandGameTestComponent} from "./SandGameTestComponent.js";
+import {SandGameTemplateComponent} from "./SandGameTemplateComponent.js";
 
 /**
  * @requires jQuery
  *
  * @author Patrik Harag
- * @version 2023-02-11
+ * @version 2023-02-12
  */
 export class SandGameComponent extends SandGameControls {
 
@@ -25,6 +27,7 @@ export class SandGameComponent extends SandGameControls {
         assetsContextPath: './assets'
     };
 
+    /** @type BrushDeclaration[] */
     #brushDeclarations = [
         { name: 'Sand',   cssName: 'sand',   code: '1', brush: Brushes.SAND },
         { name: 'Soil',   cssName: 'soil',   code: '2', brush: Brushes.SOIL },
@@ -80,7 +83,7 @@ export class SandGameComponent extends SandGameControls {
         rootNode.append(this.#node);
 
         this.#initialize(null, sandGame => {
-            let scene = SandGameScenes.SCENES[this.#init.scene];
+            let scene = Scenes.SCENES[this.#init.scene];
             if (scene) {
                 scene.apply(sandGame);
             }
@@ -323,61 +326,22 @@ export class SandGameComponent extends SandGameControls {
     }
 
     enableTemplateEditor() {
-        let defaultBlueprint = '111\n...\n...\n...';
-
-        let brushes = {};
-        for (let d of this.#brushDeclarations) {
-            brushes[d.code] = d.brush;
-        }
-
-        let formBuilder = new DomBuilder.BootstrapSimpleForm();
-
-        // add editor
-        let textArea = formBuilder.addTextArea('Template', 'blueprint', defaultBlueprint, 8);
-
-        // build tooltip
-        let info = DomBuilder.element('ul');
-        for (let d of this.#brushDeclarations) {
-            info.append(DomBuilder.element('li', null, d.name + ' = ' + d.code))
-        }
-        DomBuilder.Bootstrap.initTooltip(info, textArea);
-
-        // add submit button
-        formBuilder.addSubmitButton('Submit', data => {
-            try {
-                this.#sandGame.template().withBrushes(brushes).withBlueprint(data['blueprint']).paint();
-            } catch (e) {
-                console.log(e);
-
-                let dialog = new DomBuilder.BootstrapDialog();
-                dialog.setHeaderContent('Error');
-                dialog.setBodyContent(DomBuilder.element('code', null, e));
-                dialog.addCloseButton('Close');
-                dialog.show(this.#node);
-            }
-        })
-
-        this.#nodeHolderAdditionalViews.append(DomBuilder.Bootstrap.cardCollapsable('Template editor', true, formBuilder.createNode()));
+        let component = new SandGameTemplateComponent(this, this.#brushDeclarations);
+        this.#nodeHolderAdditionalViews.append(component.createNode());
     }
 
     enableTestTools() {
-        let content = DomBuilder.div(null, [
-            DomBuilder.link('Tree spawn test', { class: 'btn btn-secondary' }, e => {
-                this.#sandGame.graphics().fill(Brushes.AIR);
-                this.#sandGame.graphics().drawRectangle(0, -10, -1, -1, Brushes.SOIL, true);
-                this.#sandGame.graphics().drawRectangle(0, -11, -1, -11, Brushes.GRASS, true);
-
-                let c = Math.trunc(this.#sandGame.getHeight() / 2);
-                this.#sandGame.graphics().drawRectangle(0, c, -1, c, Brushes.WALL, true);
-                this.#sandGame.graphics().drawRectangle(0, c-10, -1, c-1, Brushes.SOIL, true);
-                this.#sandGame.graphics().drawRectangle(0, c-11, -1, c-11, Brushes.GRASS, true);
-            })
-        ]);
-
-        this.#nodeHolderAdditionalViews.append(DomBuilder.Bootstrap.cardCollapsable('Test tools', false, content));
+        let component = new SandGameTestComponent(this);
+        this.#nodeHolderAdditionalViews.append(component.createNode());
     }
 
     // SandGameControls
+
+    getSandGame() {
+        return this.#sandGame;
+    }
+
+    // SandGameControls - simulation state
 
     /** @type function[] */
     #onInitialized = [];

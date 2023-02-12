@@ -1,5 +1,5 @@
 import {DomBuilder} from "./DomBuilder.js";
-import {SandGameScenes} from "./SandGameScenes.js";
+import {Scenes} from "./core/Scenes.js";
 
 /**
  *
@@ -11,7 +11,7 @@ export class SandGameScenesComponent {
     static CLASS_SELECTED = 'selected-scene';
 
 
-    /** @type function(SandGameScene) */
+    /** @type function(Scene) */
     #selectFunction;
 
     #initialScene;
@@ -25,8 +25,8 @@ export class SandGameScenesComponent {
 
     createNode() {
         let content = DomBuilder.div({class: 'scenes'}, []);
-        for (let id in SandGameScenes.SCENES) {
-            let scene = SandGameScenes.SCENES[id];
+        for (let id in Scenes.SCENES) {
+            let scene = Scenes.SCENES[id];
             let node = this.#createSceneCard(scene);
 
             if (id === this.#initialScene) {
@@ -50,7 +50,7 @@ export class SandGameScenesComponent {
 
     /**
      *
-     * @param scene {SandGameScene}
+     * @param scene {Scene}
      */
     #createSceneCard(scene) {
         let bodyContent = [
