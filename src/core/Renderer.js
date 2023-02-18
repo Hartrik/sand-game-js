@@ -4,12 +4,15 @@ import {ElementTail} from "./ElementTail.js";
  * Double buffered renderer. With motion blur.
  *
  * @author Patrik Harag
- * @version 2022-11-08
+ * @version 2023-02-18
  */
 export class Renderer {
 
     /** @type CanvasRenderingContext2D */
     #context;
+
+    /** @type RenderingMode|null */
+    #mode = null;
 
     /** @type ElementArea */
     #elementArea;
@@ -73,6 +76,14 @@ export class Renderer {
     triggerChunk(cx, cy) {
         const chunkIndex = cy * this.#horChunkCount + cx;
         this.#triggeredChunks[chunkIndex] = true;
+    }
+
+    setMode(mode) {
+        this.#mode = mode;
+        // ensure repaint
+        this.#triggeredChunks.fill(true);
+        this.#blur.fill(false);
+        this.#canBeBlurred.fill(false);
     }
 
     /**
@@ -189,11 +200,17 @@ export class Renderer {
         }
 
         // paint - no blur
-        data[dataIndex] = ElementTail.getColorRed(elementTail);
-        data[dataIndex + 1] = ElementTail.getColorGreen(elementTail);
-        data[dataIndex + 2] = ElementTail.getColorBlue(elementTail);
-        this.#canBeBlurred[pixelIndex] = ElementTail.isRenderingModifierBlurEnabled(elementTail);
-        this.#blur[pixelIndex] = false;
+        if (this.#mode === null) {
+            data[dataIndex] = ElementTail.getColorRed(elementTail);
+            data[dataIndex + 1] = ElementTail.getColorGreen(elementTail);
+            data[dataIndex + 2] = ElementTail.getColorBlue(elementTail);
+            this.#canBeBlurred[pixelIndex] = ElementTail.isRenderingModifierBlurEnabled(elementTail);
+            this.#blur[pixelIndex] = false;
+        } else {
+            // custom rendering mode
+            let elementHead = this.#elementArea.getElementHead(x, y);
+            this.#mode.apply(data, dataIndex, elementHead, elementTail);
+        }
     }
 
     static #isWhite(element) {

@@ -16,7 +16,7 @@ import {SandGameCanvasComponent} from "./SandGameCanvasComponent.js";
  * @requires jQuery
  *
  * @author Patrik Harag
- * @version 2023-02-12
+ * @version 2023-02-18
  */
 export class SandGameComponent extends SandGameControls {
 
@@ -51,6 +51,7 @@ export class SandGameComponent extends SandGameControls {
     #simulationEnabled = false;
     /** @type boolean */
     #showActiveChunks = false;
+    #showHeatmap = false;
     /** @type Brush */
     #brush = Brushes.SAND;
 
@@ -111,7 +112,10 @@ export class SandGameComponent extends SandGameControls {
         const defaultElement = Brushes.AIR.apply(0, 0, undefined);
 
         this.#sandGame = new SandGame(canvasComponent.getContext(), w, h, snapshot, defaultElement);
-        this.#sandGame.setRendererShowActiveChunks(this.#showActiveChunks);
+        this.#sandGame.setRendererShowActiveChunks(this.isShowActiveChunks());
+        if (this.isShowHeatmap()) {
+            this.#sandGame.setRendererMode(SandGame.RENDERING_MODE_HEATMAP);
+        }
         this.#sandGame.addOnRendered(() => {
             const fps = this.#sandGame.getFramesPerSecond();
             const cps = this.#sandGame.getCyclesPerSecond();
@@ -312,6 +316,17 @@ export class SandGameComponent extends SandGameControls {
 
     isShowActiveChunks() {
         return this.#showActiveChunks;
+    }
+
+    setShowHeatmap(show) {
+        this.#showHeatmap = show;
+        if (this.#sandGame) {
+            this.#sandGame.setRendererMode(show ? SandGame.RENDERING_MODE_HEATMAP : SandGame.RENDERING_MODE_CLASSIC);
+        }
+    }
+
+    isShowHeatmap() {
+        return this.#showHeatmap;
     }
 
     setCanvasImageRenderingStyle(style) {

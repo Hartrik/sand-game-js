@@ -1,5 +1,6 @@
 import {Brush} from "./Brush.js";
 import {ElementTail} from "./ElementTail.js";
+import {Assets} from "../Assets.js";
 
 /**
  *
@@ -21,19 +22,7 @@ export class TextureBrush extends Brush {
         super();
         this.#innerBrush = innerBrush;
 
-        // http://stackoverflow.com/questions/3528299/get-pixel-color-of-base64-png-using-javascript
-        let image = new Image();
-        image.onload = () => {
-            let canvas = document.createElement('canvas');
-            canvas.width = image.width;
-            canvas.height = image.height;
-
-            let context = canvas.getContext('2d');
-            context.drawImage(image, 0, 0);
-
-            this.#imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-        };
-        image.src = base64;
+        Assets.asImageData(base64).then(imageData => this.#imageData = imageData);
     }
 
     apply(x, y, random) {

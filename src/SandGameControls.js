@@ -11,7 +11,7 @@
  * @interface
  *
  * @author Patrik Harag
- * @version 2023-02-12
+ * @version 2023-02-18
  */
 export class SandGameControls {
 
@@ -112,6 +112,22 @@ export class SandGameControls {
      * @returns void
      */
     setShowActiveChunks(show) {
+        throw 'Not implemented';
+    }
+
+    /**
+     * @returns {boolean}
+     */
+    isShowHeatmap() {
+        throw 'Not implemented';
+    }
+
+    /**
+     *
+     * @param show {boolean}
+     * @returns void
+     */
+    setShowHeatmap(show) {
         throw 'Not implemented';
     }
 

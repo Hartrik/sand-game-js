@@ -5,7 +5,7 @@ import {ElementProcessor} from "./core/ElementProcessor";
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-11
+ * @version 2023-02-18
  */
 export class SandGameOptionsComponent {
 
@@ -84,6 +84,12 @@ export class SandGameOptionsComponent {
                     this.#controls.setShowActiveChunks(e.target.checked);
                 }),
                 DomBuilder.element('label', { class: 'form-check-label', for: 'rend-check-show-active-chunks' }, 'Show active chunks')
+            ]),
+            DomBuilder.div({ class: 'form-check' }, [
+                DomBuilder.element('input', { type: 'checkbox', checked: this.#controls.isShowHeatmap(), class: 'form-check-input', id: 'rend-check-show-heatmap' }).change((e) => {
+                    this.#controls.setShowHeatmap(e.target.checked);
+                }),
+                DomBuilder.element('label', { class: 'form-check-label', for: 'rend-check-show-heatmap' }, 'Show heatmap')
             ])
         ];
     }

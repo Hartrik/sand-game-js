@@ -2,7 +2,7 @@
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-04
+ * @version 2023-02-18
  */
 export class Assets {
 
@@ -16,4 +16,35 @@ export class Assets {
 
     static TEXTURE_ROCK = 'data:image/png;base64,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';
 
+    static GRADIENT_RAINBOW = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfQAAAABCAIAAACnnMvDAAAACXBIWXMAAAsTAAALEwEAmpwYAAABTUlEQVQ4T22QUZIjMQhDHzhH32PHYj/UZoiTLlcXloQQfsE/AF6QsM6/i4CABa9T5Kj5RPqfkL9s29y2l6e75lBff33Nx2h6AcfGxxP6ykjU+Exkw5m3YxqfbnPRucfPSFev1+p64rbqrm9NAif2xfYiPc5UCz5sixRLZLF2poDMylSmcilcLxkBMhShpBIlCirZiwoEGDz4U/tqxPqg1oMrqcEqkak2sW2g9WlrK2DiBsfQJ1JQi90ZAuLIEnmdwbrwXg+42ImggvpK8mQ+UTvMh//Fdh6D/Xrt1uITqc77/C2SUlRFKaVUpSpFbFKECAEgEGwo2CCog3Bwawy6qNNrZOJumV3XiIu98I4xRztMt7Smz1zkW3YtcmnMXtTPqK35yZ4RJd4bQELiLarYG4m9nwltsMe61/COY6rgfWa+x8xmO1FbWd91P5Lr/2afRpQBYZvbAAAAAElFTkSuQmCC';
+
+
+    /**
+     *
+     * @param base64
+     * @returns {Promise<ImageData>}
+     */
+    static asImageData(base64) {
+        let promise = new Promise((resolve, reject) => {
+            try {
+                // http://stackoverflow.com/questions/3528299/get-pixel-color-of-base64-png-using-javascript
+                let image = new Image();
+                image.onload = () => {
+                    let canvas = document.createElement('canvas');
+                    canvas.width = image.width;
+                    canvas.height = image.height;
+
+                    let context = canvas.getContext('2d');
+                    context.drawImage(image, 0, 0);
+
+                    let imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                    resolve(imageData);
+                };
+                image.src = base64;
+            } catch (e) {
+                reject(e);
+            }
+        });
+        return promise;
+    }
 }

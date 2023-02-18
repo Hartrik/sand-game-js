@@ -12,13 +12,17 @@ import {Snapshot} from "./Snapshot.js";
 import {SnapshotMetadata} from "./SnapshotMetadata.js";
 import {TemplatePainter} from "./TemplatePainter.js";
 import {TreePlantingExtension} from "./TreePlantingExtension.js";
+import {RenderingModeHeatmap} from "./RenderingModeHeatmap.js";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-04
+ * @version 2023-02-18
  */
 export class SandGame {
+
+    static RENDERING_MODE_CLASSIC = 'classic';
+    static RENDERING_MODE_HEATMAP = 'heatmap';
 
     /** @type ElementArea */
     #elementArea;
@@ -148,6 +152,16 @@ export class SandGame {
 
     setRendererShowActiveChunks(show) {
         this.#rendererShowActiveChunks = show;
+    }
+
+    setRendererMode(mode) {
+        if (mode === SandGame.RENDERING_MODE_CLASSIC) {
+            this.#renderer.setMode(null);
+        } else if (mode === SandGame.RENDERING_MODE_HEATMAP) {
+            this.#renderer.setMode(new RenderingModeHeatmap());
+        } else {
+            throw 'Unknown rendering mode: ' + mode
+        }
     }
 
     setBoxedMode() {
