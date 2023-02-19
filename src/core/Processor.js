@@ -335,6 +335,9 @@ export class Processor {
                 case ElementHead.BEHAVIOUR_TREE_ROOT:
                     this.#behaviourTreeRoot(elementHead, x, y);
                     break;
+                case ElementHead.BEHAVIOUR_FIRE_SOURCE:
+                    this.#moduleFire.behaviourFireSource(elementHead, x, y);
+                    break;
                 case ElementHead.BEHAVIOUR_FISH:
                     this.#behaviourFish(elementHead, x, y);
                     break;

@@ -16,7 +16,7 @@ import {SandGameCanvasComponent} from "./SandGameCanvasComponent.js";
  * @requires jQuery
  *
  * @author Patrik Harag
- * @version 2023-02-18
+ * @version 2023-02-19
  */
 export class SandGameComponent extends SandGameControls {
 
@@ -36,8 +36,8 @@ export class SandGameComponent extends SandGameControls {
         { name: 'Gravel', cssName: 'gravel', code: '3', brush: Brushes.STONE },
         { name: 'Rock',   cssName: 'wall',   code: 'r', brush: Brushes.ROCK },
         { name: 'Water',  cssName: 'water',  code: 'w', brush: Brushes.WATER },
-        { name: 'Erase',  cssName: 'air',    code: '.', brush: Brushes.AIR },
         { name: 'Fire',   cssName: 'fire',   code: 'f', brush: Brushes.FIRE },
+        { name: 'Erase',  cssName: 'air',    code: '.', brush: Brushes.AIR },
     ];
 
     #currentWidthPoints;
