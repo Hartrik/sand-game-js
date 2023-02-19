@@ -75,7 +75,12 @@ export class SandGameCanvasComponent {
             if (e.buttons === 4) {
                 // middle button
                 e.preventDefault();
-                sandGame.graphics().floodFill(x, y, this.#controls.getBrush(), 1);
+
+                if (e.altKey) {
+                    console.log('' + x + 'x' + y + ': ' + sandGame.debugElementAt(x, y));
+                } else {
+                    sandGame.graphics().floodFill(x, y, this.#controls.getBrush(), 1);
+                }
                 brush = null;
                 return;
             }

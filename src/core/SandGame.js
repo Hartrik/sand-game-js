@@ -4,6 +4,8 @@ import {DeterministicRandom} from "./DeterministicRandom.js";
 import {ElementArea} from "./ElementArea.js";
 import {Processor} from "./Processor.js";
 import {Element} from "./Element.js";
+import {ElementHead} from "./ElementHead.js";
+import {ElementTail} from "./ElementTail.js";
 import {FishSpawningExtension} from "./FishSpawningExtension.js";
 import {GrassPlantingExtension} from "./GrassPlantingExtension.js";
 import {Renderer} from "./Renderer.js";
@@ -17,7 +19,7 @@ import {RenderingModeHeatmap} from "./RenderingModeHeatmap.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-18
+ * @version 2023-02-19
  */
 export class SandGame {
 
@@ -240,5 +242,33 @@ export class SandGame {
         snapshot.metadata = metadata;
         snapshot.data = this.#elementArea.getData();
         return snapshot;
+    }
+
+    debugElementAt(x, y) {
+        if (this.#elementArea.isValidPosition(x, y)) {
+            const elementHead = this.#elementArea.getElementHead(x, y);
+            const elementTail = this.#elementArea.getElementTail(x, y);
+            const json = {
+                type: ElementHead.getType(elementHead),
+                weight: ElementHead.getWeight(elementHead),
+                behaviour: ElementHead.getBehaviour(elementHead),
+                special: ElementHead.getSpecial(elementHead),
+                flammableType: ElementHead.getFlammableType(elementHead),
+                flameHeatType: ElementHead.getFlameHeatType(elementHead),
+                burnableType: ElementHead.getBurnableType(elementHead),
+                temperature: ElementHead.getTemperature(elementHead),
+                color: [
+                    ElementTail.getColorRed(elementTail),
+                    ElementTail.getColorGreen(elementTail),
+                    ElementTail.getColorBlue(elementTail)
+                ]
+            };
+            return JSON.stringify(json)
+                    .replaceAll(/["{}]/g, '')
+                    .replaceAll(',', ', ')
+                    .replaceAll(':', '=');
+        } else {
+            return 'Out of bounds';
+        }
     }
 }
