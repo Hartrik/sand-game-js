@@ -36,7 +36,8 @@ export class SandGameComponent extends SandGameControls {
         { name: 'Gravel', cssName: 'gravel', code: '3', brush: Brushes.STONE },
         { name: 'Rock',   cssName: 'wall',   code: 'r', brush: Brushes.ROCK },
         { name: 'Water',  cssName: 'water',  code: 'w', brush: Brushes.WATER },
-        { name: 'Erase',  cssName: 'air',    code: '.', brush: Brushes.AIR }
+        { name: 'Erase',  cssName: 'air',    code: '.', brush: Brushes.AIR },
+        { name: 'Fire',   cssName: 'fire',   code: 'f', brush: Brushes.FIRE },
     ];
 
     #currentWidthPoints;

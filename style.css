@@ -44,6 +44,10 @@
     background-color: rgb(4, 135, 186);
 }
 
+.sand-game-component .sand-game-brushes .badge.fire {
+    background-color: #ff5900;
+}
+
 .sand-game-component .sand-game-brushes .badge.selected {
     outline: red solid 1px;
 }

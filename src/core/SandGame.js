@@ -2,7 +2,7 @@ import {Brushes} from "./Brushes.js";
 import {Counter} from "./Counter.js";
 import {DeterministicRandom} from "./DeterministicRandom.js";
 import {ElementArea} from "./ElementArea.js";
-import {ElementProcessor} from "./ElementProcessor.js";
+import {Processor} from "./Processor.js";
 import {Element} from "./Element.js";
 import {FishSpawningExtension} from "./FishSpawningExtension.js";
 import {GrassPlantingExtension} from "./GrassPlantingExtension.js";
@@ -42,7 +42,7 @@ export class SandGame {
     /** @type Counter */
     #cyclesCounter;
 
-    /** @type ElementProcessor */
+    /** @type Processor */
     #processor;
 
     /** @type Renderer */
@@ -78,7 +78,7 @@ export class SandGame {
         this.#random = new DeterministicRandom((snapshot) ? snapshot.metadata.random : 0);
         this.#framesCounter = new Counter();
         this.#cyclesCounter = new Counter();
-        this.#processor = new ElementProcessor(this.#elementArea, 16, this.#random, defaultElement, snapshot);
+        this.#processor = new Processor(this.#elementArea, 16, this.#random, defaultElement, snapshot);
         this.#renderer = new Renderer(this.#elementArea, 16, context);
         this.#width = width;
         this.#height = height;
@@ -93,14 +93,14 @@ export class SandGame {
 
     startProcessing() {
         if (this.#processorIntervalHandle === null) {
-            const interval = Math.trunc(1000 / ElementProcessor.OPT_CYCLES_PER_SECOND);  // ms
+            const interval = Math.trunc(1000 / Processor.OPT_CYCLES_PER_SECOND);  // ms
             this.#processorIntervalHandle = setInterval(() => this.#doProcessing(), interval);
         }
     }
 
     startRendering() {
         if (this.#rendererIntervalHandle === null) {
-            const interval = Math.trunc(1000 / ElementProcessor.OPT_FRAMES_PER_SECOND);  // ms
+            const interval = Math.trunc(1000 / Processor.OPT_FRAMES_PER_SECOND);  // ms
             this.#rendererIntervalHandle = setInterval(() => this.#doRendering(), interval);
         }
     }

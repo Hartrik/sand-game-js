@@ -1,6 +1,6 @@
 import {DomBuilder} from "./DomBuilder.js";
 import {SandGameControls} from "./SandGameControls.js";
-import {ElementProcessor} from "./core/ElementProcessor";
+import {Processor} from "./core/Processor";
 
 /**
  *
@@ -204,13 +204,13 @@ export class SandGameOptionsComponent {
             DomBuilder.span('Simulation cycles per second'),
             DomBuilder.element('br'),
             labelCPS,
-            DomBuilder.span(' (target: ' + ElementProcessor.OPT_CYCLES_PER_SECOND + ')', { style: 'color: lightgray;' }),
+            DomBuilder.span(' (target: ' + Processor.OPT_CYCLES_PER_SECOND + ')', { style: 'color: lightgray;' }),
             DomBuilder.element('br'),
 
             DomBuilder.span('Rendered frames per second'),
             DomBuilder.element('br'),
             labelFPS,
-            DomBuilder.span(' (target: ' + ElementProcessor.OPT_FRAMES_PER_SECOND + ')', { style: 'color: lightgray;' }),
+            DomBuilder.span(' (target: ' + Processor.OPT_FRAMES_PER_SECOND + ')', { style: 'color: lightgray;' }),
             DomBuilder.element('br'),
 
             DomBuilder.element('br'),

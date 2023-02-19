@@ -3,13 +3,14 @@ import {ElementHead} from "./ElementHead.js";
 import {GrassElement} from "./GrassElement.js";
 import {TreeTemplateNode, TreeTemplates} from "./TreeTemplates.js";
 import {DeterministicRandom} from "./DeterministicRandom.js";
+import {ProcessorModuleFire} from "./ProcessorModuleFire.js";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-04
+ * @version 2023-02-19
  */
-export class ElementProcessor {
+export class Processor {
 
     static OPT_CYCLES_PER_SECOND = 120;
     static OPT_FRAMES_PER_SECOND = 60;
@@ -54,6 +55,9 @@ export class ElementProcessor {
     /** @type Uint32Array[] */
     #rndChunkXOrder = [];
 
+    /** @type ProcessorModuleFire */
+    #moduleFire;
+
     constructor(elementArea, chunkSize, random, defaultElement, snapshot) {
         this.#elementArea = elementArea;
         this.#width = elementArea.getWidth();
@@ -68,15 +72,17 @@ export class ElementProcessor {
         this.#activeChunks = new Array(this.#horChunkCount * this.#verChunkCount).fill(true);
 
         let rndDataRandom = new DeterministicRandom(0);
-        this.#rndChunkOrder = ElementProcessor.#generateArrayOfOrderData(
-            ElementProcessor.RANDOM_DATA_COUNT, this.#horChunkCount, rndDataRandom);
-        this.#rndChunkXRnd = ElementProcessor.#generateArrayOfRandomData(
-            ElementProcessor.RANDOM_DATA_COUNT, this.#chunkSize, this.#chunkSize, rndDataRandom);
-        this.#rndChunkXOrder = ElementProcessor.#generateArrayOfOrderData(
-            ElementProcessor.RANDOM_DATA_COUNT, this.#chunkSize, rndDataRandom);
+        this.#rndChunkOrder = Processor.#generateArrayOfOrderData(
+            Processor.RANDOM_DATA_COUNT, this.#horChunkCount, rndDataRandom);
+        this.#rndChunkXRnd = Processor.#generateArrayOfRandomData(
+            Processor.RANDOM_DATA_COUNT, this.#chunkSize, this.#chunkSize, rndDataRandom);
+        this.#rndChunkXOrder = Processor.#generateArrayOfOrderData(
+            Processor.RANDOM_DATA_COUNT, this.#chunkSize, rndDataRandom);
 
         this.#random = random;
         this.#defaultElement = defaultElement;
+
+        this.#moduleFire = new ProcessorModuleFire(elementArea, random, defaultElement);
 
         if (snapshot) {
             this.#iteration = snapshot.metadata.iteration;
@@ -94,12 +100,12 @@ export class ElementProcessor {
     }
 
     static #generateArrayOfOrderData(arrayLength, count, random) {
-        let data = ElementProcessor.#generateOrderData(count);
-        ElementProcessor.#shuffle(data, arrayLength, random);
+        let data = Processor.#generateOrderData(count);
+        Processor.#shuffle(data, arrayLength, random);
 
         let array = Array(arrayLength);
         for (let i = 0; i < arrayLength; i++) {
-            ElementProcessor.#shuffle(data, Math.ceil(arrayLength / 4), random);
+            Processor.#shuffle(data, Math.ceil(arrayLength / 4), random);
             array[i] = new Uint8Array(data);
         }
         return array;
@@ -116,7 +122,7 @@ export class ElementProcessor {
     static #generateArrayOfRandomData(arrayLength, count, max, random) {
         let array = Array(arrayLength);
         for (let i = 0; i < arrayLength; i++) {
-            array[i] = ElementProcessor.#generateRandomData(count, max, random);
+            array[i] = Processor.#generateRandomData(count, max, random);
         }
         return array;
     }
@@ -168,7 +174,7 @@ export class ElementProcessor {
             const cyTop = cy * this.#chunkSize;
             const cyBottom = Math.min((cy + 1) * this.#chunkSize - 1, this.#height - 1);
 
-            const chunkOrder = this.#rndChunkOrder[this.#random.nextInt(ElementProcessor.RANDOM_DATA_COUNT)];
+            const chunkOrder = this.#rndChunkOrder[this.#random.nextInt(Processor.RANDOM_DATA_COUNT)];
             const fullChunkLoop = this.#random.nextInt(2) === 0;
 
             const chunkActiveElements = new Uint16Array(this.#horChunkCount);
@@ -178,7 +184,7 @@ export class ElementProcessor {
                     const cx = chunkOrder[i];
                     const chunkIndex = cy * this.#horChunkCount + cx;
 
-                    const idx = this.#random.nextInt(ElementProcessor.RANDOM_DATA_COUNT);
+                    const idx = this.#random.nextInt(Processor.RANDOM_DATA_COUNT);
                     const chunkXOder = (fullChunkLoop) ? this.#rndChunkXOrder[idx] : this.#rndChunkXRnd[idx];
 
                     if (activeChunks[chunkIndex]) {
@@ -311,7 +317,9 @@ export class ElementProcessor {
             switch (behaviour) {
                 case ElementHead.BEHAVIOUR_NONE:
                 case ElementHead.BEHAVIOUR_SOIL:
-                case ElementHead.BEHAVIOUR_TREE_TRUNK:
+                    break;
+                case ElementHead.BEHAVIOUR_FIRE:
+                    this.#moduleFire.behaviourFire(elementHead, x, y);
                     break;
                 case ElementHead.BEHAVIOUR_GRASS:
                     this.#behaviourGrass(elementHead, x, y);
@@ -319,11 +327,13 @@ export class ElementProcessor {
                 case ElementHead.BEHAVIOUR_TREE:
                     this.#behaviourTree(elementHead, x, y);
                     break;
-                case ElementHead.BEHAVIOUR_TREE_ROOT:
-                    this.#behaviourTreeRoot(elementHead, x, y);
-                    break;
                 case ElementHead.BEHAVIOUR_TREE_LEAF:
                     this.#behaviourTreeLeaf(elementHead, x, y);
+                    break;
+                case ElementHead.BEHAVIOUR_TREE_TRUNK:
+                    break;
+                case ElementHead.BEHAVIOUR_TREE_ROOT:
+                    this.#behaviourTreeRoot(elementHead, x, y);
                     break;
                 case ElementHead.BEHAVIOUR_FISH:
                     this.#behaviourFish(elementHead, x, y);
@@ -404,6 +414,7 @@ export class ElementProcessor {
                 return true;
 
             case ElementHead.TYPE_FLUID_1:
+                // slow moving fluid
                 if (!this.#move(elementHead, x, y, x, y + 1)) {
                     let rnd = this.#random.nextInt(2);
                     if (rnd === 0) {
@@ -415,6 +426,7 @@ export class ElementProcessor {
                 return true;
 
             case ElementHead.TYPE_FLUID_2:
+                // fast moving fluid (it can move by 3)
                 if (!this.#move(elementHead, x, y, x, y + 1)) {
                     let rnd = this.#random.nextInt(2);
                     if (rnd === 0) {
@@ -535,7 +547,7 @@ export class ElementProcessor {
     }
 
     #behaviourTree(elementHead, x, y) {
-        let random = this.#random.nextInt(ElementProcessor.OPT_CYCLES_PER_SECOND);
+        let random = this.#random.nextInt(Processor.OPT_CYCLES_PER_SECOND);
         if (random === 0) {
             let template = TreeTemplates.getTemplate(ElementHead.getSpecial(elementHead));
 
@@ -655,7 +667,7 @@ export class ElementProcessor {
             return;
         }
 
-        let random = this.#random.nextInt(ElementProcessor.OPT_CYCLES_PER_SECOND * 10);
+        let random = this.#random.nextInt(Processor.OPT_CYCLES_PER_SECOND * 10);
         if (random < 10) {
 
             let doGrow = (nx, ny) => {
@@ -717,7 +729,7 @@ export class ElementProcessor {
         }
 
         // approx one times per 5 seconds... check if it's not buried or levitating
-        if (this.#iteration % ElementProcessor.OPT_CYCLES_PER_SECOND === 0) {
+        if (this.#iteration % Processor.OPT_CYCLES_PER_SECOND === 0) {
             const random = this.#random.nextInt(5);
 
             if (random === 0) {
@@ -764,7 +776,7 @@ export class ElementProcessor {
         // once a while check if there is a water
         // once a while move
 
-        const action = this.#random.nextInt(ElementProcessor.OPT_CYCLES_PER_SECOND);
+        const action = this.#random.nextInt(Processor.OPT_CYCLES_PER_SECOND);
         if (action === 0) {
             let w = 0;
             w += this.#isWaterEnvironment(x - 1, y) ? 1 : 0;
@@ -793,7 +805,7 @@ export class ElementProcessor {
                     this.#elementArea.setElementHead(x, y, ElementHead.setSpecial(elementHead, dried));
                 }
             }
-        } else if (action < ElementProcessor.OPT_CYCLES_PER_SECOND / 10) {
+        } else if (action < Processor.OPT_CYCLES_PER_SECOND / 10) {
             const rx = this.#random.nextInt(3) - 1;
             const ry = this.#random.nextInt(3) - 1;
             if (rx === 0 && ry === 0) {

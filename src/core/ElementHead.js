@@ -1,6 +1,8 @@
 
 /**
- * Tools for working with the element head. Structure:
+ * Tools for working with the element head.
+ *
+ * The element head structure:
  * <pre>
  *     | type       4 bits  | weight     4 bits  |
  *     | behaviour  4 bits  | special    4 bits  |
@@ -38,6 +40,7 @@ export class ElementHead {
     static BEHAVIOUR_TREE_ROOT = 0x6;
     static BEHAVIOUR_TREE_TRUNK = 0x7;
     static BEHAVIOUR_TREE_LEAF = 0x8;
+    static BEHAVIOUR_FIRE = 0x9;
 
     static FIELD_SPECIAL_SIZE = 4;  // bits
 

@@ -3,7 +3,7 @@ import {Element} from "./Element.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-04
+ * @version 2023-02-19
  */
 export class ElementArea {
     static LITTLE_ENDIAN = true;
@@ -85,9 +85,23 @@ export class ElementArea {
         return this.#buffer.getUint32(byteOffset, ElementArea.LITTLE_ENDIAN);
     }
 
+    getElementHeadOrNull(x, y) {
+        if (this.isValidPosition(x, y)) {
+            return this.getElementHead(x, y);
+        }
+        return null;
+    }
+
     getElementTail(x, y) {
         const byteOffset = (this.#width * y + x) * 8;
         return this.#buffer.getUint32(byteOffset + 4, ElementArea.LITTLE_ENDIAN);
+    }
+
+    getElementTailOrNull(x, y) {
+        if (this.isValidPosition(x, y)) {
+            return this.getElementTail(x, y);
+        }
+        return null;
     }
 
     swap(x, y, x2, y2) {

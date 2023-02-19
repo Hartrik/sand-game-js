@@ -187,6 +187,14 @@ export class Brushes {
         ElementTail.of(174, 97, 81, 0),
     ]);
 
+    static #FIRE_ELEMENT_HEAD = ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_AIR, ElementHead.BEHAVIOUR_FIRE, 0);
+    static #FIRE_ELEMENT_TAIL = ElementTail.of(255, 0, 0, 0);
+    static FIRE = RandomBrush.of([
+        new Element(ElementHead.setTemperature(Brushes.#FIRE_ELEMENT_HEAD,255), Brushes.#FIRE_ELEMENT_TAIL),
+        new Element(ElementHead.setTemperature(Brushes.#FIRE_ELEMENT_HEAD,255), Brushes.#FIRE_ELEMENT_TAIL),
+        new Element(ElementHead.setTemperature(Brushes.#FIRE_ELEMENT_HEAD,51), Brushes.#FIRE_ELEMENT_TAIL)
+    ]);
+
 
     /**
      *
