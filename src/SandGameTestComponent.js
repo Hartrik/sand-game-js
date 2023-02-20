@@ -1,4 +1,5 @@
 import {DomBuilder} from "./DomBuilder.js";
+import {Brush} from "./core/Brush.js";
 import {Brushes} from "./core/Brushes.js";
 import {SandGameControls} from "./SandGameControls.js";
 import {SandGameTemplateComponent} from "./SandGameTemplateComponent.js";
@@ -65,7 +66,7 @@ export class SandGameTestComponent {
     }
 
     #doTreeGrowTest(sandGame) {
-        let treeBrush = Brushes.withIntensity(Brushes.TREE, 0.05);
+        let treeBrush = Brush.withIntensity(Brushes.TREE, 0.05);
 
         sandGame.graphics().fill(Brushes.AIR);
         sandGame.graphics().drawRectangle(0, -10, -1, -1, Brushes.SOIL, true);

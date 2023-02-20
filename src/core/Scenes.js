@@ -1,4 +1,5 @@
 import {Brushes} from "./Brushes.js";
+import {Brush} from "./Brush.js";
 
 /**
  * @typedef {Object} Scene
@@ -45,7 +46,7 @@ export class Scenes {
                     '          ',
                 ])
                 .withBrushes({
-                    w: Brushes.withIntensity(Brushes.WATER, 0.95),
+                    w: Brush.withIntensity(Brushes.WATER, 0.95),
                     1: Brushes.SAND,
                     2: Brushes.SOIL,
                     3: Brushes.STONE
@@ -74,7 +75,7 @@ export class Scenes {
                     '          ',
                 ])
                 .withBrushes({
-                    w: Brushes.withIntensity(Brushes.WATER, 0.5),
+                    w: Brush.withIntensity(Brushes.WATER, 0.5),
                     s: Brushes.WALL
                 })
                 .paint();
