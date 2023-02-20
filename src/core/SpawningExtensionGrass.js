@@ -5,14 +5,14 @@ import {GrassElement} from "./GrassElement.js";
  * @author Patrik Harag
  * @version 2022-09-09
  */
-export class GrassPlantingExtension {
+export class SpawningExtensionGrass {
     static MAX_COUNTER_VALUE = 2;
 
     #elementArea;
     #random;
     #brush;
 
-    #counter = GrassPlantingExtension.MAX_COUNTER_VALUE;
+    #counter = SpawningExtensionGrass.MAX_COUNTER_VALUE;
 
     constructor(elementArea, random, brush) {
         this.#elementArea = elementArea;
@@ -22,7 +22,7 @@ export class GrassPlantingExtension {
 
     run() {
         if (this.#counter-- === 0) {
-            this.#counter = GrassPlantingExtension.MAX_COUNTER_VALUE;
+            this.#counter = SpawningExtensionGrass.MAX_COUNTER_VALUE;
 
             const x = this.#random.nextInt(this.#elementArea.getWidth());
             const y = this.#random.nextInt(this.#elementArea.getHeight() - 3) + 2;

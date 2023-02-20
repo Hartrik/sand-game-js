@@ -5,7 +5,7 @@ import {ElementHead} from "./ElementHead.js";
  * @author Patrik Harag
  * @version 2022-09-29
  */
-export class TreePlantingExtension {
+export class SpawningExtensionTree {
     static STARTING_COUNTER_VALUE = 1000;
     static MAX_COUNTER_VALUE = 4;
 
@@ -13,7 +13,7 @@ export class TreePlantingExtension {
     #random;
     #brush;
 
-    #counter = TreePlantingExtension.STARTING_COUNTER_VALUE;
+    #counter = SpawningExtensionTree.STARTING_COUNTER_VALUE;
 
     constructor(elementArea, random, brush) {
         this.#elementArea = elementArea;
@@ -23,12 +23,12 @@ export class TreePlantingExtension {
 
     run() {
         if (this.#counter-- === 0) {
-            this.#counter = TreePlantingExtension.MAX_COUNTER_VALUE;
+            this.#counter = SpawningExtensionTree.MAX_COUNTER_VALUE;
 
             const x = this.#random.nextInt(this.#elementArea.getWidth() - 12) + 6;
             const y = this.#random.nextInt(this.#elementArea.getHeight() - 16) + 15;
 
-            if (TreePlantingExtension.couldGrowUpHere(this.#elementArea, x, y)) {
+            if (SpawningExtensionTree.couldGrowUpHere(this.#elementArea, x, y)) {
                 this.#elementArea.setElement(x, y, this.#brush.apply(x, y, this.#random));
             }
         }
@@ -52,24 +52,24 @@ export class TreePlantingExtension {
 
         // check space directly above
         for (let dy = 1; dy < 18; dy++) {
-            if (!TreePlantingExtension.#isSpaceHere(elementArea, x, y - dy)) {
+            if (!SpawningExtensionTree.#isSpaceHere(elementArea, x, y - dy)) {
                 return false;
             }
         }
 
         // check trees around
         for (let dx = -8; dx < 8; dx++) {
-            if (TreePlantingExtension.#isOtherThreeThere(elementArea, x + dx, y - 4)) {
+            if (SpawningExtensionTree.#isOtherThreeThere(elementArea, x + dx, y - 4)) {
                 return false;
             }
         }
 
         // check space above - left & right
         for (let dy = 10; dy < 15; dy++) {
-            if (!TreePlantingExtension.#isSpaceHere(elementArea, x - 8, y - dy)) {
+            if (!SpawningExtensionTree.#isSpaceHere(elementArea, x - 8, y - dy)) {
                 return false;
             }
-            if (!TreePlantingExtension.#isSpaceHere(elementArea, x + 8, y - dy)) {
+            if (!SpawningExtensionTree.#isSpaceHere(elementArea, x + 8, y - dy)) {
                 return false;
             }
         }

@@ -5,7 +5,7 @@ import {ElementHead} from "./ElementHead.js";
  * @author Patrik Harag
  * @version 2022-09-20
  */
-export class FishSpawningExtension {
+export class SpawningExtensionFish {
 
     #elementArea;
     #random;

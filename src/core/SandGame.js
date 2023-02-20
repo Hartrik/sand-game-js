@@ -6,15 +6,15 @@ import {Processor} from "./Processor.js";
 import {Element} from "./Element.js";
 import {ElementHead} from "./ElementHead.js";
 import {ElementTail} from "./ElementTail.js";
-import {FishSpawningExtension} from "./FishSpawningExtension.js";
-import {GrassPlantingExtension} from "./GrassPlantingExtension.js";
 import {Renderer} from "./Renderer.js";
+import {RenderingModeHeatmap} from "./RenderingModeHeatmap.js";
 import {SandGameGraphics} from "./SandGameGraphics.js";
 import {Snapshot} from "./Snapshot.js";
 import {SnapshotMetadata} from "./SnapshotMetadata.js";
+import {SpawningExtensionFish} from "./SpawningExtensionFish.js";
+import {SpawningExtensionGrass} from "./SpawningExtensionGrass.js";
+import {SpawningExtensionTree} from "./SpawningExtensionTree.js";
 import {TemplatePainter} from "./TemplatePainter.js";
-import {TreePlantingExtension} from "./TreePlantingExtension.js";
-import {RenderingModeHeatmap} from "./RenderingModeHeatmap.js";
 
 /**
  *
@@ -85,12 +85,12 @@ export class SandGame {
         this.#width = width;
         this.#height = height;
 
-        let grassPlantingExtension = new GrassPlantingExtension(this.#elementArea, this.#random, Brushes.GRASS);
-        this.#onProcessed.push(() => grassPlantingExtension.run());
-        let treePlantingExtension = new TreePlantingExtension(this.#elementArea, this.#random, Brushes.TREE);
-        this.#onProcessed.push(() => treePlantingExtension.run());
-        let fishSpawningExtension = new FishSpawningExtension(this.#elementArea, this.#random, Brushes.FISH, Brushes.FISH_BODY);
-        this.#onProcessed.push(() => fishSpawningExtension.run());
+        let grassSpawningExt = new SpawningExtensionGrass(this.#elementArea, this.#random, Brushes.GRASS);
+        this.#onProcessed.push(() => grassSpawningExt.run());
+        let treeSpawningExt = new SpawningExtensionTree(this.#elementArea, this.#random, Brushes.TREE);
+        this.#onProcessed.push(() => treeSpawningExt.run());
+        let fishSpawningExt = new SpawningExtensionFish(this.#elementArea, this.#random, Brushes.FISH, Brushes.FISH_BODY);
+        this.#onProcessed.push(() => fishSpawningExt.run());
     }
 
     startProcessing() {
