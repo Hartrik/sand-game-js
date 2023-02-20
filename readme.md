@@ -15,3 +15,8 @@ You can play it here: https://harag.cz/app/sand-game-js
 `npm run dev` builds the library, then keeps rebuilding it whenever the source files change using rollup-watch.
 
 `npm test` builds the library, then tests it.
+
+Debugging tips:
+- Use `alt key` + `middle mouse button` to debug an element.
+- Stop processing using `ctrl` + `enter` and then press (or hold) `ctrl` + `space` for running one simulation iteration.
+    - Alternatively `ctrl` + `shift` + `space` will run the specified number of iterations – at once, without rendering and delays.

@@ -4,7 +4,7 @@ import {SandGameControls} from "./SandGameControls.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-12
+ * @version 2023-02-20
  */
 export class SandGameTemplateComponent {
 
@@ -52,7 +52,7 @@ export class SandGameTemplateComponent {
             }
         })
 
-        return DomBuilder.Bootstrap.cardCollapsable('Template editor', true, formBuilder.createNode());
+        return formBuilder.createNode().addClass('sand-game-template-editor');
     }
 
     #applyTemplate(sandGame, brushes, blueprint) {

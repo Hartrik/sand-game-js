@@ -207,16 +207,24 @@ DomBuilder.BootstrapTable = class {
 
 /**
  *
- * @version 2022-09-24
+ * @version 2023-02-20
  * @author Patrik Harag
  */
 DomBuilder.BootstrapDialog = class {
+
+    // will be removed after close
+    #persistent = false;
 
     #headerNode = null;
     #bodyNode = null;
     #footerNodeChildren = [];
 
     #dialog = null;
+
+
+    setPersistent(persistent) {
+        this.#persistent = persistent;
+    }
 
     setHeaderContent(headerNode) {
         if (typeof headerNode === 'string') {
@@ -249,22 +257,26 @@ DomBuilder.BootstrapDialog = class {
     }
 
     show(dialogAnchor) {
-        this.#dialog = $(`<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true"></div>`)
-            .append($(`<div class="modal-dialog modal-dialog-centered"></div>`)
-                .append($(`<div class="modal-content"></div>`)
-                    .append($(`<div class="modal-header"></div>`).append(this.#headerNode))
-                    .append($(`<div class="modal-body"></div>`).append(this.#bodyNode))
-                    .append($(`<div class="modal-footer"></div>`).append(this.#footerNodeChildren))
-                )
-            );
+        if (this.#dialog === null) {
+            this.#dialog = $(`<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true"></div>`)
+                .append($(`<div class="modal-dialog modal-dialog-centered"></div>`)
+                    .append($(`<div class="modal-content"></div>`)
+                        .append($(`<div class="modal-header"></div>`).append(this.#headerNode))
+                        .append($(`<div class="modal-body"></div>`).append(this.#bodyNode))
+                        .append($(`<div class="modal-footer"></div>`).append(this.#footerNodeChildren))
+                    )
+                );
 
-        // add into DOM
-        dialogAnchor.append(this.#dialog);
+            // add into DOM
+            dialogAnchor.append(this.#dialog);
+        }
 
-        // remove from DOM after hide
-        this.#dialog.on('hidden.bs.modal', () => {
-            this.#dialog.remove();
-        });
+        if (!this.#persistent) {
+            // remove from DOM after hide
+            this.#dialog.on('hidden.bs.modal', () => {
+                this.#dialog.remove();
+            });
+        }
 
         this.#dialog.modal('show');
     }

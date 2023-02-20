@@ -8,7 +8,6 @@ import {SandGameElementSizeComponent} from "./SandGameElementSizeComponent.js";
 import {SandGameSaveComponent} from "./SandGameSaveComponent.js";
 import {SandGameOptionsComponent} from "./SandGameOptionsComponent.js";
 import {SandGameTestComponent} from "./SandGameTestComponent.js";
-import {SandGameTemplateComponent} from "./SandGameTemplateComponent.js";
 import {SandGameBrushComponent} from "./SandGameBrushComponent.js";
 import {SandGameCanvasComponent} from "./SandGameCanvasComponent.js";
 
@@ -16,7 +15,7 @@ import {SandGameCanvasComponent} from "./SandGameCanvasComponent.js";
  * @requires jQuery
  *
  * @author Patrik Harag
- * @version 2023-02-19
+ * @version 2023-02-20
  */
 export class SandGameComponent extends SandGameControls {
 
@@ -159,6 +158,41 @@ export class SandGameComponent extends SandGameControls {
         this.#canvasSettingsUpdater = null;
     }
 
+    enableGlobalShortcuts() {
+        document.onkeydown = (e) => {
+            // handle start stop
+            if (e.ctrlKey && !e.altKey && !e.shiftKey && e.key === 'Enter') {
+                e.preventDefault();
+                this.switchStartStop();
+            }
+            // handle next step
+            if (e.ctrlKey && !e.altKey && !e.shiftKey && e.key === ' ') {
+                e.preventDefault();
+                if (this.#sandGame !== null) {
+                    this.#sandGame.doProcessing();
+                }
+            }
+            // handle fast execute
+            if (e.ctrlKey && !e.altKey && e.shiftKey && e.key === ' ') {
+                e.preventDefault();
+                if (this.#sandGame !== null) {
+                    const input = prompt('Enter the number of iterations to run', '10000');
+                    const iterations = Math.abs(parseInt(input));
+                    const timeBefore = new Date();
+                    for (let i = 0; i < iterations; i++) {
+                        this.#sandGame.doProcessing();
+                        if (i % 2500 === 0) {
+                            console.log(`Performed ${i} of ${iterations} iterations`);
+                        }
+                    }
+                    const timeAfter = new Date();
+                    const elapsedMs = timeAfter.getTime() - timeBefore.getTime();
+                    console.log(`Performed ${iterations} iterations in ${elapsedMs} ms`);
+                }
+            }
+        };
+    }
+
     enableBrushes() {
         let component = new SandGameBrushComponent(this, this.#brushDeclarations);
         this.#nodeHolderTopToolbar.append(component.createNode());
@@ -208,13 +242,8 @@ export class SandGameComponent extends SandGameControls {
         this.#nodeHolderAdditionalViews.append(component.createNode());
     }
 
-    enableTemplateEditor() {
-        let component = new SandGameTemplateComponent(this, this.#brushDeclarations);
-        this.#nodeHolderAdditionalViews.append(component.createNode());
-    }
-
     enableTestTools() {
-        let component = new SandGameTestComponent(this);
+        let component = new SandGameTestComponent(this, this.#brushDeclarations);
         this.#nodeHolderAdditionalViews.append(component.createNode());
     }
 

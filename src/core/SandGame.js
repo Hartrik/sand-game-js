@@ -96,14 +96,14 @@ export class SandGame {
     startProcessing() {
         if (this.#processorIntervalHandle === null) {
             const interval = Math.trunc(1000 / Processor.OPT_CYCLES_PER_SECOND);  // ms
-            this.#processorIntervalHandle = setInterval(() => this.#doProcessing(), interval);
+            this.#processorIntervalHandle = setInterval(() => this.doProcessing(), interval);
         }
     }
 
     startRendering() {
         if (this.#rendererIntervalHandle === null) {
             const interval = Math.trunc(1000 / Processor.OPT_FRAMES_PER_SECOND);  // ms
-            this.#rendererIntervalHandle = setInterval(() => this.#doRendering(), interval);
+            this.#rendererIntervalHandle = setInterval(() => this.doRendering(), interval);
         }
     }
 
@@ -123,7 +123,7 @@ export class SandGame {
         this.#framesCounter.clear();
     }
 
-    #doProcessing() {
+    doProcessing() {
         this.#processor.next();
         const t = Date.now();
         this.#cyclesCounter.tick(t);
@@ -132,7 +132,7 @@ export class SandGame {
         }
     }
 
-    #doRendering() {
+    doRendering() {
         this.#renderer.render(this.#processor.getActiveChunks(), this.#rendererShowActiveChunks);
         const t = Date.now();
         this.#framesCounter.tick(t);

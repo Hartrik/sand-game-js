@@ -1,27 +1,42 @@
 import {DomBuilder} from "./DomBuilder.js";
-import {SandGameControls} from "./SandGameControls.js";
 import {Brushes} from "./core/Brushes.js";
+import {SandGameControls} from "./SandGameControls.js";
+import {SandGameTemplateComponent} from "./SandGameTemplateComponent.js";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-12
+ * @version 2023-02-20
  */
 export class SandGameTestComponent {
 
     /** @type SandGameControls */
     #controls;
 
+    #templateEditorDialog;
+
     /**
      *
      * @param sandGameControls {SandGameControls}
+     * @param brushDeclarations {BrushDeclaration[]}
      */
-    constructor(sandGameControls) {
+    constructor(sandGameControls, brushDeclarations) {
         this.#controls = sandGameControls;
+
+        let component = new SandGameTemplateComponent(sandGameControls, brushDeclarations);
+        let dialog = new DomBuilder.BootstrapDialog();
+        dialog.setHeaderContent('Template editor');
+        dialog.setBodyContent(component.createNode());
+        dialog.addCloseButton('Close');
+        dialog.setPersistent(true);
+        this.#templateEditorDialog = dialog;
     }
 
     createNode() {
-        let content = DomBuilder.div(null, [
+        let content = DomBuilder.div({ class: 'test-tools' }, [
+            DomBuilder.link('Template editor', { class: 'btn btn-primary' }, e => {
+                this.#templateEditorDialog.show(document.body);
+            }),
             DomBuilder.link('Tree spawn test', { class: 'btn btn-secondary' }, e => {
                 let sandGame = this.#controls.getSandGame();
                 if (sandGame !== null) {
@@ -35,8 +50,7 @@ export class SandGameTestComponent {
                 }
             })
         ]);
-
-        return DomBuilder.Bootstrap.cardCollapsable('Test tools', false, content);
+        return content;
     }
 
     #doTreeSpawnTest(sandGame) {

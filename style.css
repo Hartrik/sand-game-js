@@ -152,15 +152,11 @@
     margin: 0.5em 0;
 }
 
-.sand-game-component .sand-game-views .card textarea {
-    font-family: monospace;
-}
-
-.sand-game-component .load-and-save {
+.sand-game-component .load-and-sav-tools {
     margin: 0.5em 0.5em 0.5em 0;
 }
 
-.sand-game-component .load-and-save .btn {
+.sand-game-component .load-and-save-tools .btn {
     margin-right: 0.5em;
 
     color: gray;
@@ -168,7 +164,13 @@
     font-size: 75%;
 }
 
-.tooltip-inner {
-    max-width: 350px;
-    text-align: left;
+.sand-game-component .test-tools .btn {
+    margin-right: 0.5em;
+
+    padding: 0 0.5em 0 0.5em;
+    font-size: 75%;
+}
+
+.sand-game-template-editor {
+    font-family: monospace;
 }

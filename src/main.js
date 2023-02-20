@@ -25,6 +25,7 @@ export function initStandard(root, assetsContextPath) {
         assetsContextPath: assetsContextPath
     };
     let sandGameComponent = new SandGameComponent(root, init);
+    sandGameComponent.enableGlobalShortcuts();
     sandGameComponent.enableBrushes();
     sandGameComponent.enableOptions();
     sandGameComponent.enableSizeOptions();
@@ -79,12 +80,12 @@ export function initTest(root, assetsContextPath) {
         assetsContextPath: assetsContextPath
     };
     let sandGameComponent = new SandGameComponent(root, init);
+    sandGameComponent.enableGlobalShortcuts();
     sandGameComponent.enableBrushes();
     sandGameComponent.enableOptions();
     sandGameComponent.enableSizeOptions();
     sandGameComponent.enableScenes();
     sandGameComponent.enableSavingAndLoading();
     sandGameComponent.enableTestTools();
-    sandGameComponent.enableTemplateEditor();
     sandGameComponent.start();
 }

@@ -22,7 +22,7 @@ export class SandGameSaveComponent {
     }
 
     createNode() {
-        let content = DomBuilder.div({ class: 'load-and-save' }, []);
+        let content = DomBuilder.div({ class: 'load-and-save-tools' }, []);
 
         content.append(DomBuilder.link('Save', { class: 'btn btn-light' }, e => {
             let snapshot = this.#onSaveFunction();

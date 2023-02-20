@@ -201,7 +201,7 @@ export class SandGameOptionsComponent {
             labelCanvasSize,
             DomBuilder.element('br'),
 
-            DomBuilder.span('Simulation cycles per second'),
+            DomBuilder.span('Simulation iterations per second'),
             DomBuilder.element('br'),
             labelCPS,
             DomBuilder.span(' (target: ' + Processor.OPT_CYCLES_PER_SECOND + ')', { style: 'color: lightgray;' }),
