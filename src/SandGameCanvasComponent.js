@@ -1,11 +1,12 @@
 import {DomBuilder} from "./DomBuilder.js";
 import {SandGameControls} from "./SandGameControls.js";
+import {Brush} from "./core/Brush.js";
 import {Brushes} from "./core/Brushes.js";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-12
+ * @version 2023-02-20
  */
 export class SandGameCanvasComponent {
 
@@ -89,7 +90,8 @@ export class SandGameCanvasComponent {
             ctrlPressed = e.ctrlKey;
             shiftPressed = e.shiftKey;
             if (!ctrlPressed && !shiftPressed) {
-                sandGame.graphics().drawLine(x, y, x, y, this.#controls.getBrushSize(), brush);
+                const actualBrush = e.altKey ? Brush.gentle(brush) : brush;
+                sandGame.graphics().drawLine(x, y, x, y, this.#controls.getBrushSize(), actualBrush);
             }
         });
         domNode.addEventListener('mousemove', (e) => {
@@ -98,7 +100,8 @@ export class SandGameCanvasComponent {
             }
             if (!ctrlPressed && !shiftPressed) {
                 const [x, y] = getActualMousePosition(e);
-                sandGame.graphics().drawLine(lastX, lastY, x, y, this.#controls.getBrushSize(), brush);
+                const actualBrush = e.altKey ? Brush.gentle(brush) : brush;
+                sandGame.graphics().drawLine(lastX, lastY, x, y, this.#controls.getBrushSize(), actualBrush);
                 lastX = x;
                 lastY = y;
             }
@@ -113,10 +116,12 @@ export class SandGameCanvasComponent {
                 let minY = Math.min(lastY, y);
                 let maxX = Math.max(lastX, x);
                 let maxY = Math.max(lastY, y);
-                sandGame.graphics().drawRectangle(minX, minY, maxX, maxY, brush);
+                const actualBrush = e.altKey ? Brush.gentle(brush) : brush;
+                sandGame.graphics().drawRectangle(minX, minY, maxX, maxY, actualBrush);
             } else if (shiftPressed) {
                 const [x, y] = getActualMousePosition(e);
-                sandGame.graphics().drawLine(lastX, lastY, x, y, this.#controls.getBrushSize(), brush);
+                const actualBrush = e.altKey ? Brush.gentle(brush) : brush;
+                sandGame.graphics().drawLine(lastX, lastY, x, y, this.#controls.getBrushSize(), actualBrush);
             }
             brush = null;
         });

@@ -3,7 +3,7 @@ import {FloodFillPainter} from "./FloodFillPainter.js";
 /**
  *
  * @author Patrik Harag
- * @version 2022-11-07
+ * @version 2023-02-20
  */
 export class SandGameGraphics {
 
@@ -29,8 +29,9 @@ export class SandGameGraphics {
      * @param brush {Brush}
      */
     draw(x, y, brush) {
-        let element = brush.apply(x, y, this.#random);
-        this.#elementArea.setElement(x, y, element);
+        let oldElement = this.#elementArea.getElement(x, y);
+        let newElement = brush.apply(x, y, this.#random, oldElement);
+        this.#elementArea.setElement(x, y, newElement);
         this.#triggerFunction(x, y);
     }
 

@@ -1,6 +1,7 @@
 import {Assets} from "../Assets.js";
 import {Element} from "./Element.js";
 import {ElementTail} from "./ElementTail.js";
+import {ElementHead} from "./ElementHead.js";
 
 /**
  * @interface
@@ -15,9 +16,10 @@ export class Brush {
      * @param x
      * @param y
      * @param random {DeterministicRandom|undefined}
+     * @param oldElement {Element}
      * @return {Element}
      */
-    apply(x, y, random = undefined) {
+    apply(x, y, random = undefined, oldElement = undefined) {
         throw 'Not implemented'
     }
 
@@ -47,7 +49,7 @@ export class Brush {
 
     /**
      *
-     * @param func {function(x, y, DeterministicRandom|undefined)}
+     * @param func {function(x: number, y: number, random: DeterministicRandom|undefined, oldElement: Element)}
      * @returns {Brush}
      */
     static custom(func) {
@@ -56,15 +58,30 @@ export class Brush {
 
     /**
      *
-     * @param brush
+     * @param brush {Brush}
      * @param intensity {number} 0..1
      * @returns {Brush}
      */
     static withIntensity(brush, intensity) {
-        return new CustomBrush((x, y, random) => {
+        return Brush.custom((x, y, random, oldElement) => {
             let rnd = (random) ? random.next() : Math.random();
             if (rnd < intensity) {
-                return brush.apply(x, y, random);
+                return brush.apply(x, y, random, oldElement);
+            }
+            return null;
+        });
+    }
+
+    /**
+     * Brush will not paint over other elements.
+     *
+     * @param brush {Brush}
+     */
+    static gentle(brush) {
+        return Brush.custom((x, y, random, oldElement) => {
+            if (ElementHead.getType(oldElement.elementHead) === ElementHead.TYPE_STATIC
+                    && ElementHead.getWeight(oldElement.elementHead) === ElementHead.WEIGHT_AIR) {
+                return brush.apply(x, y, random, oldElement);
             }
             return null;
         });
@@ -86,7 +103,7 @@ class RandomBrush extends Brush {
         this.#elements = elements;
     }
 
-    apply(x, y, random) {
+    apply(x, y, random, oldElement) {
         if (this.#elements.length > 1) {
             let i;
             if (random) {
@@ -121,7 +138,7 @@ class TextureBrush extends Brush {
         Assets.asImageData(base64).then(imageData => this.#imageData = imageData);
     }
 
-    apply(x, y, random) {
+    apply(x, y, random, oldElement) {
         const element = this.#innerBrush.apply(x, y, random);
 
         if (this.#imageData != null) {
@@ -147,7 +164,7 @@ class TextureBrush extends Brush {
  */
 class CustomBrush extends Brush {
 
-    /** @type function(x, y, DeterministicRandom|undefined) */
+    /** @type function(x: number, y: number, random: DeterministicRandom|undefined, oldElement: Element) */
     #func;
 
     constructor(func) {
@@ -155,7 +172,7 @@ class CustomBrush extends Brush {
         this.#func = func;
     }
 
-    apply(x, y, random) {
-        return this.#func(x, y, random);
+    apply(x, y, random, oldElement) {
+        return this.#func(x, y, random, oldElement);
     }
 }
