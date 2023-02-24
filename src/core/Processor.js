@@ -2,8 +2,10 @@ import {Brushes} from "./Brushes.js";
 import {ElementHead} from "./ElementHead.js";
 import {TreeTemplateNode, TreeTemplates} from "./TreeTemplates.js";
 import {DeterministicRandom} from "./DeterministicRandom.js";
+import {ProcessorContext} from "./ProcessorContext.js";
 import {ProcessorModuleFire} from "./ProcessorModuleFire.js";
 import {ProcessorModuleGrass} from "./ProcessorModuleGrass.js";
+import {ProcessorModuleFish} from "./ProcessorModuleFish.js";
 
 /**
  *
@@ -12,8 +14,8 @@ import {ProcessorModuleGrass} from "./ProcessorModuleGrass.js";
  */
 export class Processor {
 
-    static OPT_CYCLES_PER_SECOND = 120;
-    static OPT_FRAMES_PER_SECOND = 60;
+    static OPT_CYCLES_PER_SECOND = ProcessorContext.OPT_CYCLES_PER_SECOND;
+    static OPT_FRAMES_PER_SECOND = ProcessorContext.OPT_FRAMES_PER_SECOND;
 
     /** @type ElementArea */
     #elementArea;
@@ -59,6 +61,8 @@ export class Processor {
     #moduleFire;
     /** @type ProcessorModuleGrass */
     #moduleGrass;
+    /** @type ProcessorModuleFish */
+    #moduleFish;
 
     constructor(elementArea, chunkSize, random, defaultElement, snapshot) {
         this.#elementArea = elementArea;
@@ -86,6 +90,7 @@ export class Processor {
 
         this.#moduleFire = new ProcessorModuleFire(elementArea, random, defaultElement);
         this.#moduleGrass = new ProcessorModuleGrass(elementArea, random, defaultElement);
+        this.#moduleFish = new ProcessorModuleFish(elementArea, random, defaultElement);
 
         if (snapshot) {
             this.#iteration = snapshot.metadata.iteration;
@@ -342,10 +347,10 @@ export class Processor {
                     this.#moduleFire.behaviourFireSource(elementHead, x, y);
                     break;
                 case ElementHead.BEHAVIOUR_FISH:
-                    this.#behaviourFish(elementHead, x, y);
+                    this.#moduleFish.behaviourFish(elementHead, x, y);
                     break;
                 case ElementHead.BEHAVIOUR_FISH_BODY:
-                    this.#behaviourFishBody(elementHead, x, y);
+                    this.#moduleFish.behaviourFishBody(elementHead, x, y);
                     break;
                 default:
                     throw "Unknown element behaviour: " + behaviour;
@@ -701,103 +706,5 @@ export class Processor {
                 // TODO
             }
         }
-    }
-
-    #behaviourFish(elementHead, x, y) {
-        // check has body
-        if (x === this.#elementArea.getWidth() - 1
-            || ElementHead.getBehaviour(this.#elementArea.getElementHead(x + 1, y)) !== ElementHead.BEHAVIOUR_FISH_BODY) {
-            // => turn into corpse
-            this.#elementArea.setElement(x, y, Brushes.FISH_CORPSE.apply(x, y, this.#random));
-        }
-
-        // move down if flying
-        if (y < this.#elementArea.getHeight() - 1) {
-            if (ElementHead.getWeight(this.#elementArea.getElementHead(x, y + 1)) < ElementHead.WEIGHT_WATER
-                && ElementHead.getWeight(this.#elementArea.getElementHead(x + 1, y + 1)) < ElementHead.WEIGHT_WATER) {
-                this.#elementArea.swap(x, y, x, y + 1);
-                this.#elementArea.swap(x + 1, y, x + 1, y + 1);
-                return;
-            }
-        }
-
-        // once a while check if there is a water
-        // once a while move
-
-        const action = this.#random.nextInt(Processor.OPT_CYCLES_PER_SECOND);
-        if (action === 0) {
-            let w = 0;
-            w += this.#isWaterEnvironment(x - 1, y) ? 1 : 0;
-            w += this.#isWaterEnvironment(x + 2, y) ? 1 : 0;
-            w += this.#isWaterEnvironment(x, y + 1) ? 1 : 0;
-            w += this.#isWaterEnvironment(x, y - 1) ? 1 : 0;
-            if (w < 4) {
-                w += this.#isWaterEnvironment(x + 1, y + 1) ? 1 : 0;
-                w += this.#isWaterEnvironment(x + 1, y - 1) ? 1 : 0;
-            }
-
-            let dried = ElementHead.getSpecial(elementHead);
-            if (w >= 4) {
-                // enough water
-                if (dried > 0) {
-                    // reset counter
-                    this.#elementArea.setElementHead(x, y, ElementHead.setSpecial(elementHead, 0));
-                }
-            } else {
-                // not enough water
-                dried++;
-                if (dried > 5) {
-                    // turn into corpse
-                    this.#elementArea.setElement(x, y, Brushes.FISH_CORPSE.apply(x, y, this.#random));
-                } else {
-                    this.#elementArea.setElementHead(x, y, ElementHead.setSpecial(elementHead, dried));
-                }
-            }
-        } else if (action < Processor.OPT_CYCLES_PER_SECOND / 10) {
-            const rx = this.#random.nextInt(3) - 1;
-            const ry = this.#random.nextInt(3) - 1;
-            if (rx === 0 && ry === 0) {
-                return;
-            }
-            // move fish and it's body
-            if (this.#isWater(rx + x, ry + y) && this.#isWater(rx + x + 1, ry + y)) {
-                this.#elementArea.swap(x, y, rx + x, ry + y);
-                this.#elementArea.swap(x + 1, y, rx + x + 1, ry + y);
-            }
-        }
-    }
-
-    #behaviourFishBody(elementHead, x, y) {
-        if (x === 0 || ElementHead.getBehaviour(this.#elementArea.getElementHead(x - 1, y)) !== ElementHead.BEHAVIOUR_FISH) {
-            // the fish lost it's head :(
-            // => turn into corpse
-            this.#elementArea.setElement(x, y, Brushes.FISH_CORPSE.apply(x, y, this.#random));
-        }
-    }
-
-    #isWater(x, y) {
-        if (!this.#elementArea.isValidPosition(x, y)) {
-            return false;
-        }
-        let targetElementHead = this.#elementArea.getElementHead(x, y);
-        if (ElementHead.getType(targetElementHead) !== ElementHead.TYPE_FLUID_2) {
-            return false;
-        }
-        return true;
-    }
-
-    #isWaterEnvironment(x, y) {
-        if (!this.#elementArea.isValidPosition(x, y)) {
-            return false;
-        }
-        let targetElementHead = this.#elementArea.getElementHead(x, y);
-        if (ElementHead.getType(targetElementHead) === ElementHead.TYPE_FLUID_2) {
-            return true;
-        }
-        let behaviour = ElementHead.getBehaviour(targetElementHead);
-        if (behaviour === ElementHead.BEHAVIOUR_FISH || behaviour === ElementHead.BEHAVIOUR_FISH_BODY) {
-            return true;
-        }
-        return false;
     }
 }
