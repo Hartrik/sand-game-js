@@ -1,4 +1,4 @@
-import {GrassElement} from "./GrassElement.js";
+import {ProcessorModuleGrass} from "./ProcessorModuleGrass.js";
 
 /**
  *
@@ -27,7 +27,7 @@ export class SpawningExtensionGrass {
             const x = this.#random.nextInt(this.#elementArea.getWidth());
             const y = this.#random.nextInt(this.#elementArea.getHeight() - 3) + 2;
 
-            if (GrassElement.couldGrowUpHere(this.#elementArea, x, y)) {
+            if (ProcessorModuleGrass.couldGrowUpHere(this.#elementArea, x, y)) {
                 this.#elementArea.setElement(x, y, this.#brush.apply(x, y, this.#random));
             }
         }

@@ -1,14 +1,14 @@
 import {Brushes} from "./Brushes.js";
 import {ElementHead} from "./ElementHead.js";
-import {GrassElement} from "./GrassElement.js";
 import {TreeTemplateNode, TreeTemplates} from "./TreeTemplates.js";
 import {DeterministicRandom} from "./DeterministicRandom.js";
 import {ProcessorModuleFire} from "./ProcessorModuleFire.js";
+import {ProcessorModuleGrass} from "./ProcessorModuleGrass.js";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-19
+ * @version 2023-02-24
  */
 export class Processor {
 
@@ -57,6 +57,8 @@ export class Processor {
 
     /** @type ProcessorModuleFire */
     #moduleFire;
+    /** @type ProcessorModuleGrass */
+    #moduleGrass;
 
     constructor(elementArea, chunkSize, random, defaultElement, snapshot) {
         this.#elementArea = elementArea;
@@ -83,6 +85,7 @@ export class Processor {
         this.#defaultElement = defaultElement;
 
         this.#moduleFire = new ProcessorModuleFire(elementArea, random, defaultElement);
+        this.#moduleGrass = new ProcessorModuleGrass(elementArea, random, defaultElement);
 
         if (snapshot) {
             this.#iteration = snapshot.metadata.iteration;
@@ -322,7 +325,7 @@ export class Processor {
                     this.#moduleFire.behaviourFire(elementHead, x, y);
                     break;
                 case ElementHead.BEHAVIOUR_GRASS:
-                    this.#behaviourGrass(elementHead, x, y);
+                    this.#moduleGrass.behaviourGrass(elementHead, x, y);
                     break;
                 case ElementHead.BEHAVIOUR_TREE:
                     this.#behaviourTree(elementHead, x, y);
@@ -489,64 +492,6 @@ export class Processor {
             return true;
         }
         return false;
-    }
-
-    #behaviourGrass(elementHead, x, y) {
-        let random = this.#random.nextInt(100);
-        if (random < 3) {
-            // check above
-            if (y > 0) {
-                let above1 = this.#elementArea.getElementHead(x, y - 1);
-                if (ElementHead.getBehaviour(above1) !== ElementHead.BEHAVIOUR_GRASS) {
-                    let weightAbove1 = ElementHead.getWeight(above1);
-                    // note: it takes longer for water to suffocate the grass
-                    if (weightAbove1 > ElementHead.WEIGHT_WATER
-                        || (weightAbove1 === ElementHead.WEIGHT_WATER && this.#random.nextInt(100) === 0)) {
-                        // remove grass
-                        this.#elementArea.setElement(x, y, this.#defaultElement);
-                        return;
-                    }
-                }
-            }
-
-            if (random === 0) {
-                // grow up
-                let growIndex = ElementHead.getSpecial(elementHead);
-                if (growIndex === 0) {
-                    // maximum height
-                    if (this.#random.nextInt(5) === 0) {
-                        // remove top element to create some movement
-                        this.#elementArea.setElement(x, y, this.#defaultElement);
-                    }
-                    return;
-                }
-                if (y === 0) {
-                    return;
-                }
-                let above1 = this.#elementArea.getElementHead(x, y - 1);
-                if (ElementHead.getWeight(above1) !== ElementHead.WEIGHT_AIR) {
-                    return;
-                }
-                if (y > 1) {
-                    let above2 = this.#elementArea.getElementHead(x, y - 2);
-                    if (ElementHead.getWeight(above2) !== ElementHead.WEIGHT_AIR) {
-                        return;
-                    }
-                }
-                this.#elementArea.setElementHead(x, y - 1, ElementHead.setSpecial(elementHead, growIndex - 1));
-                this.#elementArea.setElementTail(x, y - 1, this.#elementArea.getElementTail(x, y));
-            } else if (random === 1) {
-                // grow right
-                if (GrassElement.couldGrowUpHere(this.#elementArea, x + 1, y + 1)) {
-                    this.#elementArea.setElement(x + 1, y + 1, Brushes.GRASS.apply(x, y, this.#random));
-                }
-            } else if (random === 2) {
-                // grow left
-                if (GrassElement.couldGrowUpHere(this.#elementArea, x - 1, y + 1)) {
-                    this.#elementArea.setElement(x - 1, y + 1, Brushes.GRASS.apply(x, y, this.#random));
-                }
-            }
-        }
     }
 
     #behaviourTree(elementHead, x, y) {
