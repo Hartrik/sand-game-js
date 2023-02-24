@@ -1,5 +1,6 @@
 import {DomBuilder} from "./DomBuilder.js";
 import {SandGame} from "./core/SandGame.js";
+import {Brush} from "./core/Brush.js";
 import {Brushes} from "./core/Brushes.js";
 import {Scenes} from "./core/Scenes.js";
 import {SandGameControls} from "./SandGameControls.js";
@@ -35,7 +36,7 @@ export class SandGameComponent extends SandGameControls {
         { name: 'Gravel', cssName: 'gravel', code: '3', brush: Brushes.STONE },
         { name: 'Rock',   cssName: 'wall',   code: 'r', brush: Brushes.ROCK },
         { name: 'Water',  cssName: 'water',  code: 'w', brush: Brushes.WATER },
-        { name: 'Fire',   cssName: 'fire',   code: 'f', brush: Brushes.FIRE },
+        { name: 'Fire',   cssName: 'fire',   code: 'f', brush: Brush.gentle(Brushes.FIRE) },
         { name: 'Erase',  cssName: 'air',    code: '.', brush: Brushes.AIR },
     ];
 
