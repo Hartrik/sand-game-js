@@ -9,4 +9,8 @@ export class ProcessorContext {
     static OPT_CYCLES_PER_SECOND = 120;
     static OPT_FRAMES_PER_SECOND = 60;
 
+
+    getIteration() {
+        throw 'Not implemented'
+    }
 }
