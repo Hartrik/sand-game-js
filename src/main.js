@@ -3,20 +3,40 @@ import { SandGameComponent } from "./SandGameComponent.js";
 
 export { Brushes } from "./core/Brushes.js";
 
+
+function determineMaxNumberOfPoints() {
+    const touchDevice = (navigator.maxTouchPoints || 'ontouchstart' in document.documentElement);
+    if (touchDevice) {
+        // probably a smartphone
+        return 75000;
+    } else {
+        return 125000;
+    }
+}
+
+function determineOptimalScale(width, height, maxPoints) {
+    function countPointsWithScale(scale) {
+        return Math.trunc(width * scale) * Math.trunc(height * scale);
+    }
+
+    if (countPointsWithScale(0.750) < maxPoints) {
+        return 0.750;
+    } else if (countPointsWithScale(0.5) < maxPoints) {
+        return 0.5;
+    } else if (countPointsWithScale(0.375) < maxPoints) {
+        return 0.375;
+    } else {
+        return 0.25;
+    }
+}
+
 export function initStandard(root, assetsContextPath) {
     let width = Math.min(1400, root.width());
     let height = Math.min(800, Math.trunc(window.innerHeight * 0.70));
     if (width / height < 0.5) {
         height = Math.trunc(width / 0.5);
     }
-
-    let scale = 0.25;
-    if (width * height < 300000) {
-        scale = 0.5;
-    }
-    if (width * height < 50000) {
-        scale = 1;
-    }
+    let scale = determineOptimalScale(width, height, determineMaxNumberOfPoints());
 
     let init = {
         scale: scale,
@@ -41,11 +61,7 @@ export function initStandard(root, assetsContextPath) {
 export function initMinimalistic(root, assetsContextPath) {
     let width = Math.min(1400, root.width());
     let height = 200;
-
-    let scale = 0.25;
-    if (width * height < 250000) {
-        scale = 0.5;
-    }
+    let scale = determineOptimalScale(width, height, 75000);
 
     let init = {
         scale: scale,
@@ -68,14 +84,7 @@ export function initTest(root, assetsContextPath) {
     if (width / height < 0.5) {
         height = Math.trunc(width / 0.5);
     }
-
-    let scale = 0.25;
-    if (width * height < 300000) {
-        scale = 0.5;
-    }
-    if (width * height < 50000) {
-        scale = 1;
-    }
+    let scale = determineOptimalScale(width, height, determineMaxNumberOfPoints());
 
     let init = {
         scale: scale,
