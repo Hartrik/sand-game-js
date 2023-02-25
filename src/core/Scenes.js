@@ -61,15 +61,15 @@ export class Scenes {
         apply: function (sandGame) {
             sandGame.setBoxedMode();
             sandGame.layeredTemplate()
-                .level([[0, 20], [50, 15], [100, 10], [150, 10], [200, 10], [250, 10], [1250, 10]],
+                .layer([[0, 20], [50, 15], [100, 10], [150, 10], [200, 10], [250, 10], [1250, 10]],
                     true, Brushes.STONE)
-                .level([[0, 30], [25, 31], [50, 27], [100, 15], [150, 0], [200, 5], [220, 15], [300, 35], [330, 37],
+                .layer([[0, 30], [25, 31], [50, 27], [100, 15], [150, 0], [200, 5], [220, 15], [300, 35], [330, 37],
                         [370, 50], [400, 45], [500, 40], [1250, 40]],
                     true, Brushes.SOIL, 30)
-                .level([[0, 0], [50, 0], [100, 10], [150, 10], [200, 9], [275, 0], [1250, 0]],
+                .layer([[0, 0], [50, 0], [100, 10], [150, 10], [200, 9], [275, 0], [1250, 0]],
                     true, Brushes.SAND, 5)
-                .level(35, false, Brushes.WATER)
-                .level(36, false, Brush.withIntensity(Brushes.WATER, 0.33))
+                .layer(35, false, Brushes.WATER)
+                .layer(36, false, Brush.withIntensity(Brushes.WATER, 0.33))
                 .grass()
                 .tree(16, 4)
                 .tree(28, 6)

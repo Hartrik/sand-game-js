@@ -59,7 +59,7 @@ export class TemplateLayeredPainter {
         this.#lastLevel = new Array(elementArea.getWidth()).fill(0);
     }
 
-    level(layer, relative, brush, shuffleWithLevelBelow = 0) {
+    layer(layer, relative, brush, shuffleWithLevelBelow = 0) {
         const f = (typeof layer === 'number')
                 ? TemplateLayeredPainter.#constant(layer)
                 : TemplateLayeredPainter.#spline(layer);
@@ -113,8 +113,8 @@ export class TemplateLayeredPainter {
     }
 
     tree(x, type = 0) {
-        if (x >= this.#elementArea.getWidth()) {
-            return;  // out of bounds
+        if (x <= 5 || x >= this.#elementArea.getWidth() - 5) {
+            return this;  // out of bounds
         }
 
         const lastLevel = this.#lastLevel[x];
