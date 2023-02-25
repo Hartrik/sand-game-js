@@ -4,8 +4,9 @@
   "module": "dist/sand-game-js.esm.js",
   "browser": "dist/sand-game-js.umd.js",
   "dependencies": {
-    "file-saver": "^2.0.5",
-    "fflate": "^0.7.4"
+    "cubic-spline": "^3.0.3",
+    "fflate": "^0.7.4",
+    "file-saver": "^2.0.5"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^24.0.1",

@@ -57,7 +57,7 @@ export class SandGameTemplateComponent {
 
     #applyTemplate(sandGame, brushes, blueprint) {
         try {
-            sandGame.template().withBrushes(brushes).withBlueprint(blueprint).paint();
+            sandGame.blockTemplate().withBrushes(brushes).withBlueprint(blueprint).paint();
         } catch (e) {
             console.log(e);
 

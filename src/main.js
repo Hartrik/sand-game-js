@@ -48,7 +48,7 @@ export function initMinimalistic(root, assetsContextPath) {
         canvasWidthPx: width,
         canvasHeightPx: height,
         brushSize: 5,
-        scene: 'landscape'
+        scene: 'landscape_desert'
     };
 
     let sandGameComponent = new SandGameComponent(root, init);

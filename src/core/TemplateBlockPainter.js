@@ -4,7 +4,7 @@
  * @author Patrik Harag
  * @version 2022-09-21
  */
-export class TemplatePainter {
+export class TemplateBlockPainter {
 
     /** @type SandGameGraphics */
     #graphics;
@@ -31,7 +31,7 @@ export class TemplatePainter {
     /**
      *
      * @param blueprint {string|string[]}
-     * @returns {TemplatePainter}
+     * @returns {TemplateBlockPainter}
      */
     withBlueprint(blueprint) {
         this.#blueprint = blueprint;
@@ -41,7 +41,7 @@ export class TemplatePainter {
     /**
      *
      * @param brushes
-     * @returns {TemplatePainter}
+     * @returns {TemplateBlockPainter}
      */
     withBrushes(brushes) {
         this.#brushes = brushes;
@@ -52,7 +52,7 @@ export class TemplatePainter {
      *
      * @param maxHeight max template height
      * @param align {string} bottom|top
-     * @returns {TemplatePainter}
+     * @returns {TemplateBlockPainter}
      */
     withMaxHeight(maxHeight, align = 'bottom') {
         this.#maxHeight = maxHeight;

@@ -4,11 +4,19 @@ import {Scenes} from "./core/Scenes.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-04
+ * @version 2023-02-24
  */
 export class SandGameScenesComponent {
 
     static CLASS_SELECTED = 'selected-scene';
+
+    static SCENES = [
+        'empty',
+        'landscape',
+        'landscape_2',
+        'fallthrough',
+        'platform'
+    ];
 
 
     /** @type function(Scene) */
@@ -25,7 +33,7 @@ export class SandGameScenesComponent {
 
     createNode() {
         let content = DomBuilder.div({class: 'scenes'}, []);
-        for (let id in Scenes.SCENES) {
+        for (let id of SandGameScenesComponent.SCENES) {
             let scene = Scenes.SCENES[id];
             let node = this.#createSceneCard(scene);
 

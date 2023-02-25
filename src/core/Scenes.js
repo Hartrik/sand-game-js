@@ -12,7 +12,7 @@ import {Brush} from "./Brush.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-12
+ * @version 2023-02-25
  */
 export class Scenes {
 
@@ -28,11 +28,11 @@ export class Scenes {
 
     /** @type Scene */
     static SCENE_LANDSCAPE = {
-        name: 'Landscape',
+        name: 'Landscape 1',
         description: 'Boxed mode',
         apply: function (sandGame) {
             sandGame.setBoxedMode();
-            sandGame.template()
+            sandGame.blockTemplate()
                 .withMaxHeight(120)
                 .withBlueprint([
                     '          ',
@@ -55,13 +55,58 @@ export class Scenes {
         }
     };
 
+    static SCENE_LANDSCAPE_2 = {
+        name: 'Landscape 2',
+        description: 'Boxed mode',
+        apply: function (sandGame) {
+            sandGame.setBoxedMode();
+            sandGame.layeredTemplate()
+                .level([[0, 20], [50, 15], [100, 10], [150, 10], [200, 10], [250, 10], [1250, 10]],
+                    true, Brushes.STONE)
+                .level([[0, 30], [25, 31], [50, 27], [100, 15], [150, 0], [200, 5], [220, 15], [300, 35], [330, 37], [370, 50], [400, 45], [500, 40], [1250, 40]],
+                    true, Brushes.SOIL, 35)
+                .level([[0, 0], [50, 0], [100, 10], [150, 10], [200, 9], [300, 0], [1250, 0]],
+                    true, Brushes.SAND, 5)
+                .level(35, false, Brushes.WATER)
+                .level(36, false, Brush.withIntensity(Brushes.WATER, 0.33))
+        }
+    }
+
+    /** @type Scene */
+    static SCENE_LANDSCAPE_DESERT = {
+        name: 'Desert landscape',
+        description: 'Boxed mode',
+        apply: function (sandGame) {
+            sandGame.setBoxedMode();
+            sandGame.blockTemplate()
+                .withMaxHeight(120)
+                .withBlueprint([
+                    '          ',
+                    '     ww   ',
+                    '  2       ',
+                    '22211     ',
+                    '11111111 1',
+                    '        11',
+                    '       111',
+                    '1111111111',
+                    '          ',
+                ])
+                .withBrushes({
+                    w: Brush.withIntensity(Brushes.WATER, 0.65),
+                    1: Brushes.SAND,
+                    2: Brushes.SOIL
+                })
+                .paint();
+        }
+    };
+
     /** @type Scene */
     static SCENE_FALLTHROUGH = {
         name: 'Fall-through',
         description: 'Fall-through mode',
         apply: function (sandGame) {
             sandGame.setFallThroughMode();
-            sandGame.template()
+            sandGame.blockTemplate()
                 .withBlueprint([
                     '          ',
                     '     ww   ',
@@ -88,7 +133,7 @@ export class Scenes {
         description: 'Erasing mode',
         apply: function (sandGame) {
             sandGame.setErasingMode();
-            sandGame.template()
+            sandGame.blockTemplate()
                 .withBlueprint([
                     '          ',
                     '          ',
@@ -111,6 +156,8 @@ export class Scenes {
     static SCENES = {
         empty: Scenes.SCENE_EMPTY,
         landscape: Scenes.SCENE_LANDSCAPE,
+        landscape_2: Scenes.SCENE_LANDSCAPE_2,
+        landscape_desert: Scenes.SCENE_LANDSCAPE_DESERT,
         fallthrough: Scenes.SCENE_FALLTHROUGH,
         platform: Scenes.SCENE_PLATFORM
     };

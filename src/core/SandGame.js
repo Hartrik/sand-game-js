@@ -14,12 +14,13 @@ import {SnapshotMetadata} from "./SnapshotMetadata.js";
 import {SpawningExtensionFish} from "./SpawningExtensionFish.js";
 import {SpawningExtensionGrass} from "./SpawningExtensionGrass.js";
 import {SpawningExtensionTree} from "./SpawningExtensionTree.js";
-import {TemplatePainter} from "./TemplatePainter.js";
+import {TemplateBlockPainter} from "./TemplateBlockPainter.js";
+import {TemplateLayeredPainter} from "./TemplateLayeredPainter.js";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-19
+ * @version 2023-02-25
  */
 export class SandGame {
 
@@ -148,8 +149,12 @@ export class SandGame {
         });
     }
 
-    template() {
-        return new TemplatePainter(this.graphics());
+    blockTemplate() {
+        return new TemplateBlockPainter(this.graphics());
+    }
+
+    layeredTemplate() {
+        return new TemplateLayeredPainter(this.#elementArea, this.graphics(), this.#random);
     }
 
     setRendererShowActiveChunks(show) {

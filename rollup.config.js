@@ -21,6 +21,7 @@ export default [
     {
         input: 'src/SandGameComponent.js',
         external: [
+            'cubic-spline',
             'file-saver',
             'fflate'
         ],
