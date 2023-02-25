@@ -144,7 +144,7 @@ export class SandGameComponent extends SandGameControls {
             this.#sandGame.startProcessing();
         }
 
-        this.#onInitialized.forEach(f => f());
+        this.#onInitialized.forEach(f => f(this.#sandGame));
     }
 
     #close() {
@@ -256,7 +256,7 @@ export class SandGameComponent extends SandGameControls {
 
     // SandGameControls - simulation state
 
-    /** @type function[] */
+    /** @type function(SandGame)[] */
     #onInitialized = [];
     /** @type function[] */
     #onStarted = [];

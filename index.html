@@ -13,13 +13,21 @@
 <!--  <link rel="stylesheet" type="text/css" href="./../../main.css" />-->
   <link rel="stylesheet" type="text/css" href="style.css" />
   <script>
+      // global variables, accessible from browser console
+      var sandGame = null;
+      var Brushes = SandGameJS.Brushes;
+
       $(() => {
           let root = $('#sand-game-root');
           let assetsContextPath = './assets';
 
-          // SandGameJS.initMinimalistic(root, assetsContextPath);
-          // SandGameJS.initStandard(root, assetsContextPath);
-          SandGameJS.initTest(root, assetsContextPath);
+          // const component = SandGameJS.initMinimalistic(root, assetsContextPath);
+          // const component = SandGameJS.initStandard(root, assetsContextPath);
+          const component = SandGameJS.initTest(root, assetsContextPath);
+          sandGame = component.getSandGame();
+          component.addOnInitialized(s => {
+              sandGame = s;
+          });
       })
   </script>
 </head>

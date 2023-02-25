@@ -1,6 +1,8 @@
 
 import { SandGameComponent } from "./SandGameComponent.js";
 
+export { Brushes } from "./core/Brushes.js";
+
 export function initStandard(root, assetsContextPath) {
     let width = Math.min(1400, root.width());
     let height = Math.min(800, Math.trunc(window.innerHeight * 0.70));
@@ -32,6 +34,8 @@ export function initStandard(root, assetsContextPath) {
     sandGameComponent.enableScenes();
     sandGameComponent.enableSavingAndLoading();
     sandGameComponent.start();
+
+    return sandGameComponent;
 }
 
 export function initMinimalistic(root, assetsContextPath) {
@@ -54,6 +58,8 @@ export function initMinimalistic(root, assetsContextPath) {
     let sandGameComponent = new SandGameComponent(root, init);
     sandGameComponent.enableBrushes();
     sandGameComponent.start();
+
+    return sandGameComponent;
 }
 
 export function initTest(root, assetsContextPath) {
@@ -88,4 +94,6 @@ export function initTest(root, assetsContextPath) {
     sandGameComponent.enableSavingAndLoading();
     sandGameComponent.enableTestTools();
     sandGameComponent.start();
+
+    return sandGameComponent;
 }
