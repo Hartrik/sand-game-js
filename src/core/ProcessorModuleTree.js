@@ -6,9 +6,17 @@ import {DeterministicRandom} from "./DeterministicRandom.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-24
+ * @version 2023-02-25
  */
 export class ProcessorModuleTree {
+
+    static spawnHere(elementArea, x, y, type, brush, random) {
+        let element = brush.apply(x, y, random);
+        elementArea.setElementHead(x, y, ElementHead.setSpecial(element.elementHead, type));
+        elementArea.setElementTail(x, y, element.elementTail);
+        // TODO: grow
+    }
+
 
     /** @type ElementArea */
     #elementArea;

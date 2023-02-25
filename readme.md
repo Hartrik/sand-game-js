@@ -20,4 +20,4 @@ Debugging tips:
 - Use `alt key` + `middle mouse button` to debug an element.
 - Stop processing using `ctrl` + `enter` and then press (or hold) `ctrl` + `space` for running one simulation iteration.
     - Alternatively `ctrl` + `shift` + `space` will run the specified number of iterations – at once, without rendering and delays.
-- Global variables, accessible from browser console: `sandGame`, `Brushes`
+- Global variables, accessible from browser console: `sandGame`, `brushes`

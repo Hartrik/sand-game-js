@@ -15,15 +15,14 @@
   <script>
       // global variables, accessible from browser console
       var sandGame = null;
-      var Brushes = SandGameJS.Brushes;
+      var brushes = SandGameJS.Brushes;
 
       $(() => {
           let root = $('#sand-game-root');
-          let assetsContextPath = './assets';
 
-          // const component = SandGameJS.initMinimalistic(root, assetsContextPath);
-          // const component = SandGameJS.initStandard(root, assetsContextPath);
-          const component = SandGameJS.initTest(root, assetsContextPath);
+          // const component = SandGameJS.initMinimalistic(root);
+          // const component = SandGameJS.initStandard(root);
+          const component = SandGameJS.initTest(root);
           sandGame = component.getSandGame();
           component.addOnInitialized(s => {
               sandGame = s;

@@ -4,11 +4,11 @@ import {Brushes} from "./Brushes.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-24
+ * @version 2023-02-25
  */
 export class ProcessorModuleGrass {
 
-    static couldGrowUpHere(elementArea, x, y) {
+    static canGrowUpHere(elementArea, x, y) {
         if (x < 0 || y - 1 < 0) {
             return false;
         }
@@ -28,6 +28,19 @@ export class ProcessorModuleGrass {
             return false;
         }
         return true;
+    }
+
+    static spawnHere(elementArea, x, y, brush, random) {
+        let element = brush.apply(x, y, random);
+        let offset = 0;
+        for (let i = ElementHead.getSpecial(element.elementHead); i >= 0; i--) {
+            if (y - offset < 0) {
+                break;
+            }
+            elementArea.setElementHead(x, y - offset, ElementHead.setSpecial(element.elementHead, i));
+            elementArea.setElementTail(x, y - offset, element.elementTail)
+            offset++;
+        }
     }
 
 
@@ -92,12 +105,12 @@ export class ProcessorModuleGrass {
                 this.#elementArea.setElementTail(x, y - 1, this.#elementArea.getElementTail(x, y));
             } else if (random === 1) {
                 // grow right
-                if (ProcessorModuleGrass.couldGrowUpHere(this.#elementArea, x + 1, y + 1)) {
+                if (ProcessorModuleGrass.canGrowUpHere(this.#elementArea, x + 1, y + 1)) {
                     this.#elementArea.setElement(x + 1, y + 1, Brushes.GRASS.apply(x, y, this.#random));
                 }
             } else if (random === 2) {
                 // grow left
-                if (ProcessorModuleGrass.couldGrowUpHere(this.#elementArea, x - 1, y + 1)) {
+                if (ProcessorModuleGrass.canGrowUpHere(this.#elementArea, x - 1, y + 1)) {
                     this.#elementArea.setElement(x - 1, y + 1, Brushes.GRASS.apply(x, y, this.#random));
                 }
             }

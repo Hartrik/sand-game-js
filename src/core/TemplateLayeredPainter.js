@@ -1,4 +1,7 @@
 import Spline from "cubic-spline";
+import { Brushes } from "./Brushes.js";
+import { ProcessorModuleGrass } from "./ProcessorModuleGrass.js";
+import { ProcessorModuleTree } from "./ProcessorModuleTree.js";
 
 /**
  *
@@ -48,7 +51,7 @@ export class TemplateLayeredPainter {
         this.#elementArea = elementArea;
         this.#graphics = graphics;
         this.#random = random;
-        this.#lastLevel = new Array(graphics.getWidth()).fill(0);
+        this.#lastLevel = new Array(elementArea.getWidth()).fill(0);
     }
 
     level(layer, relative, brush, shuffleWithLevelBelow = 0) {
@@ -56,7 +59,7 @@ export class TemplateLayeredPainter {
                 ? TemplateLayeredPainter.#constant(layer)
                 : TemplateLayeredPainter.#spline(layer);
 
-        for (let x = 0; x < this.#graphics.getWidth(); x++) {
+        for (let x = 0; x < this.#elementArea.getWidth(); x++) {
             const lastLevel = this.#lastLevel[x];
 
             const level = (relative)
@@ -65,8 +68,8 @@ export class TemplateLayeredPainter {
 
             if (lastLevel < level) {
                 let count = 0;
-                for (let i = lastLevel; i < level && i < this.#graphics.getHeight(); i++) {
-                    let y = this.#graphics.getHeight() - 1 - i;
+                for (let i = lastLevel; i < level && i < this.#elementArea.getHeight(); i++) {
+                    let y = this.#elementArea.getHeight() - 1 - i;
                     this.#graphics.draw(x, y, brush);
                     count++;
                 }
@@ -74,12 +77,14 @@ export class TemplateLayeredPainter {
                 // shuffle
                 if (shuffleWithLevelBelow > 0 && count > 0) {
                     for (let i = 0; i < shuffleWithLevelBelow; i++) {
-                        let max = Math.max(count / 2, 10);
-                        const r = this.#random.nextInt(Math.ceil(max)) - Math.trunc(max / 2);
-                        const y1 = this.#graphics.getHeight() - 1 - lastLevel + r;
-                        const y2 = this.#graphics.getHeight() - 1 - lastLevel + r + 1;
-                        if (y1 < this.#graphics.getHeight() && y2 < this.#graphics.getHeight()) {
-                            this.#elementArea.swap(x, y1, x, y2);
+                        const max = Math.min(Math.trunc(count / 2), 10);
+                        if (max > 1) {
+                            const r = this.#random.nextInt(Math.ceil(max)) - Math.trunc(max / 2);
+                            const y1 = this.#elementArea.getHeight() - 1 - lastLevel + r;
+                            const y2 = this.#elementArea.getHeight() - 1 - lastLevel + r + 1;
+                            if (y1 < this.#elementArea.getHeight() && y2 < this.#elementArea.getHeight()) {
+                                this.#elementArea.swap(x, y1, x, y2);
+                            }
                         }
                     }
                 }
@@ -87,6 +92,30 @@ export class TemplateLayeredPainter {
                 this.#lastLevel[x] = level;
             }
         }
+        return this;
+    }
+
+    grass() {
+        for (let x = 0; x < this.#elementArea.getWidth(); x++) {
+            const lastLevel = this.#lastLevel[x];
+            const y = this.#elementArea.getHeight() - 1 - lastLevel;
+
+            if (ProcessorModuleGrass.canGrowUpHere(this.#elementArea, x, y)) {
+                ProcessorModuleGrass.spawnHere(this.#elementArea, x, y, Brushes.GRASS, this.#random);
+            }
+        }
+        return this;
+    }
+
+    tree(x, type = 0) {
+        if (x >= this.#elementArea.getWidth()) {
+            return;  // out of bounds
+        }
+
+        const lastLevel = this.#lastLevel[x];
+        const y = this.#elementArea.getHeight() - 1 - lastLevel;
+
+        ProcessorModuleTree.spawnHere(this.#elementArea, x, y, type, Brushes.TREE, this.#random);
         return this;
     }
 }
