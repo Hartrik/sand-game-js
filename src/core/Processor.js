@@ -42,6 +42,7 @@ export class Processor extends ProcessorContext {
     /** @type boolean */
     #erasingEnabled = false;
 
+    /** @type Element */
     #defaultElement;
 
     static RANDOM_DATA_COUNT = 32;
@@ -90,7 +91,7 @@ export class Processor extends ProcessorContext {
         this.#moduleFire = new ProcessorModuleFire(elementArea, random, defaultElement);
         this.#moduleGrass = new ProcessorModuleGrass(elementArea, random, defaultElement);
         this.#moduleFish = new ProcessorModuleFish(elementArea, random, defaultElement);
-        this.#moduleTree = new ProcessorModuleTree(elementArea, random, defaultElement, this);
+        this.#moduleTree = new ProcessorModuleTree(elementArea, random, this);
 
         if (snapshot) {
             this.#iteration = snapshot.metadata.iteration;
@@ -145,6 +146,10 @@ export class Processor extends ProcessorContext {
 
     getIteration() {
         return this.#iteration;
+    }
+
+    getDefaultElement() {
+        return this.#defaultElement;
     }
 
     setFallThroughEnabled(enabled) {

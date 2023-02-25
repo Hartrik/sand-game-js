@@ -154,7 +154,7 @@ export class SandGame {
     }
 
     layeredTemplate() {
-        return new TemplateLayeredPainter(this.#elementArea, this.graphics(), this.#random);
+        return new TemplateLayeredPainter(this.#elementArea, this.graphics(), this.#random, this.#processor);
     }
 
     setRendererShowActiveChunks(show) {

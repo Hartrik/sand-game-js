@@ -10,11 +10,40 @@ import {DeterministicRandom} from "./DeterministicRandom.js";
  */
 export class ProcessorModuleTree {
 
-    static spawnHere(elementArea, x, y, type, brush, random) {
-        let element = brush.apply(x, y, random);
-        elementArea.setElementHead(x, y, ElementHead.setSpecial(element.elementHead, type));
-        elementArea.setElementTail(x, y, element.elementTail);
-        // TODO: grow
+    static spawnHere(elementArea, x, y, type, brush, random, processorContext) {
+        type = type % (1 << ElementHead.FIELD_SPECIAL_SIZE);
+
+        const element = brush.apply(x, y, random);
+        element.elementHead = ElementHead.setSpecial(element.elementHead, type);  // override tree type
+        elementArea.setElement(x, y, element);
+
+        // tree fast grow
+        const template = TreeTemplates.getTemplate(type);
+        const treeModule = new ProcessorModuleTree(elementArea, random, processorContext);
+        treeModule.#treeGrow(element.elementHead, x, y, template, true);
+
+        // roots fast grow
+        for (let i = 1; i < 10; i++) {
+            for (let j = 0; j < 9; j++) {
+                const tx = x + j - 4;
+                const ty = y + i;
+
+                if (!elementArea.isValidPosition(tx, ty)) {
+                    continue;
+                }
+                const targetElement = elementArea.getElementHead(tx, ty);
+                if (ElementHead.getBehaviour(targetElement) !== ElementHead.BEHAVIOUR_TREE_ROOT) {
+                    continue;
+                }
+                const growIndex = ElementHead.getSpecial(targetElement);
+                if (growIndex === 0) {
+                    continue;
+                }
+
+                const direction = random.nextInt(10);
+                treeModule.#treeRootGrow(tx, ty, targetElement, growIndex, direction);
+            }
+        }
     }
 
 
@@ -24,111 +53,114 @@ export class ProcessorModuleTree {
     /** @type DeterministicRandom */
     #random;
 
-    /** @type Element */
-    #defaultElement;
-
     /** @type ProcessorContext */
     #processorContext;
 
-    constructor(elementArea, random, defaultElement, processorContext) {
+    constructor(elementArea, random, processorContext) {
         this.#elementArea = elementArea;
         this.#random = random;
-        this.#defaultElement = defaultElement;
         this.#processorContext = processorContext;
     }
 
     behaviourTree(elementHead, x, y) {
-        let random = this.#random.nextInt(ProcessorContext.OPT_CYCLES_PER_SECOND);
+        const random = this.#random.nextInt(ProcessorContext.OPT_CYCLES_PER_SECOND);
         if (random === 0) {
-            let template = TreeTemplates.getTemplate(ElementHead.getSpecial(elementHead));
+            const template = TreeTemplates.getTemplate(ElementHead.getSpecial(elementHead));
+            const level = this.#treeGrow(elementHead, x, y, template, false);
+            this.#treeCheckStatus(x, y, level, template);
+        }
+    }
 
-            let level = 0;
-            let stack = [];
-            for (let child of template.root.children) {
-                stack.push(child);
-            }
+    #treeGrow(elementHead, x, y, template, fullGrow) {
+        let level = 0;
+        let stack = [];
+        for (let child of template.root.children) {
+            stack.push(child);
+        }
 
-            while (stack.length > 0) {
-                let node = stack.pop();
+        while (stack.length > 0) {
+            let node = stack.pop();
 
-                let nx = x + node.x;
-                let ny = y + node.y;
-                if (this.#elementArea.isValidPosition(nx, ny)) {
-                    let isHereAlready = false;
-                    let canGrowHere = false;
+            let nx = x + node.x;
+            let ny = y + node.y;
+            if (this.#elementArea.isValidPosition(nx, ny)) {
+                let isHereAlready = false;
+                let canGrowHere = false;
 
-                    const currentElementHead = this.#elementArea.getElementHead(nx, ny);
-                    const currentElementBehaviour = ElementHead.getBehaviour(currentElementHead);
+                const currentElementHead = this.#elementArea.getElementHead(nx, ny);
+                const currentElementBehaviour = ElementHead.getBehaviour(currentElementHead);
 
-                    switch (node.type) {
-                        case TreeTemplateNode.TYPE_TRUNK:
-                        case TreeTemplateNode.TYPE_ROOT:
-                            if (currentElementBehaviour === ElementHead.BEHAVIOUR_TREE_TRUNK) {
-                                isHereAlready = true;
-                            } else if (currentElementBehaviour === ElementHead.BEHAVIOUR_TREE_LEAF) {
-                                canGrowHere = true;
-                            } else if (ElementHead.getWeight(currentElementHead) === ElementHead.WEIGHT_AIR) {
-                                canGrowHere = true;
-                            } else if (currentElementBehaviour === ElementHead.BEHAVIOUR_SOIL) {
-                                canGrowHere = true;
-                            } else if (currentElementBehaviour === ElementHead.BEHAVIOUR_GRASS) {
-                                canGrowHere = true;
-                            } else if (node.y > Math.min(-4, -7 + Math.abs(node.x))) {
-                                // roots & bottom trunk only...
-                                if (ElementHead.getType(currentElementHead) !== ElementHead.TYPE_STATIC) {
-                                    canGrowHere = true;
-                                }
-                            }
-                            break;
-                        case TreeTemplateNode.TYPE_LEAF:
-                            if (currentElementBehaviour === ElementHead.BEHAVIOUR_TREE_LEAF) {
-                                isHereAlready = true;
-                                // update leaf vitality (if not dead already)
-                                if (ElementHead.getSpecial(currentElementHead) < 15) {
-                                    this.#elementArea.setElementHead(nx, ny, ElementHead.setSpecial(currentElementHead, 0));
-                                }
-                            } else if (currentElementBehaviour === ElementHead.BEHAVIOUR_TREE_TRUNK) {
-                                isHereAlready = true;
-                            } else if (ElementHead.getWeight(currentElementHead) === ElementHead.WEIGHT_AIR) {
+                switch (node.type) {
+                    case TreeTemplateNode.TYPE_TRUNK:
+                    case TreeTemplateNode.TYPE_ROOT:
+                        if (currentElementBehaviour === ElementHead.BEHAVIOUR_TREE_TRUNK) {
+                            isHereAlready = true;
+                        } else if (currentElementBehaviour === ElementHead.BEHAVIOUR_TREE_LEAF) {
+                            canGrowHere = true;
+                        } else if (ElementHead.getWeight(currentElementHead) === ElementHead.WEIGHT_AIR) {
+                            canGrowHere = true;
+                        } else if (currentElementBehaviour === ElementHead.BEHAVIOUR_SOIL) {
+                            canGrowHere = true;
+                        } else if (currentElementBehaviour === ElementHead.BEHAVIOUR_GRASS) {
+                            canGrowHere = true;
+                        } else if (node.y > Math.min(-4, -7 + Math.abs(node.x))) {
+                            // roots & bottom trunk only...
+                            if (ElementHead.getType(currentElementHead) !== ElementHead.TYPE_STATIC) {
                                 canGrowHere = true;
                             }
-                            break;
-                        default:
-                            throw 'Unknown type: ' + node.type;
-                    }
-
-                    if (canGrowHere || isHereAlready) {
-                        level++;
-                    }
-
-                    if (canGrowHere) {
-                        this.#elementArea.setElement(nx, ny, node.brush.apply(nx, ny, this.#random));
-                    }
-
-                    if (isHereAlready) {
-                        for (let child of node.children) {
-                            stack.push(child);
                         }
+                        break;
+                    case TreeTemplateNode.TYPE_LEAF:
+                        if (currentElementBehaviour === ElementHead.BEHAVIOUR_TREE_LEAF) {
+                            isHereAlready = true;
+                            // update leaf vitality (if not dead already)
+                            if (ElementHead.getSpecial(currentElementHead) < 15) {
+                                this.#elementArea.setElementHead(nx, ny, ElementHead.setSpecial(currentElementHead, 0));
+                            }
+                        } else if (currentElementBehaviour === ElementHead.BEHAVIOUR_TREE_TRUNK) {
+                            isHereAlready = true;
+                        } else if (ElementHead.getWeight(currentElementHead) === ElementHead.WEIGHT_AIR) {
+                            canGrowHere = true;
+                        }
+                        break;
+                    default:
+                        throw 'Unknown type: ' + node.type;
+                }
+
+                if (canGrowHere || isHereAlready) {
+                    level++;
+                }
+
+                if (canGrowHere) {
+                    this.#elementArea.setElement(nx, ny, node.brush.apply(nx, ny, this.#random));
+                }
+
+                if (fullGrow || isHereAlready) {
+                    for (let child of node.children) {
+                        stack.push(child);
                     }
                 }
             }
+        }
+        return level;
+    }
 
-            // check tree status
-            // - last tree status is carried by tree trunk above
-            if (y > 0) {
-                let carrierElementHead = this.#elementArea.getElementHead(x, y - 1);
-                if (ElementHead.getBehaviour(carrierElementHead) === ElementHead.BEHAVIOUR_TREE_TRUNK) {
-                    const maxStage = 15;
-                    let lastStage = ElementHead.getSpecial(carrierElementHead);
-                    let currentStage = Math.trunc(level / template.nodes * maxStage);
-                    if (lastStage - currentStage > 5) {
-                        // too big damage taken => kill tree
-                        this.#elementArea.setElementHead(x, y - 1, ElementHead.setSpecial(carrierElementHead, 0));
-                        this.#elementArea.setElement(x, y, Brushes.TREE_WOOD.apply(x, y, this.#random));
-                    } else {
-                        // update stage
-                        this.#elementArea.setElementHead(x, y - 1, ElementHead.setSpecial(carrierElementHead, currentStage));
-                    }
+    #treeCheckStatus(x, y, level, template) {
+        // check tree status
+        // - last tree status is carried by tree trunk above
+        if (y > 0) {
+            let carrierElementHead = this.#elementArea.getElementHead(x, y - 1);
+            if (ElementHead.getBehaviour(carrierElementHead) === ElementHead.BEHAVIOUR_TREE_TRUNK) {
+                const maxStage = 15;
+                let lastStage = ElementHead.getSpecial(carrierElementHead);
+                let currentStage = Math.trunc(level / template.nodes * maxStage);
+                if (lastStage - currentStage > 5) {
+                    // too big damage taken => kill tree
+                    this.#elementArea.setElementHead(x, y - 1, ElementHead.setSpecial(carrierElementHead, 0));
+                    this.#elementArea.setElement(x, y, Brushes.TREE_WOOD.apply(x, y, this.#random));
+                } else {
+                    // update stage
+                    this.#elementArea.setElementHead(x, y - 1, ElementHead.setSpecial(carrierElementHead, currentStage));
                 }
             }
         }
@@ -138,65 +170,68 @@ export class ProcessorModuleTree {
         let growIndex = ElementHead.getSpecial(elementHead);
         if (growIndex === 0) {
             // maximum size
-
             if (this.#processorContext.getIteration() % 1000 === 0) {
-                // harden surrounding elements
-
-                const targetX = x + this.#random.nextInt(3) - 1;
-                const targetY = y + this.#random.nextInt(3) - 1;
-
-                if (this.#elementArea.isValidPosition(targetX, targetY)) {
-                    let targetElementHead = this.#elementArea.getElementHead(targetX, targetY);
-                    let type = ElementHead.getType(targetElementHead);
-                    if (type === ElementHead.TYPE_SAND_1 || type === ElementHead.TYPE_SAND_2) {
-                        let modifiedElementHead = ElementHead.setType(targetElementHead, ElementHead.TYPE_STATIC);
-                        this.#elementArea.setElementHead(targetX, targetY, modifiedElementHead);
-                    }
-                }
+                this.#treeRootHardenSurroundingElements(x, y);
             }
-
             return;
         }
 
         let random = this.#random.nextInt(ProcessorContext.OPT_CYCLES_PER_SECOND * 10);
         if (random < 10) {
+            this.#treeRootGrow(x, y, elementHead, growIndex, random);
+        }
+    }
 
-            let doGrow = (nx, ny) => {
-                this.#elementArea.setElementHead(x, y, ElementHead.setSpecial(elementHead, 0));
+    #treeRootHardenSurroundingElements(x, y) {
+        const targetX = x + this.#random.nextInt(3) - 1;
+        const targetY = y + this.#random.nextInt(3) - 1;
 
-                let element = Brushes.TREE_ROOT.apply(nx, ny, this.#random);
-                let modifiedHead = ElementHead.setSpecial(element.elementHead, growIndex - 1);
-                this.#elementArea.setElementHead(nx, ny, modifiedHead);
-                this.#elementArea.setElementTail(nx, ny, element.elementTail);
+        if (this.#elementArea.isValidPosition(targetX, targetY)) {
+            let targetElementHead = this.#elementArea.getElementHead(targetX, targetY);
+            let type = ElementHead.getType(targetElementHead);
+            if (type === ElementHead.TYPE_SAND_1 || type === ElementHead.TYPE_SAND_2) {
+                let modifiedElementHead = ElementHead.setType(targetElementHead, ElementHead.TYPE_STATIC);
+                this.#elementArea.setElementHead(targetX, targetY, modifiedElementHead);
             }
+        }
+    }
 
-            // grow down first if there is a free space
-            if (y < this.#elementArea.getHeight() - 1) {
-                let targetElementHead = this.#elementArea.getElementHead(x, y + 1);
-                if (ElementHead.getWeight(targetElementHead) === ElementHead.WEIGHT_AIR) {
-                    doGrow(x, y + 1);
-                    return;
-                }
+    #treeRootGrow(x, y, elementHead, growIndex, direction) {
+        let doGrow = (nx, ny) => {
+            this.#elementArea.setElementHead(x, y, ElementHead.setSpecial(elementHead, 0));
+
+            let element = Brushes.TREE_ROOT.apply(nx, ny, this.#random);
+            let modifiedHead = ElementHead.setSpecial(element.elementHead, growIndex - 1);
+            this.#elementArea.setElementHead(nx, ny, modifiedHead);
+            this.#elementArea.setElementTail(nx, ny, element.elementTail);
+        }
+
+        // grow down first if there is a free space
+        if (y < this.#elementArea.getHeight() - 1) {
+            let targetElementHead = this.#elementArea.getElementHead(x, y + 1);
+            if (ElementHead.getWeight(targetElementHead) === ElementHead.WEIGHT_AIR) {
+                doGrow(x, y + 1);
+                return;
             }
+        }
 
-            // grow in random way
-            let nx = x;
-            let ny = y;
-            if (random === 9 || random === 8 || random === 7) {
-                nx += 1;
-                ny += 1;
-            } else if (random === 6 || random === 5 || random === 4) {
-                nx += -1;
-                ny += 1;
-            } else {
-                ny += 1;
-            }
+        // grow in random way
+        let nx = x;
+        let ny = y;
+        if (direction === 9 || direction === 8 || direction === 7) {
+            nx += 1;
+            ny += 1;
+        } else if (direction === 6 || direction === 5 || direction === 4) {
+            nx += -1;
+            ny += 1;
+        } else {
+            ny += 1;
+        }
 
-            if (this.#elementArea.isValidPosition(nx, ny)) {
-                let targetElementHead = this.#elementArea.getElementHead(nx, ny);
-                if (ElementHead.getType(targetElementHead) !== ElementHead.TYPE_STATIC) {
-                    doGrow(nx, ny);
-                }
+        if (this.#elementArea.isValidPosition(nx, ny)) {
+            let targetElementHead = this.#elementArea.getElementHead(nx, ny);
+            if (ElementHead.getType(targetElementHead) !== ElementHead.TYPE_STATIC) {
+                doGrow(nx, ny);
             }
         }
     }
@@ -235,7 +270,7 @@ export class ProcessorModuleTree {
                     const elementHeadAbove = this.#elementArea.getElementHead(targetX, targetY);
                     if (ElementHead.getType(elementHeadAbove) !== ElementHead.TYPE_STATIC
                         && ElementHead.getWeight(elementHeadAbove) >= ElementHead.WEIGHT_WATER) {
-                        this.#elementArea.setElement(x, y, this.#defaultElement);
+                        this.#elementArea.setElement(x, y, this.#processorContext.getDefaultElement());
                     }
                 }
             }

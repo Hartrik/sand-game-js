@@ -39,6 +39,9 @@ export class TemplateLayeredPainter {
     /** @type DeterministicRandom */
     #random;
 
+    /** @type ProcessorContext */
+    #processorContext;
+
     #lastLevel;
 
     /**
@@ -46,11 +49,13 @@ export class TemplateLayeredPainter {
      * @param elementArea {ElementArea}
      * @param graphics {SandGameGraphics}
      * @param random {DeterministicRandom}
+     * @param processorContext {ProcessorContext}
      */
-    constructor(elementArea, graphics, random) {
+    constructor(elementArea, graphics, random, processorContext) {
         this.#elementArea = elementArea;
         this.#graphics = graphics;
         this.#random = random;
+        this.#processorContext = processorContext;
         this.#lastLevel = new Array(elementArea.getWidth()).fill(0);
     }
 
@@ -115,7 +120,7 @@ export class TemplateLayeredPainter {
         const lastLevel = this.#lastLevel[x];
         const y = this.#elementArea.getHeight() - 1 - lastLevel;
 
-        ProcessorModuleTree.spawnHere(this.#elementArea, x, y, type, Brushes.TREE, this.#random);
+        ProcessorModuleTree.spawnHere(this.#elementArea, x, y, type, Brushes.TREE, this.#random, this.#processorContext);
         return this;
     }
 }
