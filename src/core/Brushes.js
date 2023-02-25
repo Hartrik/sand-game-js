@@ -7,7 +7,7 @@ import {Element} from "./Element.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-20
+ * @version 2023-02-25
  */
 export class Brushes {
 
@@ -107,38 +107,30 @@ export class Brushes {
     ]);
 
     static STONE = Brush.randomFromHeadAndTails(ElementHead.of(ElementHead.TYPE_SAND_1, ElementHead.WEIGHT_POWDER), [
-        ElementTail.of(131, 131, 131, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(131, 131, 131, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(131, 131, 131, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(131, 131, 131, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(131, 131, 131, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(131, 131, 131, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(135, 135, 135, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(135, 135, 135, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(135, 135, 135, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(135, 135, 135, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(135, 135, 135, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(135, 135, 135, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(145, 145, 145, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(145, 145, 145, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(145, 145, 145, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(145, 145, 145, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(145, 145, 145, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(145, 145, 145, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(148, 148, 148, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(148, 148, 148, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(148, 148, 148, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(148, 148, 148, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(148, 148, 148, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(148, 148, 148, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(160, 160, 160, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(160, 160, 160, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(160, 160, 160, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(160, 160, 160, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(160, 160, 160, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(160, 160, 160, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(114, 114, 114, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(193, 193, 193, ElementTail.MODIFIER_BLUR_ENABLED)
+        ElementTail.of(97, 94, 88, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(111, 110, 106, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(117, 116, 112, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(117, 117, 113, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(120, 118, 115, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(104, 102, 97, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(113, 112, 107, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(129, 128, 125, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(124, 124, 121, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(81, 80, 75, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(80, 76, 69, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(123, 119, 111, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(105, 104, 99, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(84, 82, 78, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(77, 74, 69, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(91, 88, 82, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(68, 65, 60, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(79, 75, 69, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(85, 82, 77, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(98, 94, 88, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(105, 102, 96, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(104, 97, 86, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(60, 55, 47, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(93, 89, 81, ElementTail.MODIFIER_BLUR_ENABLED)
     ]);
 
     static WATER = Brush.randomFromHeadAndTails(ElementHead.of(ElementHead.TYPE_FLUID_2, ElementHead.WEIGHT_WATER), [
@@ -233,11 +225,37 @@ export class Brushes {
     ]);
 
     static ASH = Brush.randomFromHeadAndTails(ElementHead.of(ElementHead.TYPE_SAND_2, ElementHead.WEIGHT_POWDER, ElementHead.BEHAVIOUR_NONE, 0), [
-        ElementTail.of(107, 109, 112),
-        ElementTail.of(84, 85, 87),
-        ElementTail.of(111, 110, 110),
-        ElementTail.of(95, 96, 96),
-        ElementTail.of(106, 106, 105),
-        ElementTail.of(118, 119, 118),
+        ElementTail.of(131, 131, 131, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(131, 131, 131, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(131, 131, 131, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(131, 131, 131, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(131, 131, 131, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(131, 131, 131, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(135, 135, 135, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(135, 135, 135, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(135, 135, 135, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(135, 135, 135, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(135, 135, 135, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(135, 135, 135, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(145, 145, 145, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(145, 145, 145, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(145, 145, 145, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(145, 145, 145, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(145, 145, 145, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(145, 145, 145, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(148, 148, 148, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(148, 148, 148, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(148, 148, 148, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(148, 148, 148, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(148, 148, 148, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(148, 148, 148, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(160, 160, 160, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(160, 160, 160, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(160, 160, 160, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(160, 160, 160, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(160, 160, 160, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(160, 160, 160, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(114, 114, 114, ElementTail.MODIFIER_BLUR_ENABLED),
+        ElementTail.of(193, 193, 193, ElementTail.MODIFIER_BLUR_ENABLED)
     ]);
 }
