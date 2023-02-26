@@ -144,6 +144,10 @@
     font-size: 75%;
 }
 
+.sand-game-component .sand-game-views .scenes .card.visited-scene {
+    background-color: #ebebeb;
+}
+
 .sand-game-component .sand-game-views .scenes .card.selected-scene {
     background-color: #ffffbd;
 }

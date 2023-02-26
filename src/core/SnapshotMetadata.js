@@ -2,7 +2,7 @@
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-12
+ * @version 2023-02-26
  */
 export class SnapshotMetadata {
 
@@ -17,6 +17,9 @@ export class SnapshotMetadata {
 
     /** @type number */
     height;
+
+    /** @type number */
+    scale;
 
     /** @type number */
     random;

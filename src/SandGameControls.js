@@ -11,7 +11,7 @@
  * @interface
  *
  * @author Patrik Harag
- * @version 2023-02-18
+ * @version 2023-02-26
  */
 export class SandGameControls {
 
@@ -181,6 +181,12 @@ export class SandGameControls {
      * @returns {number}
      */
     getBrushSize() {
+        throw 'Not implemented';
+    }
+
+    // ui
+
+    getDialogAnchor() {
         throw 'Not implemented';
     }
 }

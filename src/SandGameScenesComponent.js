@@ -9,6 +9,7 @@ import {Scenes} from "./core/Scenes.js";
 export class SandGameScenesComponent {
 
     static CLASS_SELECTED = 'selected-scene';
+    static CLASS_VISITED = 'visited-scene';
 
     static SCENES = [
         'empty',
@@ -18,6 +19,9 @@ export class SandGameScenesComponent {
         'platform'
     ];
 
+
+    /** @type SandGameControls */
+    #controls;
 
     /** @type function(Scene) */
     #selectFunction;
@@ -35,7 +39,15 @@ export class SandGameScenesComponent {
 
     #closedScenes = new Map();
 
-    constructor(selectFunction, snapshotFunction, reopenFunction, initialScene) {
+    /**
+     * @param sandGameControls {SandGameControls}
+     * @param selectFunction
+     * @param snapshotFunction
+     * @param reopenFunction
+     * @param initialScene
+     */
+    constructor(sandGameControls, selectFunction, snapshotFunction, reopenFunction, initialScene) {
+        this.#controls = sandGameControls;
         this.#selectFunction = selectFunction;
         this.#snapshotFunction = snapshotFunction;
         this.#reopenFunction = reopenFunction;
@@ -53,6 +65,7 @@ export class SandGameScenesComponent {
                 this.#selected = node;
                 this.#selectedSceneId = id;
                 node.addClass(SandGameScenesComponent.CLASS_SELECTED);
+                node.addClass(SandGameScenesComponent.CLASS_VISITED);
             }
 
             node.on('click', e => {
@@ -78,20 +91,40 @@ export class SandGameScenesComponent {
 
     #onSelect(id, node, scene) {
         if (this.#selected) {
-            // unselect
-            this.#selected.removeClass(SandGameScenesComponent.CLASS_SELECTED);
-
             if (this.#selectedSceneId === id) {
                 // already opened - rebuild scene
+                this.#rebuildConfirm(() => {
+                    this.#select(node, id, scene);
+                });
             } else {
-                // store snapshot of the old scene
+                // store snapshot of the old scene and open
                 this.#closedScenes.set(this.#selectedSceneId, this.#snapshotFunction());
+                this.#select(node, id, scene);
             }
+        } else {
+            // open
+            this.#select(node, id, scene);
         }
+    }
 
-        node.addClass(SandGameScenesComponent.CLASS_SELECTED);
+    #rebuildConfirm(onConfirm) {
+        let dialog = new DomBuilder.BootstrapDialog();
+        dialog.setHeaderContent('Restart scene');
+        dialog.setBodyContent([
+            DomBuilder.par(null, "Do you want to restart the scene?")
+        ]);
+        dialog.addSubmitButton('Confirm', onConfirm);
+        dialog.addCloseButton('Close');
+        dialog.show(this.#controls.getDialogAnchor());
+    }
+
+    #select(node, id, scene) {
+        this.unselect();
+
         this.#selected = node;
         this.#selectedSceneId = id;
+        node.addClass(SandGameScenesComponent.CLASS_SELECTED);
+        node.addClass(SandGameScenesComponent.CLASS_VISITED);
 
         // restore or build scene
         let snapshot = this.#closedScenes.get(id);

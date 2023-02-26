@@ -50,8 +50,8 @@ export function initStandard(root, assetsContextPath) {
     sandGameComponent.enableGlobalShortcuts();
     sandGameComponent.enableBrushes();
     sandGameComponent.enableOptions();
-    sandGameComponent.enableSizeOptions();
     sandGameComponent.enableScenes();
+    sandGameComponent.enableSizeOptions();
     sandGameComponent.enableSavingAndLoading();
     sandGameComponent.start();
 
@@ -98,8 +98,8 @@ export function initTest(root, assetsContextPath) {
     sandGameComponent.enableGlobalShortcuts();
     sandGameComponent.enableBrushes();
     sandGameComponent.enableOptions();
-    sandGameComponent.enableSizeOptions();
     sandGameComponent.enableScenes();
+    sandGameComponent.enableSizeOptions();
     sandGameComponent.enableSavingAndLoading();
     sandGameComponent.enableTestTools();
     sandGameComponent.start();

@@ -4,56 +4,112 @@ import {DomBuilder} from "./DomBuilder.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-04
+ * @version 2023-02-26
  */
 export class SandGameElementSizeComponent {
 
     static CLASS_SELECTED = 'selected-size';
 
     static SIZES = [
-        { scale: 0.750, image: Assets.IMG_ELEMENT_SIZE_1 },
-        { scale: 0.500, image: Assets.IMG_ELEMENT_SIZE_2 },
+        { scale: 0.75,  image: Assets.IMG_ELEMENT_SIZE_1 },
+        { scale: 0.5,   image: Assets.IMG_ELEMENT_SIZE_2 },
         { scale: 0.375, image: Assets.IMG_ELEMENT_SIZE_3 },
-        { scale: 0.250, image: Assets.IMG_ELEMENT_SIZE_4 },
+        { scale: 0.25,  image: Assets.IMG_ELEMENT_SIZE_4 },
     ];
 
+
+    /** @type SandGameControls */
+    #controls;
 
     /** @type function(scale) */
     #selectFunction;
 
     #initialScale;
-    #assetsContextPath;
+
+    #nodes = [];
 
     #selected = null;
+    #selectedScale = null;
 
-    constructor(selectFunction, initialScale, assetsContextPath) {
-        this.#selectFunction = selectFunction;
+    #dialogAccepted = false;
+
+    /**
+     *
+     * @param sandGameControls {SandGameControls}
+     * @param selectFunction
+     * @param initialScale
+     */
+    constructor(sandGameControls, initialScale, selectFunction) {
+        this.#controls = sandGameControls;
         this.#initialScale = initialScale;
-        this.#assetsContextPath = assetsContextPath;
+        this.#selectFunction = selectFunction;
     }
 
     createNode() {
-        let content = DomBuilder.div({class: 'element-size-options'}, []);
         for (let sizeDef of SandGameElementSizeComponent.SIZES) {
             let node = this.#createSizeCard(sizeDef.scale, sizeDef.image);
 
+            // initial scale
             if (sizeDef.scale === this.#initialScale) {
-                this.#selected = node;
-                node.addClass(SandGameElementSizeComponent.CLASS_SELECTED);
+                this.#mark(node, sizeDef.scale);
             }
 
             node.on('click', e => {
-                if (this.#selected) {
-                    this.#selected.removeClass(SandGameElementSizeComponent.CLASS_SELECTED);
-                }
-                node.addClass(SandGameElementSizeComponent.CLASS_SELECTED);
-                this.#selected = node;
-                this.#selectFunction(sizeDef.scale);
+                this.#onSelect(node, sizeDef.scale);
             })
-            content.append(node);
+
+            this.#nodes.push(node);
         }
 
-        return content;
+        this.#controls.addOnInitialized(() => {
+            this.#onExternalScaleChange(this.#controls.getCurrentScale());
+        });
+
+        return DomBuilder.div({class: 'element-size-options'}, this.#nodes);
+    }
+
+    #onSelect(node, scale) {
+        if (this.#selectedScale === scale) {
+            return;  // already selected
+        }
+
+        if (this.#dialogAccepted) {
+            this.#select(node, scale);
+        } else {
+            this.#showConfirmDialog(() => {
+                this.#dialogAccepted = true;
+                this.#select(node, scale);
+            });
+        }
+    }
+
+    #showConfirmDialog(onConfirm) {
+        let dialog = new DomBuilder.BootstrapDialog();
+        dialog.setHeaderContent('Scale change');
+        dialog.setBodyContent([
+            DomBuilder.par(null, "Increasing the size of the elements will result in the top and right" +
+                " parts of the canvas being clipped."),
+            DomBuilder.par(null, "Reducing the size of the elements will result in an expansion of" +
+                " the canvas in the upper and right parts."),
+            DomBuilder.par(null, "Only the scale of the current scene will be changed.")
+        ]);
+        dialog.addSubmitButton('Confirm', onConfirm);
+        dialog.addCloseButton('Close');
+        dialog.show(this.#controls.getDialogAnchor());
+    }
+
+    #select(node, scale) {
+        if (this.#selected) {
+            this.#selected.removeClass(SandGameElementSizeComponent.CLASS_SELECTED);
+        }
+        this.#mark(node, scale);
+        this.#selectFunction(scale);
+    }
+
+    #mark(node, scale) {
+        node.addClass(SandGameElementSizeComponent.CLASS_SELECTED);
+        this.#selected = node;
+        this.#selectedScale = scale;
     }
 
     /**
@@ -67,10 +123,25 @@ export class SandGameElementSizeComponent {
         ]);
     }
 
-    unselect() {
+    #onExternalScaleChange(scale) {
         if (this.#selected) {
+            if (this.#selectedScale === scale) {
+                return;  // no change
+            }
+            // change
             this.#selected.removeClass(SandGameElementSizeComponent.CLASS_SELECTED);
         }
+
+        for (let i = 0; i < SandGameElementSizeComponent.SIZES.length; i++) {
+            const sizeDef = SandGameElementSizeComponent.SIZES[i];
+            if (sizeDef.scale === scale) {
+                this.#mark(this.#nodes[i], sizeDef.scale);
+                return;
+            }
+        }
+
+        // no match
         this.#selected = null;
+        this.#selectedScale = null;
     }
 }

@@ -65,7 +65,7 @@ export class SandGameTemplateComponent {
             dialog.setHeaderContent('Error');
             dialog.setBodyContent(DomBuilder.element('code', null, e));
             dialog.addCloseButton('Close');
-            dialog.show(document.body);
+            dialog.show(this.#controls.getDialogAnchor());
         }
     }
 }

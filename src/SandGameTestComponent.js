@@ -36,7 +36,7 @@ export class SandGameTestComponent {
     createNode() {
         let content = DomBuilder.div({ class: 'test-tools' }, [
             DomBuilder.link('Template editor', { class: 'btn btn-primary' }, e => {
-                this.#templateEditorDialog.show(document.body);
+                this.#templateEditorDialog.show(this.#controls.getDialogAnchor());
             }),
             DomBuilder.link('Tree spawn test', { class: 'btn btn-secondary' }, e => {
                 let sandGame = this.#controls.getSandGame();

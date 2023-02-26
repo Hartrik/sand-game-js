@@ -113,7 +113,7 @@ export class SandGameOptionsComponent {
                     this.#controls.changeCanvasSize(w, h, s);
                 });
                 dialog.addCloseButton('Close');
-                dialog.show(document.body);
+                dialog.show(this.#controls.getDialogAnchor());
             });
         return node;
     }

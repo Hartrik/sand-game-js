@@ -16,7 +16,7 @@ import {SandGameCanvasComponent} from "./SandGameCanvasComponent.js";
  * @requires jQuery
  *
  * @author Patrik Harag
- * @version 2023-02-20
+ * @version 2023-02-26
  */
 export class SandGameComponent extends SandGameControls {
 
@@ -40,8 +40,11 @@ export class SandGameComponent extends SandGameControls {
         { name: 'Erase',  cssName: 'air',    code: '.', brush: Brushes.AIR },
     ];
 
+    /** @type number */
     #currentWidthPoints;
+    /** @type number */
     #currentHeightPoints;
+    /** @type number */
     #currentScale;
 
     /** @type SandGame */
@@ -98,6 +101,12 @@ export class SandGameComponent extends SandGameControls {
         });
     }
 
+    #createSnapshot() {
+        let snapshot = this.#sandGame.createSnapshot();
+        snapshot.metadata.scale = this.getCurrentScale();
+        return snapshot;
+    }
+
     /**
      *
      * @param snapshot {Snapshot}
@@ -111,18 +120,7 @@ export class SandGameComponent extends SandGameControls {
         const w = this.#currentWidthPoints;
         const h = this.#currentHeightPoints;
         const defaultElement = Brushes.AIR.apply(0, 0, undefined);
-
-        if (snapshot && (snapshot.metadata.width !== this.#currentWidthPoints
-                || snapshot.metadata.height !== this.#currentHeightPoints)) {
-            // resize needed
-            let temp = new SandGame(canvasComponent.getContext(), snapshot.metadata.width, snapshot.metadata.height,
-                    snapshot, defaultElement);
-            this.#sandGame = new SandGame(canvasComponent.getContext(), w, h, null, defaultElement);
-            temp.copyStateTo(this.#sandGame);
-        } else {
-            this.#sandGame = new SandGame(canvasComponent.getContext(), w, h, snapshot, defaultElement);
-        }
-
+        this.#sandGame = new SandGame(canvasComponent.getContext(), w, h, snapshot, defaultElement);
         this.#sandGame.setRendererShowActiveChunks(this.isShowActiveChunks());
         if (this.isShowHeatmap()) {
             this.#sandGame.setRendererMode(SandGame.RENDERING_MODE_HEATMAP);
@@ -215,14 +213,13 @@ export class SandGameComponent extends SandGameControls {
     }
 
     enableSizeOptions() {
-        let component = new SandGameElementSizeComponent(newScale => {
+        let component = new SandGameElementSizeComponent(this, this.#init.scale, newScale => {
             let w = Math.trunc(this.#currentWidthPoints / this.#currentScale * newScale);
             let h = Math.trunc(this.#currentHeightPoints / this.#currentScale * newScale);
             this.changeCanvasSize(w, h, newScale);
-        }, this.#init.scale, this.#init.assetsContextPath);
+        });
 
         this.#nodeHolderAdditionalViews.append(component.createNode());
-        this.#onSnapshotLoaded.push(() => component.unselect());
     }
 
     enableScenes() {
@@ -232,12 +229,17 @@ export class SandGameComponent extends SandGameControls {
                 scene.apply(sandGame);
             });
         };
-        let snapshotFunction = () => this.#sandGame.createSnapshot();
+        let snapshotFunction = () => this.#createSnapshot();
         let reopenSceneFunction = (snapshot) => {
             this.#close();
+
+            this.#currentScale = snapshot.metadata.scale;
+            this.#currentWidthPoints = snapshot.metadata.width;
+            this.#currentHeightPoints = snapshot.metadata.height;
+
             this.#initialize(snapshot, sandGame => {});
         }
-        let component = new SandGameScenesComponent(showSceneFunction, snapshotFunction, reopenSceneFunction,
+        let component = new SandGameScenesComponent(this, showSceneFunction, snapshotFunction, reopenSceneFunction,
                 this.#init.scene);
 
         this.#nodeHolderAdditionalViews.append(component.createNode());
@@ -245,13 +247,13 @@ export class SandGameComponent extends SandGameControls {
     }
 
     enableSavingAndLoading() {
-        let component = new SandGameSaveComponent(() => this.#sandGame.createSnapshot(), snapshot => {
+        let component = new SandGameSaveComponent(() => this.#createSnapshot(), snapshot => {
             this.#close();
             for (let handler of this.#onSnapshotLoaded) {
                 handler();
             }
 
-            this.#currentScale = (snapshot.metadata.width / this.#init.canvasWidthPx).toFixed(3);
+            this.#currentScale = +(snapshot.metadata.width / this.#init.canvasWidthPx).toFixed(3);
             this.#currentWidthPoints = snapshot.metadata.width;
             this.#currentHeightPoints = snapshot.metadata.height;
 
@@ -409,5 +411,11 @@ export class SandGameComponent extends SandGameControls {
 
     getBrushSize() {
         return this.#init.brushSize;
+    }
+
+    // SandGameControls / ui
+
+    getDialogAnchor() {
+        return this.#node;
     }
 }
