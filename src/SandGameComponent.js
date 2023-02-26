@@ -112,7 +112,17 @@ export class SandGameComponent extends SandGameControls {
         const h = this.#currentHeightPoints;
         const defaultElement = Brushes.AIR.apply(0, 0, undefined);
 
-        this.#sandGame = new SandGame(canvasComponent.getContext(), w, h, snapshot, defaultElement);
+        if (snapshot && (snapshot.metadata.width !== this.#currentWidthPoints
+                || snapshot.metadata.height !== this.#currentHeightPoints)) {
+            // resize needed
+            let temp = new SandGame(canvasComponent.getContext(), snapshot.metadata.width, snapshot.metadata.height,
+                    snapshot, defaultElement);
+            this.#sandGame = new SandGame(canvasComponent.getContext(), w, h, null, defaultElement);
+            temp.copyStateTo(this.#sandGame);
+        } else {
+            this.#sandGame = new SandGame(canvasComponent.getContext(), w, h, snapshot, defaultElement);
+        }
+
         this.#sandGame.setRendererShowActiveChunks(this.isShowActiveChunks());
         if (this.isShowHeatmap()) {
             this.#sandGame.setRendererMode(SandGame.RENDERING_MODE_HEATMAP);
@@ -216,12 +226,19 @@ export class SandGameComponent extends SandGameControls {
     }
 
     enableScenes() {
-        let component = new SandGameScenesComponent(scene => {
+        let showSceneFunction = (scene) => {
             this.#close();
             this.#initialize(null, sandGame => {
                 scene.apply(sandGame);
             });
-        }, this.#init.scene);
+        };
+        let snapshotFunction = () => this.#sandGame.createSnapshot();
+        let reopenSceneFunction = (snapshot) => {
+            this.#close();
+            this.#initialize(snapshot, sandGame => {});
+        }
+        let component = new SandGameScenesComponent(showSceneFunction, snapshotFunction, reopenSceneFunction,
+                this.#init.scene);
 
         this.#nodeHolderAdditionalViews.append(component.createNode());
         this.#onSnapshotLoaded.push(() => component.unselect());
