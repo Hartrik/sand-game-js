@@ -7,7 +7,7 @@ import {Element} from "./Element.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-25
+ * @version 2023-02-26
  */
 export class Brushes {
 
@@ -257,5 +257,11 @@ export class Brushes {
         ElementTail.of(160, 160, 160, ElementTail.MODIFIER_BLUR_ENABLED),
         ElementTail.of(114, 114, 114, ElementTail.MODIFIER_BLUR_ENABLED),
         ElementTail.of(193, 193, 193, ElementTail.MODIFIER_BLUR_ENABLED)
+    ]);
+
+    static METEOR = Brush.random([
+        new Element(
+            ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_POWDER, ElementHead.BEHAVIOUR_METEOR),
+            ElementTail.of(249, 219, 30))
     ]);
 }

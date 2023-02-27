@@ -41,6 +41,7 @@ export class ElementHead {
     static BEHAVIOUR_TREE_LEAF = 0x8;
     static BEHAVIOUR_FIRE = 0x9;
     static BEHAVIOUR_FIRE_SOURCE = 0x0A;
+    static BEHAVIOUR_METEOR = 0x0B;
 
     static FIELD_SPECIAL_SIZE = 4;  // bits
 

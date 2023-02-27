@@ -2,6 +2,7 @@ import {ElementHead} from "./ElementHead.js";
 import {DeterministicRandom} from "./DeterministicRandom.js";
 import {ProcessorContext} from "./ProcessorContext.js";
 import {ProcessorModuleFire} from "./ProcessorModuleFire.js";
+import {ProcessorModuleMeteor} from "./ProcessorModuleMeteor.js";
 import {ProcessorModuleGrass} from "./ProcessorModuleGrass.js";
 import {ProcessorModuleFish} from "./ProcessorModuleFish.js";
 import {ProcessorModuleTree} from "./ProcessorModuleTree.js";
@@ -9,7 +10,7 @@ import {ProcessorModuleTree} from "./ProcessorModuleTree.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-24
+ * @version 2023-02-26
  */
 export class Processor extends ProcessorContext {
 
@@ -56,6 +57,8 @@ export class Processor extends ProcessorContext {
 
     /** @type ProcessorModuleFire */
     #moduleFire;
+    /** @type ProcessorModuleMeteor */
+    #moduleMeteor;
     /** @type ProcessorModuleGrass */
     #moduleGrass;
     /** @type ProcessorModuleFish */
@@ -89,6 +92,7 @@ export class Processor extends ProcessorContext {
         this.#defaultElement = defaultElement;
 
         this.#moduleFire = new ProcessorModuleFire(elementArea, random, defaultElement);
+        this.#moduleMeteor = new ProcessorModuleMeteor(elementArea, random, defaultElement);
         this.#moduleGrass = new ProcessorModuleGrass(elementArea, random, defaultElement);
         this.#moduleFish = new ProcessorModuleFish(elementArea, random, defaultElement);
         this.#moduleTree = new ProcessorModuleTree(elementArea, random, this);
@@ -350,6 +354,9 @@ export class Processor extends ProcessorContext {
                     break;
                 case ElementHead.BEHAVIOUR_FIRE_SOURCE:
                     this.#moduleFire.behaviourFireSource(elementHead, x, y);
+                    break;
+                case ElementHead.BEHAVIOUR_METEOR:
+                    this.#moduleMeteor.behaviourMeteor(elementHead, x, y);
                     break;
                 case ElementHead.BEHAVIOUR_FISH:
                     this.#moduleFish.behaviourFish(elementHead, x, y);

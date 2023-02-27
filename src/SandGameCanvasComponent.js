@@ -6,7 +6,7 @@ import {Brushes} from "./core/Brushes.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-20
+ * @version 2023-02-27
  */
 export class SandGameCanvasComponent {
 
@@ -77,16 +77,23 @@ export class SandGameCanvasComponent {
                 // middle button
                 e.preventDefault();
 
-                if (e.altKey) {
+                if (!e.altKey && !e.ctrlKey && !e.shiftKey) {
+                    sandGame.graphics().draw(x, y, Brushes.METEOR);
+                } else if (e.altKey && e.ctrlKey && e.shiftKey) {
                     console.log('' + x + 'x' + y + ': ' + sandGame.debugElementAt(x, y));
-                } else {
-                    sandGame.graphics().floodFill(x, y, this.#controls.getBrush(), 1);
                 }
                 brush = null;
                 return;
             }
 
             brush = (e.buttons === 1) ? this.#controls.getBrush() : Brushes.AIR;
+
+            if (e.ctrlKey && e.shiftKey) {
+                sandGame.graphics().floodFill(x, y, brush, 1);
+                brush = null;
+                return;
+            }
+
             ctrlPressed = e.ctrlKey;
             shiftPressed = e.shiftKey;
             if (!ctrlPressed && !shiftPressed) {

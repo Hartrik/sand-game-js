@@ -17,7 +17,7 @@ You can play it here: https://harag.cz/app/sand-game-js
 `npm test` builds the library, then tests it.
 
 Debugging tips:
-- Use `alt key` + `middle mouse button` to debug an element.
+- Use `alt` + `ctrl` + `shift` + `middle mouse button` to debug an element.
 - Stop processing using `ctrl` + `enter` and then press (or hold) `ctrl` + `space` for running one simulation iteration.
     - Alternatively `ctrl` + `shift` + `space` will run the specified number of iterations – at once, without rendering and delays.
 - Global variables, accessible from browser console: `sandGame`, `brushes`
