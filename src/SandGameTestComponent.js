@@ -35,16 +35,16 @@ export class SandGameTestComponent {
 
     createNode() {
         let content = DomBuilder.div({ class: 'test-tools' }, [
-            DomBuilder.link('Template editor', { class: 'btn btn-primary' }, e => {
+            DomBuilder.button('Template editor', { class: 'btn btn-primary' }, e => {
                 this.#templateEditorDialog.show(this.#controls.getDialogAnchor());
             }),
-            DomBuilder.link('Tree spawn test', { class: 'btn btn-secondary' }, e => {
+            DomBuilder.button('Tree spawn test', { class: 'btn btn-secondary' }, e => {
                 let sandGame = this.#controls.getSandGame();
                 if (sandGame !== null) {
                     this.#doTreeSpawnTest(sandGame);
                 }
             }),
-            DomBuilder.link('Tree grow test', { class: 'btn btn-secondary' }, e => {
+            DomBuilder.button('Tree grow test', { class: 'btn btn-secondary' }, e => {
                 let sandGame = this.#controls.getSandGame();
                 if (sandGame !== null) {
                     this.#doTreeGrowTest(sandGame);

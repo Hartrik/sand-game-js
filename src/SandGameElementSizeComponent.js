@@ -4,17 +4,17 @@ import {DomBuilder} from "./DomBuilder.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-26
+ * @version 2023-03-08
  */
 export class SandGameElementSizeComponent {
 
     static CLASS_SELECTED = 'selected-size';
 
     static SIZES = [
-        { scale: 0.75,  image: Assets.IMG_ELEMENT_SIZE_1 },
-        { scale: 0.5,   image: Assets.IMG_ELEMENT_SIZE_2 },
-        { scale: 0.375, image: Assets.IMG_ELEMENT_SIZE_3 },
-        { scale: 0.25,  image: Assets.IMG_ELEMENT_SIZE_4 },
+        { scale: 0.75,  image: Assets.IMG_ELEMENT_SIZE_1, description: 'Very small elements' },
+        { scale: 0.5,   image: Assets.IMG_ELEMENT_SIZE_2, description: 'Small elements' },
+        { scale: 0.375, image: Assets.IMG_ELEMENT_SIZE_3, description: 'Medium elements' },
+        { scale: 0.25,  image: Assets.IMG_ELEMENT_SIZE_4, description: 'Big elements' },
     ];
 
 
@@ -47,7 +47,7 @@ export class SandGameElementSizeComponent {
 
     createNode() {
         for (let sizeDef of SandGameElementSizeComponent.SIZES) {
-            let node = this.#createSizeCard(sizeDef.scale, sizeDef.image);
+            let node = this.#createSizeCard(sizeDef.scale, sizeDef.image, sizeDef.description);
 
             // initial scale
             if (sizeDef.scale === this.#initialScale) {
@@ -116,10 +116,11 @@ export class SandGameElementSizeComponent {
      *
      * @param scale {number}
      * @param image {string}
+     * @param description {string}
      */
-    #createSizeCard(scale, image) {
-        return DomBuilder.div({class: 'card'}, [
-            DomBuilder.element('img', {src: image})
+    #createSizeCard(scale, image, description) {
+        return DomBuilder.div({ class: 'card' }, [
+            DomBuilder.element('img', { src: image, alt: description })
         ]);
     }
 

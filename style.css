@@ -17,6 +17,7 @@
 .sand-game-component .sand-game-brushes .badge {
     margin-right: 3pt;
     padding: 0.4em 0.4em;
+    border: none;
 }
 
 .sand-game-component .sand-game-brushes .badge.air {
@@ -137,6 +138,8 @@
 }
 
 .sand-game-component .sand-game-views .scenes .card .card-title {
+    font-weight: 500;
+    line-height: 2;
     font-size: 100%;
 }
 

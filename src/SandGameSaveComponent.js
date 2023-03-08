@@ -24,11 +24,11 @@ export class SandGameSaveComponent {
     createNode() {
         let content = DomBuilder.div({ class: 'load-and-save-tools' }, []);
 
-        content.append(DomBuilder.link('Save', { class: 'btn btn-light' }, e => {
+        content.append(DomBuilder.button('Save', { class: 'btn btn-light' }, e => {
             let snapshot = this.#onSaveFunction();
             this.#download(snapshot);
         }));
-        content.append(DomBuilder.link('Load', { class: 'btn btn-light' }, e => {
+        content.append(DomBuilder.button('Load', { class: 'btn btn-light' }, e => {
             this.#select();
         }));
 

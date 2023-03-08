@@ -29,8 +29,7 @@ export class SandGameOptionsComponent {
     }
 
     #createStartStopButton() {
-        const node = DomBuilder.element('button', { type: 'button', class: 'btn btn-light' }, '');
-        node.on("click", e => {
+        const node = DomBuilder.button('', { class: 'btn btn-light' }, e => {
             this.#controls.switchStartStop();
         });
 
@@ -95,27 +94,25 @@ export class SandGameOptionsComponent {
     }
 
     #createChangeCanvasSizeButton() {
-        const node = DomBuilder.element('button', { type: 'button', class: 'btn btn-light' }, 'Change canvas size')
-            .on("click", e => {
-                let formBuilder = new DomBuilder.BootstrapSimpleForm();
-                formBuilder.addInput('Width', 'width', this.#controls.getCurrentWidthPoints());
-                formBuilder.addInput('Height', 'height', this.#controls.getCurrentHeightPoints());
-                formBuilder.addInput('Scale', 'scale', this.#controls.getCurrentScale());
+        return DomBuilder.button('Change canvas size', { type: 'button', class: 'btn btn-light' }, e => {
+            let formBuilder = new DomBuilder.BootstrapSimpleForm();
+            formBuilder.addInput('Width', 'width', this.#controls.getCurrentWidthPoints());
+            formBuilder.addInput('Height', 'height', this.#controls.getCurrentHeightPoints());
+            formBuilder.addInput('Scale', 'scale', this.#controls.getCurrentScale());
 
-                let dialog = new DomBuilder.BootstrapDialog();
-                dialog.setHeaderContent('Change canvas size');
-                dialog.setBodyContent(formBuilder.createNode());
-                dialog.addSubmitButton('Submit', () => {
-                    let data = formBuilder.getData();
-                    let w = Number.parseInt(data['width']);
-                    let h = Number.parseInt(data['height']);
-                    let s = Number.parseFloat(data['scale']);
-                    this.#controls.changeCanvasSize(w, h, s);
-                });
-                dialog.addCloseButton('Close');
-                dialog.show(this.#controls.getDialogAnchor());
+            let dialog = new DomBuilder.BootstrapDialog();
+            dialog.setHeaderContent('Change canvas size');
+            dialog.setBodyContent(formBuilder.createNode());
+            dialog.addSubmitButton('Submit', () => {
+                let data = formBuilder.getData();
+                let w = Number.parseInt(data['width']);
+                let h = Number.parseInt(data['height']);
+                let s = Number.parseFloat(data['scale']);
+                this.#controls.changeCanvasSize(w, h, s);
             });
-        return node;
+            dialog.addCloseButton('Close');
+            dialog.show(this.#controls.getDialogAnchor());
+        });
     }
 
     #createStatusButton() {

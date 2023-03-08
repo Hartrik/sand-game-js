@@ -28,7 +28,7 @@ export class SandGameBrushComponent {
         let buttons = [];
 
         for (let d of this.#brushDeclarations) {
-            let button = DomBuilder.link(d.name, { class: 'badge badge-secondary ' + d.cssName }, () => {
+            let button = DomBuilder.button(d.name, { class: 'badge badge-secondary ' + d.cssName }, () => {
                 // unselect last
                 for (let b of buttons) {
                     b.removeClass('selected');

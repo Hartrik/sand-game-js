@@ -83,7 +83,7 @@ export class SandGameScenesComponent {
      */
     #createSceneCard(scene) {
         let bodyContent = [
-            DomBuilder.element('h5', {class: 'card-title'}, scene.name)
+            DomBuilder.element('span', {class: 'card-title'}, scene.name)
         ];
         bodyContent.push(DomBuilder.par({class: 'card-text'}, scene.description ? scene.description : '\u00A0'));
         return DomBuilder.Bootstrap.card(null, bodyContent);

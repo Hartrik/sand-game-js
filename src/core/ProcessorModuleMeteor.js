@@ -15,6 +15,7 @@ export class ProcessorModuleMeteor {
     // TODO: leave some burning elements behind...
     // TODO: leave some metal behind...
     // TODO: when water hit?
+    // TODO: add randomness to destruction
 
     static EXPLOSION_HEAT = 200;
 
