@@ -8,6 +8,11 @@ It was primarily tested on Google Chrome and Google Chrome for Android.
 You can play it here: https://harag.cz/app/sand-game-js
 
 
+## Preview
+
+![Sand Game JS preview](https://files.harag.cz/www/app/sand-game-js/preview-with-gui.png)
+
+
 ## Development
 
 `npm run build` builds the library to `dist`.
