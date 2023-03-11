@@ -1,9 +1,11 @@
 # Sand Game JS
 
-Sand Game JS is a falling-sand game where you can play with various elements.
+Sand Game JS is a fast, free and open-source falling-sand game for desktop & mobile browsers.
+It allows players to experiment with various elements, such as sand, soil, water and fire.
+With grass and trees growing on soil, and other natural processes, Sand Game JS offers a unique experience.
+It is primarily tested on Google Chrome and Google Chrome for Android.
+
 Browser-based successor to [Sand Game 2](https://github.com/Hartrik/Sand-Game-2), which was originally developed in Java (JavaFX).
-Sand Game JS can be played using mouse or touch screen.
-It was primarily tested on Google Chrome and Google Chrome for Android.
 
 You can play it here: https://harag.cz/app/sand-game-js
 
