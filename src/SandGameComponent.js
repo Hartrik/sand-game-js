@@ -6,7 +6,7 @@ import {Scenes} from "./core/Scenes.js";
 import {SandGameControls} from "./SandGameControls.js";
 import {SandGameScenesComponent} from "./SandGameScenesComponent.js";
 import {SandGameElementSizeComponent} from "./SandGameElementSizeComponent.js";
-import {SandGameSaveComponent} from "./SandGameSaveComponent.js";
+import {SandGameIOComponent} from "./SandGameIOComponent.js";
 import {SandGameOptionsComponent} from "./SandGameOptionsComponent.js";
 import {SandGameTestComponent} from "./SandGameTestComponent.js";
 import {SandGameBrushComponent} from "./SandGameBrushComponent.js";
@@ -71,7 +71,7 @@ export class SandGameComponent extends SandGameControls {
     #canvasSettingsUpdater = null;
 
     /** @type function[] */
-    #onSnapshotLoaded = [];
+    #onBeforeSnapshotLoaded = [];
 
     constructor(rootNode, init) {
         super();
@@ -243,15 +243,18 @@ export class SandGameComponent extends SandGameControls {
                 this.#init.scene);
 
         this.#nodeHolderAdditionalViews.append(component.createNode());
-        this.#onSnapshotLoaded.push(() => component.unselect());
+        this.#onBeforeSnapshotLoaded.push(() => {
+            component.unselect()
+        });
     }
 
     enableSavingAndLoading() {
-        let component = new SandGameSaveComponent(() => this.#createSnapshot(), snapshot => {
-            this.#close();
-            for (let handler of this.#onSnapshotLoaded) {
+        let component = new SandGameIOComponent(() => this.#createSnapshot(), snapshot => {
+            for (let handler of this.#onBeforeSnapshotLoaded) {
                 handler();
             }
+
+            this.#close();
 
             this.#currentScale = +(snapshot.metadata.width / this.#init.canvasWidthPx).toFixed(3);
             this.#currentWidthPoints = snapshot.metadata.width;
@@ -260,6 +263,7 @@ export class SandGameComponent extends SandGameControls {
             this.#initialize(snapshot, sandGame => {});
         });
         this.#nodeHolderAdditionalViews.append(component.createNode());
+        component.initFileDragAndDrop(this.#node);
     }
 
     enableTestTools() {

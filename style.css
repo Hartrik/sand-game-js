@@ -2,6 +2,11 @@
 .sand-game-component {
 }
 
+.sand-game-component.drag-and-drop-highlight {
+    outline: rgba(0, 129, 255, 0.76) dashed thick;
+    outline-offset: 2px;
+}
+
 .sand-game-component .sand-game-canvas {
     margin-top: 4pt;
     outline: 1px solid #b7b7b7;
