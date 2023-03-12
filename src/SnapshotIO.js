@@ -5,11 +5,15 @@ import {strToU8, strFromU8, zipSync, unzipSync} from 'fflate';
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-04
+ * @version 2023-03-12
  */
 export class SnapshotIO {
 
-    static DEFAULT_FILENAME = 'sand-game-js.zip';
+
+    static createFilename() {
+        let date = new Date().toISOString().slice(0, 10);
+        return `sand-game-js_${date}.sgjs`;
+    }
 
     /**
      *

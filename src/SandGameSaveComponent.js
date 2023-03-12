@@ -37,7 +37,7 @@ export class SandGameSaveComponent {
 
     #download(snapshot) {
         let bytes = SnapshotIO.createSave(snapshot);
-        FileSaver.saveAs(new Blob([bytes]), SnapshotIO.DEFAULT_FILENAME);
+        FileSaver.saveAs(new Blob([bytes]), SnapshotIO.createFilename());
     }
 
     #select() {
