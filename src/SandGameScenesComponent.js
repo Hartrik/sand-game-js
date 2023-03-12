@@ -97,8 +97,8 @@ export class SandGameScenesComponent {
                     this.#select(node, id, scene);
                 });
             } else {
-                // store snapshot of the old scene and open
-                this.#closedScenes.set(this.#selectedSceneId, this.#snapshotFunction());
+                // store snapshot of the old scene and open...
+                this.#store();
                 this.#select(node, id, scene);
             }
         } else {
@@ -119,7 +119,7 @@ export class SandGameScenesComponent {
     }
 
     #select(node, id, scene) {
-        this.unselect();
+        this.#unselect();
 
         this.#selected = node;
         this.#selectedSceneId = id;
@@ -136,12 +136,23 @@ export class SandGameScenesComponent {
         }
     }
 
-    unselect() {
+    #unselect() {
         if (this.#selected) {
             this.#selected.removeClass(SandGameScenesComponent.CLASS_SELECTED);
         }
         this.#selected = null;
         this.#selectedSceneId = null;
+    }
+
+    #store() {
+        if (this.#selected) {
+            this.#closedScenes.set(this.#selectedSceneId, this.#snapshotFunction());
+        }
+    }
+
+    onBeforeOtherSceneLoad() {
+        this.#store();
+        this.#unselect();
     }
 }
 

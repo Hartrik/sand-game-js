@@ -243,9 +243,7 @@ export class SandGameComponent extends SandGameControls {
                 this.#init.scene);
 
         this.#nodeHolderAdditionalViews.append(component.createNode());
-        this.#onBeforeSnapshotLoaded.push(() => {
-            component.unselect()
-        });
+        this.#onBeforeSnapshotLoaded.push(() => component.onBeforeOtherSceneLoad());
     }
 
     enableSavingAndLoading() {
