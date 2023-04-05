@@ -1,11 +1,12 @@
 import {DomBuilder} from "./DomBuilder.js";
 import {SandGameControls} from "./SandGameControls.js";
-import {Processor} from "./core/Processor";
+import {Processor} from "./core/Processor.js";
+import {Analytics} from "./Analytics.js";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-18
+ * @version 2023-04-05
  */
 export class SandGameOptionsComponent {
 
@@ -31,6 +32,7 @@ export class SandGameOptionsComponent {
     #createStartStopButton() {
         const node = DomBuilder.button('', { class: 'btn btn-light' }, e => {
             this.#controls.switchStartStop();
+            Analytics.triggerFeatureUsed(Analytics.FEATURE_PAUSE);
         });
 
         function updateStartStopButton(node, running) {
@@ -54,6 +56,9 @@ export class SandGameOptionsComponent {
             }, 'Options'),
             DomBuilder.element('form', { class: 'dropdown-menu p-2' }, this.#createOptionsContent())
         ]);
+        node.on('show.bs.dropdown', function () {
+            Analytics.triggerFeatureUsed(Analytics.FEATURE_OPTIONS_DISPLAYED);
+        });
 
         return node;
     }
@@ -75,18 +80,21 @@ export class SandGameOptionsComponent {
                 DomBuilder.element('input', { type: 'checkbox', checked: this.#controls.getCanvasImageRenderingStyle() === 'pixelated', class: 'form-check-input', id: 'rend-check-pixelated' }).change((e) => {
                     let checked = e.target.checked;
                     this.#controls.setCanvasImageRenderingStyle(checked ? 'pixelated' : 'unset');
+                    Analytics.triggerFeatureUsed(Analytics.FEATURE_RENDERER_PIXELATED);
                 }),
                 DomBuilder.element('label', { class: 'form-check-label', for: 'rend-check-pixelated' }, 'Pixelated')
             ]),
             DomBuilder.div({ class: 'form-check' }, [
                 DomBuilder.element('input', { type: 'checkbox', checked: this.#controls.isShowActiveChunks(), class: 'form-check-input', id: 'rend-check-show-active-chunks' }).change((e) => {
                     this.#controls.setShowActiveChunks(e.target.checked);
+                    Analytics.triggerFeatureUsed(Analytics.FEATURE_RENDERER_SHOW_CHUNKS);
                 }),
                 DomBuilder.element('label', { class: 'form-check-label', for: 'rend-check-show-active-chunks' }, 'Show active chunks')
             ]),
             DomBuilder.div({ class: 'form-check' }, [
                 DomBuilder.element('input', { type: 'checkbox', checked: this.#controls.isShowHeatmap(), class: 'form-check-input', id: 'rend-check-show-heatmap' }).change((e) => {
                     this.#controls.setShowHeatmap(e.target.checked);
+                    Analytics.triggerFeatureUsed(Analytics.FEATURE_RENDERER_SHOW_HEATMAP);
                 }),
                 DomBuilder.element('label', { class: 'form-check-label', for: 'rend-check-show-heatmap' }, 'Show heatmap')
             ])
@@ -109,6 +117,7 @@ export class SandGameOptionsComponent {
                 let h = Number.parseInt(data['height']);
                 let s = Number.parseFloat(data['scale']);
                 this.#controls.changeCanvasSize(w, h, s);
+                Analytics.triggerFeatureUsed(Analytics.FEATURE_CANVAS_SIZE_CHANGE);
             });
             dialog.addCloseButton('Close');
             dialog.show(this.#controls.getDialogAnchor());
@@ -134,6 +143,9 @@ export class SandGameOptionsComponent {
             }, nodeLabel),
             DomBuilder.element('form', { class: 'dropdown-menu p-2' }, this.#createStatusContent())
         ]);
+        node.on('show.bs.dropdown', function () {
+            Analytics.triggerFeatureUsed(Analytics.FEATURE_STATUS_DISPLAYED);
+        });
 
         let updateStatus = (node, status) => {
             if (status !== currenStatus) {

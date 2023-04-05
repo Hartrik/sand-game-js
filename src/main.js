@@ -1,5 +1,6 @@
 
 import { SandGameComponent } from "./SandGameComponent.js";
+import { Analytics } from "./Analytics.js";
 
 export { Brushes } from "./core/Brushes.js";
 
@@ -55,6 +56,8 @@ export function initStandard(root, assetsContextPath) {
     sandGameComponent.enableSavingAndLoading();
     sandGameComponent.start();
 
+    Analytics.triggerFeatureUsed(Analytics.FEATURE_APP_INITIALIZED);
+
     return sandGameComponent;
 }
 
@@ -74,6 +77,8 @@ export function initMinimalistic(root, assetsContextPath) {
     let sandGameComponent = new SandGameComponent(root, init);
     sandGameComponent.enableBrushes();
     sandGameComponent.start();
+
+    Analytics.triggerFeatureUsed(Analytics.FEATURE_APP_INITIALIZED);
 
     return sandGameComponent;
 }
@@ -103,6 +108,8 @@ export function initTest(root, assetsContextPath) {
     sandGameComponent.enableSavingAndLoading();
     sandGameComponent.enableTestTools();
     sandGameComponent.start();
+
+    Analytics.triggerFeatureUsed(Analytics.FEATURE_APP_INITIALIZED);
 
     return sandGameComponent;
 }
