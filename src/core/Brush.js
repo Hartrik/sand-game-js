@@ -79,7 +79,7 @@ export class Brush {
      */
     static gentle(brush) {
         return Brush.custom((x, y, random, oldElement) => {
-            if (ElementHead.getType(oldElement.elementHead) === ElementHead.TYPE_STATIC
+            if (ElementHead.getTypeOrdinal(oldElement.elementHead) === ElementHead.TYPE_STATIC
                     && ElementHead.getWeight(oldElement.elementHead) === ElementHead.WEIGHT_AIR) {
                 return brush.apply(x, y, random, oldElement);
             }

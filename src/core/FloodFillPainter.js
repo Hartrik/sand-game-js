@@ -2,7 +2,7 @@
 /**
  *
  * @author Patrik Harag
- * @version 2022-11-06
+ * @version 2023-04-10
  */
 export class FloodFillPainter {
 
@@ -37,7 +37,7 @@ export class FloodFillPainter {
      * @param brush {Brush}
      */
     paint(x, y, brush) {
-        const pattern = 0x00000FFF;  // type, weight, behaviour
+        const pattern = 0x00000FF7;  // type (without DRY flag), weight, behaviour
         const matcher = this.#elementArea.getElementHead(x, y) & pattern;
 
         const w = this.#elementArea.getWidth();

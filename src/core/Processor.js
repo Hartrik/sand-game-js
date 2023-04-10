@@ -10,7 +10,7 @@ import {ProcessorModuleTree} from "./ProcessorModuleTree.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-26
+ * @version 2023-04-10
  */
 export class Processor extends ProcessorContext {
 
@@ -380,7 +380,7 @@ export class Processor extends ProcessorContext {
      * @returns {boolean}
      */
     #performMovingBehaviour(elementHead, x, y) {
-        let type = ElementHead.getType(elementHead);
+        const type = ElementHead.getTypeOrdinal(elementHead);
         switch (type) {
             case ElementHead.TYPE_STATIC:
                 // no action
@@ -491,7 +491,7 @@ export class Processor extends ProcessorContext {
                 if (!this.#elementArea.isValidPosition(x2, y2)) {
                     return false;
                 }
-                // move
+                // continue move...
             } else {
                 return false;
             }
@@ -499,13 +499,36 @@ export class Processor extends ProcessorContext {
 
         let elementHead2 = this.#elementArea.getElementHead(x2, y2);
         if (ElementHead.getWeight(elementHead) > ElementHead.getWeight(elementHead2)) {
-            let elementTail = this.#elementArea.getElementTail(x, y);
-            let elementTail2 = this.#elementArea.getElementTail(x2, y2);
+            // move
 
-            this.#elementArea.setElementHead(x2, y2, elementHead);
-            this.#elementArea.setElementHead(x, y, elementHead2);
-            this.#elementArea.setElementTail(x2, y2, elementTail);
-            this.#elementArea.setElementTail(x, y, elementTail2);
+            if (ElementHead.getTypeDry(elementHead) && ElementHead.getTypeOrdinal(elementHead2) === ElementHead.TYPE_FLUID_2) {
+                // element may cover element2
+
+                const elementHeadNonDry = ElementHead.setType(elementHead, ElementHead.getTypeOrdinal(elementHead));
+                const elementTail = this.#elementArea.getElementTail(x, y);
+
+                // sometimes element2 will not be covered - it looks better
+                if (this.#random.nextInt(100) > 9) {
+                    this.#elementArea.setElement(x, y, this.#defaultElement);
+                } else {
+                    const elementTail2 = this.#elementArea.getElementTail(x2, y2);
+                    this.#elementArea.setElementHead(x, y, elementHead2);
+                    this.#elementArea.setElementTail(x, y, elementTail2);
+                }
+                this.#elementArea.setElementHead(x2, y2, elementHeadNonDry);
+                this.#elementArea.setElementTail(x2, y2, elementTail);
+
+            } else {
+                // swap
+
+                const elementTail = this.#elementArea.getElementTail(x, y);
+                const elementTail2 = this.#elementArea.getElementTail(x2, y2);
+
+                this.#elementArea.setElementHead(x2, y2, elementHead);
+                this.#elementArea.setElementHead(x, y, elementHead2);
+                this.#elementArea.setElementTail(x2, y2, elementTail);
+                this.#elementArea.setElementTail(x, y, elementTail2);
+            }
             return true;
         }
         return false;

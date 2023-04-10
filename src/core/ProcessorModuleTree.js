@@ -105,7 +105,7 @@ export class ProcessorModuleTree {
                             canGrowHere = true;
                         } else if (node.y > Math.min(-4, -7 + Math.abs(node.x))) {
                             // roots & bottom trunk only...
-                            if (ElementHead.getType(currentElementHead) !== ElementHead.TYPE_STATIC) {
+                            if (ElementHead.getTypeOrdinal(currentElementHead) !== ElementHead.TYPE_STATIC) {
                                 canGrowHere = true;
                             }
                         }
@@ -188,7 +188,7 @@ export class ProcessorModuleTree {
 
         if (this.#elementArea.isValidPosition(targetX, targetY)) {
             let targetElementHead = this.#elementArea.getElementHead(targetX, targetY);
-            let type = ElementHead.getType(targetElementHead);
+            let type = ElementHead.getTypeOrdinal(targetElementHead);
             if (type === ElementHead.TYPE_SAND_1 || type === ElementHead.TYPE_SAND_2) {
                 let modifiedElementHead = ElementHead.setType(targetElementHead, ElementHead.TYPE_STATIC);
                 this.#elementArea.setElementHead(targetX, targetY, modifiedElementHead);
@@ -230,7 +230,7 @@ export class ProcessorModuleTree {
 
         if (this.#elementArea.isValidPosition(nx, ny)) {
             let targetElementHead = this.#elementArea.getElementHead(nx, ny);
-            if (ElementHead.getType(targetElementHead) !== ElementHead.TYPE_STATIC) {
+            if (ElementHead.getTypeOrdinal(targetElementHead) !== ElementHead.TYPE_STATIC) {
                 doGrow(nx, ny);
             }
         }
@@ -268,7 +268,7 @@ export class ProcessorModuleTree {
 
                 if (this.#elementArea.isValidPosition(targetX, targetY)) {
                     const elementHeadAbove = this.#elementArea.getElementHead(targetX, targetY);
-                    if (ElementHead.getType(elementHeadAbove) !== ElementHead.TYPE_STATIC
+                    if (ElementHead.getTypeOrdinal(elementHeadAbove) !== ElementHead.TYPE_STATIC
                         && ElementHead.getWeight(elementHeadAbove) >= ElementHead.WEIGHT_WATER) {
                         this.#elementArea.setElement(x, y, this.#processorContext.getDefaultElement());
                     }

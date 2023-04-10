@@ -6,12 +6,12 @@
  * <pre>
  *     | type                        4b  | weight                      4b  |
  *     | behaviour                   4b  | special                     4b  |
- *     | flammable  2b  | flame heat 2b  | burnable   2b  | meltable   2b  |
+ *     | flammable  2b  | flame heat 2b  | burnable   2b  | t. cond.   2b  |
  *     | temperature                                                   8b  |
  * </pre>
  *
  * @author Patrik Harag
- * @version 2023-02-19
+ * @version 2023-04-10
  */
 export class ElementHead {
 
@@ -22,6 +22,10 @@ export class ElementHead {
     static TYPE_SAND_2 = 0x3;
     static TYPE_FLUID_1 = 0x4;
     static TYPE_FLUID_2 = 0x5;
+    static TYPE_RESERVED_1 = 0x6;
+    static TYPE_RESERVED_2 = 0x7;
+    // the last bit is DRY flag
+    static TYPE__DRY_FLAG = 0x8;
 
     static FIELD_WEIGHT_SIZE = 4;  // bits
     static WEIGHT_AIR = 0x0;
@@ -40,8 +44,8 @@ export class ElementHead {
     static BEHAVIOUR_TREE_TRUNK = 0x7;
     static BEHAVIOUR_TREE_LEAF = 0x8;
     static BEHAVIOUR_FIRE = 0x9;
-    static BEHAVIOUR_FIRE_SOURCE = 0x0A;
-    static BEHAVIOUR_METEOR = 0x0B;
+    static BEHAVIOUR_FIRE_SOURCE = 0xA;
+    static BEHAVIOUR_METEOR = 0xB;
 
     static FIELD_SPECIAL_SIZE = 4;  // bits
 
@@ -66,7 +70,7 @@ export class ElementHead {
     static BURNABLE_TYPE_MEDIUM = 0x02;
     static BURNABLE_TYPE_FAST = 0x03;
 
-    static FIELD_MELTABLE_TYPE_SIZE = 2;  // bits
+    static FIELD_T_CONDUCTIVITY_TYPE_SIZE = 2;  // bits
     // TODO
 
     static FIELD_TEMPERATURE_SIZE = 8;  // bits
@@ -90,8 +94,12 @@ export class ElementHead {
 
     // get methods
 
-    static getType(elementHead) {
-        return elementHead & 0x0000000F;
+    static getTypeOrdinal(elementHead) {
+        return elementHead & 0x00000007;
+    }
+
+    static getTypeDry(elementHead) {
+        return (elementHead & ElementHead.TYPE__DRY_FLAG) !== 0;
     }
 
     static getWeight(elementHead) {

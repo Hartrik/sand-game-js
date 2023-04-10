@@ -66,7 +66,7 @@ export class SpawningExtensionFish {
             return false;
         }
         let targetElementHead = elementArea.getElementHead(x, y);
-        if (ElementHead.getType(targetElementHead) !== ElementHead.TYPE_FLUID_2) {
+        if (ElementHead.getTypeOrdinal(targetElementHead) !== ElementHead.TYPE_FLUID_2) {
             return false;
         }
         return true;
@@ -77,7 +77,7 @@ export class SpawningExtensionFish {
             return false;
         }
         let targetElementHead = elementArea.getElementHead(x, y);
-        if (ElementHead.getType(targetElementHead) !== ElementHead.TYPE_SAND_2) {
+        if (ElementHead.getTypeOrdinal(targetElementHead) !== ElementHead.TYPE_SAND_2) {
             return false;
         }
         return true;

@@ -220,7 +220,7 @@ export class ProcessorModuleFire {
             return;
         }
 
-        if (ElementHead.getType(elementHead) === ElementHead.TYPE_STATIC) {
+        if (ElementHead.getTypeOrdinal(elementHead) === ElementHead.TYPE_STATIC) {
             // occasionally a falling piece...
             if (this.#random.nextInt(10000) < 2) {
                 let modifiedElementHead = ElementHead.setType(elementHead, ElementHead.TYPE_SAND_1);

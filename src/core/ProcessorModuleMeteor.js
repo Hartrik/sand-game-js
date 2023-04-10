@@ -95,7 +95,7 @@ export class ProcessorModuleMeteor {
                     // TODO
                     // targetElementHead = ElementHead.setTemperature(targetElementHead, ProcessorModuleMeteor.EXPLOSION_HEAT);
 
-                    if (ElementHead.getType(targetElementHead) === ElementHead.TYPE_STATIC
+                    if (ElementHead.getTypeOrdinal(targetElementHead) === ElementHead.TYPE_STATIC
                             && ElementHead.getWeight(targetElementHead) === ElementHead.WEIGHT_WALL) {
                         targetElementHead = ElementHead.setWeight(targetElementHead, ElementHead.WEIGHT_POWDER);
                         targetElementHead = ElementHead.setType(targetElementHead, ElementHead.TYPE_SAND_1);

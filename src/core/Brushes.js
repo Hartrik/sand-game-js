@@ -7,7 +7,7 @@ import {Element} from "./Element.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-26
+ * @version 2023-04-10
  */
 export class Brushes {
 
@@ -63,7 +63,7 @@ export class Brushes {
         Brush.random([new Element(ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_WALL), 0)]),
         Assets.TEXTURE_ROCK);
 
-    static SAND = Brush.randomFromHeadAndTails(ElementHead.of(ElementHead.TYPE_SAND_2, ElementHead.WEIGHT_POWDER), [
+    static SAND = Brush.randomFromHeadAndTails(ElementHead.of(ElementHead.TYPE_SAND_2 | ElementHead.TYPE__DRY_FLAG, ElementHead.WEIGHT_POWDER), [
         ElementTail.of(214, 212, 154, ElementTail.MODIFIER_BLUR_ENABLED),
         ElementTail.of(214, 212, 154, ElementTail.MODIFIER_BLUR_ENABLED),
         ElementTail.of(214, 212, 154, ElementTail.MODIFIER_BLUR_ENABLED),
@@ -84,7 +84,7 @@ export class Brushes {
         ElementTail.of(186, 183, 128, ElementTail.MODIFIER_BLUR_ENABLED)
     ]);
 
-    static SOIL = Brush.randomFromHeadAndTails(ElementHead.of(ElementHead.TYPE_SAND_1, ElementHead.WEIGHT_POWDER, ElementHead.BEHAVIOUR_SOIL), [
+    static SOIL = Brush.randomFromHeadAndTails(ElementHead.of(ElementHead.TYPE_SAND_1 | ElementHead.TYPE__DRY_FLAG, ElementHead.WEIGHT_POWDER, ElementHead.BEHAVIOUR_SOIL), [
         ElementTail.of(142, 104, 72, ElementTail.MODIFIER_BLUR_ENABLED),
         ElementTail.of(142, 104, 72, ElementTail.MODIFIER_BLUR_ENABLED),
         ElementTail.of(142, 104, 72, ElementTail.MODIFIER_BLUR_ENABLED),
@@ -106,7 +106,7 @@ export class Brushes {
         ElementTail.of(102, 102, 102, ElementTail.MODIFIER_BLUR_ENABLED)
     ]);
 
-    static STONE = Brush.randomFromHeadAndTails(ElementHead.of(ElementHead.TYPE_SAND_1, ElementHead.WEIGHT_POWDER), [
+    static STONE = Brush.randomFromHeadAndTails(ElementHead.of(ElementHead.TYPE_SAND_1 | ElementHead.TYPE__DRY_FLAG, ElementHead.WEIGHT_POWDER), [
         ElementTail.of(97, 94, 88, ElementTail.MODIFIER_BLUR_ENABLED),
         ElementTail.of(111, 110, 106, ElementTail.MODIFIER_BLUR_ENABLED),
         ElementTail.of(117, 116, 112, ElementTail.MODIFIER_BLUR_ENABLED),
@@ -224,7 +224,7 @@ export class Brushes {
         new Element(ElementHead.setTemperature(Brushes.#FIRE_ELEMENT_HEAD,120), ElementTail.of(249, 219, 30))
     ]);
 
-    static ASH = Brush.randomFromHeadAndTails(ElementHead.of(ElementHead.TYPE_SAND_2, ElementHead.WEIGHT_POWDER, ElementHead.BEHAVIOUR_NONE, 0), [
+    static ASH = Brush.randomFromHeadAndTails(ElementHead.of(ElementHead.TYPE_SAND_2 | ElementHead.TYPE__DRY_FLAG, ElementHead.WEIGHT_POWDER, ElementHead.BEHAVIOUR_NONE, 0), [
         ElementTail.of(131, 131, 131, ElementTail.MODIFIER_BLUR_ENABLED),
         ElementTail.of(131, 131, 131, ElementTail.MODIFIER_BLUR_ENABLED),
         ElementTail.of(131, 131, 131, ElementTail.MODIFIER_BLUR_ENABLED),

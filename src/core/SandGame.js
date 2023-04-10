@@ -254,7 +254,10 @@ export class SandGame {
             const elementHead = this.#elementArea.getElementHead(x, y);
             const elementTail = this.#elementArea.getElementTail(x, y);
             const json = {
-                type: ElementHead.getType(elementHead),
+                type: {
+                    ordinal: ElementHead.getTypeOrdinal(elementHead),
+                    dry: ElementHead.getTypeDry(elementHead)
+                },
                 weight: ElementHead.getWeight(elementHead),
                 behaviour: ElementHead.getBehaviour(elementHead),
                 special: ElementHead.getSpecial(elementHead),
@@ -268,10 +271,12 @@ export class SandGame {
                     ElementTail.getColorBlue(elementTail)
                 ]
             };
-            return JSON.stringify(json)
-                    .replaceAll(/["{}]/g, '')
-                    .replaceAll(',', ', ')
-                    .replaceAll(':', '=');
+
+            let result = JSON.stringify(json)
+                .replaceAll('"', '')
+                .replaceAll(',', ', ')
+                .replaceAll(':', '=');
+            return result.substring(1, result.length - 1);  // remove {}
         } else {
             return 'Out of bounds';
         }

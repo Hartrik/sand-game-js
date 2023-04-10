@@ -101,7 +101,7 @@ export class ProcessorModuleFish {
             return false;
         }
         let targetElementHead = this.#elementArea.getElementHead(x, y);
-        if (ElementHead.getType(targetElementHead) !== ElementHead.TYPE_FLUID_2) {
+        if (ElementHead.getTypeOrdinal(targetElementHead) !== ElementHead.TYPE_FLUID_2) {
             return false;
         }
         return true;
@@ -112,7 +112,7 @@ export class ProcessorModuleFish {
             return false;
         }
         let targetElementHead = this.#elementArea.getElementHead(x, y);
-        if (ElementHead.getType(targetElementHead) === ElementHead.TYPE_FLUID_2) {
+        if (ElementHead.getTypeOrdinal(targetElementHead) === ElementHead.TYPE_FLUID_2) {
             return true;
         }
         let behaviour = ElementHead.getBehaviour(targetElementHead);
