@@ -44,7 +44,7 @@ export function initStandard(root, assetsContextPath) {
         canvasWidthPx: width,
         canvasHeightPx: height,
         brushSize: 5,
-        scene: 'landscape',
+        scene: (Math.random() > 0.1) ? 'landscape_1' : 'landscape_2',
         assetsContextPath: assetsContextPath
     };
     let sandGameComponent = new SandGameComponent(root, init);
@@ -71,7 +71,7 @@ export function initMinimalistic(root, assetsContextPath) {
         canvasWidthPx: width,
         canvasHeightPx: height,
         brushSize: 5,
-        scene: 'landscape_desert'
+        scene: 'landscape_1'
     };
 
     let sandGameComponent = new SandGameComponent(root, init);
@@ -96,7 +96,7 @@ export function initTest(root, assetsContextPath) {
         canvasWidthPx: width,
         canvasHeightPx: height,
         brushSize: 5,
-        scene: 'landscape',
+        scene: 'landscape_1',
         assetsContextPath: assetsContextPath
     };
     let sandGameComponent = new SandGameComponent(root, init);

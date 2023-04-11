@@ -12,7 +12,7 @@ import {Brush} from "./Brush.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-25
+ * @version 2023-04-11
  */
 export class Scenes {
 
@@ -27,7 +27,7 @@ export class Scenes {
     };
 
     /** @type Scene */
-    static SCENE_LANDSCAPE = {
+    static SCENE_LANDSCAPE_1 = {
         name: 'Landscape 1',
         description: 'Boxed mode',
         apply: function (sandGame) {
@@ -42,7 +42,7 @@ export class Scenes {
                     ' 2 11111 2',
                     ' 222    22',
                     '222    222',
-                    '3333333333',
+                    '2222222222',
                     '          ',
                 ])
                 .withBrushes({
@@ -79,34 +79,6 @@ export class Scenes {
                 .tree(361, 7);
         }
     }
-
-    /** @type Scene */
-    static SCENE_LANDSCAPE_DESERT = {
-        name: 'Desert landscape',
-        description: 'Boxed mode',
-        apply: function (sandGame) {
-            sandGame.setBoxedMode();
-            sandGame.blockTemplate()
-                .withMaxHeight(120)
-                .withBlueprint([
-                    '          ',
-                    '     ww   ',
-                    '  2       ',
-                    '22211     ',
-                    '11111111 1',
-                    '        11',
-                    '       111',
-                    '1111111111',
-                    '          ',
-                ])
-                .withBrushes({
-                    w: Brush.withIntensity(Brushes.WATER, 0.65),
-                    1: Brushes.SAND,
-                    2: Brushes.SOIL
-                })
-                .paint();
-        }
-    };
 
     /** @type Scene */
     static SCENE_FALLTHROUGH = {
@@ -163,11 +135,9 @@ export class Scenes {
 
     static SCENES = {
         empty: Scenes.SCENE_EMPTY,
-        landscape: Scenes.SCENE_LANDSCAPE,
+        landscape_1: Scenes.SCENE_LANDSCAPE_1,
         landscape_2: Scenes.SCENE_LANDSCAPE_2,
-        landscape_desert: Scenes.SCENE_LANDSCAPE_DESERT,
         fallthrough: Scenes.SCENE_FALLTHROUGH,
         platform: Scenes.SCENE_PLATFORM
     };
 }
-

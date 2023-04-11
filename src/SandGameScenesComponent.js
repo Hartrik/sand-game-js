@@ -13,7 +13,7 @@ export class SandGameScenesComponent {
 
     static SCENES = [
         'empty',
-        'landscape',
+        'landscape_1',
         'landscape_2',
         'fallthrough',
         'platform'
