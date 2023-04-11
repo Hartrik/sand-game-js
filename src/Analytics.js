@@ -1,6 +1,6 @@
 /**
  *
- * @version 2023-04-05
+ * @version 2023-04-11
  * @author Patrik Harag
  */
 export class Analytics {
@@ -16,6 +16,11 @@ export class Analytics {
     static FEATURE_RENDERER_SHOW_CHUNKS = 'renderer_show_chunks';
     static FEATURE_RENDERER_SHOW_HEATMAP = 'renderer_show_heatmap';
     static FEATURE_CANVAS_SIZE_CHANGE = 'canvas_size_change';
+    static FEATURE_SWITCH_SCENE = 'switch_scene';
+    static FEATURE_RESTART_SCENE = 'restart_scene';
+    static FEATURE_SWITCH_SCALE = 'switch_scale';
+    static FEATURE_IO_EXPORT = 'io_export';
+    static FEATURE_IO_IMPORT = 'io_import';
 
     static #USED_FEATURES = new Set();
 

@@ -1,12 +1,13 @@
 import {DomBuilder} from "./DomBuilder.js";
 import {SnapshotIO} from "./SnapshotIO.js";
 import {Snapshot} from "./core/Snapshot.js";
+import {Analytics} from "./Analytics.js";
 import FileSaver from 'file-saver';
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-03-12
+ * @version 2023-04-11
  */
 export class SandGameIOComponent {
 
@@ -29,7 +30,7 @@ export class SandGameIOComponent {
             this.#download(snapshot);
         }));
         content.append(DomBuilder.button('Load', { class: 'btn btn-light' }, e => {
-            this.#select();
+            this.#load();
         }));
 
         return content;
@@ -38,9 +39,10 @@ export class SandGameIOComponent {
     #download(snapshot) {
         let bytes = SnapshotIO.createSave(snapshot);
         FileSaver.saveAs(new Blob([bytes]), SnapshotIO.createFilename());
+        Analytics.triggerFeatureUsed(Analytics.FEATURE_IO_EXPORT);
     }
 
-    #select() {
+    #load() {
         let input = document.createElement('input');
         input.type = 'file';
         input.onchange = e => {
@@ -102,6 +104,7 @@ export class SandGameIOComponent {
         }
         if (snapshot) {
             this.#onLoadFunction(snapshot);
+            Analytics.triggerFeatureUsed(Analytics.FEATURE_IO_IMPORT);
         }
     }
 }

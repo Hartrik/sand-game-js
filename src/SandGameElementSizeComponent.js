@@ -1,10 +1,11 @@
 import {Assets} from "./Assets.js";
 import {DomBuilder} from "./DomBuilder.js";
+import {Analytics} from "./Analytics.js";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-03-08
+ * @version 2023-04-11
  */
 export class SandGameElementSizeComponent {
 
@@ -75,10 +76,12 @@ export class SandGameElementSizeComponent {
 
         if (this.#dialogAccepted) {
             this.#select(node, scale);
+            Analytics.triggerFeatureUsed(Analytics.FEATURE_SWITCH_SCALE);
         } else {
             this.#showConfirmDialog(() => {
                 this.#dialogAccepted = true;
                 this.#select(node, scale);
+                Analytics.triggerFeatureUsed(Analytics.FEATURE_SWITCH_SCALE);
             });
         }
     }

@@ -1,10 +1,11 @@
 import {DomBuilder} from "./DomBuilder.js";
 import {Scenes} from "./core/Scenes.js";
+import {Analytics} from "./Analytics.js";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-26
+ * @version 2023-04-11
  */
 export class SandGameScenesComponent {
 
@@ -95,15 +96,18 @@ export class SandGameScenesComponent {
                 // already opened - rebuild scene
                 this.#rebuildConfirm(() => {
                     this.#select(node, id, scene);
+                    Analytics.triggerFeatureUsed(Analytics.FEATURE_RESTART_SCENE);
                 });
             } else {
                 // store snapshot of the old scene and open...
                 this.#store();
                 this.#select(node, id, scene);
+                Analytics.triggerFeatureUsed(Analytics.FEATURE_SWITCH_SCENE);
             }
         } else {
             // open
             this.#select(node, id, scene);
+            Analytics.triggerFeatureUsed(Analytics.FEATURE_SWITCH_SCENE);
         }
     }
 
