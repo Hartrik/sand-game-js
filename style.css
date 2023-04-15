@@ -28,6 +28,7 @@
 .sand-game-component .sand-game-brushes .badge.air {
     background-color: rgb(230, 230, 230);
     color: black;
+    margin-right: 0.8em;
 }
 
 .sand-game-component .sand-game-brushes .badge.sand {
