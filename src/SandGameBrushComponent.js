@@ -4,31 +4,33 @@ import {SandGameControls} from "./SandGameControls.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-12
+ * @version 2023-04-15
  */
 export class SandGameBrushComponent {
 
     /** @type SandGameControls */
     #controls;
 
-    /** @type BrushDeclaration[] */
-    #brushDeclarations;
+    /** @type Tool[] */
+    #tools;
 
 
     /**
      * @param sandGameControls {SandGameControls}
-     * @param brushDeclarations {BrushDeclaration[]}
+     * @param tools {Tool[]}
      */
-    constructor(sandGameControls, brushDeclarations) {
+    constructor(sandGameControls, tools) {
         this.#controls = sandGameControls;
-        this.#brushDeclarations = brushDeclarations;
+        this.#tools = tools;
     }
 
     createNode() {
         let buttons = [];
 
-        for (let d of this.#brushDeclarations) {
-            let button = DomBuilder.button(d.name, { class: 'badge badge-secondary ' + d.cssName }, () => {
+        for (let tool of this.#tools) {
+            let cssName = tool.getCodeName();
+            let displayName = tool.getDisplayName();
+            let button = DomBuilder.button(displayName, { class: 'badge badge-secondary ' + cssName }, () => {
                 // unselect last
                 for (let b of buttons) {
                     b.removeClass('selected');
@@ -37,10 +39,10 @@ export class SandGameBrushComponent {
                 // select
                 button.addClass('selected');
 
-                this.#controls.setBrush(d.brush);
+                this.#controls.setPrimaryTool(tool);
             });
             // initial select
-            if (d.brush === this.#controls.getBrush()) {
+            if (tool === this.#controls.getPrimaryTool()) {
                 button.addClass('selected');
             }
 

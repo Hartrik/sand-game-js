@@ -43,7 +43,6 @@ export function initStandard(root, assetsContextPath) {
         scale: scale,
         canvasWidthPx: width,
         canvasHeightPx: height,
-        brushSize: 5,
         scene: (Math.random() > 0.1) ? 'landscape_1' : 'landscape_2',
         assetsContextPath: assetsContextPath
     };
@@ -70,7 +69,6 @@ export function initMinimalistic(root, assetsContextPath) {
         scale: scale,
         canvasWidthPx: width,
         canvasHeightPx: height,
-        brushSize: 5,
         scene: 'landscape_1'
     };
 
@@ -95,7 +93,6 @@ export function initTest(root, assetsContextPath) {
         scale: scale,
         canvasWidthPx: width,
         canvasHeightPx: height,
-        brushSize: 5,
         scene: 'landscape_1',
         assetsContextPath: assetsContextPath
     };

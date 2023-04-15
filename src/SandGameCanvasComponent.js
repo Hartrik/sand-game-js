@@ -1,12 +1,11 @@
 import {DomBuilder} from "./DomBuilder.js";
 import {SandGameControls} from "./SandGameControls.js";
-import {Brush} from "./core/Brush.js";
-import {Brushes} from "./core/Brushes.js";
+import {Analytics} from "./Analytics.js";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-27
+ * @version 2023-04-15
  */
 export class SandGameCanvasComponent {
 
@@ -63,7 +62,7 @@ export class SandGameCanvasComponent {
         }
 
         let lastX, lastY;
-        let brush = null;  // drawing is not active if null
+        let lastTool = null;  // drawing is not active if null
         let ctrlPressed = false;
         let shiftPressed = false;
 
@@ -72,49 +71,60 @@ export class SandGameCanvasComponent {
             const [x, y] = getActualMousePosition(e);
             lastX = x;
             lastY = y;
+            lastTool = null;
 
             if (e.buttons === 4) {
                 // middle button
                 e.preventDefault();
 
                 if (!e.altKey && !e.ctrlKey && !e.shiftKey) {
-                    sandGame.graphics().draw(x, y, Brushes.METEOR);
+                    const tool = this.#controls.getTertiaryTool();
+                    tool.applyPoint(x, y, sandGame.graphics(), false);
+                    Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_TERTIARY);
+                    Analytics.triggerToolUsed(tool);
                 } else if (e.altKey && e.ctrlKey && e.shiftKey) {
                     console.log('' + x + 'x' + y + ': ' + sandGame.debugElementAt(x, y));
                 }
-                brush = null;
                 return;
             }
 
-            brush = (e.buttons === 1) ? this.#controls.getBrush() : Brushes.AIR;
+            if (e.buttons === 1) {
+                lastTool = this.#controls.getPrimaryTool();
+                Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_PRIMARY);
+            } else {
+                lastTool = this.#controls.getSecondaryTool();
+                Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_SECONDARY);
+            }
 
             if (e.ctrlKey && e.shiftKey) {
-                sandGame.graphics().floodFill(x, y, brush, 1);
-                brush = null;
+                lastTool.applyAround(x, y, sandGame.graphics(), e.altKey);
+                Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_FLOOD);
+                Analytics.triggerToolUsed(lastTool);
+                lastTool = null;
                 return;
             }
 
             ctrlPressed = e.ctrlKey;
             shiftPressed = e.shiftKey;
             if (!ctrlPressed && !shiftPressed) {
-                const actualBrush = e.altKey ? Brush.gentle(brush) : brush;
-                sandGame.graphics().drawLine(x, y, x, y, this.#controls.getBrushSize(), actualBrush);
+                lastTool.applyPoint(x, y, sandGame.graphics(), e.altKey)
+                Analytics.triggerToolUsed(lastTool);
             }
         });
         domNode.addEventListener('mousemove', (e) => {
-            if (brush === null) {
+            if (lastTool === null) {
                 return;
             }
             if (!ctrlPressed && !shiftPressed) {
                 const [x, y] = getActualMousePosition(e);
-                const actualBrush = e.altKey ? Brush.gentle(brush) : brush;
-                sandGame.graphics().drawLine(lastX, lastY, x, y, this.#controls.getBrushSize(), actualBrush);
+                lastTool.applyDrag(lastX, lastY, x, y, sandGame.graphics(), e.altKey);
+                Analytics.triggerToolUsed(lastTool);
                 lastX = x;
                 lastY = y;
             }
         });
         domNode.addEventListener('mouseup', (e) => {
-            if (brush === null) {
+            if (lastTool === null) {
                 return;
             }
             if (ctrlPressed) {
@@ -123,22 +133,24 @@ export class SandGameCanvasComponent {
                 let minY = Math.min(lastY, y);
                 let maxX = Math.max(lastX, x);
                 let maxY = Math.max(lastY, y);
-                const actualBrush = e.altKey ? Brush.gentle(brush) : brush;
-                sandGame.graphics().drawRectangle(minX, minY, maxX, maxY, actualBrush);
+                lastTool.applyArea(minX, minY, maxX, maxY, sandGame.graphics(), e.altKey);
+                Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_RECT);
+                Analytics.triggerToolUsed(lastTool);
             } else if (shiftPressed) {
                 const [x, y] = getActualMousePosition(e);
-                const actualBrush = e.altKey ? Brush.gentle(brush) : brush;
-                sandGame.graphics().drawLine(lastX, lastY, x, y, this.#controls.getBrushSize(), actualBrush);
+                lastTool.applyDrag(lastX, lastY, x, y, sandGame.graphics(), e.altKey);
+                Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_LINE);
+                Analytics.triggerToolUsed(lastTool);
             }
-            brush = null;
+            lastTool = null;
         });
         domNode.addEventListener('mouseout', (e) => {
             // nothing
         });
         domNode.addEventListener('mouseenter', (e) => {
-            if (brush !== null && e.buttons === 0) {
+            if (lastTool !== null && e.buttons === 0) {
                 // mouse released outside...
-                brush = null;
+                lastTool = null;
                 e.preventDefault();
             }
         });
@@ -153,24 +165,27 @@ export class SandGameCanvasComponent {
             const [x, y] = getActualTouchPosition(e);
             lastX = x;
             lastY = y;
-            brush = this.#controls.getBrush();
-            sandGame.graphics().drawLine(x, y, x, y, this.#controls.getBrushSize(), brush);
+            lastTool = this.#controls.getPrimaryTool();
+            lastTool.applyPoint(x, y, sandGame.graphics(), false);
+            Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_PRIMARY);
+            Analytics.triggerToolUsed(lastTool);
 
             e.preventDefault();
         });
         domNode.addEventListener('touchmove', (e) => {
-            if (brush === null) {
+            if (lastTool === null) {
                 return;
             }
             const [x, y] = getActualTouchPosition(e);
-            sandGame.graphics().drawLine(lastX, lastY, x, y, this.#controls.getBrushSize(), brush);
+            lastTool.applyDrag(lastX, lastY, x, y, sandGame.graphics(), false);
+            Analytics.triggerToolUsed(lastTool);
             lastX = x;
             lastY = y;
 
             e.preventDefault();
         });
         domNode.addEventListener('touchend', (e) => {
-            brush = null;
+            lastTool = null;
 
             e.preventDefault();
         });

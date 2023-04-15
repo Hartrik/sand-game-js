@@ -1,6 +1,8 @@
+import { Tools } from "./core/Tools.js";
+
 /**
  *
- * @version 2023-04-11
+ * @version 2023-04-15
  * @author Patrik Harag
  */
 export class Analytics {
@@ -10,6 +12,12 @@ export class Analytics {
 
     // options bar
     static FEATURE_PAUSE = 'pause';
+    static FEATURE_DRAW_PRIMARY = 'draw_primary';
+    static FEATURE_DRAW_SECONDARY = 'draw_secondary';
+    static FEATURE_DRAW_TERTIARY = 'draw_tertiary';
+    static FEATURE_DRAW_LINE = 'draw_line';
+    static FEATURE_DRAW_RECT = 'draw_rect';
+    static FEATURE_DRAW_FLOOD = 'draw_flood';
     static FEATURE_STATUS_DISPLAYED = 'status_displayed';
     static FEATURE_OPTIONS_DISPLAYED = 'options_displayed';
     static FEATURE_RENDERER_PIXELATED = 'renderer_pixelated';
@@ -23,6 +31,14 @@ export class Analytics {
     static FEATURE_IO_IMPORT = 'io_import';
 
     static #USED_FEATURES = new Set();
+
+
+    static triggerToolUsed(tool) {
+        if (tool.getCategory() === Tools.CATEGORY_BRUSH) {
+            const feature = 'brush_' + tool.getCodeName();
+            Analytics.triggerFeatureUsed(feature);
+        }
+    }
 
     static triggerFeatureUsed(feature) {
         if (!Analytics.#USED_FEATURES.has(feature)) {

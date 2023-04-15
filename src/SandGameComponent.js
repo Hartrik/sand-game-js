@@ -1,8 +1,8 @@
 import {DomBuilder} from "./DomBuilder.js";
 import {SandGame} from "./core/SandGame.js";
-import {Brush} from "./core/Brush.js";
 import {Brushes} from "./core/Brushes.js";
 import {Scenes} from "./core/Scenes.js";
+import {Tools} from "./core/Tools.js";
 import {SandGameControls} from "./SandGameControls.js";
 import {SandGameScenesComponent} from "./SandGameScenesComponent.js";
 import {SandGameElementSizeComponent} from "./SandGameElementSizeComponent.js";
@@ -16,7 +16,7 @@ import {SandGameCanvasComponent} from "./SandGameCanvasComponent.js";
  * @requires jQuery
  *
  * @author Patrik Harag
- * @version 2023-02-26
+ * @version 2023-04-15
  */
 export class SandGameComponent extends SandGameControls {
 
@@ -24,21 +24,9 @@ export class SandGameComponent extends SandGameControls {
         scale: 0.5,
         canvasWidthPx: 700,
         canvasHeightPx: 400,
-        brushSize: 5,
         scene: 'empty',
         assetsContextPath: './assets'
     };
-
-    /** @type BrushDeclaration[] */
-    #brushDeclarations = [
-        { name: 'Sand',   cssName: 'sand',   code: '1', brush: Brushes.SAND },
-        { name: 'Soil',   cssName: 'soil',   code: '2', brush: Brushes.SOIL },
-        { name: 'Gravel', cssName: 'gravel', code: '3', brush: Brushes.STONE },
-        { name: 'Rock',   cssName: 'wall',   code: 'r', brush: Brushes.ROCK },
-        { name: 'Water',  cssName: 'water',  code: 'w', brush: Brushes.WATER },
-        { name: 'Fire',   cssName: 'fire',   code: 'f', brush: Brush.gentle(Brushes.FIRE) },
-        { name: 'Erase',  cssName: 'air',    code: '.', brush: Brushes.AIR },
-    ];
 
     /** @type number */
     #currentWidthPoints;
@@ -56,8 +44,10 @@ export class SandGameComponent extends SandGameControls {
     /** @type boolean */
     #showActiveChunks = false;
     #showHeatmap = false;
-    /** @type Brush */
-    #brush = Brushes.SAND;
+    /** @type Tool */
+    #primaryTool = Tools.byCodeName('sand');
+    #secondaryTool = Tools.byCodeName('air');
+    #tertiaryTool = Tools.byCodeName('meteor');
 
     #node = null;
     #nodeHolderTopToolbar;
@@ -203,7 +193,7 @@ export class SandGameComponent extends SandGameControls {
     }
 
     enableBrushes() {
-        let component = new SandGameBrushComponent(this, this.#brushDeclarations);
+        let component = new SandGameBrushComponent(this, Tools.DEFAULT_TOOLS);
         this.#nodeHolderTopToolbar.append(component.createNode());
     }
 
@@ -403,16 +393,20 @@ export class SandGameComponent extends SandGameControls {
 
     // SandGameControls / tools
 
-    setBrush(brush) {
-        this.#brush = brush;
+    setPrimaryTool(tool) {
+        this.#primaryTool = tool;
     }
 
-    getBrush() {
-        return this.#brush;
+    getPrimaryTool() {
+        return this.#primaryTool;
     }
 
-    getBrushSize() {
-        return this.#init.brushSize;
+    getSecondaryTool() {
+        return this.#secondaryTool;
+    }
+
+    getTertiaryTool() {
+        return this.#tertiaryTool;
     }
 
     // SandGameControls / ui

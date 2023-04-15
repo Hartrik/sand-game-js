@@ -1,17 +1,9 @@
 
 /**
- * @typedef {Object} BrushDeclaration
- * @property {string} name
- * @property {string} cssName
- * @property {string} code
- * @property {Brush} brush
- */
-
-/**
  * @interface
  *
  * @author Patrik Harag
- * @version 2023-02-26
+ * @version 2023-04-15
  */
 export class SandGameControls {
 
@@ -163,24 +155,31 @@ export class SandGameControls {
 
     /**
      *
-     * @param brush {Brush}
+     * @param tool {Tool}
      * @returns void
      */
-    setBrush(brush) {
+    setPrimaryTool(tool) {
         throw 'Not implemented';
     }
 
     /**
-     * @returns {Brush}
+     * @returns {Tool}
      */
-    getBrush() {
+    getPrimaryTool() {
         throw 'Not implemented';
     }
 
     /**
-     * @returns {number}
+     * @returns {Tool}
      */
-    getBrushSize() {
+    getSecondaryTool() {
+        throw 'Not implemented';
+    }
+
+    /**
+     * @returns {Tool}
+     */
+    getTertiaryTool() {
         throw 'Not implemented';
     }
 
