@@ -265,7 +265,7 @@ export class SandGameComponent extends SandGameControls {
     }
 
     enableTestTools() {
-        let component = new SandGameTestComponent(this, this.#brushDeclarations);
+        let component = new SandGameTestComponent(this);
         this.#nodeHolderAdditionalViews.append(component.createNode());
     }
 
