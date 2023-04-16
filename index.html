@@ -9,15 +9,16 @@
         integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"
           integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
-  <script src="dist/sand-game-js.umd.js"></script>
+  <script defer src="dist/sand-game-js.umd.js"></script>
   <link rel="stylesheet" type="text/css" href="style.css" />
   <script>
       // global variables, accessible from browser console
       var sandGame = null;
-      var brushes = SandGameJS.Brushes;
+      var brushes = null;
 
       $(() => {
           let root = $('#sand-game-root');
+          root.empty();
 
           // const component = SandGameJS.initMinimalistic(root);
           // const component = SandGameJS.initStandard(root);
@@ -26,13 +27,30 @@
           component.addOnInitialized(s => {
               sandGame = s;
           });
-      })
+          brushes = SandGameJS.Brushes;
+
+          console.log('Globals: sandGame, brushes');
+          console.log('Example: sandGame.graphics().drawLine(10, 10, 300, 150, 2, brushes.SAND);');
+      });
   </script>
 </head>
 <body>
 <main role="main" class="container">
   <h1>Sand Game JS</h1>
-  <div id="sand-game-root"></div>
+  <div id="sand-game-root">
+    <!-- Sand Game JS placeholder -->
+    <div style="user-select: none;">
+      <div>
+        <button disabled class="badge badge-secondary" type="button" style="min-width: 4em; padding: 0.4em 0.4em; border: none; background-color: rgb(230, 230, 230); color: black;">&nbsp;</button>
+      </div>
+      <div style="height: 70vh; display: flex; align-items: center; justify-content: center; margin-top: 4pt; padding: 2em; outline: 1px solid #b7b7b7;">
+        <div>
+          Loading...
+        </div>
+      </div>
+      <div style="height: 20vh"></div>
+    </div>
+  </div>
 </main>
 <footer class="container" style="font-size: small">
   <p>
