@@ -3,7 +3,7 @@
  * @interface
  *
  * @author Patrik Harag
- * @version 2023-04-15
+ * @version 2023-04-24
  */
 export class SandGameControls {
 
@@ -49,6 +49,14 @@ export class SandGameControls {
     }
 
     switchStartStop() {
+        throw 'Not implemented';
+    }
+
+    openNewScene(sandGameInitializer, canvasWidth = undefined, canvasHeight = undefined, scale = undefined) {
+        throw 'Not implemented';
+    }
+
+    openFromSnapshot(snapshot) {
         throw 'Not implemented';
     }
 

@@ -20,7 +20,7 @@ import {TemplateLayeredPainter} from "./TemplateLayeredPainter.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-25
+ * @version 2023-04-24
  */
 export class SandGame {
 
@@ -43,7 +43,7 @@ export class SandGame {
     #framesCounter;
 
     /** @type Counter */
-    #cyclesCounter;
+    #iterationsCounter;
 
     /** @type Processor */
     #processor;
@@ -80,7 +80,7 @@ export class SandGame {
                 : ElementArea.create(width, height, defaultElement);
         this.#random = new DeterministicRandom((snapshot) ? snapshot.metadata.random : 0);
         this.#framesCounter = new Counter();
-        this.#cyclesCounter = new Counter();
+        this.#iterationsCounter = new Counter();
         this.#processor = new Processor(this.#elementArea, 16, this.#random, defaultElement, snapshot);
         this.#renderer = new Renderer(this.#elementArea, 16, context);
         this.#width = width;
@@ -113,7 +113,7 @@ export class SandGame {
             clearInterval(this.#processorIntervalHandle);
             this.#processorIntervalHandle = null;
         }
-        this.#cyclesCounter.clear();
+        this.#iterationsCounter.clear();
     }
 
     stopRendering() {
@@ -127,7 +127,7 @@ export class SandGame {
     doProcessing() {
         this.#processor.next();
         const t = Date.now();
-        this.#cyclesCounter.tick(t);
+        this.#iterationsCounter.tick(t);
         for (let func of this.#onProcessed) {
             func();
         }
@@ -186,16 +186,20 @@ export class SandGame {
         this.#processor.setErasingEnabled(true);
     }
 
-    addOnRendered(onRenderedFunc) {
-        this.#onRendered.push(onRenderedFunc);
+    addOnProcessed(handler) {
+        this.#onProcessed.push(handler);
+    }
+
+    addOnRendered(handler) {
+        this.#onRendered.push(handler);
     }
 
     getFramesPerSecond() {
         return this.#framesCounter.getValue();
     }
 
-    getCyclesPerSecond() {
-        return this.#cyclesCounter.getValue();
+    getIterationsPerSecond() {
+        return this.#iterationsCounter.getValue();
     }
 
     getWidth() {

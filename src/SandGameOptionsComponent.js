@@ -2,11 +2,13 @@ import {DomBuilder} from "./DomBuilder.js";
 import {SandGameControls} from "./SandGameControls.js";
 import {Processor} from "./core/Processor.js";
 import {Analytics} from "./Analytics.js";
+import {BenchmarkProvider} from "./BenchmarkProvider.js";
+import FileSaver from 'file-saver';
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-04-05
+ * @version 2023-04-24
  */
 export class SandGameOptionsComponent {
 
@@ -228,8 +230,36 @@ export class SandGameOptionsComponent {
             DomBuilder.element('br'),
             DomBuilder.span('using the buttons below to improve '),
             DomBuilder.element('br'),
-            DomBuilder.span(' performance.')
+            DomBuilder.span(' performance.'),
+            DomBuilder.element('br'),
+
+            DomBuilder.element('br'),
+
+            this.#createBenchmarkButton()
         ];
+    }
+
+    #createBenchmarkButton() {
+        return DomBuilder.button('Benchmark', { type: 'button', class: 'btn btn-light' }, e => {
+            let benchmarkProvider = new BenchmarkProvider(this.#controls, results => {
+                let dialog = new DomBuilder.BootstrapDialog();
+                dialog.setHeaderContent('Benchmark results');
+                dialog.setBodyContent([
+                    DomBuilder.par(null, 'IPS AVG: ' + results.ipsAvg.toFixed(2)),
+                    DomBuilder.par(null, 'IPS MIN: ' + results.ipsMin)
+                ]);
+                dialog.addCloseButton('Close');
+                dialog.addButton(
+                    DomBuilder.button('Download results', { type: 'button', class: 'btn btn-primary' }, e => {
+                        const data = JSON.stringify(results, null, '  ');
+                        const blob = new Blob([data], { type: 'application/json;charset=utf-8' });
+                        FileSaver.saveAs(blob, 'benchmark.json');
+                    })
+                );
+                dialog.show(this.#controls.getDialogAnchor());
+            });
+            benchmarkProvider.start();
+        });
     }
 
 }
