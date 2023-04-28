@@ -1,5 +1,5 @@
 import {Snapshot} from "./core/Snapshot";
-import {SnapshotMetadata} from "./core/SnapshotMetadata.js";
+import {SceneMetadata} from "./core/SceneMetadata.js";
 import {strToU8, strFromU8, zipSync, unzipSync} from 'fflate';
 
 /**
@@ -44,7 +44,7 @@ export class SnapshotIO {
         if (!metadataRaw) {
             throw 'metadata.json not found';
         }
-        snapshot.metadata = Object.assign(new SnapshotMetadata(), JSON.parse(strFromU8(metadataRaw)));
+        snapshot.metadata = Object.assign(new SceneMetadata(), JSON.parse(strFromU8(metadataRaw)));
 
         let dataRaw = zip['data.bin'];
         if (!dataRaw) {

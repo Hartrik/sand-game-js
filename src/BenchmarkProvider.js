@@ -1,10 +1,11 @@
 import {SandGameControls} from "./SandGameControls.js";
 import {Brushes} from "./core/Brushes.js";
+import {SceneImplHardcoded} from "./core/SceneImplHardcoded.js";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-04-24
+ * @version 2023-04-29
  */
 export class BenchmarkProvider {
 
@@ -27,55 +28,61 @@ export class BenchmarkProvider {
     }
 
     start() {
-        this.#controls.openNewScene(sandGame => {
-            const benchmarkResults = [];
-            const benchmarkQueue = [...BenchmarkProvider.BENCHMARKS];
-            let i = 0;
-            let waiting = BenchmarkProvider.WAITING_GAP;
-            let ipsSum = 0;
-            let ipsMin = Number.MAX_SAFE_INTEGER;
-            sandGame.addOnProcessed(() => {
-                if (waiting > 0) {
-                    waiting--;
-                    return;
-                }
-                if (benchmarkQueue.length === 0) {
-                    return;
-                }
-
-                const benchmark = benchmarkQueue[0];
-                if (i === 0) {
-                    console.log('Running benchmark: ' + benchmark.name);
-                }
-                benchmark.nextIteration(sandGame, i);
-                i++;
-                const ips = sandGame.getIterationsPerSecond();
-                ipsSum = ipsSum + ips;
-                ipsMin = Math.min(ipsSum, ips);
-
-                if (benchmark.iterations === i) {
-                    const ipsAvg = ipsSum / benchmark.iterations;
-                    benchmarkResults.push({
-                       name: benchmark.name,
-                       ipsAvg: ipsAvg,
-                       ipsMin: ipsMin
-                    });
-
-                    benchmarkQueue.shift();
-                    i = 0;
-                    ipsSum = 0;
-                    ipsMin = Number.MAX_SAFE_INTEGER;
-                    waiting = BenchmarkProvider.WAITING_GAP;
-
-                    sandGame.graphics().fill(Brushes.AIR);
-
-                    if (benchmarkQueue.length === 0) {
-                        this.#onFinish(this.#finalizeResults(sandGame, benchmarkResults));
-                    }
-                }
-            });
+        let scene = new SceneImplHardcoded({
+            apply: (sandGame) => this.#benchmarkScene(sandGame)
         });
+
+        this.#controls.openScene(scene);
         this.#controls.start();
+    }
+
+    #benchmarkScene(sandGame) {
+        const benchmarkResults = [];
+        const benchmarkQueue = [...BenchmarkProvider.BENCHMARKS];
+        let i = 0;
+        let waiting = BenchmarkProvider.WAITING_GAP;
+        let ipsSum = 0;
+        let ipsMin = Number.MAX_SAFE_INTEGER;
+        sandGame.addOnProcessed(() => {
+            if (waiting > 0) {
+                waiting--;
+                return;
+            }
+            if (benchmarkQueue.length === 0) {
+                return;
+            }
+
+            const benchmark = benchmarkQueue[0];
+            if (i === 0) {
+                console.log('Running benchmark: ' + benchmark.name);
+            }
+            benchmark.nextIteration(sandGame, i);
+            i++;
+            const ips = sandGame.getIterationsPerSecond();
+            ipsSum = ipsSum + ips;
+            ipsMin = Math.min(ipsSum, ips);
+
+            if (benchmark.iterations === i) {
+                const ipsAvg = ipsSum / benchmark.iterations;
+                benchmarkResults.push({
+                    name: benchmark.name,
+                    ipsAvg: ipsAvg,
+                    ipsMin: ipsMin
+                });
+
+                benchmarkQueue.shift();
+                i = 0;
+                ipsSum = 0;
+                ipsMin = Number.MAX_SAFE_INTEGER;
+                waiting = BenchmarkProvider.WAITING_GAP;
+
+                sandGame.graphics().fill(Brushes.AIR);
+
+                if (benchmarkQueue.length === 0) {
+                    this.#onFinish(this.#finalizeResults(sandGame, benchmarkResults));
+                }
+            }
+        });
     }
 
     #finalizeResults(sandGame, benchmarkResults) {

@@ -10,7 +10,7 @@ import {Renderer} from "./Renderer.js";
 import {RenderingModeHeatmap} from "./RenderingModeHeatmap.js";
 import {SandGameGraphics} from "./SandGameGraphics.js";
 import {Snapshot} from "./Snapshot.js";
-import {SnapshotMetadata} from "./SnapshotMetadata.js";
+import {SceneMetadata} from "./SceneMetadata.js";
 import {SpawningExtensionFish} from "./SpawningExtensionFish.js";
 import {SpawningExtensionGrass} from "./SpawningExtensionGrass.js";
 import {SpawningExtensionTree} from "./SpawningExtensionTree.js";
@@ -237,8 +237,8 @@ export class SandGame {
      * @returns {Snapshot}
      */
     createSnapshot() {
-        let metadata = new SnapshotMetadata();
-        metadata.formatVersion = Snapshot.CURRENT_FORMAT_VERSION;
+        let metadata = new SceneMetadata();
+        metadata.formatVersion = SceneMetadata.CURRENT_FORMAT_VERSION;
         metadata.created = new Date().getTime();
         metadata.width = this.#width;
         metadata.height = this.#height;

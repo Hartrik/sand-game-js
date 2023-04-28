@@ -1,5 +1,5 @@
 import {DomBuilder} from "./DomBuilder.js";
-import {Scenes} from "./core/Scenes.js";
+import {Scenes} from "./Scenes.js";
 import {Analytics} from "./Analytics.js";
 
 /**

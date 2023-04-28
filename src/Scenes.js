@@ -1,33 +1,26 @@
-import {Brushes} from "./Brushes.js";
-import {Brush} from "./Brush.js";
-
-/**
- * @typedef {Object} Scene
- * @property {string} name
- * @property {function(SandGame)} apply
- * @property {string} description
- */
-
+import {Brushes} from "./core/Brushes.js";
+import {Brush} from "./core/Brush.js";
+import {SceneImplHardcoded} from "./core/SceneImplHardcoded.js";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-04-11
+ * @version 2023-04-28
  */
 export class Scenes {
 
     /** @type Scene */
-    static SCENE_EMPTY = {
+    static SCENE_EMPTY = new SceneImplHardcoded({
         name: 'Empty',
         description: 'Boxed mode',
         apply: function (sandGame) {
             sandGame.setBoxedMode();
             // empty
         }
-    };
+    });
 
     /** @type Scene */
-    static SCENE_LANDSCAPE_1 = {
+    static SCENE_LANDSCAPE_1 = new SceneImplHardcoded({
         name: 'Landscape 1',
         description: 'Boxed mode',
         apply: function (sandGame) {
@@ -53,9 +46,9 @@ export class Scenes {
                 })
                 .paint();
         }
-    };
+    });
 
-    static SCENE_LANDSCAPE_2 = {
+    static SCENE_LANDSCAPE_2 = new SceneImplHardcoded({
         name: 'Landscape 2',
         description: 'Boxed mode',
         apply: function (sandGame) {
@@ -78,10 +71,10 @@ export class Scenes {
                 .tree(336, 5)
                 .tree(361, 7);
         }
-    }
+    });
 
     /** @type Scene */
-    static SCENE_FALLTHROUGH = {
+    static SCENE_FALLTHROUGH = new SceneImplHardcoded({
         name: 'Fall-through',
         description: 'Fall-through mode',
         apply: function (sandGame) {
@@ -105,10 +98,10 @@ export class Scenes {
                 })
                 .paint();
         }
-    };
+    });
 
     /** @type Scene */
-    static SCENE_PLATFORM = {
+    static SCENE_PLATFORM = new SceneImplHardcoded({
         name: 'Platform',
         description: 'Erasing mode',
         apply: function (sandGame) {
@@ -131,7 +124,7 @@ export class Scenes {
                 })
                 .paint();
         }
-    };
+    });
 
     static SCENES = {
         empty: Scenes.SCENE_EMPTY,

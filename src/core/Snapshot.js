@@ -2,13 +2,11 @@
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-04
+ * @version 2023-04-28
  */
 export class Snapshot {
 
-    static CURRENT_FORMAT_VERSION = 1;
-
-    /** @type SnapshotMetadata */
+    /** @type SceneMetadata */
     metadata;
 
     /** @type ArrayBuffer */
