@@ -60,8 +60,16 @@
     background-color: #ff5900;
 }
 
+.sand-game-component .sand-game-brushes .badge.fire.selected {
+    outline: black solid 1px;
+}
+
 .sand-game-component .sand-game-brushes .badge.meteor {
     background-color: #ff5900;
+}
+
+.sand-game-component .sand-game-brushes .badge.meteor.selected {
+    outline: black solid 1px;
 }
 
 .sand-game-component .sand-game-brushes .badge.selected {
