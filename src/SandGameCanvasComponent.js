@@ -5,7 +5,7 @@ import {Analytics} from "./Analytics.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-04-15
+ * @version 2023-04-28
  */
 export class SandGameCanvasComponent {
 
@@ -13,6 +13,7 @@ export class SandGameCanvasComponent {
     #controls;
 
     #nodeCanvas;
+    #nodeOverlay;
 
     #context;
 
@@ -21,15 +22,17 @@ export class SandGameCanvasComponent {
      */
     constructor(sandGameControls) {
         this.#controls = sandGameControls;
-        this.#nodeCanvas = this.#createCanvas();
-    }
 
-    #createCanvas() {
         const w = this.#controls.getCurrentWidthPoints();
         const h = this.#controls.getCurrentHeightPoints();
         const scale = this.#controls.getCurrentScale();
+        this.#nodeCanvas = this.#createCanvas(w, h, scale);
+        this.#nodeOverlay = this.#createOverlay(w, h, scale);
+    }
 
-        let canvas = DomBuilder.element('canvas', {
+    #createCanvas(w, h, scale) {
+        const canvas = DomBuilder.element('canvas', {
+            style: 'position: relative;',
             class: 'sand-game-canvas',
             width: w + 'px',
             height: h + 'px'
@@ -46,12 +49,33 @@ export class SandGameCanvasComponent {
         return canvas;
     }
 
+    #createOverlay(w, h, scale) {
+        const overlay = DomBuilder.div({
+            style: 'position: absolute; left: 0; top: 0;',
+            class: 'sand-game-canvas-overlay',
+            width: w + 'px',
+            height: h + 'px'
+        });
+
+        // scale up
+        overlay.width(w / scale);
+        overlay.height(h / scale);
+
+        return overlay;
+    }
+
     createNode() {
-        return this.#nodeCanvas;
+        return DomBuilder.div({
+            style: 'position: relative;',
+            class: 'sand-game-canvas-component'
+        }, [
+            this.#nodeCanvas,
+            this.#nodeOverlay
+        ]);
     }
 
     initMouseHandling(sandGame) {
-        let domNode = this.#nodeCanvas[0];
+        let domNode = this.#nodeOverlay[0];
         const scale = this.#controls.getCurrentScale();
 
         let getActualMousePosition = (e) => {
@@ -66,7 +90,7 @@ export class SandGameCanvasComponent {
         let ctrlPressed = false;
         let shiftPressed = false;
 
-        this.#nodeCanvas.bind('contextmenu', e => false);
+        this.#nodeOverlay.bind('contextmenu', e => false);
         domNode.addEventListener('mousedown', (e) => {
             const [x, y] = getActualMousePosition(e);
             lastX = x;
@@ -116,11 +140,26 @@ export class SandGameCanvasComponent {
                 return;
             }
             if (!ctrlPressed && !shiftPressed) {
+                // drawing
                 const [x, y] = getActualMousePosition(e);
                 lastTool.applyDrag(lastX, lastY, x, y, sandGame.graphics(), e.altKey);
                 Analytics.triggerToolUsed(lastTool);
                 lastX = x;
                 lastY = y;
+                return;
+            }
+            if (ctrlPressed && shiftPressed) {
+                return;
+            }
+            if (ctrlPressed) {
+                const [x, y] = getActualMousePosition(e);
+                this.#repaintRectangleSelection(lastX, lastY, x, y, scale);
+                return;
+            }
+            if (shiftPressed) {
+                const [x, y] = getActualMousePosition(e);
+                this.#repaintLineSelection(lastX, lastY, x, y, scale);
+                return;
             }
         });
         domNode.addEventListener('mouseup', (e) => {
@@ -143,6 +182,7 @@ export class SandGameCanvasComponent {
                 Analytics.triggerToolUsed(lastTool);
             }
             lastTool = null;
+            this.#cleanSelection();
         });
         domNode.addEventListener('mouseout', (e) => {
             // nothing
@@ -151,6 +191,7 @@ export class SandGameCanvasComponent {
             if (lastTool !== null && e.buttons === 0) {
                 // mouse released outside...
                 lastTool = null;
+                this.#cleanSelection();
                 e.preventDefault();
             }
         });
@@ -189,6 +230,36 @@ export class SandGameCanvasComponent {
 
             e.preventDefault();
         });
+    }
+
+    #cleanSelection() {
+        this.#nodeOverlay.empty();
+    }
+
+    #repaintRectangleSelection(lastX, lastY, x, y, scale) {
+        this.#nodeOverlay.empty();
+
+        let xPx = Math.min(lastX, x) / scale;
+        let yPx = Math.min(lastY, y) / scale;
+        let wPx = Math.abs(x - lastX) / scale;
+        let hPx = Math.abs(y - lastY) / scale;
+
+        this.#nodeOverlay.append(DomBuilder.div({
+            style: `position: absolute; left: ${xPx}px; top: ${yPx}px; width: ${wPx}px; height: ${hPx}px; outline: black 1px solid;`,
+        }));
+    }
+
+    #repaintLineSelection(lastX, lastY, x, y, scale) {
+        this.#nodeOverlay.empty();
+
+        const w = this.#controls.getCurrentWidthPoints();
+        const h = this.#controls.getCurrentHeightPoints();
+
+        this.#nodeOverlay.append(DomBuilder.create(`
+            <svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+              <line x1="${lastX}" y1="${lastY}" x2="${x}" y2="${y}" stroke="black" />
+            </svg>`
+        ));
     }
 
     getContext() {

@@ -13,8 +13,10 @@
 }
 
 .sand-game-component .sand-game-canvas {
-    margin-top: 4pt;
     outline: 1px solid #b7b7b7;
+}
+
+.sand-game-component .sand-game-canvas-overlay {
     cursor: crosshair;
     user-select: none;
 }
@@ -22,6 +24,7 @@
 .sand-game-component .sand-game-brushes {
     display: inline-block;
     user-select: none;
+    margin-bottom: 4pt;
 }
 
 .sand-game-component .sand-game-brushes .badge {

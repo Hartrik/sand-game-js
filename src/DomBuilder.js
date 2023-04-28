@@ -1,10 +1,19 @@
 
 /**
  *
- * @version 2023-03-08
+ * @version 2023-04-28
  * @author Patrik Harag
  */
 export class DomBuilder {
+
+    /**
+     *
+     * @param html {string}
+     * @return {JQuery<HTMLElement>}
+     */
+    static create(html) {
+        return $(html);
+    }
 
     /**
      *
