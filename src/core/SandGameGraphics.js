@@ -1,9 +1,11 @@
 import {FloodFillPainter} from "./FloodFillPainter.js";
+import {Element} from "./Element.js";
+import {Brush} from "./Brush.js";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-20
+ * @version 2023-04-29
  */
 export class SandGameGraphics {
 
@@ -26,13 +28,22 @@ export class SandGameGraphics {
      *
      * @param x {number}
      * @param y {number}
-     * @param brush {Brush}
+     * @param brushOrElement {Brush|Element}
      */
-    draw(x, y, brush) {
-        let oldElement = this.#elementArea.getElement(x, y);
-        let newElement = brush.apply(x, y, this.#random, oldElement);
-        this.#elementArea.setElement(x, y, newElement);
-        this.#triggerFunction(x, y);
+    draw(x, y, brushOrElement) {
+        if (this.#elementArea.isValidPosition(x, y)) {
+            if (brushOrElement instanceof Element) {
+                this.#elementArea.setElement(x, y, brushOrElement);
+                this.#triggerFunction(x, y);
+            } else if (brushOrElement instanceof Brush) {
+                let oldElement = this.#elementArea.getElement(x, y);
+                let newElement = brushOrElement.apply(x, y, this.#random, oldElement);
+                this.#elementArea.setElement(x, y, newElement);
+                this.#triggerFunction(x, y);
+            } else {
+                throw 'Brush or Element expected';
+            }
+        }
     }
 
     drawRectangle(x1, y1, x2, y2, brush, supportNegativeCoordinates = false) {

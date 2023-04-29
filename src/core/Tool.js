@@ -1,9 +1,11 @@
 import { Brush } from "./Brush.js";
+import { Element } from "./Element.js";
+import { DomBuilder } from "../DomBuilder";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-04-15
+ * @version 2023-04-29
  */
 export class Tool {
 
@@ -44,6 +46,15 @@ export class Tool {
      */
     getCodeName() {
         return this.#codeName;
+    }
+
+    /**
+     * @param {number} scale
+     * @return {{node:any,width:number,height:number}|null}
+     */
+    createCursor(scale) {
+        // default cursor
+        return null;
     }
 
     /**
@@ -108,6 +119,14 @@ export class Tool {
     static pointBrushTool(category, codeName, displayName, brush) {
         return new PointBrushTool(category, codeName, displayName, brush);
     }
+
+    static pasteTool(category, codeName, displayName, scene, handler) {
+        return new PasteTool(category, codeName, displayName, scene, handler);
+    }
+
+    static actionTool(category, codeName, displayName, handler) {
+        return new ActionTool(category, codeName, displayName, handler);
+    }
 }
 
 /**
@@ -168,8 +187,97 @@ class PointBrushTool extends Tool {
         this.#brush = brush;
     }
 
-
     applyPoint(x, y, graphics, aldModifier) {
         graphics.draw(x, y, this.#brush);
+    }
+}
+
+/**
+ *
+ * @author Patrik Harag
+ * @version 2023-04-29
+ */
+class PasteTool extends Tool {
+
+    static DEFAULT_W = 30;
+    static DEFAULT_H = 30;
+    static BACKGROUND_ELEMENT = new Element(0xFFFFFFFF, 0xFFFFFFFF);
+
+    /** @type ElementArea */
+    #elementArea;
+    /** @type function */
+    #onPasteHandler;
+
+    constructor(category, codeName, displayName, scene, onPasteHandler) {
+        super(category, codeName, displayName);
+
+        this.#elementArea = scene.createElementArea(
+                PasteTool.DEFAULT_W, PasteTool.DEFAULT_H, PasteTool.BACKGROUND_ELEMENT);
+
+        this.#onPasteHandler = onPasteHandler;
+    }
+
+    applyPoint(x, y, graphics, aldModifier) {
+        const elementArea = this.#elementArea;
+
+        const offsetX = x - Math.trunc(elementArea.getWidth() / 2);
+        const offsetY = y - Math.trunc(elementArea.getHeight() / 2);
+        for (let i = 0; i < elementArea.getWidth() && offsetX + i < graphics.getWidth(); i++) {
+            const tx = offsetX + i;
+            if (tx < 0) {
+                continue;
+            }
+
+            for (let j = 0; j < elementArea.getHeight() && offsetY + j < graphics.getHeight(); j++) {
+                const ty = offsetY + j;
+                if (ty < 0) {
+                    continue;
+                }
+
+                const element = elementArea.getElement(i, j);
+                if (element.elementHead !== PasteTool.BACKGROUND_ELEMENT.elementHead
+                        && element.elementTail !== PasteTool.BACKGROUND_ELEMENT.elementTail) {
+
+                    graphics.draw(tx, ty, element);
+                }
+            }
+        }
+        this.#onPasteHandler();
+    }
+
+    createCursor(scale) {
+        const w = Math.trunc(this.#elementArea.getWidth() / scale);
+        const h = Math.trunc(this.#elementArea.getHeight() / scale);
+
+        // TODO
+        const node = DomBuilder.div({
+            style: `width: ${w}px; height: ${h}px; outline: black 1px solid;`,
+        });
+
+        return {
+            width: w,
+            height: h,
+            node: node
+        };
+    }
+}
+
+/**
+ *
+ * @author Patrik Harag
+ * @version 2023-04-29
+ */
+class ActionTool extends Tool {
+
+    /** @type function */
+    #handler;
+
+    constructor(category, codeName, displayName, handler) {
+        super(category, codeName, displayName);
+        this.#handler = handler;
+    }
+
+    applyPoint(x, y, graphics, aldModifier) {
+        this.#handler();
     }
 }

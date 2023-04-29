@@ -10,7 +10,7 @@ import {ProcessorModuleTree} from "./ProcessorModuleTree.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-04-10
+ * @version 2023-04-29
  */
 export class Processor extends ProcessorContext {
 
@@ -66,7 +66,7 @@ export class Processor extends ProcessorContext {
     /** @type ProcessorModuleTree */
     #moduleTree;
 
-    constructor(elementArea, chunkSize, random, defaultElement, snapshot) {
+    constructor(elementArea, chunkSize, random, defaultElement, sceneMetadata) {
         super();
         this.#elementArea = elementArea;
         this.#width = elementArea.getWidth();
@@ -97,10 +97,10 @@ export class Processor extends ProcessorContext {
         this.#moduleFish = new ProcessorModuleFish(elementArea, random, defaultElement);
         this.#moduleTree = new ProcessorModuleTree(elementArea, random, this);
 
-        if (snapshot) {
-            this.#iteration = snapshot.metadata.iteration;
-            this.#fallThroughEnabled = snapshot.metadata.fallThroughEnabled;
-            this.#erasingEnabled = snapshot.metadata.erasingEnabled;
+        if (sceneMetadata) {
+            this.#iteration = sceneMetadata.iteration;
+            this.#fallThroughEnabled = sceneMetadata.fallThroughEnabled;
+            this.#erasingEnabled = sceneMetadata.erasingEnabled;
         }
     }
 

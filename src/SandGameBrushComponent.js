@@ -1,10 +1,11 @@
 import {DomBuilder} from "./DomBuilder.js";
 import {SandGameControls} from "./SandGameControls.js";
+import {Tools} from "./core/Tools.js";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-04-15
+ * @version 2023-04-29
  */
 export class SandGameBrushComponent {
 
@@ -40,6 +41,7 @@ export class SandGameBrushComponent {
                 button.addClass('selected');
 
                 this.#controls.setPrimaryTool(tool);
+                this.#controls.setSecondaryTool(Tools.byCodeName('air'));
             });
             // initial select
             if (tool === this.#controls.getPrimaryTool()) {

@@ -4,6 +4,7 @@ import {Brushes} from "./core/Brushes.js";
 import {Scenes} from "./Scenes.js";
 import {SceneImplTmpResize} from "./core/SceneImplResize.js";
 import {Tools} from "./core/Tools.js";
+import {Tool} from "./core/Tool.js";
 import {SandGameControls} from "./SandGameControls.js";
 import {SandGameScenesComponent} from "./SandGameScenesComponent.js";
 import {SandGameElementSizeComponent} from "./SandGameElementSizeComponent.js";
@@ -102,7 +103,7 @@ export class SandGameComponent extends SandGameControls {
         // init game
         const defaultElement = Brushes.AIR.apply(0, 0, undefined);
         const context = canvasComponent.getContext();
-        this.#sandGame = scene.create(context, this.#currentWidthPoints, this.#currentHeightPoints, defaultElement)
+        this.#sandGame = scene.createSandGame(context, this.#currentWidthPoints, this.#currentHeightPoints, defaultElement)
         this.#sandGame.setRendererShowActiveChunks(this.isShowActiveChunks());
         if (this.isShowHeatmap()) {
             this.#sandGame.setRendererMode(SandGame.RENDERING_MODE_HEATMAP);
@@ -291,6 +292,18 @@ export class SandGameComponent extends SandGameControls {
         this.#initialize(scene);
     }
 
+    pasteScene(scene) {
+        const oldPrimary = this.getPrimaryTool();
+        const oldSecondary = this.getSecondaryTool();
+        const revert = () => {
+            this.setPrimaryTool(oldPrimary);
+            this.setSecondaryTool(oldSecondary);
+        };
+
+        this.setPrimaryTool(Tool.pasteTool(null, null, null, scene, revert));
+        this.setSecondaryTool(Tool.actionTool(null, null, null, revert));
+    }
+
     // SandGameControls / canvas size
 
     getCurrentWidthPoints() {
@@ -373,6 +386,10 @@ export class SandGameComponent extends SandGameControls {
 
     setPrimaryTool(tool) {
         this.#primaryTool = tool;
+    }
+
+    setSecondaryTool(tool) {
+        this.#secondaryTool = tool;
     }
 
     getPrimaryTool() {

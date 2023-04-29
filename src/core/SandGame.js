@@ -20,7 +20,7 @@ import {TemplateLayeredPainter} from "./TemplateLayeredPainter.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-04-24
+ * @version 2023-04-29
  */
 export class SandGame {
 
@@ -69,22 +69,19 @@ export class SandGame {
     /**
      *
      * @param context {CanvasRenderingContext2D}
-     * @param width {number}
-     * @param height {number}
+     * @param elementArea {ElementArea}
+     * @param sceneMetadata {SceneMetadata}
      * @param defaultElement {Element}
-     * @param snapshot {Snapshot|null}
      */
-    constructor(context, width, height, snapshot, defaultElement) {
-        this.#elementArea = (snapshot)
-                ? ElementArea.from(width, height, snapshot.data)
-                : ElementArea.create(width, height, defaultElement);
-        this.#random = new DeterministicRandom((snapshot) ? snapshot.metadata.random : 0);
+    constructor(context, elementArea, sceneMetadata, defaultElement) {
+        this.#elementArea = elementArea;
+        this.#random = new DeterministicRandom((sceneMetadata) ? sceneMetadata.random : 0);
         this.#framesCounter = new Counter();
         this.#iterationsCounter = new Counter();
-        this.#processor = new Processor(this.#elementArea, 16, this.#random, defaultElement, snapshot);
+        this.#processor = new Processor(this.#elementArea, 16, this.#random, defaultElement, sceneMetadata);
         this.#renderer = new Renderer(this.#elementArea, 16, context);
-        this.#width = width;
-        this.#height = height;
+        this.#width = elementArea.getWidth();
+        this.#height = elementArea.getHeight();
 
         let grassSpawningExt = new SpawningExtensionGrass(this.#elementArea, this.#random, Brushes.GRASS);
         this.#onProcessed.push(() => grassSpawningExt.run());
@@ -210,27 +207,27 @@ export class SandGame {
         return this.#height;
     }
 
-    copyStateTo(sandGame) {
+    copyStateTo(targetSandGame) {
         let sourceY0;
         let targetY0;
-        if (sandGame.#height >= this.#height) {
+        if (targetSandGame.#height >= this.#height) {
             sourceY0 = 0;
-            targetY0 = sandGame.#height - this.#height
+            targetY0 = targetSandGame.#height - this.#height
         } else {
-            sourceY0 = this.#height - sandGame.#height;
+            sourceY0 = this.#height - targetSandGame.#height;
             targetY0 = 0;
         }
 
-        for (let y = 0; y < Math.min(this.#height, sandGame.#height); y++) {
-            for (let x = 0; x < Math.min(this.#width, sandGame.#width); x++) {
+        for (let y = 0; y < Math.min(this.#height, targetSandGame.#height); y++) {
+            for (let x = 0; x < Math.min(this.#width, targetSandGame.#width); x++) {
                 let elementHead = this.#elementArea.getElementHead(x, y + sourceY0);
                 let elementTail = this.#elementArea.getElementTail(x, y + sourceY0);
-                sandGame.#elementArea.setElementHead(x, targetY0 + y, elementHead);
-                sandGame.#elementArea.setElementTail(x, targetY0 + y, elementTail);
+                targetSandGame.#elementArea.setElementHead(x, targetY0 + y, elementHead);
+                targetSandGame.#elementArea.setElementTail(x, targetY0 + y, elementTail);
             }
         }
-        sandGame.#processor.setFallThroughEnabled(this.#processor.isFallThroughEnabled());
-        sandGame.#processor.setErasingEnabled(this.#processor.isErasingEnabled());
+        targetSandGame.#processor.setFallThroughEnabled(this.#processor.isFallThroughEnabled());
+        targetSandGame.#processor.setErasingEnabled(this.#processor.isErasingEnabled());
     }
 
     /**

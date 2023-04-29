@@ -72,6 +72,10 @@ export class SandGameControls {
         throw 'Not implemented';
     }
 
+    pasteScene(scene) {
+        throw 'Not implemented';
+    }
+
     // canvas size
 
     /**
@@ -179,6 +183,15 @@ export class SandGameControls {
      * @returns void
      */
     setPrimaryTool(tool) {
+        throw 'Not implemented';
+    }
+
+    /**
+     *
+     * @param tool {Tool}
+     * @returns void
+     */
+    setSecondaryTool(tool) {
         throw 'Not implemented';
     }
 

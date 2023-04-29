@@ -1,10 +1,11 @@
 import {Scene} from "./Scene.js";
-import {SandGame} from "./SandGame";
+import {SandGame} from "./SandGame.js";
+import {ElementArea} from "./ElementArea.js";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-04-28
+ * @version 2023-04-29
  */
 export class SceneImplTmpResize extends Scene {
 
@@ -22,9 +23,14 @@ export class SceneImplTmpResize extends Scene {
         return [prefWidth, prefHeight];
     }
 
-    create(context, prefWidth, prefHeight, defaultElement) {
-        let sandGame = new SandGame(context, prefWidth, prefHeight, null, defaultElement);
+    createSandGame(context, prefWidth, prefHeight, defaultElement) {
+        let elementArea = this.createElementArea(prefWidth, prefHeight, defaultElement);
+        let sandGame = new SandGame(context, elementArea, null, defaultElement);
         this.#sandGame.copyStateTo(sandGame);
         return sandGame;
+    }
+
+    createElementArea(prefWidth, prefHeight, defaultElement) {
+        return ElementArea.create(prefWidth, prefHeight, defaultElement);
     }
 }

@@ -5,7 +5,7 @@ import {Analytics} from "./Analytics.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-04-28
+ * @version 2023-04-29
  */
 export class SandGameCanvasComponent {
 
@@ -14,6 +14,9 @@ export class SandGameCanvasComponent {
 
     #nodeCanvas;
     #nodeOverlay;
+
+    /** @type {{node:any,width:number,height:number}|null} */
+    #cursor = null;
 
     #context;
 
@@ -136,10 +139,24 @@ export class SandGameCanvasComponent {
             }
         });
         domNode.addEventListener('mousemove', (e) => {
-            if (lastTool === null) {
-                return;
-            }
             if (!ctrlPressed && !shiftPressed) {
+
+                // show / move cursor
+                if (this.#cursor !== null) {
+                    const [x, y] = getActualMousePosition(e);
+                    this.#moveCursor(x, y, scale);
+                } else {
+                    let cursor = this.#controls.getPrimaryTool().createCursor(scale);
+                    if (cursor !== null) {
+                        const [x, y] = getActualMousePosition(e);
+                        this.#showCursor(x, y, scale, cursor);
+                    }
+                }
+
+                if (lastTool === null) {
+                    return;
+                }
+
                 // drawing
                 const [x, y] = getActualMousePosition(e);
                 lastTool.applyDrag(lastX, lastY, x, y, sandGame.graphics(), e.altKey);
@@ -182,16 +199,16 @@ export class SandGameCanvasComponent {
                 Analytics.triggerToolUsed(lastTool);
             }
             lastTool = null;
-            this.#cleanSelection();
+            this.#hideCursors();
         });
         domNode.addEventListener('mouseout', (e) => {
-            // nothing
+            this.#hideCursors();
         });
         domNode.addEventListener('mouseenter', (e) => {
             if (lastTool !== null && e.buttons === 0) {
                 // mouse released outside...
                 lastTool = null;
-                this.#cleanSelection();
+                this.#hideCursors();
                 e.preventDefault();
             }
         });
@@ -232,8 +249,9 @@ export class SandGameCanvasComponent {
         });
     }
 
-    #cleanSelection() {
+    #hideCursors() {
         this.#nodeOverlay.empty();
+        this.#cursor = null;
     }
 
     #repaintRectangleSelection(lastX, lastY, x, y, scale) {
@@ -244,9 +262,10 @@ export class SandGameCanvasComponent {
         let wPx = Math.abs(x - lastX) / scale;
         let hPx = Math.abs(y - lastY) / scale;
 
-        this.#nodeOverlay.append(DomBuilder.div({
+        const selection = DomBuilder.div({
             style: `position: absolute; left: ${xPx}px; top: ${yPx}px; width: ${wPx}px; height: ${hPx}px; outline: black 1px solid;`,
-        }));
+        });
+        this.#nodeOverlay.append(selection);
     }
 
     #repaintLineSelection(lastX, lastY, x, y, scale) {
@@ -260,6 +279,29 @@ export class SandGameCanvasComponent {
               <line x1="${lastX}" y1="${lastY}" x2="${x}" y2="${y}" stroke="black" />
             </svg>`
         ));
+    }
+
+    #showCursor(x, y, scale, cursor) {
+        cursor.node.css({
+            left: (x / scale - Math.trunc(cursor.width / 2)) + 'px',
+            top: (y / scale - Math.trunc(cursor.height / 2)) + 'px',
+            position: 'absolute',
+            'pointer-events': 'none'
+        });
+
+        this.#cursor = cursor;
+        this.#nodeOverlay.append(cursor.node);
+    }
+
+    #moveCursor(x, y, scale) {
+        const cursor = this.#cursor;
+        cursor.node.css({
+            left: (x / scale - Math.trunc(cursor.width / 2)) + 'px',
+            top: (y / scale - Math.trunc(cursor.height / 2)) + 'px',
+        });
+
+        this.#nodeOverlay.empty();
+        this.#nodeOverlay.append(cursor.node);
     }
 
     getContext() {

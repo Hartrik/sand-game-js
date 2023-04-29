@@ -3,7 +3,7 @@
  * @interface
  *
  * @author Patrik Harag
- * @version 2023-04-28
+ * @version 2023-04-29
  */
 export class Scene {
 
@@ -21,7 +21,17 @@ export class Scene {
      * @param defaultElement {Element}
      * @returns SandGame
      */
-    create(context, prefWidth, prefHeight, defaultElement) {
+    createSandGame(context, prefWidth, prefHeight, defaultElement) {
+        throw 'Not implemented';
+    }
+
+    /**
+     * @param prefWidth
+     * @param prefHeight
+     * @param defaultElement
+     * @returns ElementArea
+     */
+    createElementArea(prefWidth, prefHeight, defaultElement) {
         throw 'Not implemented';
     }
 }
