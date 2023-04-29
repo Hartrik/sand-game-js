@@ -1,11 +1,12 @@
 import {DomBuilder} from "./DomBuilder.js";
 import {Scenes} from "./Scenes.js";
 import {Analytics} from "./Analytics.js";
+import {SceneImplSnapshot} from "./core/SceneImplSnapshot.js";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-04-11
+ * @version 2023-04-29
  */
 export class SandGameScenesComponent {
 
@@ -24,14 +25,7 @@ export class SandGameScenesComponent {
     /** @type SandGameControls */
     #controls;
 
-    /** @type function(Scene) */
-    #selectFunction;
-
-    /** @type function():Snapshot */
-    #snapshotFunction;
-
-    /** @type function(Snapshot) */
-    #reopenFunction;
+    #ignoreOnBeforeNewSceneLoaded = false;
 
     #initialScene;
 
@@ -42,17 +36,18 @@ export class SandGameScenesComponent {
 
     /**
      * @param sandGameControls {SandGameControls}
-     * @param selectFunction
-     * @param snapshotFunction
-     * @param reopenFunction
      * @param initialScene
      */
-    constructor(sandGameControls, selectFunction, snapshotFunction, reopenFunction, initialScene) {
+    constructor(sandGameControls, initialScene) {
         this.#controls = sandGameControls;
-        this.#selectFunction = selectFunction;
-        this.#snapshotFunction = snapshotFunction;
-        this.#reopenFunction = reopenFunction;
         this.#initialScene = initialScene;
+
+        this.#controls.addOnBeforeNewSceneLoaded(() => {
+            if (!this.#ignoreOnBeforeNewSceneLoaded) {
+                this.#store();
+                this.#unselect();
+            }
+        });
     }
 
     createNode() {
@@ -134,9 +129,14 @@ export class SandGameScenesComponent {
         let snapshot = this.#closedScenes.get(id);
         if (snapshot) {
             this.#closedScenes.delete(id);
-            this.#reopenFunction(snapshot);
+
+            this.#ignoreOnBeforeNewSceneLoaded = true;
+            this.#controls.openScene(new SceneImplSnapshot(snapshot));
+            this.#ignoreOnBeforeNewSceneLoaded = false;
         } else {
-            this.#selectFunction(scene);
+            this.#ignoreOnBeforeNewSceneLoaded = true;
+            this.#controls.openScene(scene);
+            this.#ignoreOnBeforeNewSceneLoaded = false;
         }
     }
 
@@ -150,13 +150,8 @@ export class SandGameScenesComponent {
 
     #store() {
         if (this.#selected) {
-            this.#closedScenes.set(this.#selectedSceneId, this.#snapshotFunction());
+            this.#closedScenes.set(this.#selectedSceneId, this.#controls.createSnapshot());
         }
-    }
-
-    onBeforeOtherSceneLoad() {
-        this.#store();
-        this.#unselect();
     }
 }
 

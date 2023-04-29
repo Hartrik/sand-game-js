@@ -31,6 +31,15 @@ export class SandGameControls {
      * @param handler {function}
      * @returns void
      */
+    addOnBeforeNewSceneLoaded(handler) {
+        throw 'Not implemented';
+    }
+
+    /**
+     *
+     * @param handler {function}
+     * @returns void
+     */
     addOnStopped(handler) {
         throw 'Not implemented';
     }
@@ -49,6 +58,13 @@ export class SandGameControls {
     }
 
     switchStartStop() {
+        throw 'Not implemented';
+    }
+
+    /**
+     * @returns Snapshot
+     */
+    createSnapshot() {
         throw 'Not implemented';
     }
 

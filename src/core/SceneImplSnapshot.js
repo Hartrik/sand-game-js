@@ -13,6 +13,10 @@ export class SceneImplSnapshot extends Scene {
      */
     #snapshot;
 
+    /**
+     *
+     * @param snapshot {Snapshot}
+     */
     constructor(snapshot) {
         super();
         this.#snapshot = snapshot;

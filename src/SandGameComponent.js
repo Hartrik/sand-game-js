@@ -2,7 +2,6 @@ import {DomBuilder} from "./DomBuilder.js";
 import {SandGame} from "./core/SandGame.js";
 import {Brushes} from "./core/Brushes.js";
 import {Scenes} from "./Scenes.js";
-import {SceneImplSnapshot} from "./core/SceneImplSnapshot.js";
 import {SceneImplTmpResize} from "./core/SceneImplResize.js";
 import {Tools} from "./core/Tools.js";
 import {SandGameControls} from "./SandGameControls.js";
@@ -62,9 +61,6 @@ export class SandGameComponent extends SandGameControls {
     /** @type function|null */
     #canvasSettingsUpdater = null;
 
-    /** @type function[] */
-    #onBeforeSnapshotLoaded = [];
-
     constructor(rootNode, init) {
         super();
 
@@ -86,12 +82,6 @@ export class SandGameComponent extends SandGameControls {
         rootNode.append(this.#node);
 
         this.#initialize(Scenes.SCENES[this.#init.scene]);
-    }
-
-    #createSnapshot() {
-        let snapshot = this.#sandGame.createSnapshot();
-        snapshot.metadata.scale = this.getCurrentScale();
-        return snapshot;
     }
 
     /**
@@ -214,27 +204,12 @@ export class SandGameComponent extends SandGameControls {
     }
 
     enableScenes() {
-        // TODO: clean up, use openNewScene method
-        let showSceneFunction = (scene) => {
-            this.#close();
-            this.#initialize(scene);
-        };
-        let snapshotFunction = () => this.#createSnapshot();
-        let reopenSceneFunction = (snapshot) => {
-            this.#close();
-            this.#initialize(new SceneImplSnapshot(snapshot));
-        }
-        let component = new SandGameScenesComponent(this, showSceneFunction, snapshotFunction, reopenSceneFunction,
-                this.#init.scene);
-
+        let component = new SandGameScenesComponent(this, this.#init.scene);
         this.#nodeHolderAdditionalViews.append(component.createNode());
-        this.#onBeforeSnapshotLoaded.push(() => component.onBeforeOtherSceneLoad());
     }
 
     enableSavingAndLoading() {
-        let component = new SandGameIOComponent(() => this.#createSnapshot(), snapshot => {
-            this.openScene(new SceneImplSnapshot(snapshot));
-        });
+        let component = new SandGameIOComponent(this);
         this.#nodeHolderAdditionalViews.append(component.createNode());
         component.initFileDragAndDrop(this.#node);
     }
@@ -255,12 +230,18 @@ export class SandGameComponent extends SandGameControls {
     /** @type function(SandGame)[] */
     #onInitialized = [];
     /** @type function[] */
+    #onBeforeNewSceneLoaded = [];
+    /** @type function[] */
     #onStarted = [];
     /** @type function[] */
     #onStopped = [];
 
     addOnInitialized(handler) {
         this.#onInitialized.push(handler);
+    }
+
+    addOnBeforeNewSceneLoaded(handler) {
+        this.#onBeforeNewSceneLoaded.push(handler);
     }
 
     addOnStarted(handler) {
@@ -295,8 +276,14 @@ export class SandGameComponent extends SandGameControls {
         }
     }
 
+    createSnapshot() {
+        let snapshot = this.#sandGame.createSnapshot();
+        snapshot.metadata.scale = this.getCurrentScale();
+        return snapshot;
+    }
+
     openScene(scene) {
-        for (let handler of this.#onBeforeSnapshotLoaded) {
+        for (let handler of this.#onBeforeNewSceneLoaded) {
             handler();
         }
         this.#close();

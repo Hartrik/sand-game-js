@@ -1,33 +1,27 @@
 import {DomBuilder} from "./DomBuilder.js";
-import {SnapshotIO} from "./SnapshotIO.js";
-import {Snapshot} from "./core/Snapshot.js";
+import {ResourceIO} from "./core/ResourceIO.js";
 import {Analytics} from "./Analytics.js";
 import FileSaver from 'file-saver';
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-04-11
+ * @version 2023-04-29
  */
 export class SandGameIOComponent {
 
-    /** @type function():Snapshot */
-    #onSaveFunction;
+    /** @type SandGameControls */
+    #controls;
 
-    /** @type function(Snapshot) */
-    #onLoadFunction;
-
-    constructor(onSaveFunction, onLoadFunction) {
-        this.#onSaveFunction = onSaveFunction;
-        this.#onLoadFunction = onLoadFunction;
+    constructor(controls) {
+        this.#controls = controls;
     }
 
     createNode() {
         let content = DomBuilder.div({ class: 'load-and-save-tools' }, []);
 
         content.append(DomBuilder.button('Save', { class: 'btn btn-light' }, e => {
-            let snapshot = this.#onSaveFunction();
-            this.#download(snapshot);
+            this.#download();
         }));
         content.append(DomBuilder.button('Load', { class: 'btn btn-light' }, e => {
             this.#load();
@@ -36,10 +30,16 @@ export class SandGameIOComponent {
         return content;
     }
 
-    #download(snapshot) {
-        let bytes = SnapshotIO.createSave(snapshot);
-        FileSaver.saveAs(new Blob([bytes]), SnapshotIO.createFilename());
+    #download() {
+        const snapshot = this.#controls.createSnapshot();
+        const bytes = ResourceIO.createResourceFromSnapshot(snapshot);
+        FileSaver.saveAs(new Blob([bytes]), this.#createFilename());
         Analytics.triggerFeatureUsed(Analytics.FEATURE_IO_EXPORT);
+    }
+
+    #createFilename() {
+        let date = new Date().toISOString().slice(0, 10);
+        return `sand-game-js_${date}.sgjs`;
     }
 
     #load() {
@@ -96,14 +96,21 @@ export class SandGameIOComponent {
      * @param content {ArrayBuffer}
      */
     #loadFromArrayBuffer(content) {
-        let snapshot = null;
+        let scene = null;
         try {
-            snapshot = SnapshotIO.parseSave(content);
+            scene = ResourceIO.parseResource(content);
         } catch (e) {
-            alert('Error loading snapshot: ' + e);
+            let dialog = new DomBuilder.BootstrapDialog();
+            dialog.setHeaderContent('Error');
+            dialog.setBodyContent([
+                DomBuilder.par(null, "Error while loading resource:"),
+                DomBuilder.element('code', null, '' + e)
+            ]);
+            dialog.addCloseButton('Close');
+            dialog.show(this.#controls.getDialogAnchor());
         }
-        if (snapshot) {
-            this.#onLoadFunction(snapshot);
+        if (scene) {
+            this.#controls.openScene(scene);
             Analytics.triggerFeatureUsed(Analytics.FEATURE_IO_IMPORT);
         }
     }
