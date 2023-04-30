@@ -5,7 +5,7 @@ import {Analytics} from "./Analytics.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-04-29
+ * @version 2023-04-30
  */
 export class SandGameCanvasComponent {
 
@@ -165,6 +165,10 @@ export class SandGameCanvasComponent {
                 lastY = y;
                 return;
             }
+
+            if (lastTool === null) {
+                return;
+            }
             if (ctrlPressed && shiftPressed) {
                 return;
             }
@@ -262,8 +266,15 @@ export class SandGameCanvasComponent {
         let wPx = Math.abs(x - lastX) / scale;
         let hPx = Math.abs(y - lastY) / scale;
 
-        const selection = DomBuilder.div({
-            style: `position: absolute; left: ${xPx}px; top: ${yPx}px; width: ${wPx}px; height: ${hPx}px; outline: black 1px solid;`,
+        const selection = DomBuilder.div();
+        selection.css({
+            left: xPx + 'px',
+            top: yPx + 'px',
+            width: wPx + 'px',
+            height: hPx + 'px',
+            position: 'absolute',
+            outline: 'black 1px solid',
+            'pointer-events': 'none'
         });
         this.#nodeOverlay.append(selection);
     }
@@ -274,11 +285,15 @@ export class SandGameCanvasComponent {
         const w = this.#controls.getCurrentWidthPoints();
         const h = this.#controls.getCurrentHeightPoints();
 
-        this.#nodeOverlay.append(DomBuilder.create(`
+        const line = DomBuilder.create(`
             <svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
               <line x1="${lastX}" y1="${lastY}" x2="${x}" y2="${y}" stroke="black" />
             </svg>`
-        ));
+        );
+        line.css({
+            'pointer-events': 'none'
+        });
+        this.#nodeOverlay.append(line);
     }
 
     #showCursor(x, y, scale, cursor) {
