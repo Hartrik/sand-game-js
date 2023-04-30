@@ -5,7 +5,7 @@ import { DomBuilder } from "../DomBuilder";
 /**
  *
  * @author Patrik Harag
- * @version 2023-04-29
+ * @version 2023-04-30
  */
 export class Tool {
 
@@ -48,6 +48,14 @@ export class Tool {
         return this.#codeName;
     }
 
+    isStrokeEnabled() {
+        return false;
+    }
+
+    isSelectionEnabled() {
+        return false;
+    }
+
     /**
      * @param {number} scale
      * @return {{node:any,width:number,height:number}|null}
@@ -79,7 +87,7 @@ export class Tool {
      * @param altModifier {boolean}
      * @return {void}
      */
-    applyDrag(x1, y1, x2, y2, graphics, altModifier) {
+    applyStroke(x1, y1, x2, y2, graphics, altModifier) {
         // no action by default
     }
 
@@ -105,7 +113,7 @@ export class Tool {
      * @param altModifier {boolean}
      * @return {void}
      */
-    applyAround(x, y, graphics, altModifier) {
+    applySpecial(x, y, graphics, altModifier) {
         // no action by default
     }
 
@@ -132,7 +140,7 @@ export class Tool {
 /**
  *
  * @author Patrik Harag
- * @version 2023-04-15
+ * @version 2023-04-30
  */
 class RectangleBrushTool extends Tool {
 
@@ -152,11 +160,19 @@ class RectangleBrushTool extends Tool {
         this.#size = size;
     }
 
-    applyPoint(x, y, graphics, altModifier) {
-        this.applyDrag(x, y, x, y, graphics, altModifier);
+    isStrokeEnabled() {
+        return true;
     }
 
-    applyDrag(x1, y1, x2, y2, graphics, altModifier) {
+    isSelectionEnabled() {
+        return true;
+    }
+
+    applyPoint(x, y, graphics, altModifier) {
+        this.applyStroke(x, y, x, y, graphics, altModifier);
+    }
+
+    applyStroke(x1, y1, x2, y2, graphics, altModifier) {
         const brush = altModifier ? this.#altBrush : this.#brush;
         graphics.drawLine(x1, y1, x2, y2, this.#size, brush);
     }
@@ -166,7 +182,7 @@ class RectangleBrushTool extends Tool {
         graphics.drawRectangle(x1, y1, x2, y2, brush);
     }
 
-    applyAround(x, y, graphics, altModifier) {
+    applySpecial(x, y, graphics, altModifier) {
         const brush = altModifier ? this.#altBrush : this.#brush;
         graphics.floodFill(x, y, brush, 1);
     }
@@ -249,7 +265,7 @@ class PasteTool extends Tool {
         const w = Math.trunc(this.#elementArea.getWidth() / scale);
         const h = Math.trunc(this.#elementArea.getHeight() / scale);
 
-        // TODO
+        // TODO: return CursorDefinition and remove dom builder
         const node = DomBuilder.div({
             style: `width: ${w}px; height: ${h}px; outline: black 1px solid;`,
         });

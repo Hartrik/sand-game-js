@@ -99,6 +99,8 @@ export class SandGameCanvasComponent {
             lastX = x;
             lastY = y;
             lastTool = null;
+            ctrlPressed = false;
+            shiftPressed = false;
 
             if (e.buttons === 4) {
                 // middle button
@@ -124,19 +126,27 @@ export class SandGameCanvasComponent {
             }
 
             if (e.ctrlKey && e.shiftKey) {
-                lastTool.applyAround(x, y, sandGame.graphics(), e.altKey);
+                lastTool.applySpecial(x, y, sandGame.graphics(), e.altKey);
                 Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_FLOOD);
                 Analytics.triggerToolUsed(lastTool);
                 lastTool = null;
                 return;
             }
 
-            ctrlPressed = e.ctrlKey;
-            shiftPressed = e.shiftKey;
-            if (!ctrlPressed && !shiftPressed) {
+            if (!e.ctrlKey && !e.shiftKey) {
                 lastTool.applyPoint(x, y, sandGame.graphics(), e.altKey)
                 Analytics.triggerToolUsed(lastTool);
+            } else {
+                if (e.ctrlKey && lastTool.isSelectionEnabled()) {
+                    ctrlPressed = e.ctrlKey;
+                }
+                if (e.shiftKey && lastTool.isStrokeEnabled()) {
+                    shiftPressed = e.shiftKey;
+                }
             }
+            // if (!lastTool.isStrokeEnabled()) {
+            //     lastTool = null;
+            // }
         });
         domNode.addEventListener('mousemove', (e) => {
             if (!ctrlPressed && !shiftPressed) {
@@ -159,7 +169,7 @@ export class SandGameCanvasComponent {
 
                 // drawing
                 const [x, y] = getActualMousePosition(e);
-                lastTool.applyDrag(lastX, lastY, x, y, sandGame.graphics(), e.altKey);
+                lastTool.applyStroke(lastX, lastY, x, y, sandGame.graphics(), e.altKey);
                 Analytics.triggerToolUsed(lastTool);
                 lastX = x;
                 lastY = y;
@@ -198,7 +208,7 @@ export class SandGameCanvasComponent {
                 Analytics.triggerToolUsed(lastTool);
             } else if (shiftPressed) {
                 const [x, y] = getActualMousePosition(e);
-                lastTool.applyDrag(lastX, lastY, x, y, sandGame.graphics(), e.altKey);
+                lastTool.applyStroke(lastX, lastY, x, y, sandGame.graphics(), e.altKey);
                 Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_LINE);
                 Analytics.triggerToolUsed(lastTool);
             }
@@ -239,7 +249,7 @@ export class SandGameCanvasComponent {
                 return;
             }
             const [x, y] = getActualTouchPosition(e);
-            lastTool.applyDrag(lastX, lastY, x, y, sandGame.graphics(), false);
+            lastTool.applyStroke(lastX, lastY, x, y, sandGame.graphics(), false);
             Analytics.triggerToolUsed(lastTool);
             lastX = x;
             lastY = y;
