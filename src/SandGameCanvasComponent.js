@@ -5,7 +5,7 @@ import {Analytics} from "./Analytics.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-04-30
+ * @version 2023-05-03
  */
 export class SandGameCanvasComponent {
 
@@ -307,22 +307,35 @@ export class SandGameCanvasComponent {
     }
 
     #showCursor(x, y, scale, cursor) {
+        this.#cursor = cursor;
+
         cursor.node.css({
-            left: (x / scale - Math.trunc(cursor.width / 2)) + 'px',
-            top: (y / scale - Math.trunc(cursor.height / 2)) + 'px',
             position: 'absolute',
-            'pointer-events': 'none'
+            'pointer-events': 'none',
         });
 
-        this.#cursor = cursor;
-        this.#nodeOverlay.append(cursor.node);
+        this.#moveCursor(x, y, scale);
     }
 
     #moveCursor(x, y, scale) {
         const cursor = this.#cursor;
+
+        const pxW = this.#controls.getCurrentWidthPoints() / scale;
+        const pxH = this.#controls.getCurrentHeightPoints() / scale;
+
+        const pxTop = y / scale - Math.trunc(cursor.height / 2);
+        const pxLeft = x / scale - Math.trunc(cursor.width / 2);
+
+        const UNSET = -1;  // expect border
+        const pxClipTop = pxTop < 0 ? -pxTop : UNSET;
+        const pxClipRight = pxLeft + cursor.width >= pxW ? pxLeft + cursor.width - pxW : UNSET;
+        const pxClipBottom = pxTop + cursor.height >= pxH ? pxTop + cursor.height - pxH : UNSET;
+        const pxClipLeft = pxLeft < 0 ? -pxLeft : UNSET;
+
         cursor.node.css({
-            left: (x / scale - Math.trunc(cursor.width / 2)) + 'px',
-            top: (y / scale - Math.trunc(cursor.height / 2)) + 'px',
+            top: pxTop + 'px',
+            left: pxLeft + 'px',
+            'clip-path': `inset(${pxClipTop}px ${pxClipRight}px ${pxClipBottom}px ${pxClipLeft}px)`
         });
 
         this.#nodeOverlay.empty();
