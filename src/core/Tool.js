@@ -1,5 +1,6 @@
 import { Brush } from "./Brush.js";
 import { Element } from "./Element.js";
+import { ElementArea } from "./ElementArea.js";
 import { CursorDefinition } from "./CursorDefinition.js";
 import { CursorDefinitionElementArea } from "./CursorDefinitionElementArea.js";
 
@@ -235,9 +236,22 @@ class InsertSceneTool extends Tool {
 
     applyPoint(x, y, graphics, aldModifier) {
         const elementArea = this.#elementArea;
-
         const offsetX = x - Math.trunc(elementArea.getWidth() / 2);
         const offsetY = y - Math.trunc(elementArea.getHeight() / 2);
+
+        let brush = Brush.custom((tx, ty) => {
+            const element = elementArea.getElement(tx - offsetX, ty - offsetY);
+            if (element.elementHead !== InsertSceneTool.BACKGROUND_ELEMENT.elementHead
+                && element.elementTail !== InsertSceneTool.BACKGROUND_ELEMENT.elementTail) {
+
+                return element;
+            }
+            return null;
+        });
+        if (aldModifier) {
+            brush = Brush.gentle(brush);
+        }
+
         for (let i = 0; i < elementArea.getWidth() && offsetX + i < graphics.getWidth(); i++) {
             const tx = offsetX + i;
             if (tx < 0) {
@@ -250,12 +264,7 @@ class InsertSceneTool extends Tool {
                     continue;
                 }
 
-                const element = elementArea.getElement(i, j);
-                if (element.elementHead !== InsertSceneTool.BACKGROUND_ELEMENT.elementHead
-                        && element.elementTail !== InsertSceneTool.BACKGROUND_ELEMENT.elementTail) {
-
-                    graphics.draw(tx, ty, element);
-                }
+                graphics.draw(tx, ty, brush);
             }
         }
         this.#onInsertHandler();
