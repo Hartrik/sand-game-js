@@ -285,11 +285,9 @@ export class ProcessorModuleTree {
 /**
  *
  * @author Patrik Harag
- * @version 2022-11-04
+ * @version 2023-05-04
  */
 class TreeTemplates {
-    static #random = new DeterministicRandom(0);
-
     static TEMPLATES = [];
 
     /**
@@ -309,6 +307,7 @@ class TreeTemplates {
     }
 
     static #generate(id) {
+        let random = new DeterministicRandom(id);
         let root = new TreeTemplateNode(0, 0, TreeTemplateNode.TYPE_TRUNK, Brushes.TREE_WOOD);
         root.children.push(new TreeTemplateNode(0, 1, TreeTemplateNode.TYPE_ROOT, Brushes.TREE_ROOT));
 
@@ -351,7 +350,7 @@ class TreeTemplates {
                     branchLength = 5;
                 }
 
-                let branchRoot = this.#generateBranch(branchLength, splitDirection, i, remainingSize);
+                let branchRoot = this.#generateBranch(branchLength, splitDirection, i, remainingSize, random);
                 centerTrunkNodes[0].children.push(branchRoot);
 
                 splitDirection = splitDirection * -1;
@@ -387,7 +386,7 @@ class TreeTemplates {
         return root;
     }
 
-    static #generateBranch(branchLength, splitDirection, i, remainingSize) {
+    static #generateBranch(branchLength, splitDirection, i, remainingSize, random) {
         let shift = 0;
         let branchRoot = null;
         let branchLast = null;
@@ -395,7 +394,7 @@ class TreeTemplates {
         for (let j = 1; j <= branchLength; j++) {
             const remainingBranchSize = branchLength - j;
 
-            if (j > 3 && TreeTemplates.#random.next() < 0.2) {
+            if (j > 3 && random.next() < 0.2) {
                 shift++;
             }
             let nx = splitDirection * j;
