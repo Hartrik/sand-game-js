@@ -1,11 +1,13 @@
-import {DomBuilder} from "./DomBuilder.js";
-import {SandGameControls} from "./SandGameControls.js";
-import {Analytics} from "./Analytics.js";
+import { DomBuilder } from "./DomBuilder.js";
+import { SandGameControls } from "./SandGameControls.js";
+import { CursorDefinitionElementArea } from "./core/CursorDefinitionElementArea.js";
+import { Renderer } from "./core/Renderer.js";
+import { Analytics } from "./Analytics.js";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-05-03
+ * @version 2023-05-04
  */
 export class SandGameCanvasComponent {
 
@@ -34,16 +36,14 @@ export class SandGameCanvasComponent {
     }
 
     #createCanvas(w, h, scale) {
+        const wPx = w / scale;
+        const hPx = h / scale;
         const canvas = DomBuilder.element('canvas', {
-            style: 'position: relative;',
+            style: `position: relative; width: ${wPx}px; height: ${hPx}px;`,
             class: 'sand-game-canvas',
             width: w + 'px',
             height: h + 'px'
         });
-
-        // scale up
-        canvas.width(w / scale);
-        canvas.height(h / scale);
 
         // rendering style
         let domCanvasNode = canvas[0];
@@ -53,18 +53,14 @@ export class SandGameCanvasComponent {
     }
 
     #createOverlay(w, h, scale) {
-        const overlay = DomBuilder.div({
-            style: 'position: absolute; left: 0; top: 0;',
+        const wPx = w / scale;
+        const hPx = h / scale;
+        return DomBuilder.div({
+            style: `position: absolute; left: 0; top: 0; width: ${wPx}px; height: ${hPx}px;`,
             class: 'sand-game-canvas-overlay',
             width: w + 'px',
-            height: h + 'px'
+            height: h + 'px',
         });
-
-        // scale up
-        overlay.width(w / scale);
-        overlay.height(h / scale);
-
-        return overlay;
     }
 
     createNode() {
@@ -156,10 +152,10 @@ export class SandGameCanvasComponent {
                     const [x, y] = getActualMousePosition(e);
                     this.#moveCursor(x, y, scale);
                 } else {
-                    let cursor = this.#controls.getPrimaryTool().createCursor(scale);
-                    if (cursor !== null) {
+                    const cursorDefinition = this.#controls.getPrimaryTool().createCursor();
+                    if (cursorDefinition !== null) {
                         const [x, y] = getActualMousePosition(e);
-                        this.#showCursor(x, y, scale, cursor);
+                        this.#showCursor(x, y, scale, cursorDefinition);
                     }
                 }
 
@@ -306,10 +302,32 @@ export class SandGameCanvasComponent {
         this.#nodeOverlay.append(line);
     }
 
-    #showCursor(x, y, scale, cursor) {
-        this.#cursor = cursor;
+    #showCursor(x, y, scale, cursorDefinition) {
+        if (cursorDefinition instanceof CursorDefinitionElementArea) {
+            const wPx = Math.trunc(cursorDefinition.getWidth() / scale);
+            const hPx = Math.trunc(cursorDefinition.getHeight() / scale);
 
-        cursor.node.css({
+            const node = DomBuilder.element('canvas', {
+                width: cursorDefinition.getWidth() + 'px',
+                height: cursorDefinition.getHeight() + 'px',
+                style: `width: ${wPx}px; height: ${hPx}px; outline: black 1px solid;`,
+            });
+
+            // render preview
+            let domCanvasNode = node[0];
+            domCanvasNode.style.imageRendering = 'pixelated';
+            Renderer.renderPreview(cursorDefinition.getElementArea(), domCanvasNode.getContext('2d'), 0xBB);
+
+            this.#cursor = {
+                width: wPx,
+                height: hPx,
+                node: node
+            };
+        } else {
+            return;
+        }
+
+        this.#cursor.node.css({
             position: 'absolute',
             'pointer-events': 'none',
         });

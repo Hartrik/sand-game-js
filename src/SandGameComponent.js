@@ -300,7 +300,7 @@ export class SandGameComponent extends SandGameControls {
             this.setSecondaryTool(oldSecondary);
         };
 
-        this.setPrimaryTool(Tool.pasteTool(null, null, null, scene, revert));
+        this.setPrimaryTool(Tool.insertElementAreaTool(null, null, null, scene, revert));
         this.setSecondaryTool(Tool.actionTool(null, null, null, revert));
     }
 

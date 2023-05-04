@@ -1,11 +1,12 @@
 import { Brush } from "./Brush.js";
 import { Element } from "./Element.js";
-import { DomBuilder } from "../DomBuilder";
+import { CursorDefinition } from "./CursorDefinition.js";
+import { CursorDefinitionElementArea } from "./CursorDefinitionElementArea.js";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-04-30
+ * @version 2023-05-04
  */
 export class Tool {
 
@@ -57,10 +58,9 @@ export class Tool {
     }
 
     /**
-     * @param {number} scale
-     * @return {{node:any,width:number,height:number}|null}
+     * @return {CursorDefinition|null}
      */
-    createCursor(scale) {
+    createCursor() {
         // default cursor
         return null;
     }
@@ -128,8 +128,8 @@ export class Tool {
         return new PointBrushTool(category, codeName, displayName, brush);
     }
 
-    static pasteTool(category, codeName, displayName, scene, handler) {
-        return new PasteTool(category, codeName, displayName, scene, handler);
+    static insertElementAreaTool(category, codeName, displayName, scene, handler) {
+        return new InsertSceneTool(category, codeName, displayName, scene, handler);
     }
 
     static actionTool(category, codeName, displayName, handler) {
@@ -211,9 +211,9 @@ class PointBrushTool extends Tool {
 /**
  *
  * @author Patrik Harag
- * @version 2023-04-29
+ * @version 2023-05-04
  */
-class PasteTool extends Tool {
+class InsertSceneTool extends Tool {
 
     static DEFAULT_W = 30;
     static DEFAULT_H = 30;
@@ -222,15 +222,15 @@ class PasteTool extends Tool {
     /** @type ElementArea */
     #elementArea;
     /** @type function */
-    #onPasteHandler;
+    #onInsertHandler;
 
-    constructor(category, codeName, displayName, scene, onPasteHandler) {
+    constructor(category, codeName, displayName, scene, onInsertHandler) {
         super(category, codeName, displayName);
 
         this.#elementArea = scene.createElementArea(
-                PasteTool.DEFAULT_W, PasteTool.DEFAULT_H, PasteTool.BACKGROUND_ELEMENT);
+                InsertSceneTool.DEFAULT_W, InsertSceneTool.DEFAULT_H, InsertSceneTool.BACKGROUND_ELEMENT);
 
-        this.#onPasteHandler = onPasteHandler;
+        this.#onInsertHandler = onInsertHandler;
     }
 
     applyPoint(x, y, graphics, aldModifier) {
@@ -251,30 +251,18 @@ class PasteTool extends Tool {
                 }
 
                 const element = elementArea.getElement(i, j);
-                if (element.elementHead !== PasteTool.BACKGROUND_ELEMENT.elementHead
-                        && element.elementTail !== PasteTool.BACKGROUND_ELEMENT.elementTail) {
+                if (element.elementHead !== InsertSceneTool.BACKGROUND_ELEMENT.elementHead
+                        && element.elementTail !== InsertSceneTool.BACKGROUND_ELEMENT.elementTail) {
 
                     graphics.draw(tx, ty, element);
                 }
             }
         }
-        this.#onPasteHandler();
+        this.#onInsertHandler();
     }
 
-    createCursor(scale) {
-        const w = Math.trunc(this.#elementArea.getWidth() / scale);
-        const h = Math.trunc(this.#elementArea.getHeight() / scale);
-
-        // TODO: return CursorDefinition and remove dom builder
-        const node = DomBuilder.div({
-            style: `width: ${w}px; height: ${h}px; outline: black 1px solid;`,
-        });
-
-        return {
-            width: w,
-            height: h,
-            node: node
-        };
+    createCursor() {
+        return new CursorDefinitionElementArea(this.#elementArea);
     }
 }
 

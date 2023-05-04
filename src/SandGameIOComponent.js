@@ -113,10 +113,10 @@ export class SandGameIOComponent {
             let dialog = new DomBuilder.BootstrapDialog();
             dialog.setHeaderContent('Import scene');
             dialog.setBodyContent([
-                DomBuilder.par(null, "The imported scene can be opened or pasted into the current scene.")
+                DomBuilder.par(null, "The imported scene can be opened or placed on the current scene.")
             ]);
             dialog.addSubmitButton('Open', () => this.#controls.openScene(scene));
-            dialog.addSubmitButton('Paste', () => this.#controls.pasteScene(scene));
+            dialog.addSubmitButton('Place', () => this.#controls.pasteScene(scene));
             dialog.addCloseButton('Close');
             dialog.show(this.#controls.getDialogAnchor());
 

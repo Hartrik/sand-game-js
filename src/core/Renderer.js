@@ -1,12 +1,44 @@
 import {ElementTail} from "./ElementTail.js";
+import {ElementArea} from "./ElementArea.js";
+import {RenderingMode} from "./RenderingMode.js";
 
 /**
  * Double buffered renderer. With motion blur.
  *
  * @author Patrik Harag
- * @version 2023-02-18
+ * @version 2023-05-04
  */
 export class Renderer {
+
+    /**
+     *
+     * @param elementArea {ElementArea}
+     * @param context {CanvasRenderingContext2D}
+     * @param alpha 0x00 = fully transparent, 0xFF = fully opaque
+     */
+    static renderPreview(elementArea, context, alpha=0xFF) {
+        const w = elementArea.getWidth();
+        const h = elementArea.getHeight();
+
+        const buffer = context.createImageData(w, h);
+        const data = buffer.data;
+
+        for (let x = 0; x < w; x++) {
+            for (let y = 0; y < h; y++) {
+                const elementTail = elementArea.getElementTail(x, y);
+
+                const pixelIndex = w * y + x;
+                const dataIndex = pixelIndex * 4;
+                data[dataIndex] = ElementTail.getColorRed(elementTail);
+                data[dataIndex + 1] = ElementTail.getColorGreen(elementTail);
+                data[dataIndex + 2] = ElementTail.getColorBlue(elementTail);
+                data[dataIndex + 3] = alpha;
+            }
+        }
+
+        context.putImageData(buffer, 0, 0, 0, 0, w, h);
+    }
+
 
     /** @type CanvasRenderingContext2D */
     #context;
