@@ -6,7 +6,7 @@ import {SandGameControls} from "./SandGameControls.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-04-15
+ * @version 2023-05-06
  */
 export class SandGameTestComponent {
 
@@ -22,6 +22,8 @@ export class SandGameTestComponent {
     }
 
     createNode() {
+        let pixelated = this.#controls.getCanvasImageRenderingStyle() === 'pixelated';
+
         let content = DomBuilder.div({ class: 'test-tools' }, [
             DomBuilder.button('Tree spawn test', { class: 'btn btn-secondary' }, e => {
                 let sandGame = this.#controls.getSandGame();
@@ -34,7 +36,11 @@ export class SandGameTestComponent {
                 if (sandGame !== null) {
                     this.#doTreeGrowTest(sandGame);
                 }
-            })
+            }),
+            DomBuilder.button('Rendering: pixelated', { class: 'btn btn-info' }, e => {
+                pixelated = !pixelated;
+                this.#controls.setCanvasImageRenderingStyle(pixelated ? 'pixelated' : 'unset');
+            }),
         ]);
         return content;
     }

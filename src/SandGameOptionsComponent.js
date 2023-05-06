@@ -8,7 +8,7 @@ import FileSaver from 'file-saver';
 /**
  *
  * @author Patrik Harag
- * @version 2023-04-24
+ * @version 2023-05-06
  */
 export class SandGameOptionsComponent {
 
@@ -74,18 +74,6 @@ export class SandGameOptionsComponent {
             DomBuilder.element('br'),
 
             DomBuilder.element('label', null, 'Rendering'),
-            DomBuilder.div({ class: 'form-check' }, [
-                DomBuilder.element('input', { type: 'checkbox', checked: 'true', disabled: 'true', class: 'form-check-input', id: 'rend-check-mb' }),
-                DomBuilder.element('label', { class: 'form-check-label', for: 'rend-check-mb' }, 'Motion blur')
-            ]),
-            DomBuilder.div({ class: 'form-check' }, [
-                DomBuilder.element('input', { type: 'checkbox', checked: this.#controls.getCanvasImageRenderingStyle() === 'pixelated', class: 'form-check-input', id: 'rend-check-pixelated' }).change((e) => {
-                    let checked = e.target.checked;
-                    this.#controls.setCanvasImageRenderingStyle(checked ? 'pixelated' : 'unset');
-                    Analytics.triggerFeatureUsed(Analytics.FEATURE_RENDERER_PIXELATED);
-                }),
-                DomBuilder.element('label', { class: 'form-check-label', for: 'rend-check-pixelated' }, 'Pixelated')
-            ]),
             DomBuilder.div({ class: 'form-check' }, [
                 DomBuilder.element('input', { type: 'checkbox', checked: this.#controls.isShowActiveChunks(), class: 'form-check-input', id: 'rend-check-show-active-chunks' }).change((e) => {
                     this.#controls.setShowActiveChunks(e.target.checked);
