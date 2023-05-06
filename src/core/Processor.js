@@ -10,7 +10,7 @@ import {ProcessorModuleTree} from "./ProcessorModuleTree.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-04-29
+ * @version 2023-05-06
  */
 export class Processor extends ProcessorContext {
 
@@ -31,6 +31,8 @@ export class Processor extends ProcessorContext {
 
     /** @type boolean[] */
     #activeChunks
+    /** @type number[] */
+    #chunkLastFullTest;
 
     /** @type number */
     #iteration = 0;
@@ -79,6 +81,7 @@ export class Processor extends ProcessorContext {
         this.#horChunkCount = Math.ceil(this.#width / this.#chunkSize);
         this.#verChunkCount = Math.ceil(this.#height / this.#chunkSize);
         this.#activeChunks = new Array(this.#horChunkCount * this.#verChunkCount).fill(true);
+        this.#chunkLastFullTest = new Array(this.#horChunkCount * this.#verChunkCount).fill(-1);
 
         let rndDataRandom = new DeterministicRandom(0);
         this.#rndChunkOrder = Processor.#generateArrayOfOrderData(
@@ -238,7 +241,16 @@ export class Processor extends ProcessorContext {
                 for (let cx = 0; cx < this.#horChunkCount; cx++) {
                     const chunkIndex = cy * this.#horChunkCount + cx;
                     if (activeChunks[chunkIndex] && chunkActiveElements[cx] === 0) {
-                        activeChunks[chunkIndex] = false;
+                        // full test before deactivation
+
+                        // this test is quite expensive, so we don't want to perform it every time
+                        const lastFullTest = this.#chunkLastFullTest[chunkIndex];
+                        if (lastFullTest === -1 || this.#iteration - lastFullTest >= 10) {
+                            if (!this.#fullTest(cx, cy)) {
+                                activeChunks[chunkIndex] = false;
+                                this.#chunkLastFullTest[chunkIndex] = this.#iteration;
+                            }
+                        }
                     }
                 }
             }
@@ -314,62 +326,166 @@ export class Processor extends ProcessorContext {
         }
     }
 
+    #fullTest(cx, cy) {
+        const mx = Math.min((cx + 1) * this.#chunkSize, this.#width);
+        const my = Math.min((cy + 1) * this.#chunkSize, this.#height);
+        for (let y = cy * this.#chunkSize; y < my; y++) {
+            for (let x = cx * this.#chunkSize; x < mx; x++) {
+                if (this.#testPoint(x, y)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     #testPoint(x, y) {
         const elementHead = this.#elementArea.getElementHead(x, y);
-        return elementHead !== 0;
+
+        if (this.#testMovingBehaviour(elementHead, x, y)) {
+            return true;
+        }
+
+        const behaviour = ElementHead.getBehaviour(elementHead);
+        switch (behaviour) {
+            case ElementHead.BEHAVIOUR_NONE:
+            case ElementHead.BEHAVIOUR_SOIL:
+            case ElementHead.BEHAVIOUR_TREE_TRUNK:
+                break;
+            default:
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     *
+     * @param elementHead
+     * @param x {number}
+     * @param y {number}
+     * @returns {boolean}
+     */
+    #testMovingBehaviour(elementHead, x, y) {
+        const type = ElementHead.getTypeOrdinal(elementHead);
+        switch (type) {
+            case ElementHead.TYPE_STATIC:
+                // no action
+                return false;
+
+            case ElementHead.TYPE_FALLING:
+                //  #
+                //  #
+                //  #
+                return this.#testMove(elementHead, x, y, x, y + 1);
+
+            case ElementHead.TYPE_SAND_1:
+                //   #
+                //  ###
+                // #####
+                return this.#testMove(elementHead, x, y, x, y + 1)
+                        || this.#testMove(elementHead, x, y, x + 1, y + 1)
+                        || this.#testMove(elementHead, x, y, x - 1, y + 1);
+
+            case ElementHead.TYPE_SAND_2:
+                //     #
+                //   #####
+                // #########
+                return this.#testMove(elementHead, x, y, x, y + 1)
+                        || this.#testMove(elementHead, x, y, x + 1, y + 1)
+                        || this.#testMove(elementHead, x, y, x + 2, y + 1)
+                        || this.#testMove(elementHead, x, y, x - 1, y + 1)
+                        || this.#testMove(elementHead, x, y, x - 2, y + 1);
+
+            case ElementHead.TYPE_FLUID_1:
+            case ElementHead.TYPE_FLUID_2:
+                return this.#testMove(elementHead, x, y, x, y + 1)
+                        || this.#testMove(elementHead, x, y, x + 1, y)
+                        || this.#testMove(elementHead, x, y, x - 1, y);
+        }
+        throw "Unknown element type: " + type;
+    }
+
+    #testMove(elementHead, x, y, x2, y2) {
+        if (!this.#elementArea.isValidPosition(x2, y2)) {
+            if (this.#fallThroughEnabled && y === this.#height - 1) {
+                // try fall through
+                y2 = 0;
+                if (!this.#elementArea.isValidPosition(x2, y2)) {
+                    return false;
+                }
+                // continue move...
+            } else {
+                return false;
+            }
+        }
+
+        let elementHead2 = this.#elementArea.getElementHead(x2, y2);
+        return ElementHead.getWeight(elementHead) > ElementHead.getWeight(elementHead2);
     }
 
     /**
      *
      * @param x {number}
      * @param y {number}
-     * @return {boolean}
+     * @return {boolean} active
      */
     #nextPoint(x, y) {
         const elementHead = this.#elementArea.getElementHead(x, y);
         const moved = this.#performMovingBehaviour(elementHead, x, y);
 
-        if (!moved) {
-            const behaviour = ElementHead.getBehaviour(elementHead);
-            switch (behaviour) {
-                case ElementHead.BEHAVIOUR_NONE:
-                case ElementHead.BEHAVIOUR_SOIL:
-                    break;
-                case ElementHead.BEHAVIOUR_FIRE:
-                    this.#moduleFire.behaviourFire(elementHead, x, y);
-                    break;
-                case ElementHead.BEHAVIOUR_GRASS:
-                    this.#moduleGrass.behaviourGrass(elementHead, x, y);
-                    break;
-                case ElementHead.BEHAVIOUR_TREE:
-                    this.#moduleTree.behaviourTree(elementHead, x, y);
-                    break;
-                case ElementHead.BEHAVIOUR_TREE_LEAF:
-                    this.#moduleTree.behaviourTreeLeaf(elementHead, x, y);
-                    break;
-                case ElementHead.BEHAVIOUR_TREE_TRUNK:
-                    break;
-                case ElementHead.BEHAVIOUR_TREE_ROOT:
-                    this.#moduleTree.behaviourTreeRoot(elementHead, x, y);
-                    break;
-                case ElementHead.BEHAVIOUR_FIRE_SOURCE:
-                    this.#moduleFire.behaviourFireSource(elementHead, x, y);
-                    break;
-                case ElementHead.BEHAVIOUR_METEOR:
-                    this.#moduleMeteor.behaviourMeteor(elementHead, x, y);
-                    break;
-                case ElementHead.BEHAVIOUR_FISH:
-                    this.#moduleFish.behaviourFish(elementHead, x, y);
-                    break;
-                case ElementHead.BEHAVIOUR_FISH_BODY:
-                    this.#moduleFish.behaviourFishBody(elementHead, x, y);
-                    break;
-                default:
-                    throw "Unknown element behaviour: " + behaviour;
-            }
+        if (moved) {
+            return true;
         }
 
-        return elementHead !== 0;
+        const behaviour = ElementHead.getBehaviour(elementHead);
+        let activeBehaviour = false;
+        switch (behaviour) {
+            case ElementHead.BEHAVIOUR_NONE:
+            case ElementHead.BEHAVIOUR_SOIL:
+                break;
+            case ElementHead.BEHAVIOUR_FIRE:
+                this.#moduleFire.behaviourFire(elementHead, x, y);
+                activeBehaviour = true;
+                break;
+            case ElementHead.BEHAVIOUR_GRASS:
+                this.#moduleGrass.behaviourGrass(elementHead, x, y);
+                activeBehaviour = true;
+                break;
+            case ElementHead.BEHAVIOUR_TREE:
+                this.#moduleTree.behaviourTree(elementHead, x, y);
+                activeBehaviour = true;
+                break;
+            case ElementHead.BEHAVIOUR_TREE_LEAF:
+                this.#moduleTree.behaviourTreeLeaf(elementHead, x, y);
+                activeBehaviour = true;
+                break;
+            case ElementHead.BEHAVIOUR_TREE_TRUNK:
+                break;
+            case ElementHead.BEHAVIOUR_TREE_ROOT:
+                this.#moduleTree.behaviourTreeRoot(elementHead, x, y);
+                activeBehaviour = true;
+                break;
+            case ElementHead.BEHAVIOUR_FIRE_SOURCE:
+                this.#moduleFire.behaviourFireSource(elementHead, x, y);
+                activeBehaviour = true;
+                break;
+            case ElementHead.BEHAVIOUR_METEOR:
+                this.#moduleMeteor.behaviourMeteor(elementHead, x, y);
+                activeBehaviour = true;
+                break;
+            case ElementHead.BEHAVIOUR_FISH:
+                this.#moduleFish.behaviourFish(elementHead, x, y);
+                activeBehaviour = true;
+                break;
+            case ElementHead.BEHAVIOUR_FISH_BODY:
+                this.#moduleFish.behaviourFishBody(elementHead, x, y);
+                activeBehaviour = true;
+                break;
+            default:
+                throw "Unknown element behaviour: " + behaviour;
+        }
+
+        return activeBehaviour;
     }
 
     /**
