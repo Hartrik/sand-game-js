@@ -20,7 +20,7 @@ import {TemplateLayeredPainter} from "./TemplateLayeredPainter.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-04-29
+ * @version 2023-05-09
  */
 export class SandGame {
 
@@ -56,9 +56,6 @@ export class SandGame {
 
     /** @type number|null */
     #rendererIntervalHandle = null;
-
-    /** @type boolean */
-    #rendererShowActiveChunks = false;
 
     /** @type function[] */
     #onRendered = [];
@@ -132,14 +129,13 @@ export class SandGame {
 
     doRendering() {
         const changedChunks = this.#processor.getChangedChunks();
-        const activeChunks = this.#processor.getActiveChunks();
-        this.#renderer.render(changedChunks, activeChunks, this.#rendererShowActiveChunks);
-        this.#processor.cleanChangedChunks();
+        this.#renderer.render(changedChunks);
         const t = Date.now();
         this.#framesCounter.tick(t);
         for (let func of this.#onRendered) {
-            func();
+            func(changedChunks);
         }
+        this.#processor.cleanChangedChunks();
     }
 
     graphics() {
@@ -155,10 +151,6 @@ export class SandGame {
 
     layeredTemplate() {
         return new TemplateLayeredPainter(this.#elementArea, this.graphics(), this.#random, this.#processor);
-    }
-
-    setRendererShowActiveChunks(show) {
-        this.#rendererShowActiveChunks = show;
     }
 
     setRendererMode(mode) {
@@ -208,6 +200,10 @@ export class SandGame {
 
     getHeight() {
         return this.#height;
+    }
+
+    getChunkSize() {
+        return 16;
     }
 
     copyStateTo(targetSandGame) {

@@ -18,7 +18,7 @@ import {SandGameCanvasComponent} from "./SandGameCanvasComponent.js";
  * @requires jQuery
  *
  * @author Patrik Harag
- * @version 2023-04-29
+ * @version 2023-05-09
  */
 export class SandGameComponent extends SandGameControls {
 
@@ -104,11 +104,18 @@ export class SandGameComponent extends SandGameControls {
         const defaultElement = Brushes.AIR.apply(0, 0, undefined);
         const context = canvasComponent.getContext();
         this.#sandGame = scene.createSandGame(context, this.#currentWidthPoints, this.#currentHeightPoints, defaultElement)
-        this.#sandGame.setRendererShowActiveChunks(this.isShowActiveChunks());
         if (this.isShowHeatmap()) {
             this.#sandGame.setRendererMode(SandGame.RENDERING_MODE_HEATMAP);
         }
-        this.#sandGame.addOnRendered(() => {
+        this.#sandGame.addOnRendered((changedChunks) => {
+            // show highlighted chunks
+            if (this.isShowActiveChunks()) {
+                canvasComponent.highlightChunks(changedChunks);
+            } else {
+                canvasComponent.highlightChunks(null);
+            }
+
+            // update metrics
             const fps = this.#sandGame.getFramesPerSecond();
             const ips = this.#sandGame.getIterationsPerSecond();
             this.#onPerformanceUpdate.forEach(f => f(ips, fps))
@@ -342,9 +349,6 @@ export class SandGameComponent extends SandGameControls {
 
     setShowActiveChunks(show) {
         this.#showActiveChunks = show;
-        if (this.#sandGame) {
-            this.#sandGame.setRendererShowActiveChunks(show);
-        }
     }
 
     isShowActiveChunks() {

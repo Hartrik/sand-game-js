@@ -6,7 +6,7 @@ import {RenderingMode} from "./RenderingMode.js";
  * Double buffered renderer. With motion blur.
  *
  * @author Patrik Harag
- * @version 2023-05-06
+ * @version 2023-05-09
  */
 export class Renderer {
 
@@ -133,11 +133,9 @@ export class Renderer {
     /**
      *
      * @param changedChunks {boolean[]}
-     * @param activeChunks {boolean[]}
-     * @param showActiveChunks {boolean}
      * @return {void}
      */
-    render(changedChunks, activeChunks, showActiveChunks) {
+    render(changedChunks) {
         for (let cy = 0; cy < this.#verChunkCount; cy++) {
             for (let cx = 0; cx < this.#horChunkCount; cx++) {
                 const chunkIndex = cy * this.#horChunkCount + cx;
@@ -148,20 +146,14 @@ export class Renderer {
                     this.#triggeredChunks[chunkIndex] = false;
                 }
 
-                const active = activeChunks[chunkIndex];
-                if (active) {
-                    // repaint at least once more because of motion blur
-                    this.#triggeredChunks[chunkIndex] = true;
-                }
-
                 const changed = changedChunks[chunkIndex];
                 if (changed) {
                     // repaint at least once
                     this.#triggeredChunks[chunkIndex] = true;
                 }
 
-                if (active || triggered || changed) {
-                    this.#renderChunk(cx, cy, active && showActiveChunks);
+                if (triggered || changed) {
+                    this.#renderChunk(cx, cy);
                 }
             }
         }
@@ -169,41 +161,12 @@ export class Renderer {
         this.#context.putImageData(this.#buffer, 0, 0, 0, 0, this.#width, this.#height);
     }
 
-    #renderChunk(cx, cy, highlight) {
-        if (highlight) {
-            const setHighlightingPixel = (x, y) => {
-                if (x < this.#width && y < this.#height) {
-                    const index = (this.#width * y + x) * 4;
-                    this.#buffer.data[index] = 0x00;
-                    this.#buffer.data[index + 1] = 0xFF;
-                    this.#buffer.data[index + 2] = 0x00;
-                }
-            }
-            for (let i = 0; i < this.#chunkSize; i++) {
-                // top
-                setHighlightingPixel(cx * this.#chunkSize + i, cy * this.#chunkSize);
-                // bottom
-                setHighlightingPixel(cx * this.#chunkSize + i, (cy + 1) * this.#chunkSize - 1);
-                // left
-                setHighlightingPixel(cx * this.#chunkSize, cy * this.#chunkSize + i);
-                // right
-                setHighlightingPixel((cx + 1) * this.#chunkSize - 1, cy * this.#chunkSize + i);
-            }
-            const mx = Math.min((cx + 1) * this.#chunkSize - 1, this.#width);
-            const my = Math.min((cy + 1) * this.#chunkSize - 1, this.#height);
-            for (let y = cy * this.#chunkSize + 1; y < my; y++) {
-                for (let x = cx * this.#chunkSize + 1; x < mx; x++) {
-                    this.#renderPixel(x, y, this.#buffer.data);
-                }
-            }
-            this.triggerChunk(cx, cy);  // to repaint highlighting
-        } else {
-            const mx = Math.min((cx + 1) * this.#chunkSize, this.#width);
-            const my = Math.min((cy + 1) * this.#chunkSize, this.#height);
-            for (let y = cy * this.#chunkSize; y < my; y++) {
-                for (let x = cx * this.#chunkSize; x < mx; x++) {
-                    this.#renderPixel(x, y, this.#buffer.data);
-                }
+    #renderChunk(cx, cy) {
+        const mx = Math.min((cx + 1) * this.#chunkSize, this.#width);
+        const my = Math.min((cy + 1) * this.#chunkSize, this.#height);
+        for (let y = cy * this.#chunkSize; y < my; y++) {
+            for (let x = cx * this.#chunkSize; x < mx; x++) {
+                this.#renderPixel(x, y, this.#buffer.data);
             }
         }
     }

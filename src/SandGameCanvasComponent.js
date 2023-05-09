@@ -16,6 +16,10 @@ export class SandGameCanvasComponent {
 
     #nodeCanvas;
 
+    /** @type SandGameCanvasDebugOverlayComponent */
+    #debugOverlayComponent;
+    #nodeDebugOverlay;
+
     /** @type SandGameCanvasCursorOverlayComponent */
     #cursorOverlayComponent;
     #nodeCursorOverlay;
@@ -31,6 +35,9 @@ export class SandGameCanvasComponent {
         const h = this.#controls.getCurrentHeightPoints();
         const scale = this.#controls.getCurrentScale();
         this.#nodeCanvas = this.#createCanvas(w, h, scale);
+
+        this.#debugOverlayComponent = new SandGameCanvasDebugOverlayComponent(w, h, scale, sandGameControls);
+        this.#nodeDebugOverlay = this.#debugOverlayComponent.createNode();
 
         this.#cursorOverlayComponent = new SandGameCanvasCursorOverlayComponent(w, h, scale, sandGameControls);
         this.#nodeCursorOverlay = this.#cursorOverlayComponent.createNode();
@@ -59,6 +66,7 @@ export class SandGameCanvasComponent {
             class: 'sand-game-canvas-component'
         }, [
             this.#nodeCanvas,
+            this.#nodeDebugOverlay,
             this.#nodeCursorOverlay
         ]);
     }
@@ -259,6 +267,10 @@ export class SandGameCanvasComponent {
         domCanvasNode.style.imageRendering = style;
     }
 
+    highlightChunks(changedChunks) {
+        this.#debugOverlayComponent.highlightChunks(changedChunks);
+    }
+
     close() {
         // TODO
     }
@@ -398,5 +410,103 @@ class SandGameCanvasCursorOverlayComponent {
 
         this.#nodeOverlay.empty();
         this.#nodeOverlay.append(cursor.node);
+    }
+}
+
+/**
+ *
+ * @author Patrik Harag
+ * @version 2023-05-09
+ */
+class SandGameCanvasDebugOverlayComponent {
+
+    /** @type SandGameControls */
+    #controls;
+
+    #nodeOverlay;
+
+    #w;
+    #h;
+    #scale;
+
+    constructor(w, h, scale, controls) {
+        this.#w = w;
+        this.#h = h;
+        this.#scale = scale;
+        const wPx = w / scale;
+        const hPx = h / scale;
+        this.#nodeOverlay = DomBuilder.div({
+            style: `position: absolute; left: 0; top: 0; width: ${wPx}px; height: ${hPx}px;`,
+            class: 'sand-game-canvas-overlay',
+            width: w + 'px',
+            height: h + 'px',
+        });
+        this.#controls = controls;
+    }
+
+    /**
+     *
+     * @param changedChunks {boolean[]}
+     */
+    highlightChunks(changedChunks) {
+        this.#nodeOverlay.empty();
+
+        if (changedChunks) {
+
+            const sandGame = this.#controls.getSandGame();
+            const chunkSize = sandGame.getChunkSize();
+            const horChunkCount = Math.ceil(sandGame.getWidth() / chunkSize);
+            const verChunkCount = Math.ceil(sandGame.getHeight() / chunkSize);
+
+            for (let cy = 0; cy < verChunkCount; cy++) {
+                for (let cx = 0; cx < horChunkCount; cx++) {
+                    const chunkIndex = cy * horChunkCount + cx;
+                    if (changedChunks[chunkIndex]) {
+                        this.#highlightChunk(cx, cy, chunkSize);
+                    }
+                }
+            }
+        }
+    }
+
+    #highlightChunk(cx, cy, chunkSize) {
+        const scale = this.#scale;
+        const wPx = this.#w / scale;
+        const hPx = this.#h / scale;
+        const xPx = cx * chunkSize / scale;
+        const yPx = cy * chunkSize / scale;
+        const cwPx = chunkSize / scale;
+        const chPx = chunkSize / scale;
+
+        const selection = DomBuilder.div();
+        selection.css({
+            left: xPx + 'px',
+            top: yPx + 'px',
+            width: cwPx + 'px',
+            height: chPx + 'px',
+            position: 'absolute',
+            outline: 'rgb(0, 255, 0) 1px solid',
+            'pointer-events': 'none'
+        });
+
+        if (xPx + cwPx >= wPx || yPx + chPx >= hPx) {
+            // clip
+
+            const UNSET = -1;  // expect border
+            const pxClipTop = UNSET;
+            const pxClipRight = xPx + cwPx >= wPx ? xPx + cwPx - wPx : UNSET;
+            const pxClipBottom = yPx + chunkSize >= hPx ? yPx + chPx - hPx : UNSET;
+            const pxClipLeft = UNSET;
+
+            selection.css({
+                'clip-path': `inset(${pxClipTop}px ${pxClipRight}px ${pxClipBottom}px ${pxClipLeft}px)`
+            });
+        }
+
+        this.#nodeOverlay.append(selection);
+    }
+
+    createNode() {
+        return this.#nodeOverlay;
     }
 }
