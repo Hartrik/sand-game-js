@@ -10,7 +10,7 @@ import {ProcessorModuleTree} from "./ProcessorModuleTree.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-05-06
+ * @version 2023-05-09
  */
 export class Processor extends ProcessorContext {
 
@@ -31,6 +31,8 @@ export class Processor extends ProcessorContext {
 
     /** @type boolean[] */
     #activeChunks
+    /** @type boolean[] */
+    #changedChunks
     /** @type number[] */
     #chunkLastFullTest;
 
@@ -81,6 +83,7 @@ export class Processor extends ProcessorContext {
         this.#horChunkCount = Math.ceil(this.#width / this.#chunkSize);
         this.#verChunkCount = Math.ceil(this.#height / this.#chunkSize);
         this.#activeChunks = new Array(this.#horChunkCount * this.#verChunkCount).fill(true);
+        this.#changedChunks = new Array(this.#horChunkCount * this.#verChunkCount).fill(true);
         this.#chunkLastFullTest = new Array(this.#horChunkCount * this.#verChunkCount).fill(-1);
 
         let rndDataRandom = new DeterministicRandom(0);
@@ -180,10 +183,19 @@ export class Processor extends ProcessorContext {
         const cy = Math.floor(y / this.#chunkSize);
         const chunkIndex = cy * this.#horChunkCount + cx;
         this.#activeChunks[chunkIndex] = true;
+        // this.#changedChunks[chunkIndex] = true;
     }
 
     getActiveChunks() {
         return this.#activeChunks;
+    }
+
+    getChangedChunks() {
+        return this.#changedChunks;
+    }
+
+    cleanChangedChunks() {
+        this.#changedChunks.fill(false);
     }
 
     next() {
@@ -248,6 +260,7 @@ export class Processor extends ProcessorContext {
                         if (lastFullTest === -1 || this.#iteration - lastFullTest >= 10) {
                             if (!this.#fullTest(cx, cy)) {
                                 activeChunks[chunkIndex] = false;
+                                this.#changedChunks[chunkIndex] = true;  // last repaint
                                 this.#chunkLastFullTest[chunkIndex] = this.#iteration;
                             }
                         }
@@ -270,7 +283,11 @@ export class Processor extends ProcessorContext {
 
         // merge active chunks
         for (let i = 0; i < this.#horChunkCount * this.#verChunkCount; i++) {
-            this.#activeChunks[i] |= activeChunks[i];
+            let active = activeChunks[i];
+            if (active) {
+                this.#activeChunks[i] = true;
+                this.#changedChunks[i] = true;
+            }
         }
 
         this.#iteration++;

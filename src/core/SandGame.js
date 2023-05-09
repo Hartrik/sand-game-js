@@ -131,7 +131,10 @@ export class SandGame {
     }
 
     doRendering() {
-        this.#renderer.render(this.#processor.getActiveChunks(), this.#rendererShowActiveChunks);
+        const changedChunks = this.#processor.getChangedChunks();
+        const activeChunks = this.#processor.getActiveChunks();
+        this.#renderer.render(changedChunks, activeChunks, this.#rendererShowActiveChunks);
+        this.#processor.cleanChangedChunks();
         const t = Date.now();
         this.#framesCounter.tick(t);
         for (let func of this.#onRendered) {

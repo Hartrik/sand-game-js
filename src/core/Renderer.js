@@ -6,7 +6,7 @@ import {RenderingMode} from "./RenderingMode.js";
  * Double buffered renderer. With motion blur.
  *
  * @author Patrik Harag
- * @version 2023-05-04
+ * @version 2023-05-06
  */
 export class Renderer {
 
@@ -110,6 +110,18 @@ export class Renderer {
         this.#triggeredChunks[chunkIndex] = true;
     }
 
+    triggerChunks(activeChunks) {
+        if (activeChunks.length !== this.#triggeredChunks.length) {
+            throw 'Array must be of the same size';
+        }
+        for (let i = 0; i < activeChunks.length; i++) {
+            const active = activeChunks[i];
+            if (active) {
+                this.#triggeredChunks[i] = active;
+            }
+        }
+    }
+
     setMode(mode) {
         this.#mode = mode;
         // ensure repaint
@@ -120,24 +132,35 @@ export class Renderer {
 
     /**
      *
+     * @param changedChunks {boolean[]}
      * @param activeChunks {boolean[]}
      * @param showActiveChunks {boolean}
      * @return {void}
      */
-    render(activeChunks, showActiveChunks) {
+    render(changedChunks, activeChunks, showActiveChunks) {
         for (let cy = 0; cy < this.#verChunkCount; cy++) {
             for (let cx = 0; cx < this.#horChunkCount; cx++) {
                 const chunkIndex = cy * this.#horChunkCount + cx;
-                const active = activeChunks[chunkIndex];
+
                 const triggered = this.#triggeredChunks[chunkIndex];
-                if (active) {
-                    // repaint at least once more because of motion blur
-                    this.#triggeredChunks[chunkIndex] = true;
-                } else if (triggered) {
+                if (triggered) {
                     // unset
                     this.#triggeredChunks[chunkIndex] = false;
                 }
-                if (active || triggered) {
+
+                const active = activeChunks[chunkIndex];
+                if (active) {
+                    // repaint at least once more because of motion blur
+                    this.#triggeredChunks[chunkIndex] = true;
+                }
+
+                const changed = changedChunks[chunkIndex];
+                if (changed) {
+                    // repaint at least once
+                    this.#triggeredChunks[chunkIndex] = true;
+                }
+
+                if (active || triggered || changed) {
                     this.#renderChunk(cx, cy, active && showActiveChunks);
                 }
             }
