@@ -7,7 +7,7 @@ import { Analytics } from "./Analytics.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-05-04
+ * @version 2023-05-09
  */
 export class SandGameCanvasComponent {
 
@@ -15,12 +15,11 @@ export class SandGameCanvasComponent {
     #controls;
 
     #nodeCanvas;
-    #nodeOverlay;
 
-    /** @type {{node:any,width:number,height:number}|null} */
-    #cursor = null;
+    /** @type SandGameCanvasCursorOverlayComponent */
+    #cursorOverlayComponent;
+    #nodeCursorOverlay;
 
-    #context;
 
     /**
      * @param sandGameControls {SandGameControls}
@@ -32,7 +31,9 @@ export class SandGameCanvasComponent {
         const h = this.#controls.getCurrentHeightPoints();
         const scale = this.#controls.getCurrentScale();
         this.#nodeCanvas = this.#createCanvas(w, h, scale);
-        this.#nodeOverlay = this.#createOverlay(w, h, scale);
+
+        this.#cursorOverlayComponent = new SandGameCanvasCursorOverlayComponent(w, h, scale, sandGameControls);
+        this.#nodeCursorOverlay = this.#cursorOverlayComponent.createNode();
     }
 
     #createCanvas(w, h, scale) {
@@ -52,29 +53,18 @@ export class SandGameCanvasComponent {
         return canvas;
     }
 
-    #createOverlay(w, h, scale) {
-        const wPx = w / scale;
-        const hPx = h / scale;
-        return DomBuilder.div({
-            style: `position: absolute; left: 0; top: 0; width: ${wPx}px; height: ${hPx}px;`,
-            class: 'sand-game-canvas-overlay',
-            width: w + 'px',
-            height: h + 'px',
-        });
-    }
-
     createNode() {
         return DomBuilder.div({
             style: 'position: relative;',
             class: 'sand-game-canvas-component'
         }, [
             this.#nodeCanvas,
-            this.#nodeOverlay
+            this.#nodeCursorOverlay
         ]);
     }
 
     initMouseHandling(sandGame) {
-        let domNode = this.#nodeOverlay[0];
+        let domNode = this.#nodeCursorOverlay[0];
         const scale = this.#controls.getCurrentScale();
 
         let getActualMousePosition = (e) => {
@@ -89,7 +79,7 @@ export class SandGameCanvasComponent {
         let ctrlPressed = false;
         let shiftPressed = false;
 
-        this.#nodeOverlay.bind('contextmenu', e => false);
+        this.#nodeCursorOverlay.bind('contextmenu', e => false);
         domNode.addEventListener('mousedown', (e) => {
             const [x, y] = getActualMousePosition(e);
             lastX = x;
@@ -148,14 +138,14 @@ export class SandGameCanvasComponent {
             if (!ctrlPressed && !shiftPressed) {
 
                 // show / move cursor
-                if (this.#cursor !== null) {
+                if (this.#cursorOverlayComponent.hasCursor()) {
                     const [x, y] = getActualMousePosition(e);
-                    this.#moveCursor(x, y, scale);
+                    this.#cursorOverlayComponent.moveCursor(x, y, scale);
                 } else {
                     const cursorDefinition = this.#controls.getPrimaryTool().createCursor();
                     if (cursorDefinition !== null) {
                         const [x, y] = getActualMousePosition(e);
-                        this.#showCursor(x, y, scale, cursorDefinition);
+                        this.#cursorOverlayComponent.showCursor(x, y, scale, cursorDefinition);
                     }
                 }
 
@@ -180,12 +170,12 @@ export class SandGameCanvasComponent {
             }
             if (ctrlPressed) {
                 const [x, y] = getActualMousePosition(e);
-                this.#repaintRectangleSelection(lastX, lastY, x, y, scale);
+                this.#cursorOverlayComponent.repaintRectangleSelection(lastX, lastY, x, y, scale);
                 return;
             }
             if (shiftPressed) {
                 const [x, y] = getActualMousePosition(e);
-                this.#repaintLineSelection(lastX, lastY, x, y, scale);
+                this.#cursorOverlayComponent.repaintLineSelection(lastX, lastY, x, y, scale);
                 return;
             }
         });
@@ -209,16 +199,16 @@ export class SandGameCanvasComponent {
                 Analytics.triggerToolUsed(lastTool);
             }
             lastTool = null;
-            this.#hideCursors();
+            this.#cursorOverlayComponent.hideCursors();
         });
         domNode.addEventListener('mouseout', (e) => {
-            this.#hideCursors();
+            this.#cursorOverlayComponent.hideCursors();
         });
         domNode.addEventListener('mouseenter', (e) => {
             if (lastTool !== null && e.buttons === 0) {
                 // mouse released outside...
                 lastTool = null;
-                this.#hideCursors();
+                this.#cursorOverlayComponent.hideCursors();
                 e.preventDefault();
             }
         });
@@ -259,12 +249,58 @@ export class SandGameCanvasComponent {
         });
     }
 
-    #hideCursors() {
+    getContext() {
+        let domCanvasNode = this.#nodeCanvas[0];
+        return domCanvasNode.getContext('2d');
+    }
+
+    setImageRenderingStyle(style) {
+        let domCanvasNode = this.#nodeCanvas[0];
+        domCanvasNode.style.imageRendering = style;
+    }
+
+    close() {
+        // TODO
+    }
+}
+
+/**
+ *
+ * @author Patrik Harag
+ * @version 2023-05-09
+ */
+class SandGameCanvasCursorOverlayComponent {
+
+    /** @type SandGameControls */
+    #controls;
+
+    #nodeOverlay;
+
+    /** @type {{node:any,width:number,height:number}|null} */
+    #cursor = null;
+
+    constructor(w, h, scale, controls) {
+        const wPx = w / scale;
+        const hPx = h / scale;
+        this.#nodeOverlay = DomBuilder.div({
+            style: `position: absolute; left: 0; top: 0; width: ${wPx}px; height: ${hPx}px;`,
+            class: 'sand-game-canvas-overlay',
+            width: w + 'px',
+            height: h + 'px',
+        });
+        this.#controls = controls;
+    }
+
+    createNode() {
+        return this.#nodeOverlay;
+    }
+
+    hideCursors() {
         this.#nodeOverlay.empty();
         this.#cursor = null;
     }
 
-    #repaintRectangleSelection(lastX, lastY, x, y, scale) {
+    repaintRectangleSelection(lastX, lastY, x, y, scale) {
         this.#nodeOverlay.empty();
 
         let xPx = Math.min(lastX, x) / scale;
@@ -285,7 +321,7 @@ export class SandGameCanvasComponent {
         this.#nodeOverlay.append(selection);
     }
 
-    #repaintLineSelection(lastX, lastY, x, y, scale) {
+    repaintLineSelection(lastX, lastY, x, y, scale) {
         this.#nodeOverlay.empty();
 
         const w = this.#controls.getCurrentWidthPoints();
@@ -302,7 +338,7 @@ export class SandGameCanvasComponent {
         this.#nodeOverlay.append(line);
     }
 
-    #showCursor(x, y, scale, cursorDefinition) {
+    showCursor(x, y, scale, cursorDefinition) {
         if (cursorDefinition instanceof CursorDefinitionElementArea) {
             const wPx = Math.trunc(cursorDefinition.getWidth() / scale);
             const hPx = Math.trunc(cursorDefinition.getHeight() / scale);
@@ -332,10 +368,14 @@ export class SandGameCanvasComponent {
             'pointer-events': 'none',
         });
 
-        this.#moveCursor(x, y, scale);
+        this.moveCursor(x, y, scale);
     }
 
-    #moveCursor(x, y, scale) {
+    hasCursor() {
+        return this.#cursor !== null;
+    }
+
+    moveCursor(x, y, scale) {
         const cursor = this.#cursor;
 
         const pxW = this.#controls.getCurrentWidthPoints() / scale;
@@ -358,20 +398,5 @@ export class SandGameCanvasComponent {
 
         this.#nodeOverlay.empty();
         this.#nodeOverlay.append(cursor.node);
-    }
-
-    getContext() {
-        let domCanvasNode = this.#nodeCanvas[0];
-        this.#context = domCanvasNode.getContext('2d');
-        return this.#context;
-    }
-
-    setImageRenderingStyle(style) {
-        let domCanvasNode = this.#nodeCanvas[0];
-        domCanvasNode.style.imageRendering = style;
-    }
-
-    close() {
-        // TODO
     }
 }
