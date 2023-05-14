@@ -153,17 +153,28 @@ export class Renderer {
                 }
 
                 if (triggered || changed) {
-                    this.#renderChunk(cx, cy);
+
+                    // neighbours can be changed without triggering
+                    let includeRowUnder = false;
+                    if (cy + 1 < this.#horChunkCount) {
+                        const chunkIndexUnder = (cy + 1) * this.#horChunkCount + cx;
+                        if (!this.#triggeredChunks[chunkIndexUnder] && !changedChunks[chunkIndexUnder]) {
+                            includeRowUnder = true;
+                        }
+                    }
+
+                    this.#renderChunk(cx, cy, includeRowUnder);
                 }
             }
         }
 
+        // TODO: ? multiple partial putImageData
         this.#context.putImageData(this.#buffer, 0, 0, 0, 0, this.#width, this.#height);
     }
 
-    #renderChunk(cx, cy) {
+    #renderChunk(cx, cy, includeRowUnder) {
         const mx = Math.min((cx + 1) * this.#chunkSize, this.#width);
-        const my = Math.min((cy + 1) * this.#chunkSize, this.#height);
+        const my = Math.min((cy + 1) * this.#chunkSize + (includeRowUnder ? 1 : 0), this.#height);
         for (let y = cy * this.#chunkSize; y < my; y++) {
             for (let x = cx * this.#chunkSize; x < mx; x++) {
                 this.#renderPixel(x, y, this.#buffer.data);
