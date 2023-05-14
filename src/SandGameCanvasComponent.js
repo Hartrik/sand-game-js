@@ -416,7 +416,7 @@ class SandGameCanvasCursorOverlayComponent {
 /**
  *
  * @author Patrik Harag
- * @version 2023-05-09
+ * @version 2023-05-14
  */
 class SandGameCanvasDebugOverlayComponent {
 
@@ -458,25 +458,45 @@ class SandGameCanvasDebugOverlayComponent {
             const horChunkCount = Math.ceil(sandGame.getWidth() / chunkSize);
             const verChunkCount = Math.ceil(sandGame.getHeight() / chunkSize);
 
+            let highlighted = 0;
+
             for (let cy = 0; cy < verChunkCount; cy++) {
                 for (let cx = 0; cx < horChunkCount; cx++) {
                     const chunkIndex = cy * horChunkCount + cx;
                     if (changedChunks[chunkIndex]) {
                         this.#highlightChunk(cx, cy, chunkSize);
+                        highlighted++;
                     }
                 }
             }
+
+            // show stats
+            const total = horChunkCount * verChunkCount;
+            const highlightedPercent = Math.trunc(highlighted / total * 100);
+            this.#showText(0, 0, `${highlighted}/${total} (${highlightedPercent}%)`);
         }
     }
 
+    #showText(x, y, text) {
+        const label = DomBuilder.span(text);
+        const xPx = x / this.#scale;
+        const yPx = y / this.#scale;
+        label.css({
+            left: xPx + 'px',
+            top: yPx + 'px',
+            position: 'absolute',
+            color: 'rgb(0, 255, 0)'
+        });
+        this.#nodeOverlay.append(label);
+    }
+
     #highlightChunk(cx, cy, chunkSize) {
-        const scale = this.#scale;
-        const wPx = this.#w / scale;
-        const hPx = this.#h / scale;
-        const xPx = cx * chunkSize / scale;
-        const yPx = cy * chunkSize / scale;
-        const cwPx = chunkSize / scale;
-        const chPx = chunkSize / scale;
+        const wPx = this.#w / this.#scale;
+        const hPx = this.#h / this.#scale;
+        const xPx = cx * chunkSize / this.#scale;
+        const yPx = cy * chunkSize / this.#scale;
+        const cwPx = chunkSize / this.#scale;
+        const chPx = chunkSize / this.#scale;
 
         const selection = DomBuilder.div();
         selection.css({
@@ -485,8 +505,7 @@ class SandGameCanvasDebugOverlayComponent {
             width: cwPx + 'px',
             height: chPx + 'px',
             position: 'absolute',
-            outline: 'rgb(0, 255, 0) 1px solid',
-            'pointer-events': 'none'
+            outline: 'rgb(0, 255, 0) 1px solid'
         });
 
         if (xPx + cwPx >= wPx || yPx + chPx >= hPx) {
