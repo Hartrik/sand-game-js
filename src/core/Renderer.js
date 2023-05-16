@@ -6,7 +6,7 @@ import {RenderingMode} from "./RenderingMode.js";
  * Double buffered renderer. With motion blur.
  *
  * @author Patrik Harag
- * @version 2023-05-09
+ * @version 2023-05-16
  */
 export class Renderer {
 
@@ -25,14 +25,22 @@ export class Renderer {
 
         for (let x = 0; x < w; x++) {
             for (let y = 0; y < h; y++) {
-                const elementTail = elementArea.getElementTail(x, y);
-
                 const pixelIndex = w * y + x;
                 const dataIndex = pixelIndex * 4;
-                data[dataIndex] = ElementTail.getColorRed(elementTail);
-                data[dataIndex + 1] = ElementTail.getColorGreen(elementTail);
-                data[dataIndex + 2] = ElementTail.getColorBlue(elementTail);
-                data[dataIndex + 3] = alpha;
+
+                const elementTail = elementArea.getElementTail(x, y);
+
+                if (elementTail === ElementArea.TRANSPARENT_ELEMENT.elementTail
+                        && elementArea.getElementHead(x, y) === ElementArea.TRANSPARENT_ELEMENT.elementHead) {
+
+                    // transparent
+                    data[dataIndex + 3] = 0;
+                } else {
+                    data[dataIndex] = ElementTail.getColorRed(elementTail);
+                    data[dataIndex + 1] = ElementTail.getColorGreen(elementTail);
+                    data[dataIndex + 2] = ElementTail.getColorBlue(elementTail);
+                    data[dataIndex + 3] = alpha;
+                }
             }
         }
 
