@@ -3,9 +3,16 @@ import {Element} from "./Element.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-19
+ * @version 2023-05-16
  */
 export class ElementArea {
+
+    /**
+     * This element is used for templates etc.
+     * @type {Element}
+     */
+    static TRANSPARENT_ELEMENT = new Element(0xFFFFFFFF, 0xFFFFFFFF);
+
     static LITTLE_ENDIAN = true;
 
     static create(width, height, defaultElement) {

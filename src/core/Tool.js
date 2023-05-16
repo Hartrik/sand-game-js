@@ -212,13 +212,12 @@ class PointBrushTool extends Tool {
 /**
  *
  * @author Patrik Harag
- * @version 2023-05-04
+ * @version 2023-05-16
  */
 class InsertSceneTool extends Tool {
 
     static DEFAULT_W = 30;
     static DEFAULT_H = 30;
-    static BACKGROUND_ELEMENT = new Element(0xFFFFFFFF, 0xFFFFFFFF);
 
     /** @type ElementArea */
     #elementArea;
@@ -229,7 +228,7 @@ class InsertSceneTool extends Tool {
         super(category, codeName, displayName);
 
         this.#elementArea = scene.createElementArea(
-                InsertSceneTool.DEFAULT_W, InsertSceneTool.DEFAULT_H, InsertSceneTool.BACKGROUND_ELEMENT);
+                InsertSceneTool.DEFAULT_W, InsertSceneTool.DEFAULT_H, ElementArea.TRANSPARENT_ELEMENT);
 
         this.#onInsertHandler = onInsertHandler;
     }
@@ -241,8 +240,8 @@ class InsertSceneTool extends Tool {
 
         let brush = Brush.custom((tx, ty) => {
             const element = elementArea.getElement(tx - offsetX, ty - offsetY);
-            if (element.elementHead !== InsertSceneTool.BACKGROUND_ELEMENT.elementHead
-                && element.elementTail !== InsertSceneTool.BACKGROUND_ELEMENT.elementTail) {
+            if (element.elementHead !== ElementArea.TRANSPARENT_ELEMENT.elementHead
+                    && element.elementTail !== ElementArea.TRANSPARENT_ELEMENT.elementTail) {
 
                 return element;
             }

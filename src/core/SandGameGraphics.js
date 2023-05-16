@@ -1,11 +1,12 @@
 import {FloodFillPainter} from "./FloodFillPainter.js";
 import {Element} from "./Element.js";
+import {ElementArea} from "./ElementArea.js";
 import {Brush} from "./Brush.js";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-04-29
+ * @version 2023-05-16
  */
 export class SandGameGraphics {
 
@@ -108,6 +109,19 @@ export class SandGameGraphics {
     floodFill(x, y, brush, neighbourhood) {
         let floodFillPainter = new FloodFillPainter(this.#elementArea, neighbourhood, this);
         floodFillPainter.paint(x, y, brush);
+    }
+
+    replace(elementTarget, elementReplacement) {
+        const width = this.getWidth();
+        const height = this.getHeight();
+        for (let y = 0; y < height; y++) {
+            for (let x = 0; x < width; x++) {
+                const next = this.#elementArea.getElement(x, y);
+                if (next.elementHead === elementTarget.elementHead && next.elementTail === elementTarget.elementTail) {
+                    this.#elementArea.setElement(x, y, elementReplacement);
+                }
+            }
+        }
     }
 
     getWidth() {

@@ -1,4 +1,7 @@
 import {DomBuilder} from "./DomBuilder.js";
+import {Assets} from "./Assets.js";
+import {Brushes} from "./core/Brushes.js";
+import {ElementArea} from "./core/ElementArea.js";
 import {ResourceIO} from "./core/ResourceIO.js";
 import {Analytics} from "./Analytics.js";
 import FileSaver from 'file-saver';
@@ -6,7 +9,7 @@ import FileSaver from 'file-saver';
 /**
  *
  * @author Patrik Harag
- * @version 2023-04-29
+ * @version 2023-05-16
  */
 export class SandGameIOComponent {
 
@@ -86,7 +89,7 @@ export class SandGameIOComponent {
         let reader = new FileReader();
         reader.onload = (readerEvent) => {
             let content = readerEvent.target.result;
-            this.#loadFromArrayBuffer(content);
+            this.#loadFromArrayBuffer(content, file.name);
         }
         reader.readAsArrayBuffer(file);
     }
@@ -94,33 +97,63 @@ export class SandGameIOComponent {
     /**
      *
      * @param content {ArrayBuffer}
+     * @param filename {string}
      */
-    #loadFromArrayBuffer(content) {
-        let scene = null;
-        try {
-            scene = ResourceIO.parseResource(content);
-        } catch (e) {
+    #loadFromArrayBuffer(content, filename) {
+        const handleError = (e) => {
+            let msg = (typeof e === 'object') ? JSON.stringify(e) : '' + e;
             let dialog = new DomBuilder.BootstrapDialog();
             dialog.setHeaderContent('Error');
             dialog.setBodyContent([
                 DomBuilder.par(null, "Error while loading resource:"),
-                DomBuilder.element('code', null, '' + e)
+                DomBuilder.element('code', null, msg)
             ]);
             dialog.addCloseButton('Close');
             dialog.show(this.#controls.getDialogAnchor());
-        }
-        if (scene) {
-            let dialog = new DomBuilder.BootstrapDialog();
-            dialog.setHeaderContent('Import scene');
-            dialog.setBodyContent([
-                DomBuilder.par(null, "The imported scene can be opened or placed on the current scene.")
-            ]);
-            dialog.addSubmitButton('Open', () => this.#controls.openScene(scene));
-            dialog.addSubmitButton('Place', () => this.#controls.pasteScene(scene));
-            dialog.addCloseButton('Close');
-            dialog.show(this.#controls.getDialogAnchor());
+        };
 
-            Analytics.triggerFeatureUsed(Analytics.FEATURE_IO_IMPORT);
+        const importScene = (scene) => {
+            try {
+                let dialog = new DomBuilder.BootstrapDialog();
+                dialog.setHeaderContent('Import scene');
+                dialog.setBodyContent([
+                    DomBuilder.par(null, "The imported scene can be opened or placed on the current scene.")
+                ]);
+                dialog.addSubmitButton('Open', () => this.#controls.openScene(scene));
+                dialog.addSubmitButton('Place', () => this.#controls.pasteScene(scene));
+                dialog.addCloseButton('Close');
+                dialog.show(this.#controls.getDialogAnchor());
+
+                Analytics.triggerFeatureUsed(Analytics.FEATURE_IO_IMPORT);
+            } catch (ex) {
+                handleError(ex);
+            }
+        };
+
+        try {
+            let imageTypeOrNull = Assets.getImageTypeOrNull(filename);
+            if (imageTypeOrNull !== null) {
+                const handleImageTemplate = (brush) => {
+                    ResourceIO.fromImage(content, imageTypeOrNull, brush, ElementArea.TRANSPARENT_ELEMENT)
+                        .then(importScene).catch(handleError);
+                };
+
+                let dialog = new DomBuilder.BootstrapDialog();
+                dialog.setHeaderContent('Image template');
+                dialog.setBodyContent([
+                    DomBuilder.par(null, "Select material")
+                ]);
+                dialog.addSubmitButton('Sand', () => handleImageTemplate(Brushes.SAND));
+                dialog.addSubmitButton('Soil', () => handleImageTemplate(Brushes.SOIL));
+                dialog.addSubmitButton('Solid', () => handleImageTemplate(Brushes.WALL));
+                dialog.addSubmitButton('Wood', () => handleImageTemplate(Brushes.TREE_WOOD));
+                dialog.addCloseButton('Close');
+                dialog.show(this.#controls.getDialogAnchor());
+            } else {
+                ResourceIO.parseResource(content).then(importScene).catch(handleError);
+            }
+        } catch (e) {
+            handleError(e);
         }
     }
 }

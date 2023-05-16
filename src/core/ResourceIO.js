@@ -1,12 +1,17 @@
+import {Assets} from "../Assets.js";
+import {Brush} from "./Brush.js";
+import {ElementArea} from "./ElementArea.js";
+import {ElementTail} from "./ElementTail.js";
 import {Snapshot} from "./Snapshot";
 import {SceneMetadata} from "./SceneMetadata.js";
 import {SceneImplSnapshot} from "./SceneImplSnapshot.js";
+import {SceneImplTemplate} from "./SceneImplTemplate.js";
 import {strToU8, strFromU8, zipSync, unzipSync} from 'fflate';
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-04-29
+ * @version 2023-05-16
  */
 export class ResourceIO {
 
@@ -28,9 +33,9 @@ export class ResourceIO {
     /**
      *
      * @param content {ArrayBuffer}
-     * @returns Scene
+     * @returns Promise<Scene>
      */
-    static parseResource(content) {
+    static async parseResource(content) {
         const zip = unzipSync(new Uint8Array(content));
 
         if (zip['metadata.json']) {
@@ -39,6 +44,48 @@ export class ResourceIO {
             return new SceneImplSnapshot(snapshot);
         }
         throw 'Wrong format';
+    }
+
+    /**
+     *
+     * @param content {ArrayBuffer}
+     * @param imageType {string}
+     * @param brush {Brush}
+     * @param defaultElement {Element}
+     * @returns Promise<Scene>
+     */
+    static async fromImage(content, imageType, brush, defaultElement) {
+        const imageData = await Assets.asImageData(Assets.asObjectUrl(content, imageType));
+
+        const width = imageData.width;
+        const height = imageData.height;
+
+        const elementArea = ElementArea.create(width, height, defaultElement);
+
+        for (let y = 0; y < height; y++) {
+            for (let x = 0; x < width; x++) {
+                const index = (y * width + x) * 4;
+
+                const red = imageData.data[index];
+                const green = imageData.data[index + 1];
+                const blue = imageData.data[index + 2];
+                const alpha = imageData.data[index + 3];
+
+                if (alpha < 50) {
+                    continue;  // transparent
+                }
+                if (red > 200 && green > 200 && blue > 200) {
+                    continue;  // white
+                }
+
+                const element = brush.apply(x, y, undefined, undefined);
+                const elementHead = element.elementHead;
+                const elementTail = ElementTail.setColor(element.elementTail, red, green, blue);
+                elementArea.setElementHeadAndTail(x, y, elementHead, elementTail);
+            }
+        }
+
+        return new SceneImplTemplate(elementArea);
     }
 }
 

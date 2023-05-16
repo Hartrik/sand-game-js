@@ -8,7 +8,7 @@ import _GRADIENT_RAINBOW from '../assets/gradient-rainbow.png'
 /**
  *
  * @author Patrik Harag
- * @version 2023-04-10
+ * @version 2023-05-16
  */
 export class Assets {
 
@@ -26,7 +26,7 @@ export class Assets {
      * @returns {Promise<ImageData>}
      */
     static asImageData(base64) {
-        let promise = new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
             try {
                 // http://stackoverflow.com/questions/3528299/get-pixel-color-of-base64-png-using-javascript
                 let image = new Image();
@@ -46,6 +46,35 @@ export class Assets {
                 reject(e);
             }
         });
-        return promise;
+    }
+
+    /**
+     *
+     * @param data {ArrayBuffer} ArrayBuffer
+     * @param type {string} type
+     */
+    static asObjectUrl(data, type='image/png') {
+        // https://gist.github.com/candycode/f18ae1767b2b0aba568e
+        const arrayBufferView = new Uint8Array(data);
+        const blob = new Blob([ arrayBufferView ], { type: type });
+        const urlCreator = window.URL || window.webkitURL;
+        return urlCreator.createObjectURL(blob);
+    }
+
+    static getImageTypeOrNull(filename) {
+        filename = filename.toLowerCase();
+        if (filename.endsWith('.png')) {
+            return 'image/png'
+        }
+        if (filename.endsWith('.jpg') || filename.endsWith('.jpeg')) {
+            return 'image/jpg'
+        }
+        if (filename.endsWith('.bmp')) {
+            return 'image/bmp'
+        }
+        if (filename.endsWith('.gif')) {
+            return 'image/gif'
+        }
+        return null;
     }
 }

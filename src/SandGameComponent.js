@@ -1,4 +1,5 @@
 import {DomBuilder} from "./DomBuilder.js";
+import {ElementArea} from "./core/ElementArea.js";
 import {SandGame} from "./core/SandGame.js";
 import {Brushes} from "./core/Brushes.js";
 import {Scenes} from "./Scenes.js";
@@ -18,7 +19,7 @@ import {SandGameCanvasComponent} from "./SandGameCanvasComponent.js";
  * @requires jQuery
  *
  * @author Patrik Harag
- * @version 2023-05-09
+ * @version 2023-05-16
  */
 export class SandGameComponent extends SandGameControls {
 
@@ -103,7 +104,8 @@ export class SandGameComponent extends SandGameControls {
         // init game
         const defaultElement = Brushes.AIR.apply(0, 0, undefined);
         const context = canvasComponent.getContext();
-        this.#sandGame = scene.createSandGame(context, this.#currentWidthPoints, this.#currentHeightPoints, defaultElement)
+        this.#sandGame = scene.createSandGame(context, this.#currentWidthPoints, this.#currentHeightPoints, defaultElement);
+        this.#sandGame.graphics().replace(ElementArea.TRANSPARENT_ELEMENT, defaultElement);
         if (this.isShowHeatmap()) {
             this.#sandGame.setRendererMode(SandGame.RENDERING_MODE_HEATMAP);
         }
