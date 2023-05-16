@@ -133,6 +133,7 @@ export class ProcessorModuleTree {
 
                 if (canGrowHere) {
                     this.#elementArea.setElement(nx, ny, node.brush.apply(nx, ny, this.#random));
+                    this.#processorContext.trigger(nx, ny);
                 }
 
                 if (fullGrow || isHereAlready) {

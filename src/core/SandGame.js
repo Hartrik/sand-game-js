@@ -1,4 +1,3 @@
-import {Brushes} from "./Brushes.js";
 import {Counter} from "./Counter.js";
 import {DeterministicRandom} from "./DeterministicRandom.js";
 import {ElementArea} from "./ElementArea.js";
@@ -20,7 +19,7 @@ import {TemplateLayeredPainter} from "./TemplateLayeredPainter.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-05-09
+ * @version 2023-05-16
  */
 export class SandGame {
 
@@ -80,11 +79,11 @@ export class SandGame {
         this.#width = elementArea.getWidth();
         this.#height = elementArea.getHeight();
 
-        let grassSpawningExt = new SpawningExtensionGrass(this.#elementArea, this.#random, Brushes.GRASS);
+        let grassSpawningExt = new SpawningExtensionGrass(this.#elementArea, this.#random, this.#processor);
         this.#onProcessed.push(() => grassSpawningExt.run());
-        let treeSpawningExt = new SpawningExtensionTree(this.#elementArea, this.#random, Brushes.TREE);
+        let treeSpawningExt = new SpawningExtensionTree(this.#elementArea, this.#random, this.#processor);
         this.#onProcessed.push(() => treeSpawningExt.run());
-        let fishSpawningExt = new SpawningExtensionFish(this.#elementArea, this.#random, Brushes.FISH, Brushes.FISH_BODY);
+        let fishSpawningExt = new SpawningExtensionFish(this.#elementArea, this.#random, this.#processor);
         this.#onProcessed.push(() => fishSpawningExt.run());
     }
 

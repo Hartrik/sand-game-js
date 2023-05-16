@@ -1,9 +1,10 @@
 import {ElementHead} from "./ElementHead.js";
+import {Brushes} from "./Brushes.js";
 
 /**
  *
  * @author Patrik Harag
- * @version 2022-09-29
+ * @version 2023-05-16
  */
 export class SpawningExtensionTree {
     static STARTING_COUNTER_VALUE = 1000;
@@ -11,14 +12,15 @@ export class SpawningExtensionTree {
 
     #elementArea;
     #random;
-    #brush;
+    #processorContext;
+    #brush = Brushes.TREE;
 
     #counter = SpawningExtensionTree.STARTING_COUNTER_VALUE;
 
-    constructor(elementArea, random, brush) {
+    constructor(elementArea, random, processorContext) {
         this.#elementArea = elementArea;
         this.#random = random;
-        this.#brush = brush;
+        this.#processorContext = processorContext;
     }
 
     run() {
@@ -30,6 +32,7 @@ export class SpawningExtensionTree {
 
             if (SpawningExtensionTree.couldGrowUpHere(this.#elementArea, x, y)) {
                 this.#elementArea.setElement(x, y, this.#brush.apply(x, y, this.#random));
+                this.#processorContext.trigger(x, y);
             }
         }
     }

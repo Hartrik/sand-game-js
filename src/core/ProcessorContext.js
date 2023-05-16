@@ -2,7 +2,7 @@
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-25
+ * @version 2023-05-16
  */
 export class ProcessorContext {
 
@@ -21,6 +21,10 @@ export class ProcessorContext {
      * @returns Element
      */
     getDefaultElement() {
+        throw 'Not implemented';
+    }
+
+    trigger(x, y) {
         throw 'Not implemented';
     }
 }
