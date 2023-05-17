@@ -2,7 +2,7 @@ import { Tools } from "./core/Tools.js";
 
 /**
  *
- * @version 2023-04-15
+ * @version 2023-05-17
  * @author Patrik Harag
  */
 export class Analytics {
@@ -29,6 +29,7 @@ export class Analytics {
     static FEATURE_SWITCH_SCALE = 'switch_scale';
     static FEATURE_IO_EXPORT = 'io_export';
     static FEATURE_IO_IMPORT = 'io_import';
+    static FEATURE_IO_IMAGE_TEMPLATE = 'io_image_template';
 
     static #USED_FEATURES = new Set();
 

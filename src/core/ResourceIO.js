@@ -11,7 +11,7 @@ import {strToU8, strFromU8, zipSync, unzipSync} from 'fflate';
 /**
  *
  * @author Patrik Harag
- * @version 2023-05-16
+ * @version 2023-05-17
  */
 export class ResourceIO {
 
@@ -52,9 +52,10 @@ export class ResourceIO {
      * @param imageType {string}
      * @param brush {Brush}
      * @param defaultElement {Element}
+     * @param threshold {number} 0-255
      * @returns Promise<Scene>
      */
-    static async fromImage(content, imageType, brush, defaultElement) {
+    static async fromImage(content, imageType, brush, defaultElement, threshold=50) {
         const imageData = await Assets.asImageData(Assets.asObjectUrl(content, imageType));
 
         const width = imageData.width;
@@ -71,10 +72,10 @@ export class ResourceIO {
                 const blue = imageData.data[index + 2];
                 const alpha = imageData.data[index + 3];
 
-                if (alpha < 50) {
+                if (alpha < threshold) {
                     continue;  // transparent
                 }
-                if (red > 200 && green > 200 && blue > 200) {
+                if (red > 255-threshold && green > 255-threshold && blue > 255-threshold) {
                     continue;  // white
                 }
 

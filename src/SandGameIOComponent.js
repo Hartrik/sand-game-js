@@ -9,7 +9,7 @@ import FileSaver from 'file-saver';
 /**
  *
  * @author Patrik Harag
- * @version 2023-05-16
+ * @version 2023-05-17
  */
 export class SandGameIOComponent {
 
@@ -100,60 +100,116 @@ export class SandGameIOComponent {
      * @param filename {string}
      */
     #loadFromArrayBuffer(content, filename) {
-        const handleError = (e) => {
-            let msg = (typeof e === 'object') ? JSON.stringify(e) : '' + e;
-            let dialog = new DomBuilder.BootstrapDialog();
-            dialog.setHeaderContent('Error');
-            dialog.setBodyContent([
-                DomBuilder.par(null, "Error while loading resource:"),
-                DomBuilder.element('code', null, msg)
-            ]);
-            dialog.addCloseButton('Close');
-            dialog.show(this.#controls.getDialogAnchor());
-        };
-
-        const importScene = (scene) => {
-            try {
-                let dialog = new DomBuilder.BootstrapDialog();
-                dialog.setHeaderContent('Import scene');
-                dialog.setBodyContent([
-                    DomBuilder.par(null, "The imported scene can be opened or placed on the current scene.")
-                ]);
-                dialog.addSubmitButton('Open', () => this.#controls.openScene(scene));
-                dialog.addSubmitButton('Place', () => this.#controls.pasteScene(scene));
-                dialog.addCloseButton('Close');
-                dialog.show(this.#controls.getDialogAnchor());
-
-                Analytics.triggerFeatureUsed(Analytics.FEATURE_IO_IMPORT);
-            } catch (ex) {
-                handleError(ex);
-            }
-        };
-
         try {
             let imageTypeOrNull = Assets.getImageTypeOrNull(filename);
             if (imageTypeOrNull !== null) {
-                const handleImageTemplate = (brush) => {
-                    ResourceIO.fromImage(content, imageTypeOrNull, brush, ElementArea.TRANSPARENT_ELEMENT)
-                        .then(importScene).catch(handleError);
-                };
-
-                let dialog = new DomBuilder.BootstrapDialog();
-                dialog.setHeaderContent('Image template');
-                dialog.setBodyContent([
-                    DomBuilder.par(null, "Select material")
-                ]);
-                dialog.addSubmitButton('Sand', () => handleImageTemplate(Brushes.SAND));
-                dialog.addSubmitButton('Soil', () => handleImageTemplate(Brushes.SOIL));
-                dialog.addSubmitButton('Solid', () => handleImageTemplate(Brushes.WALL));
-                dialog.addSubmitButton('Wood', () => handleImageTemplate(Brushes.TREE_WOOD));
-                dialog.addCloseButton('Close');
-                dialog.show(this.#controls.getDialogAnchor());
+                this.#loadImageTemplate(content, imageTypeOrNull);
             } else {
-                ResourceIO.parseResource(content).then(importScene).catch(handleError);
+                ResourceIO.parseResource(content)
+                        .then(scene => this.#importScene(scene))
+                        .catch(e => this.#handleError(e));
             }
         } catch (e) {
-            handleError(e);
+            this.#handleError(e);
         }
+    }
+
+    #loadImageTemplate(content, image) {
+        // TODO: store last values
+        let brushFormCheckLastValue = 'sand';
+        let selectedMaterialBrush = Brushes.SAND;
+
+        let creatBrushFormCheck = (id, value, brush, label) => {
+            let checked = (brushFormCheckLastValue === value);
+            return DomBuilder.div({ class: 'form-check' }, [
+                DomBuilder.element('input', {
+                    class: 'form-check-input',
+                    type: 'radio',
+                    name: 'template-material',
+                    id: id,
+                    value: value,
+                    checked: checked
+                }).on('click', () => selectedMaterialBrush = brush),
+                DomBuilder.element('label', { class: 'form-check-label', 'for': id }, label)
+            ]);
+        };
+
+        let threshold = 50;
+
+        let form = DomBuilder.element('form', null, [
+            DomBuilder.element('fieldset', { class: 'form-group row' }, [
+                DomBuilder.element('legend', { class: 'col-form-label col-sm-3 float-sm-left pt-0' }, 'Material'),
+                DomBuilder.div({ class: 'col-sm-9' }, [
+                    creatBrushFormCheck('image-template_checkbox-material-sand', 'sand', Brushes.SAND, 'Sand'),
+                    creatBrushFormCheck('image-template_checkbox-material-soil', 'soil', Brushes.SOIL, 'Soil'),
+                    creatBrushFormCheck('image-template_checkbox-material-solid', 'solid', Brushes.WALL, 'Solid'),
+                    creatBrushFormCheck('image-template_checkbox-material-wood', 'wood', Brushes.TREE_WOOD, 'Wood')
+                ])
+            ]),
+            DomBuilder.element('fieldset', { class: 'form-group row' }, [
+                DomBuilder.element('legend', { class: 'col-form-label col-sm-3 float-sm-left pt-0' }, 'Background threshold'),
+                DomBuilder.div({ class: 'col-sm-9' }, [
+                    DomBuilder.element('input', {
+                        class: 'form-control-range',
+                        type: 'range',
+                        min: 0, max: 255, value: threshold
+                    }).on('change', (e) => {
+                        threshold = e.target.value;
+                    }),
+                ])
+            ])
+        ]);
+
+        const handleImageTemplate = (brush, threshold) => {
+            ResourceIO.fromImage(content, image, brush, ElementArea.TRANSPARENT_ELEMENT, threshold)
+                .then(scene => this.#importImageTemplate(scene))
+                .catch(e => this.#handleError(e));
+        };
+
+        let dialog = new DomBuilder.BootstrapDialog();
+        dialog.setHeaderContent('Image template');
+        dialog.setBodyContent(form);
+        dialog.addSubmitButton('Place', () => handleImageTemplate(selectedMaterialBrush, threshold));
+        dialog.addCloseButton('Close');
+        dialog.show(this.#controls.getDialogAnchor());
+    }
+
+    #importImageTemplate(scene) {
+        this.#controls.pasteScene(scene);
+        Analytics.triggerFeatureUsed(Analytics.FEATURE_IO_IMAGE_TEMPLATE);
+    }
+
+    #importScene(scene) {
+        try {
+            let dialog = new DomBuilder.BootstrapDialog();
+            dialog.setHeaderContent('Import scene');
+            dialog.setBodyContent([
+                DomBuilder.par(null, "The imported scene can be opened or placed on the current scene.")
+            ]);
+            dialog.addSubmitButton('Open', () => {
+                Analytics.triggerFeatureUsed(Analytics.FEATURE_IO_IMPORT);
+                return this.#controls.openScene(scene);
+            });
+            dialog.addSubmitButton('Place', () => {
+                Analytics.triggerFeatureUsed(Analytics.FEATURE_IO_IMPORT);
+                return this.#controls.pasteScene(scene);
+            });
+            dialog.addCloseButton('Close');
+            dialog.show(this.#controls.getDialogAnchor());
+        } catch (ex) {
+            this.#handleError(ex);
+        }
+    }
+
+    #handleError(e) {
+        let msg = (typeof e === 'object') ? JSON.stringify(e) : '' + e;
+        let dialog = new DomBuilder.BootstrapDialog();
+        dialog.setHeaderContent('Error');
+        dialog.setBodyContent([
+            DomBuilder.par(null, "Error while loading resource:"),
+            DomBuilder.element('code', null, msg)
+        ]);
+        dialog.addCloseButton('Close');
+        dialog.show(this.#controls.getDialogAnchor());
     }
 }
