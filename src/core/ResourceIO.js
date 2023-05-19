@@ -53,10 +53,12 @@ export class ResourceIO {
      * @param brush {Brush}
      * @param defaultElement {Element}
      * @param threshold {number} 0-255
+     * @param maxWidth {number|undefined}
+     * @param maxHeight {number|undefined}
      * @returns Promise<Scene>
      */
-    static async fromImage(content, imageType, brush, defaultElement, threshold=50) {
-        const imageData = await Assets.asImageData(Assets.asObjectUrl(content, imageType));
+    static async fromImage(content, imageType, brush, defaultElement, threshold, maxWidth, maxHeight) {
+        const imageData = await Assets.asImageData(Assets.asObjectUrl(content, imageType), maxWidth, maxHeight);
 
         const width = imageData.width;
         const height = imageData.height;

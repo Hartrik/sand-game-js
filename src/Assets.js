@@ -8,7 +8,7 @@ import _GRADIENT_RAINBOW from '../assets/gradient-rainbow.png'
 /**
  *
  * @author Patrik Harag
- * @version 2023-05-16
+ * @version 2023-05-19
  */
 export class Assets {
 
@@ -23,20 +23,41 @@ export class Assets {
     /**
      *
      * @param base64
+     * @param maxWidth {number|undefined}
+     * @param maxHeight {number|undefined}
      * @returns {Promise<ImageData>}
      */
-    static asImageData(base64) {
+    static asImageData(base64, maxWidth=undefined, maxHeight=undefined) {
+        function countSize(imageWidth, imageHeight) {
+            let w = imageWidth;
+            let h = imageHeight;
+
+            if (maxWidth !== undefined && w > maxWidth) {
+                const wScale = w / maxWidth;
+                w = maxWidth;
+                h = h / wScale;
+            }
+            if (maxHeight !== undefined && h > maxHeight) {
+                const hScale = h / maxHeight;
+                h = maxHeight;
+                w = w / hScale;
+            }
+
+            return [Math.trunc(w), Math.trunc(h)];
+        }
+
         return new Promise((resolve, reject) => {
             try {
                 // http://stackoverflow.com/questions/3528299/get-pixel-color-of-base64-png-using-javascript
                 let image = new Image();
                 image.onload = () => {
                     let canvas = document.createElement('canvas');
-                    canvas.width = image.width;
-                    canvas.height = image.height;
+                    let [w, h] = countSize(image.width, image.height);
+                    canvas.width = w;
+                    canvas.height = h;
 
                     let context = canvas.getContext('2d');
-                    context.drawImage(image, 0, 0);
+                    context.drawImage(image, 0, 0, canvas.width, canvas.height);
 
                     let imageData = context.getImageData(0, 0, canvas.width, canvas.height);
                     resolve(imageData);

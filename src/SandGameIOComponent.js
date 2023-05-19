@@ -119,8 +119,8 @@ export class SandGameIOComponent {
     }
 
     #loadImageTemplate(content, image) {
-        const handleImageTemplate = (brush, threshold) => {
-            ResourceIO.fromImage(content, image, brush, ElementArea.TRANSPARENT_ELEMENT, threshold)
+        const handleImageTemplate = (brush, threshold, maxWidth, maxHeight) => {
+            ResourceIO.fromImage(content, image, brush, ElementArea.TRANSPARENT_ELEMENT, threshold, maxWidth, maxHeight)
                 .then(scene => this.#importImageTemplate(scene))
                 .catch(e => this.#handleError(e));
         };
@@ -129,7 +129,11 @@ export class SandGameIOComponent {
         dialog.setHeaderContent('Image template');
         dialog.setBodyContent(this.#templateForm.create());
         dialog.addSubmitButton('Place', () => {
-            handleImageTemplate(this.#templateForm.getMaterialBrush(), this.#templateForm.getThresholdValue());
+            let materialBrush = this.#templateForm.getMaterialBrush();
+            let thresholdValue = this.#templateForm.getThresholdValue();
+            let maxWidth = this.#templateForm.getMaxWidth();
+            let maxHeight = this.#templateForm.getMaxHeight();
+            handleImageTemplate(materialBrush, thresholdValue, maxWidth, maxHeight);
         });
         dialog.addCloseButton('Close');
         dialog.show(this.#controls.getDialogAnchor());
@@ -183,11 +187,13 @@ export class SandGameIOComponent {
 class TemplateForm {
 
     #thresholdValue = 50;
+    #maxWidth = 300;
+    #maxHeight = 200;
     #materialValue = 'sand';
     #materialBrush = Brushes.SAND;
 
     create() {
-        return DomBuilder.element('form', null, [
+        return DomBuilder.element('form', { class: 'image-template' }, [
             DomBuilder.element('fieldset', { class: 'form-group row' }, [
                 DomBuilder.element('legend', { class: 'col-form-label col-sm-3 float-sm-left pt-0' }, 'Material'),
                 DomBuilder.div({ class: 'col-sm-9' }, [
@@ -202,6 +208,13 @@ class TemplateForm {
                 DomBuilder.div({ class: 'col-sm-9' }, [
                     this.#createThresholdSliderFormGroup(),
                 ])
+            ]),
+            DomBuilder.element('fieldset', { class: 'form-group row' }, [
+                DomBuilder.element('legend', { class: 'col-form-label col-sm-3 float-sm-left pt-0' }, 'Max size'),
+                DomBuilder.div({ class: 'col-sm-9' }, [
+                    this.#createMaxWidthFormGroup(),
+                    this.#createMaxHeightFormGroup(),
+                ])
             ])
         ]);
     }
@@ -209,7 +222,7 @@ class TemplateForm {
     #createThresholdSliderFormGroup() {
         const id = 'image-template_threshold-slider';
 
-        const label = DomBuilder.element('label', { 'for': id }, '' + this.#thresholdValue);
+        const label = DomBuilder.element('label', { 'for': id }, 'Value: ' + this.#thresholdValue);
 
         const slider = DomBuilder.element('input', {
             id: id,
@@ -219,12 +232,56 @@ class TemplateForm {
         });
         slider.on('change', (e) => {
             this.#thresholdValue = e.target.value;
-            label.text('' + this.#thresholdValue);
+            label.text('Value: ' + this.#thresholdValue);
         });
 
         return DomBuilder.div({ class: 'form-group' }, [
             slider,
-            label
+            DomBuilder.element('small', null, label)
+        ]);
+    }
+
+    #createMaxWidthFormGroup() {
+        const id = 'image-template_max-width';
+
+        const label = DomBuilder.element('label', { 'for': id }, 'Width: ' + this.#maxWidth);
+
+        const slider = DomBuilder.element('input', {
+            id: id,
+            class: 'form-control-range',
+            type: 'range',
+            min: 25, max: 800, value: this.#maxWidth
+        });
+        slider.on('change', (e) => {
+            this.#maxWidth = e.target.value;
+            label.text('Width: ' + this.#maxWidth);
+        });
+
+        return DomBuilder.div({ class: 'form-group' }, [
+            slider,
+            DomBuilder.element('small', null, label)
+        ]);
+    }
+
+    #createMaxHeightFormGroup() {
+        const id = 'image-template_max-height';
+
+        const label = DomBuilder.element('label', { 'for': id }, 'Height: ' + this.#maxHeight);
+
+        const slider = DomBuilder.element('input', {
+            id: id,
+            class: 'form-control-range',
+            type: 'range',
+            min: 25, max: 800, value: this.#maxHeight
+        });
+        slider.on('change', (e) => {
+            this.#maxHeight = e.target.value;
+            label.text('Height: ' + this.#maxHeight);
+        });
+
+        return DomBuilder.div({ class: 'form-group' }, [
+            slider,
+            DomBuilder.element('small', null, label)
         ]);
     }
 
@@ -257,5 +314,13 @@ class TemplateForm {
 
     getMaterialBrush() {
         return this.#materialBrush;
+    }
+
+    getMaxWidth() {
+        return this.#maxWidth;
+    }
+
+    getMaxHeight() {
+        return this.#maxHeight;
     }
 }
