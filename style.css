@@ -1,7 +1,7 @@
 
 /*
  * @author Patrik Harag
- * @version 2023-04-15
+ * @version 2023-05-20
  */
 
 .sand-game-component {
@@ -33,49 +33,53 @@
     border: none;
 }
 
-.sand-game-component .sand-game-brushes .badge.air {
+.sand-game-component .badge.air {
     background-color: rgb(230, 230, 230);
     color: black;
     margin-right: 0.8em;
 }
 
-.sand-game-component .sand-game-brushes .badge.sand {
+.sand-game-component .badge.sand {
     background-color: rgb(183, 166, 67);
 }
 
-.sand-game-component .sand-game-brushes .badge.soil {
+.sand-game-component .badge.soil {
     background-color: rgb(142, 104, 72);
 }
 
-.sand-game-component .sand-game-brushes .badge.gravel {
+.sand-game-component .badge.gravel {
     background-color: rgb(101, 101, 101);
 }
 
-.sand-game-component .sand-game-brushes .badge.wall {
+.sand-game-component .badge.wall {
     background-color: rgb(56, 56, 56);
 }
 
-.sand-game-component .sand-game-brushes .badge.water {
+.sand-game-component .badge.wood {
+    background-color: rgb(87, 48, 5);
+}
+
+.sand-game-component .badge.water {
     background-color: rgb(4, 135, 186);
 }
 
-.sand-game-component .sand-game-brushes .badge.fire {
+.sand-game-component .badge.fire {
     background-color: #ff5900;
 }
 
-.sand-game-component .sand-game-brushes .badge.fire.selected {
+.sand-game-component .badge.fire.selected {
     outline: black solid 1px;
 }
 
-.sand-game-component .sand-game-brushes .badge.meteor {
+.sand-game-component .badge.meteor {
     background-color: #ff5900;
 }
 
-.sand-game-component .sand-game-brushes .badge.meteor.selected {
+.sand-game-component .badge.meteor.selected {
     outline: black solid 1px;
 }
 
-.sand-game-component .sand-game-brushes .badge.selected {
+.sand-game-component .badge.selected {
     outline: red solid 1px;
 }
 

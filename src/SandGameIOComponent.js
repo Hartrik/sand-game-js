@@ -199,7 +199,7 @@ class TemplateForm {
                 DomBuilder.div({ class: 'col-sm-9' }, [
                     this.#creatMaterialFormGroup('sand', Brushes.SAND, 'Sand'),
                     this.#creatMaterialFormGroup('soil', Brushes.SOIL, 'Soil'),
-                    this.#creatMaterialFormGroup('solid', Brushes.WALL, 'Solid'),
+                    this.#creatMaterialFormGroup('wall', Brushes.WALL, 'Solid'),
                     this.#creatMaterialFormGroup('wood', Brushes.TREE_WOOD, 'Wood')
                 ])
             ]),
@@ -304,7 +304,7 @@ class TemplateForm {
 
         return DomBuilder.div({ class: 'form-check' }, [
             input,
-            DomBuilder.element('label', { class: 'form-check-label', 'for': id }, label)
+            DomBuilder.element('label', { class: 'form-check-label badge badge-secondary ' + value, 'for': id }, label)
         ]);
     }
 
