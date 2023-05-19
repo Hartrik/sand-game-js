@@ -9,15 +9,19 @@ import FileSaver from 'file-saver';
 /**
  *
  * @author Patrik Harag
- * @version 2023-05-17
+ * @version 2023-05-19
  */
 export class SandGameIOComponent {
 
     /** @type SandGameControls */
     #controls;
 
+    /** @type TemplateForm */
+    #templateForm;
+
     constructor(controls) {
         this.#controls = controls;
+        this.#templateForm = new TemplateForm();
     }
 
     createNode() {
@@ -115,51 +119,6 @@ export class SandGameIOComponent {
     }
 
     #loadImageTemplate(content, image) {
-        // TODO: store last values
-        let brushFormCheckLastValue = 'sand';
-        let selectedMaterialBrush = Brushes.SAND;
-
-        let creatBrushFormCheck = (id, value, brush, label) => {
-            let checked = (brushFormCheckLastValue === value);
-            return DomBuilder.div({ class: 'form-check' }, [
-                DomBuilder.element('input', {
-                    class: 'form-check-input',
-                    type: 'radio',
-                    name: 'template-material',
-                    id: id,
-                    value: value,
-                    checked: checked
-                }).on('click', () => selectedMaterialBrush = brush),
-                DomBuilder.element('label', { class: 'form-check-label', 'for': id }, label)
-            ]);
-        };
-
-        let threshold = 50;
-
-        let form = DomBuilder.element('form', null, [
-            DomBuilder.element('fieldset', { class: 'form-group row' }, [
-                DomBuilder.element('legend', { class: 'col-form-label col-sm-3 float-sm-left pt-0' }, 'Material'),
-                DomBuilder.div({ class: 'col-sm-9' }, [
-                    creatBrushFormCheck('image-template_checkbox-material-sand', 'sand', Brushes.SAND, 'Sand'),
-                    creatBrushFormCheck('image-template_checkbox-material-soil', 'soil', Brushes.SOIL, 'Soil'),
-                    creatBrushFormCheck('image-template_checkbox-material-solid', 'solid', Brushes.WALL, 'Solid'),
-                    creatBrushFormCheck('image-template_checkbox-material-wood', 'wood', Brushes.TREE_WOOD, 'Wood')
-                ])
-            ]),
-            DomBuilder.element('fieldset', { class: 'form-group row' }, [
-                DomBuilder.element('legend', { class: 'col-form-label col-sm-3 float-sm-left pt-0' }, 'Background threshold'),
-                DomBuilder.div({ class: 'col-sm-9' }, [
-                    DomBuilder.element('input', {
-                        class: 'form-control-range',
-                        type: 'range',
-                        min: 0, max: 255, value: threshold
-                    }).on('change', (e) => {
-                        threshold = e.target.value;
-                    }),
-                ])
-            ])
-        ]);
-
         const handleImageTemplate = (brush, threshold) => {
             ResourceIO.fromImage(content, image, brush, ElementArea.TRANSPARENT_ELEMENT, threshold)
                 .then(scene => this.#importImageTemplate(scene))
@@ -168,8 +127,10 @@ export class SandGameIOComponent {
 
         let dialog = new DomBuilder.BootstrapDialog();
         dialog.setHeaderContent('Image template');
-        dialog.setBodyContent(form);
-        dialog.addSubmitButton('Place', () => handleImageTemplate(selectedMaterialBrush, threshold));
+        dialog.setBodyContent(this.#templateForm.create());
+        dialog.addSubmitButton('Place', () => {
+            handleImageTemplate(this.#templateForm.getMaterialBrush(), this.#templateForm.getThresholdValue());
+        });
         dialog.addCloseButton('Close');
         dialog.show(this.#controls.getDialogAnchor());
     }
@@ -202,14 +163,99 @@ export class SandGameIOComponent {
     }
 
     #handleError(e) {
-        let msg = (typeof e === 'object') ? JSON.stringify(e) : '' + e;
         let dialog = new DomBuilder.BootstrapDialog();
         dialog.setHeaderContent('Error');
         dialog.setBodyContent([
             DomBuilder.par(null, "Error while loading resource:"),
-            DomBuilder.element('code', null, msg)
+            DomBuilder.element('code', null, e)
         ]);
         dialog.addCloseButton('Close');
         dialog.show(this.#controls.getDialogAnchor());
+    }
+}
+
+/**
+ * Creates template form and remembers last values.
+ *
+ * @author Patrik Harag
+ * @version 2023-05-19
+ */
+class TemplateForm {
+
+    #thresholdValue = 50;
+    #materialValue = 'sand';
+    #materialBrush = Brushes.SAND;
+
+    create() {
+        return DomBuilder.element('form', null, [
+            DomBuilder.element('fieldset', { class: 'form-group row' }, [
+                DomBuilder.element('legend', { class: 'col-form-label col-sm-3 float-sm-left pt-0' }, 'Material'),
+                DomBuilder.div({ class: 'col-sm-9' }, [
+                    this.#creatMaterialFormGroup('sand', Brushes.SAND, 'Sand'),
+                    this.#creatMaterialFormGroup('soil', Brushes.SOIL, 'Soil'),
+                    this.#creatMaterialFormGroup('solid', Brushes.WALL, 'Solid'),
+                    this.#creatMaterialFormGroup('wood', Brushes.TREE_WOOD, 'Wood')
+                ])
+            ]),
+            DomBuilder.element('fieldset', { class: 'form-group row' }, [
+                DomBuilder.element('legend', { class: 'col-form-label col-sm-3 float-sm-left pt-0' }, 'Background threshold'),
+                DomBuilder.div({ class: 'col-sm-9' }, [
+                    this.#createThresholdSliderFormGroup(),
+                ])
+            ])
+        ]);
+    }
+
+    #createThresholdSliderFormGroup() {
+        const id = 'image-template_threshold-slider';
+
+        const label = DomBuilder.element('label', { 'for': id }, '' + this.#thresholdValue);
+
+        const slider = DomBuilder.element('input', {
+            id: id,
+            class: 'form-control-range',
+            type: 'range',
+            min: 0, max: 255, value: this.#thresholdValue
+        });
+        slider.on('change', (e) => {
+            this.#thresholdValue = e.target.value;
+            label.text('' + this.#thresholdValue);
+        });
+
+        return DomBuilder.div({ class: 'form-group' }, [
+            slider,
+            label
+        ]);
+    }
+
+    #creatMaterialFormGroup(value, brush, label) {
+        const checked = (this.#materialValue === value);
+        const id = 'image-template_checkbox-material-' + value;
+
+        const input = DomBuilder.element('input', {
+            class: 'form-check-input',
+            type: 'radio',
+            name: 'template-material',
+            id: id,
+            value: value,
+            checked: checked
+        });
+        input.on('click', () => {
+            this.#materialBrush = brush;
+            this.#materialValue = value;
+        });
+
+        return DomBuilder.div({ class: 'form-check' }, [
+            input,
+            DomBuilder.element('label', { class: 'form-check-label', 'for': id }, label)
+        ]);
+    }
+
+    getThresholdValue() {
+        return this.#thresholdValue;
+    }
+
+    getMaterialBrush() {
+        return this.#materialBrush;
     }
 }
