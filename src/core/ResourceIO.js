@@ -11,7 +11,7 @@ import {strToU8, strFromU8, zipSync, unzipSync} from 'fflate';
 /**
  *
  * @author Patrik Harag
- * @version 2023-05-17
+ * @version 2023-05-19
  */
 export class ResourceIO {
 
@@ -67,15 +67,20 @@ export class ResourceIO {
             for (let x = 0; x < width; x++) {
                 const index = (y * width + x) * 4;
 
-                const red = imageData.data[index];
-                const green = imageData.data[index + 1];
-                const blue = imageData.data[index + 2];
+                let red = imageData.data[index];
+                let green = imageData.data[index + 1];
+                let blue = imageData.data[index + 2];
                 const alpha = imageData.data[index + 3];
 
-                if (alpha < threshold) {
-                    continue;  // transparent
+                // perform alpha blending if needed
+                if (alpha !== 0xFF) {
+                    red = Math.trunc((red * alpha) / 0xFF) + 0xFF - alpha;
+                    green = Math.trunc((green * alpha) / 0xFF) + 0xFF - alpha;
+                    blue = Math.trunc((blue * alpha) / 0xFF) + 0xFF - alpha;
                 }
-                if (red > 255-threshold && green > 255-threshold && blue > 255-threshold) {
+
+                // filter out background
+                if (red > 0xFF-threshold && green > 0xFF-threshold && blue > 0xFF-threshold) {
                     continue;  // white
                 }
 
