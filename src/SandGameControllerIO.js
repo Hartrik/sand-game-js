@@ -9,9 +9,9 @@ import FileSaver from 'file-saver';
 /**
  *
  * @author Patrik Harag
- * @version 2023-05-19
+ * @version 2023-05-23
  */
-export class SandGameIOComponent {
+export class SandGameControllerIO {
 
     /** @type SandGameControls */
     #controls;
@@ -24,20 +24,7 @@ export class SandGameIOComponent {
         this.#templateForm = new TemplateForm();
     }
 
-    createNode() {
-        let content = DomBuilder.div({ class: 'load-and-save-tools' }, []);
-
-        content.append(DomBuilder.button('Save', { class: 'btn btn-light' }, e => {
-            this.#download();
-        }));
-        content.append(DomBuilder.button('Load', { class: 'btn btn-light' }, e => {
-            this.#load();
-        }));
-
-        return content;
-    }
-
-    #download() {
+    doExport() {
         const snapshot = this.#controls.createSnapshot();
         const bytes = ResourceIO.createResourceFromSnapshot(snapshot);
         FileSaver.saveAs(new Blob([bytes]), this.#createFilename());
@@ -49,7 +36,7 @@ export class SandGameIOComponent {
         return `sand-game-js_${date}.sgjs`;
     }
 
-    #load() {
+    doImport() {
         let input = document.createElement('input');
         input.type = 'file';
         input.onchange = e => {
@@ -193,7 +180,7 @@ class TemplateForm {
     #materialBrush = Brushes.SAND;
 
     create() {
-        return DomBuilder.element('form', { class: 'image-template' }, [
+        return DomBuilder.element('form', null, [
             DomBuilder.element('fieldset', { class: 'form-group row' }, [
                 DomBuilder.element('legend', { class: 'col-form-label col-sm-3 float-sm-left pt-0' }, 'Material'),
                 DomBuilder.div({ class: 'col-sm-9' }, [

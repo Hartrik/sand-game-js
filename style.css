@@ -1,7 +1,7 @@
 
 /*
  * @author Patrik Harag
- * @version 2023-05-20
+ * @version 2023-05-23
  */
 
 .sand-game-component {
@@ -126,7 +126,7 @@
 }
 
 .sand-game-component .sand-game-views:has(div) {
-    margin: 2em 0;
+    margin: 1em 0 2em;
 }
 
 .sand-game-component .sand-game-views .element-size-options {
@@ -163,13 +163,15 @@
     display: inline-block;
     margin: 0.5em 0.5em 0.5em 0;
     width: 110pt;
-    height: 80pt;
     user-select: none;
+}
+
+.sand-game-component .sand-game-views .scenes .card .card-body {
+    padding: 1em;
 }
 
 .sand-game-component .sand-game-views .scenes .card .card-title {
     font-weight: 500;
-    line-height: 2;
     font-size: 100%;
 }
 
@@ -189,25 +191,9 @@
     margin: 0.5em 0;
 }
 
-.sand-game-component .load-and-sav-tools {
-    margin: 0.5em 0.5em 0.5em 0;
-}
-
-.sand-game-component .load-and-save-tools .btn {
-    margin-right: 0.5em;
-
-    color: gray;
-    padding: 0 0.5em 0 0.5em;
-    font-size: 75%;
-}
-
 .sand-game-component .test-tools .btn {
     margin-right: 0.5em;
 
     padding: 0 0.5em 0 0.5em;
     font-size: 75%;
-}
-
-.sand-game-template-editor {
-    font-family: monospace;
 }

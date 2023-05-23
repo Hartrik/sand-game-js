@@ -7,9 +7,9 @@ import {SceneImplTmpResize} from "./core/SceneImplResize.js";
 import {Tools} from "./core/Tools.js";
 import {Tool} from "./core/Tool.js";
 import {SandGameControls} from "./SandGameControls.js";
+import {SandGameControllerIO} from "./SandGameControllerIO.js";
 import {SandGameScenesComponent} from "./SandGameScenesComponent.js";
 import {SandGameElementSizeComponent} from "./SandGameElementSizeComponent.js";
-import {SandGameIOComponent} from "./SandGameIOComponent.js";
 import {SandGameOptionsComponent} from "./SandGameOptionsComponent.js";
 import {SandGameTestComponent} from "./SandGameTestComponent.js";
 import {SandGameBrushComponent} from "./SandGameBrushComponent.js";
@@ -19,7 +19,7 @@ import {SandGameCanvasComponent} from "./SandGameCanvasComponent.js";
  * @requires jQuery
  *
  * @author Patrik Harag
- * @version 2023-05-16
+ * @version 2023-05-23
  */
 export class SandGameComponent extends SandGameControls {
 
@@ -199,7 +199,10 @@ export class SandGameComponent extends SandGameControls {
     }
 
     enableOptions() {
-        let optionsComponent = new SandGameOptionsComponent(this);
+        let ioController = new SandGameControllerIO(this);
+        ioController.initFileDragAndDrop(this.#node);
+
+        let optionsComponent = new SandGameOptionsComponent(this, ioController);
         this.#nodeHolderBottomToolbar.append(optionsComponent.createNode());
     }
 
@@ -216,12 +219,6 @@ export class SandGameComponent extends SandGameControls {
     enableScenes() {
         let component = new SandGameScenesComponent(this, this.#init.scene);
         this.#nodeHolderAdditionalViews.append(component.createNode());
-    }
-
-    enableSavingAndLoading() {
-        let component = new SandGameIOComponent(this);
-        this.#nodeHolderAdditionalViews.append(component.createNode());
-        component.initFileDragAndDrop(this.#node);
     }
 
     enableTestTools() {

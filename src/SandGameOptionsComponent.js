@@ -8,27 +8,45 @@ import FileSaver from 'file-saver';
 /**
  *
  * @author Patrik Harag
- * @version 2023-05-06
+ * @version 2023-05-23
  */
 export class SandGameOptionsComponent {
 
     /** @type SandGameControls */
     #controls;
+    /** @type SandGameControllerIO */
+    #ioController;
 
     /**
      *
      * @param sandGameControls {SandGameControls}
+     * @param ioController {SandGameControllerIO}
      */
-    constructor(sandGameControls) {
+    constructor(sandGameControls, ioController) {
+        this.#ioController = ioController;
         this.#controls = sandGameControls;
     }
 
     createNode() {
         return DomBuilder.div({class: 'sand-game-options'}, [
+            this.#createImportButton(),
+            this.#createExportButton(),
             this.#createOptionsButton(),
             this.#createStartStopButton(),
             this.#createStatusButton()
         ]);
+    }
+
+    #createImportButton() {
+        return DomBuilder.button('Import', { class: 'btn btn-light' }, e => {
+            this.#ioController.doImport();
+        });
+    }
+
+    #createExportButton() {
+        return DomBuilder.button('Export', { class: 'btn btn-light' }, e => {
+            this.#ioController.doExport();
+        });
     }
 
     #createStartStopButton() {
@@ -119,7 +137,7 @@ export class SandGameOptionsComponent {
 
         const nodeStatusLabel = DomBuilder.span('');
         const nodeLabel = [
-            DomBuilder.span('Simulation speed: '),
+            DomBuilder.span('Performance: '),
             nodeStatusLabel
         ];
 
