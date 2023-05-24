@@ -51,7 +51,7 @@ export class SandGameScenesComponent {
     }
 
     createNode() {
-        let content = DomBuilder.div({class: 'scenes'}, []);
+        let content = DomBuilder.div({ class: 'scenes' }, []);
         for (let id of SandGameScenesComponent.SCENES) {
             let scene = Scenes.SCENES[id];
             let node = this.#createSceneCard(scene);

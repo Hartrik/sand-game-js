@@ -2,13 +2,11 @@ import {DomBuilder} from "./DomBuilder.js";
 import {SandGameControls} from "./SandGameControls.js";
 import {Processor} from "./core/Processor.js";
 import {Analytics} from "./Analytics.js";
-import {BenchmarkProvider} from "./BenchmarkProvider.js";
-import FileSaver from 'file-saver';
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-05-23
+ * @version 2023-05-24
  */
 export class SandGameOptionsComponent {
 
@@ -137,7 +135,7 @@ export class SandGameOptionsComponent {
 
         const nodeStatusLabel = DomBuilder.span('');
         const nodeLabel = [
-            DomBuilder.span('Performance: '),
+            DomBuilder.span('Performance: ', { class: 'status-label' }),
             nodeStatusLabel
         ];
 
@@ -218,13 +216,13 @@ export class SandGameOptionsComponent {
             labelCanvasSize,
             DomBuilder.element('br'),
 
-            DomBuilder.span('Simulation iterations per second'),
+            DomBuilder.span('Simulation iterations /s'),
             DomBuilder.element('br'),
             labelCPS,
             DomBuilder.span(' (target: ' + Processor.OPT_CYCLES_PER_SECOND + ')', { style: 'color: lightgray;' }),
             DomBuilder.element('br'),
 
-            DomBuilder.span('Rendered frames per second'),
+            DomBuilder.span('Rendered frames /s'),
             DomBuilder.element('br'),
             labelFPS,
             DomBuilder.span(' (target: ' + Processor.OPT_FRAMES_PER_SECOND + ')', { style: 'color: lightgray;' }),
@@ -232,40 +230,7 @@ export class SandGameOptionsComponent {
 
             DomBuilder.element('br'),
 
-            DomBuilder.span('Tip: change the scale (size of elements) '),
-            DomBuilder.element('br'),
-            DomBuilder.span('using the buttons below to improve '),
-            DomBuilder.element('br'),
-            DomBuilder.span(' performance.'),
-            DomBuilder.element('br'),
-
-            DomBuilder.element('br'),
-
-            this.#createBenchmarkButton()
+            DomBuilder.span('Tip: adjust scale if needed'),
         ];
     }
-
-    #createBenchmarkButton() {
-        return DomBuilder.button('Benchmark', { type: 'button', class: 'btn btn-light' }, e => {
-            let benchmarkProvider = new BenchmarkProvider(this.#controls, results => {
-                let dialog = new DomBuilder.BootstrapDialog();
-                dialog.setHeaderContent('Benchmark results');
-                dialog.setBodyContent([
-                    DomBuilder.par(null, 'IPS AVG: ' + results.ipsAvg.toFixed(2)),
-                    DomBuilder.par(null, 'IPS MIN: ' + results.ipsMin)
-                ]);
-                dialog.addCloseButton('Close');
-                dialog.addButton(
-                    DomBuilder.button('Download results', { type: 'button', class: 'btn btn-primary' }, e => {
-                        const data = JSON.stringify(results, null, '  ');
-                        const blob = new Blob([data], { type: 'application/json;charset=utf-8' });
-                        FileSaver.saveAs(blob, 'benchmark.json');
-                    })
-                );
-                dialog.show(this.#controls.getDialogAnchor());
-            });
-            benchmarkProvider.start();
-        });
-    }
-
 }
