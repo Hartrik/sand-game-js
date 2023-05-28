@@ -1,6 +1,7 @@
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import image from '@rollup/plugin-image';
+import { string } from "rollup-plugin-string";
 import pkg from './package.json';
 
 export default [
@@ -17,6 +18,10 @@ export default [
             commonjs(), // so Rollup can convert libraries to an ES modules
             image({
                 include: "assets/*.png",
+                exclude: []
+            }),
+            string({
+                include: "assets/*.svg",
                 exclude: []
             })
         ]

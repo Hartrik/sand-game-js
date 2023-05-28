@@ -11,6 +11,7 @@
   "devDependencies": {
     "@rollup/plugin-commonjs": "^24.0.1",
     "@rollup/plugin-image": "^3.0.2",
+    "rollup-plugin-string": "^3.0.0",
     "@rollup/plugin-node-resolve": "^15.0.1",
     "rollup": "^2.70.1"
   },

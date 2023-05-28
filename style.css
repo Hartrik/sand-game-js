@@ -107,6 +107,12 @@
     font-size: 75%;
 }
 
+.sand-game-component .sand-game-options .btn .bi {
+    width: 12px;
+    height: 12px;
+    vertical-align: baseline;
+}
+
 .sand-game-component .sand-game-options .dropdown-menu {
     user-select: none;
     font-size: small;

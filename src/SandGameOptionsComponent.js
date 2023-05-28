@@ -2,6 +2,7 @@ import {DomBuilder} from "./DomBuilder.js";
 import {SandGameControls} from "./SandGameControls.js";
 import {Processor} from "./core/Processor.js";
 import {Analytics} from "./Analytics.js";
+import {Assets} from "./Assets.js";
 
 /**
  *
@@ -64,21 +65,22 @@ export class SandGameOptionsComponent {
     }
 
     #createOptionsButton() {
-        const node = DomBuilder.div({ class: 'btn-group' }, [
+        const label = DomBuilder.create(Assets.SVG_ICON_GEAR);
+        const button = DomBuilder.div({ class: 'btn-group' }, [
             DomBuilder.element('button', {
                 type: 'button',
                 class: 'btn btn-light dropdown-toggle',
                 'data-toggle': 'dropdown',
                 'aria-haspopup': 'true',
                 'aria-expanded': 'false'
-            }, 'Options'),
+            }, label),
             DomBuilder.element('form', { class: 'dropdown-menu p-2' }, this.#createOptionsContent())
         ]);
-        node.on('show.bs.dropdown', function () {
+        button.on('show.bs.dropdown', function () {
             Analytics.triggerFeatureUsed(Analytics.FEATURE_OPTIONS_DISPLAYED);
         });
 
-        return node;
+        return button;
     }
 
     #createOptionsContent() {
