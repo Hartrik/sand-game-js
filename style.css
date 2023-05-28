@@ -110,7 +110,11 @@
 .sand-game-component .sand-game-options .btn .bi {
     width: 12px;
     height: 12px;
-    vertical-align: baseline;
+    vertical-align: -1px;
+}
+
+.sand-game-component .sand-game-options .dropdown-menu .btn {
+    font-size: 100%;
 }
 
 .sand-game-component .sand-game-options .dropdown-menu {

@@ -110,14 +110,14 @@ export class SandGameOptionsComponent {
     }
 
     #createChangeCanvasSizeButton() {
-        return DomBuilder.button('Change canvas size', { type: 'button', class: 'btn btn-light' }, e => {
+        return DomBuilder.button('Change size manually', { type: 'button', class: 'btn btn-light' }, e => {
             let formBuilder = new DomBuilder.BootstrapSimpleForm();
             formBuilder.addInput('Width', 'width', this.#controls.getCurrentWidthPoints());
             formBuilder.addInput('Height', 'height', this.#controls.getCurrentHeightPoints());
             formBuilder.addInput('Scale', 'scale', this.#controls.getCurrentScale());
 
             let dialog = new DomBuilder.BootstrapDialog();
-            dialog.setHeaderContent('Change canvas size');
+            dialog.setHeaderContent('Change canvas size manually');
             dialog.setBodyContent(formBuilder.createNode());
             dialog.addSubmitButton('Submit', () => {
                 let data = formBuilder.getData();
