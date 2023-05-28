@@ -5,6 +5,22 @@ import { Analytics } from "./Analytics.js";
 export { Brushes } from "./core/Brushes.js";
 
 
+function determineSize(root) {
+    let parentWidth;
+    if (window.innerWidth <= 575) {
+        parentWidth = window.innerWidth;  // no margins
+    } else {
+        parentWidth = root.width();
+    }
+
+    let width = Math.min(1400, parentWidth);
+    let height = Math.min(800, Math.trunc(window.innerHeight * 0.70));
+    if (width / height < 0.75) {
+        height = Math.trunc(width / 0.75);
+    }
+    return {width, height};
+}
+
 function determineMaxNumberOfPoints() {
     const touchDevice = (navigator.maxTouchPoints || 'ontouchstart' in document.documentElement);
     if (touchDevice) {
@@ -32,12 +48,8 @@ function determineOptimalScale(width, height, maxPoints) {
 }
 
 export function initStandard(root, assetsContextPath) {
-    let width = Math.min(1400, root.width());
-    let height = Math.min(800, Math.trunc(window.innerHeight * 0.70));
-    if (width / height < 0.5) {
-        height = Math.trunc(width / 0.5);
-    }
-    let scale = determineOptimalScale(width, height, determineMaxNumberOfPoints());
+    const {width, height} = determineSize(root);
+    const scale = determineOptimalScale(width, height, determineMaxNumberOfPoints());
 
     let init = {
         scale: scale,
@@ -59,34 +71,9 @@ export function initStandard(root, assetsContextPath) {
     return sandGameComponent;
 }
 
-export function initMinimalistic(root, assetsContextPath) {
-    let width = Math.min(1400, root.width());
-    let height = 200;
-    let scale = determineOptimalScale(width, height, 75000);
-
-    let init = {
-        scale: scale,
-        canvasWidthPx: width,
-        canvasHeightPx: height,
-        scene: 'landscape_1'
-    };
-
-    let sandGameComponent = new SandGameComponent(root, init);
-    sandGameComponent.enableBrushes();
-    sandGameComponent.start();
-
-    Analytics.triggerFeatureUsed(Analytics.FEATURE_APP_INITIALIZED);
-
-    return sandGameComponent;
-}
-
 export function initTest(root, assetsContextPath) {
-    let width = Math.min(1400, root.width());
-    let height = Math.min(800, Math.trunc(window.innerHeight * 0.70));
-    if (width / height < 0.5) {
-        height = Math.trunc(width / 0.5);
-    }
-    let scale = determineOptimalScale(width, height, determineMaxNumberOfPoints());
+    const {width, height} = determineSize(root);
+    const scale = determineOptimalScale(width, height, determineMaxNumberOfPoints());
 
     let init = {
         scale: scale,

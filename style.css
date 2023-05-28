@@ -1,7 +1,7 @@
 
 /*
  * @author Patrik Harag
- * @version 2023-05-23
+ * @version 2023-05-28
  */
 
 .sand-game-component {
@@ -12,8 +12,19 @@
     outline-offset: 2px;
 }
 
-.sand-game-component .sand-game-canvas {
+.sand-game-component .sand-game-canvas-component .sand-game-canvas {
     outline: 1px solid #b7b7b7;
+}
+
+@media (max-width: 575px) {
+    .sand-game-component .sand-game-canvas-component {
+        margin-left: -15px;
+        margin-right: -15px;
+    }
+
+    .sand-game-component .sand-game-canvas-component .sand-game-canvas {
+        outline: none;
+    }
 }
 
 .sand-game-component .sand-game-canvas-overlay {
@@ -101,7 +112,7 @@
     font-size: small;
 }
 
-@media (max-width: 500px) {
+@media (max-width: 575px) {
     .sand-game-component .sand-game-options .status-label {
         display: none;
     }
