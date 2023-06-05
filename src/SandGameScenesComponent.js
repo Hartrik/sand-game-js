@@ -6,7 +6,7 @@ import {SceneImplSnapshot} from "./core/SceneImplSnapshot.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-04-29
+ * @version 2023-06-05
  */
 export class SandGameScenesComponent {
 
@@ -54,7 +54,12 @@ export class SandGameScenesComponent {
         let content = DomBuilder.div({ class: 'scenes' }, []);
         for (let id of SandGameScenesComponent.SCENES) {
             let scene = Scenes.SCENES[id];
-            let node = this.#createSceneCard(scene);
+
+            let label = DomBuilder.element('span', { class: 'scene-title' }, scene.name);
+            // scene.description ? scene.description : '\u00A0'
+            let node = DomBuilder.button(label, { class: 'btn btn-outline-secondary scene' }, () => {
+                this.#onSelect(id, node, scene);
+            });
 
             // mark initial scene
             if (id === this.#initialScene) {
@@ -64,25 +69,10 @@ export class SandGameScenesComponent {
                 node.addClass(SandGameScenesComponent.CLASS_VISITED);
             }
 
-            node.on('click', e => {
-                this.#onSelect(id, node, scene);
-            })
             content.append(node);
         }
 
         return content;
-    }
-
-    /**
-     *
-     * @param scene {Scene}
-     */
-    #createSceneCard(scene) {
-        let bodyContent = [
-            DomBuilder.element('span', {class: 'card-title'}, scene.name)
-        ];
-        bodyContent.push(DomBuilder.par({class: 'card-text'}, scene.description ? scene.description : '\u00A0'));
-        return DomBuilder.Bootstrap.card(null, bodyContent);
     }
 
     #onSelect(id, node, scene) {
@@ -154,4 +144,3 @@ export class SandGameScenesComponent {
         }
     }
 }
-

@@ -87,18 +87,18 @@ export class DomBuilder {
 
     /**
      *
-     * @param text {string}
+     * @param label {string|jQuery<HTMLElement>|jQuery<HTMLElement>[]}
      * @param attributes {object|null}
      * @param handler {function(e)}
      * @return {jQuery<HTMLElement>}
      */
-    static button(text, attributes = null, handler = null) {
+    static button(label, attributes = null, handler = null) {
         if (attributes === null) {
             attributes = {};
         }
         attributes['type'] = 'button';
 
-        let button = DomBuilder.element('button', attributes, text);
+        let button = DomBuilder.element('button', attributes, label);
         if (handler !== null) {
             button.on("click", handler);
         }

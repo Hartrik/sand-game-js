@@ -14,12 +14,13 @@ import {SandGameOptionsComponent} from "./SandGameOptionsComponent.js";
 import {SandGameTestComponent} from "./SandGameTestComponent.js";
 import {SandGameBrushComponent} from "./SandGameBrushComponent.js";
 import {SandGameCanvasComponent} from "./SandGameCanvasComponent.js";
+import { Assets } from "./Assets";
 
 /**
  * @requires jQuery
  *
  * @author Patrik Harag
- * @version 2023-05-23
+ * @version 2023-06-05
  */
 export class SandGameComponent extends SandGameControls {
 
@@ -206,19 +207,25 @@ export class SandGameComponent extends SandGameControls {
         this.#nodeHolderBottomToolbar.append(optionsComponent.createNode());
     }
 
-    enableSizeOptions() {
-        let component = new SandGameElementSizeComponent(this, this.#init.scale, newScale => {
-            let w = Math.trunc(this.#currentWidthPoints / this.#currentScale * newScale);
-            let h = Math.trunc(this.#currentHeightPoints / this.#currentScale * newScale);
-            this.changeCanvasSize(w, h, newScale);
-        });
-
-        this.#nodeHolderAdditionalViews.append(component.createNode());
-    }
-
     enableScenes() {
-        let component = new SandGameScenesComponent(this, this.#init.scene);
-        this.#nodeHolderAdditionalViews.append(component.createNode());
+        let scenesComponent = new SandGameScenesComponent(this, this.#init.scene);
+
+        this.#nodeHolderAdditionalViews.append(DomBuilder.div(null, [
+            DomBuilder.button(DomBuilder.create(Assets.SVG_ADJUST_SCALE), { class : 'btn btn-outline-secondary adjust-scale' }, () => {
+                let elementSizeComponent = new SandGameElementSizeComponent(this, this.#currentScale, newScale => {
+                    let w = Math.trunc(this.#currentWidthPoints / this.#currentScale * newScale);
+                    let h = Math.trunc(this.#currentHeightPoints / this.#currentScale * newScale);
+                    this.changeCanvasSize(w, h, newScale);
+                });
+
+                let dialog = new DomBuilder.BootstrapDialog();
+                dialog.setHeaderContent('Adjust Scale');
+                dialog.setBodyContent(DomBuilder.div({ class: 'sand-game-component' }, elementSizeComponent.createNode()));
+                dialog.addCloseButton('Close');
+                dialog.show(this.getDialogAnchor());
+            }),
+            scenesComponent.createNode(),
+        ]));
     }
 
     enableTestTools() {

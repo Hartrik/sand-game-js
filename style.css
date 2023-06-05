@@ -1,7 +1,7 @@
 
 /*
  * @author Patrik Harag
- * @version 2023-05-28
+ * @version 2023-06-05
  */
 
 .sand-game-component {
@@ -156,11 +156,60 @@
     margin: 1em 0 2em;
 }
 
-.sand-game-component .sand-game-views .element-size-options {
+.sand-game-component .sand-game-views .btn-outline-secondary:hover {
+    background-color: #ebebeb;
+}
+
+.sand-game-component .sand-game-views .adjust-scale {
+    vertical-align: top;
+    margin-right: 0.5em;
+    height: 46px;
+}
+
+.sand-game-component .sand-game-views .scenes {
+    display: inline;
+}
+
+.sand-game-component .sand-game-views .scenes .scene {
+    color: black;
+    cursor: pointer;
+    display: inline-block;
+    margin: 0 0.5em 0.5em 0;
+    height: 46px;
+    user-select: none;
     white-space: nowrap;
 }
 
-.sand-game-component .sand-game-views .element-size-options .card {
+.sand-game-component .sand-game-views .scenes .scene .card-title {
+    font-weight: 500;
+    font-size: 100%;
+}
+
+.sand-game-component .sand-game-views .scenes .scene.visited-scene {
+    background-color: #ebebeb;
+}
+
+.sand-game-component .sand-game-views .scenes .scene.visited-scene:hover {
+    background-color: #dedede;
+}
+
+.sand-game-component .sand-game-views .scenes .scene.selected-scene {
+    background-color: #ffffbd;
+}
+
+.sand-game-component .sand-game-views .scenes .scene.selected-scene:hover {
+    background-color: #e8e8a5;
+}
+
+.sand-game-component .sand-game-views .card {
+    margin: 0.5em 0;
+}
+
+.sand-game-component .element-size-options {
+    white-space: nowrap;
+}
+
+.sand-game-component .element-size-options .card {
     cursor: pointer;
     display: inline-block;
     margin: 0.5em 0.5em 0.5em 0;
@@ -169,53 +218,22 @@
     user-select: none;
 }
 
-.sand-game-component .sand-game-views .element-size-options .card img {
+.sand-game-component .element-size-options .card img {
     width: 47pt;
     height: 31pt;
     border-radius: 0.25rem;
 }
 
-.sand-game-component .sand-game-views .element-size-options .card.selected-size {
-    background-color: #ffffbd;
-}
-
-.sand-game-component .sand-game-views .scenes {
-    overflow-x: auto;
-    overflow-y: hidden;
-    white-space: nowrap;
-}
-
-.sand-game-component .sand-game-views .scenes .card {
-    cursor: pointer;
-    display: inline-block;
-    margin: 0.5em 0.5em 0.5em 0;
-    width: 100pt;
-    user-select: none;
-}
-
-.sand-game-component .sand-game-views .scenes .card .card-body {
-    padding: 0.75em 1em;
-}
-
-.sand-game-component .sand-game-views .scenes .card .card-title {
-    font-weight: 500;
-    font-size: 100%;
-}
-
-.sand-game-component .sand-game-views .scenes .card p {
-    font-size: 70%;
-}
-
-.sand-game-component .sand-game-views .scenes .card.visited-scene {
+.sand-game-component .element-size-options .card:hover {
     background-color: #ebebeb;
 }
 
-.sand-game-component .sand-game-views .scenes .card.selected-scene {
+.sand-game-component .element-size-options .card.selected-size {
     background-color: #ffffbd;
 }
 
-.sand-game-component .sand-game-views .card {
-    margin: 0.5em 0;
+.sand-game-component .element-size-options .card.selected-size:hover {
+    background-color: #e8e8a5;
 }
 
 .sand-game-component .test-tools .btn {

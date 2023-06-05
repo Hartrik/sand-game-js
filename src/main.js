@@ -63,7 +63,6 @@ export function initStandard(root, assetsContextPath) {
     sandGameComponent.enableBrushes();
     sandGameComponent.enableOptions();
     sandGameComponent.enableScenes();
-    sandGameComponent.enableSizeOptions();
     sandGameComponent.start();
 
     Analytics.triggerFeatureUsed(Analytics.FEATURE_APP_INITIALIZED);
@@ -87,7 +86,6 @@ export function initTest(root, assetsContextPath) {
     sandGameComponent.enableBrushes();
     sandGameComponent.enableOptions();
     sandGameComponent.enableScenes();
-    sandGameComponent.enableSizeOptions();
     sandGameComponent.enableTestTools();
     sandGameComponent.start();
 
