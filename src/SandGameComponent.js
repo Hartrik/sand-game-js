@@ -14,7 +14,7 @@ import {SandGameOptionsComponent} from "./SandGameOptionsComponent.js";
 import {SandGameTestComponent} from "./SandGameTestComponent.js";
 import {SandGameBrushComponent} from "./SandGameBrushComponent.js";
 import {SandGameCanvasComponent} from "./SandGameCanvasComponent.js";
-import { Assets } from "./Assets";
+import {Assets} from "./Assets.js";
 
 /**
  * @requires jQuery
@@ -211,7 +211,10 @@ export class SandGameComponent extends SandGameControls {
         let scenesComponent = new SandGameScenesComponent(this, this.#init.scene);
 
         this.#nodeHolderAdditionalViews.append(DomBuilder.div(null, [
-            DomBuilder.button(DomBuilder.create(Assets.SVG_ADJUST_SCALE), { class : 'btn btn-outline-secondary adjust-scale' }, () => {
+            DomBuilder.button(DomBuilder.create(Assets.SVG_ADJUST_SCALE), {
+                class: 'btn btn-outline-secondary adjust-scale',
+                'aria-label': 'Adjust scale'
+            }, () => {
                 let elementSizeComponent = new SandGameElementSizeComponent(this, this.#currentScale, newScale => {
                     let w = Math.trunc(this.#currentWidthPoints / this.#currentScale * newScale);
                     let h = Math.trunc(this.#currentHeightPoints / this.#currentScale * newScale);

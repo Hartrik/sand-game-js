@@ -72,7 +72,8 @@ export class SandGameOptionsComponent {
                 class: 'btn btn-light dropdown-toggle',
                 'data-toggle': 'dropdown',
                 'aria-haspopup': 'true',
-                'aria-expanded': 'false'
+                'aria-expanded': 'false',
+                'aria-label': 'Options'
             }, label),
             DomBuilder.element('form', { class: 'dropdown-menu p-2' }, this.#createOptionsContent())
         ]);
