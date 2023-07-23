@@ -310,12 +310,7 @@ export class SandGameComponent extends SandGameControls {
 
     pasteScene(scene) {
         const toolManager = this.getToolManager();
-        const oldPrimary = toolManager.getPrimaryTool();
-        const oldSecondary = toolManager.getSecondaryTool();
-        const revert = () => {
-            toolManager.setPrimaryTool(oldPrimary);
-            toolManager.setSecondaryTool(oldSecondary);
-        };
+        const revert = toolManager.createRevertAction();
 
         toolManager.setPrimaryTool(Tool.insertElementAreaTool(null, null, null, [ scene ], revert));
         toolManager.setSecondaryTool(Tool.actionTool(null, null, null, revert));

@@ -37,17 +37,18 @@ export class SandGameToolsComponent {
             let cssName = tool.getCodeName();
             let displayName = tool.getDisplayName();
             let button = DomBuilder.button(displayName, { class: 'badge badge-secondary ' + cssName }, () => {
-                // unselect last
-                for (let b of buttons) {
-                    b.removeClass('selected');
-                }
-
-                // select
-                button.addClass('selected');
-
                 this.#controls.getToolManager().setPrimaryTool(tool);
                 this.#controls.getToolManager().setSecondaryTool(Tools.byCodeName('air'));
             });
+
+            this.#controls.getToolManager().addOnPrimaryToolChanged(newTool => {
+                if (newTool === tool) {
+                    button.addClass('selected');
+                } else {
+                    button.removeClass('selected');
+                }
+            });
+
             // initial select
             if (tool === this.#controls.getToolManager().getPrimaryTool()) {
                 button.addClass('selected');

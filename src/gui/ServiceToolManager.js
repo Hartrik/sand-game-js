@@ -12,6 +12,9 @@ export class ServiceToolManager {
     #secondaryTool = Tools.byCodeName('air');
     #tertiaryTool = Tools.byCodeName('meteor');
 
+    /** @type function(Tool)[] */
+    #onPrimaryToolChanged = [];
+
     /**
      *
      * @param tool {Tool}
@@ -19,6 +22,9 @@ export class ServiceToolManager {
      */
     setPrimaryTool(tool) {
         this.#primaryTool = tool;
+        for (let handler of this.#onPrimaryToolChanged) {
+            handler(tool);
+        }
     }
 
     /**
@@ -28,6 +34,15 @@ export class ServiceToolManager {
      */
     setSecondaryTool(tool) {
         this.#secondaryTool = tool;
+    }
+
+    /**
+     *
+     * @param tool {Tool}
+     * @returns void
+     */
+    setTertiaryTool(tool) {
+        this.#tertiaryTool = tool;
     }
 
     /**
@@ -49,5 +64,24 @@ export class ServiceToolManager {
      */
     getTertiaryTool() {
         return this.#tertiaryTool;
+    }
+
+    /**
+     *
+     * @param handler {function(Tool)}
+     */
+    addOnPrimaryToolChanged(handler) {
+        this.#onPrimaryToolChanged.push(handler);
+    }
+
+    createRevertAction() {
+        const oldPrimary = this.getPrimaryTool();
+        const oldSecondary = this.getSecondaryTool();
+        const oldTertiary = this.getTertiaryTool();
+        return () => {
+            this.setPrimaryTool(oldPrimary);
+            this.setSecondaryTool(oldSecondary);
+            this.setTertiaryTool(oldTertiary);
+        };
     }
 }

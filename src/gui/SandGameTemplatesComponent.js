@@ -32,13 +32,10 @@ export class SandGameTemplatesComponent {
                 if (loadedTool !== null) {
 
                     const toolManager = this.#controls.getToolManager();
-                    const oldPrimary = toolManager.getPrimaryTool();
-                    const oldSecondary = toolManager.getSecondaryTool();
+                    const revert = toolManager.createRevertAction();
+
                     toolManager.setPrimaryTool(loadedTool);
-                    toolManager.setSecondaryTool(Tool.actionTool(null, null, null, () => {
-                        toolManager.setPrimaryTool(oldPrimary);
-                        toolManager.setSecondaryTool(oldSecondary);
-                    }));
+                    toolManager.setSecondaryTool(Tool.actionTool(null, null, null, revert));
 
                 } else {
                     // this should not happen
