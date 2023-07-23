@@ -183,7 +183,14 @@ class NewIO {
 
             const randomFlipHorizontally = json.randomFlipHorizontally;
             if (randomFlipHorizontally) {
-                scenes.push(new SceneImplModFlip(scene, true));
+                scenes.push(new SceneImplModFlip(scene, true, false));
+            }
+
+            const randomFlipVertically = json.randomFlipVertically;
+            if (randomFlipVertically) {
+                for (const s of [...scenes]) {
+                    scenes.push(new SceneImplModFlip(s, false, true));
+                }
             }
 
             return scenes;

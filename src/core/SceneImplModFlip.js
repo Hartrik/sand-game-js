@@ -15,11 +15,13 @@ export class SceneImplModFlip extends Scene {
     #original;
 
     #flipHorizontally;
+    #flipVertically;
 
-    constructor(scene, flipHorizontally) {
+    constructor(scene, flipHorizontally, flipVertically) {
         super();
         this.#original = scene;
         this.#flipHorizontally = flipHorizontally;
+        this.#flipVertically = flipVertically;
     }
 
     countSize(prefWidth, prefHeight) {
@@ -42,6 +44,14 @@ export class SceneImplModFlip extends Scene {
             for (let y = 0; y < height; y++) {
                 for (let x = 0; x < Math.trunc(width / 2); x++) {
                     elementArea.swap(x, y, width - 1 - x, y);
+                }
+            }
+        }
+
+        if (this.#flipVertically) {
+            for (let y = 0; y < Math.trunc(height / 2); y++) {
+                for (let x = 0; x < width; x++) {
+                    elementArea.swap(x, y, x, height - 1 - y);
                 }
             }
         }
