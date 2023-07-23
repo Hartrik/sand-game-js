@@ -183,7 +183,7 @@ class RectangleBrushTool extends Tool {
 
     applyStroke(x1, y1, x2, y2, graphics, altModifier) {
         const brush = altModifier ? this.#altBrush : this.#brush;
-        graphics.drawLine(x1, y1, x2, y2, this.#size, brush);
+        graphics.drawLine(x1, y1, x2, y2, this.#size, brush, true);
     }
 
     applyArea(x1, y1, x2, y2, graphics, altModifier) {

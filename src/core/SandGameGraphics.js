@@ -2,11 +2,12 @@ import {FloodFillPainter} from "./FloodFillPainter.js";
 import {Element} from "./Element.js";
 import {ElementArea} from "./ElementArea.js";
 import {Brush} from "./Brush.js";
+import {CircleIterator} from "./CircleIterator.js";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-05-16
+ * @version 2023-07-23
  */
 export class SandGameGraphics {
 
@@ -67,11 +68,22 @@ export class SandGameGraphics {
         }
     }
 
-    drawLine(x1, y1, x2, y2, size, brush) {
+    drawLine(x1, y1, x2, y2, size, brush, round=false) {
         const d = Math.ceil(size / 2);
-        let consumer = (x, y) => {
-            this.drawRectangle(x - d, y - d, x + d, y + d, brush);
-        };
+
+        let consumer;
+        if (round) {
+            consumer = (x, y) => {
+                CircleIterator.iterate(CircleIterator.BLUEPRINT_3, (dx, dy, level) => {
+                    this.draw(x + dx, y + dy, brush);
+                });
+            };
+        } else {
+            consumer = (x, y) => {
+                this.drawRectangle(x - d, y - d, x + d, y + d, brush);
+            };
+        }
+
         SandGameGraphics.#lineAlgorithm(x1, y1, x2, y2, consumer);
     }
 

@@ -1,11 +1,23 @@
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-27
+ * @version 2023-07-23
  */
 export class CircleIterator {
 
     // This may look ugly but it's all I need
+
+    // BLUEPRINT_3 and BLUEPRINT_4 are not needed, but they are used frequently
+
+    static BLUEPRINT_3 = [
+        '  333',
+        ' 32223',
+        '3211123',
+        '3210123',
+        '3211123',
+        ' 32223',
+        '  333',
+    ];
 
     static BLUEPRINT_4 = [
         '   444   ',
