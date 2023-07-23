@@ -1,9 +1,9 @@
 import {DomBuilder} from "./DomBuilder.js";
-import {Assets} from "./Assets.js";
-import {Brushes} from "./core/Brushes.js";
-import {ElementArea} from "./core/ElementArea.js";
-import {ResourceIO} from "./core/ResourceIO.js";
-import {Analytics} from "./Analytics.js";
+import {Assets} from "../Assets.js";
+import {Brushes} from "../core/Brushes.js";
+import {ElementArea} from "../core/ElementArea.js";
+import {ResourceIO} from "../core/ResourceIO.js";
+import {Analytics} from "../Analytics.js";
 import FileSaver from 'file-saver';
 
 /**

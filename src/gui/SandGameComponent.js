@@ -1,11 +1,11 @@
 import {DomBuilder} from "./DomBuilder.js";
-import {ElementArea} from "./core/ElementArea.js";
-import {SandGame} from "./core/SandGame.js";
-import {Brushes} from "./core/Brushes.js";
-import {Scenes} from "./Scenes.js";
-import {SceneImplTmpResize} from "./core/SceneImplResize.js";
-import {Tools} from "./core/Tools.js";
-import {Tool} from "./core/Tool.js";
+import {ElementArea} from "../core/ElementArea.js";
+import {SandGame} from "../core/SandGame.js";
+import {Brushes} from "../core/Brushes.js";
+import {Scenes} from "../def/Scenes.js";
+import {SceneImplTmpResize} from "../core/SceneImplResize.js";
+import {Tools} from "../def/Tools.js";
+import {Tool} from "../core/Tool.js";
 import {SandGameControls} from "./SandGameControls.js";
 import {SandGameControllerIO} from "./SandGameControllerIO.js";
 import {SandGameScenesComponent} from "./SandGameScenesComponent.js";
@@ -14,7 +14,8 @@ import {SandGameOptionsComponent} from "./SandGameOptionsComponent.js";
 import {SandGameTestComponent} from "./SandGameTestComponent.js";
 import {SandGameBrushComponent} from "./SandGameBrushComponent.js";
 import {SandGameCanvasComponent} from "./SandGameCanvasComponent.js";
-import {Assets} from "./Assets.js";
+
+import _ASSET_SVG_ADJUST_SCALE from './assets/icon-adjust-scale.svg'
 
 /**
  * @requires jQuery
@@ -211,7 +212,7 @@ export class SandGameComponent extends SandGameControls {
         let scenesComponent = new SandGameScenesComponent(this, this.#init.scene);
 
         this.#nodeHolderAdditionalViews.append(DomBuilder.div(null, [
-            DomBuilder.button(DomBuilder.create(Assets.SVG_ADJUST_SCALE), {
+            DomBuilder.button(DomBuilder.create(_ASSET_SVG_ADJUST_SCALE), {
                 class: 'btn btn-outline-secondary adjust-scale',
                 'aria-label': 'Adjust scale'
             }, () => {

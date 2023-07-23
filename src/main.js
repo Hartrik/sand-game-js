@@ -1,5 +1,5 @@
 
-import { SandGameComponent } from "./SandGameComponent.js";
+import { SandGameComponent } from "./gui/SandGameComponent.js";
 import { Analytics } from "./Analytics.js";
 
 export { Brushes } from "./core/Brushes.js";

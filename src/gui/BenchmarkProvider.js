@@ -1,6 +1,6 @@
 import {SandGameControls} from "./SandGameControls.js";
-import {Brushes} from "./core/Brushes.js";
-import {SceneImplHardcoded} from "./core/SceneImplHardcoded.js";
+import {Brushes} from "../core/Brushes.js";
+import {SceneImplHardcoded} from "../core/SceneImplHardcoded.js";
 
 /**
  *

@@ -1,6 +1,6 @@
 import {DomBuilder} from "./DomBuilder.js";
 import {SandGameControls} from "./SandGameControls.js";
-import {Tools} from "./core/Tools.js";
+import {Tools} from "../def/Tools.js";
 
 /**
  *

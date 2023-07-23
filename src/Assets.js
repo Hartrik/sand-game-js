@@ -1,28 +1,10 @@
-import _SVG_ICON_GEAR from '../assets/icon-gear.svg'
-import _SVG_ADJUST_SCALE from '../assets/icon-adjust-scale.svg'
-import _IMG_ELEMENT_SIZE_1 from '../assets/element-size-1.png'
-import _IMG_ELEMENT_SIZE_2 from '../assets/element-size-2.png'
-import _IMG_ELEMENT_SIZE_3 from '../assets/element-size-3.png'
-import _IMG_ELEMENT_SIZE_4 from '../assets/element-size-4.png'
-import _TEXTURE_ROCK from '../assets/texture-rock.png'
-import _GRADIENT_RAINBOW from '../assets/gradient-rainbow.png'
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-06-05
+ * @version 2023-07-23
  */
 export class Assets {
-
-    static SVG_ICON_GEAR = _SVG_ICON_GEAR;
-    static SVG_ADJUST_SCALE = _SVG_ADJUST_SCALE;
-    static IMG_ELEMENT_SIZE_1 = _IMG_ELEMENT_SIZE_1;
-    static IMG_ELEMENT_SIZE_2 = _IMG_ELEMENT_SIZE_2;
-    static IMG_ELEMENT_SIZE_3 = _IMG_ELEMENT_SIZE_3;
-    static IMG_ELEMENT_SIZE_4 = _IMG_ELEMENT_SIZE_4;
-    static TEXTURE_ROCK = _TEXTURE_ROCK;
-    static GRADIENT_RAINBOW = _GRADIENT_RAINBOW;
-
 
     /**
      *

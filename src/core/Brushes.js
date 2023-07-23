@@ -1,8 +1,11 @@
-import {Assets} from "../Assets.js";
 import {Brush} from "./Brush.js";
 import {ElementHead} from "./ElementHead.js";
 import {ElementTail} from "./ElementTail.js";
 import {Element} from "./Element.js";
+
+import _ASSET_TEXTURE_ROCK from './assets/texture-rock.png'
+
+// TODO: create some abstraction for brushes that are needed in core processing and move this into /def
 
 /**
  *
@@ -61,7 +64,7 @@ export class Brushes {
 
     static ROCK = Brush.textureBrush(
         Brush.random([new Element(ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_WALL), 0)]),
-        Assets.TEXTURE_ROCK);
+        _ASSET_TEXTURE_ROCK);
 
     static SAND = Brush.randomFromHeadAndTails(ElementHead.of(ElementHead.TYPE_SAND_2 | ElementHead.TYPE__DRY_FLAG, ElementHead.WEIGHT_POWDER), [
         ElementTail.of(214, 212, 154, ElementTail.MODIFIER_BLUR_ENABLED),

@@ -17,11 +17,11 @@ export default [
             resolve(), // so Rollup can find libraries
             commonjs(), // so Rollup can convert libraries to an ES modules
             image({
-                include: "assets/*.png",
+                include: "**/*.png",
                 exclude: []
             }),
             string({
-                include: "assets/*.svg",
+                include: "**/*.svg",
                 exclude: []
             })
         ]

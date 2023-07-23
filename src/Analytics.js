@@ -1,4 +1,4 @@
-import { Tools } from "./core/Tools.js";
+import { Tools } from "./def/Tools.js";
 
 /**
  *

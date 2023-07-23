@@ -1,6 +1,10 @@
-import {Assets} from "./Assets.js";
 import {DomBuilder} from "./DomBuilder.js";
-import {Analytics} from "./Analytics.js";
+import {Analytics} from "../Analytics.js";
+
+import _ASSET_IMG_ELEMENT_SIZE_1 from './assets/element-size-1.png'
+import _ASSET_IMG_ELEMENT_SIZE_2 from './assets/element-size-2.png'
+import _ASSET_IMG_ELEMENT_SIZE_3 from './assets/element-size-3.png'
+import _ASSET_IMG_ELEMENT_SIZE_4 from './assets/element-size-4.png'
 
 /**
  *
@@ -12,10 +16,10 @@ export class SandGameElementSizeComponent {
     static CLASS_SELECTED = 'selected-size';
 
     static SIZES = [
-        { scale: 0.75,  image: Assets.IMG_ELEMENT_SIZE_1, description: 'Very small elements' },
-        { scale: 0.5,   image: Assets.IMG_ELEMENT_SIZE_2, description: 'Small elements' },
-        { scale: 0.375, image: Assets.IMG_ELEMENT_SIZE_3, description: 'Medium elements' },
-        { scale: 0.25,  image: Assets.IMG_ELEMENT_SIZE_4, description: 'Big elements' },
+        { scale: 0.75,  image: _ASSET_IMG_ELEMENT_SIZE_1, description: 'Very small elements' },
+        { scale: 0.5,   image: _ASSET_IMG_ELEMENT_SIZE_2, description: 'Small elements' },
+        { scale: 0.375, image: _ASSET_IMG_ELEMENT_SIZE_3, description: 'Medium elements' },
+        { scale: 0.25,  image: _ASSET_IMG_ELEMENT_SIZE_4, description: 'Big elements' },
     ];
 
 

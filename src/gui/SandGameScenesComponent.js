@@ -1,7 +1,7 @@
 import {DomBuilder} from "./DomBuilder.js";
-import {Scenes} from "./Scenes.js";
-import {Analytics} from "./Analytics.js";
-import {SceneImplSnapshot} from "./core/SceneImplSnapshot.js";
+import {Scenes} from "../def/Scenes.js";
+import {Analytics} from "../Analytics.js";
+import {SceneImplSnapshot} from "../core/SceneImplSnapshot.js";
 
 /**
  *

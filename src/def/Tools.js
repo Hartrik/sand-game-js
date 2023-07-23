@@ -1,6 +1,6 @@
-import { Tool } from "./Tool.js";
-import { Brushes } from "./Brushes";
-import { Brush } from "./Brush";
+import { Tool } from "../core/Tool.js";
+import { Brushes } from "../core/Brushes";
+import { Brush } from "../core/Brush";
 
 /**
  * @interface

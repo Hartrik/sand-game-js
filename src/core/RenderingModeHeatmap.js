@@ -2,6 +2,8 @@ import {RenderingMode} from "./RenderingMode.js";
 import {ElementHead} from "./ElementHead.js";
 import {Assets} from "../Assets.js";
 
+import _ASSET_GRADIENT_RAINBOW from './assets/gradient-rainbow.png'
+
 /**
  * @author Patrik Harag
  * @version 2023-02-18
@@ -13,7 +15,7 @@ export class RenderingModeHeatmap extends RenderingMode {
 
     constructor() {
         super();
-        Assets.asImageData(Assets.GRADIENT_RAINBOW).then(d => this.#gradientImageData = d);
+        Assets.asImageData(_ASSET_GRADIENT_RAINBOW).then(d => this.#gradientImageData = d);
     }
 
     apply(data, dataIndex, elementHead, elementTail) {

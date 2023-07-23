@@ -1,8 +1,8 @@
 import { DomBuilder } from "./DomBuilder.js";
 import { SandGameControls } from "./SandGameControls.js";
-import { CursorDefinitionElementArea } from "./core/CursorDefinitionElementArea.js";
-import { Renderer } from "./core/Renderer.js";
-import { Analytics } from "./Analytics.js";
+import { CursorDefinitionElementArea } from "../core/CursorDefinitionElementArea.js";
+import { Renderer } from "../core/Renderer.js";
+import { Analytics } from "../Analytics.js";
 
 /**
  *

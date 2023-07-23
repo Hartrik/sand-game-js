@@ -1,8 +1,9 @@
 import {DomBuilder} from "./DomBuilder.js";
 import {SandGameControls} from "./SandGameControls.js";
-import {Processor} from "./core/Processor.js";
-import {Analytics} from "./Analytics.js";
-import {Assets} from "./Assets.js";
+import {Processor} from "../core/Processor.js";
+import {Analytics} from "../Analytics.js";
+
+import _ASSET_SVG_ICON_GEAR from './assets/icon-gear.svg'
 
 /**
  *
@@ -65,7 +66,7 @@ export class SandGameOptionsComponent {
     }
 
     #createOptionsButton() {
-        const label = DomBuilder.create(Assets.SVG_ICON_GEAR);
+        const label = DomBuilder.create(_ASSET_SVG_ICON_GEAR);
         const button = DomBuilder.div({ class: 'btn-group' }, [
             DomBuilder.element('button', {
                 type: 'button',
