@@ -63,8 +63,10 @@ export class SandGameToolsComponent {
                 let dialog = new DomBuilder.BootstrapDialog();
                 dialog.setHeaderContent('Templates');
                 dialog.setBodyContent(DomBuilder.div({ class: 'sand-game-component' }, [
-                    DomBuilder.par(null, "Select a template and close the dialog"),
-                    templatesComponent.createNode()
+                    DomBuilder.par(null, "Select a template"),
+                    templatesComponent.createNode(),
+                    DomBuilder.par(null, ""),
+                    DomBuilder.par(null, "You can also create your own template using an image. See the Import button.")
                 ]));
                 dialog.addCloseButton('Close');
                 dialog.show(this.#controls.getDialogAnchor());

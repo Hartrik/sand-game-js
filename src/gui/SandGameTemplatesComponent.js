@@ -28,7 +28,7 @@ export class SandGameTemplatesComponent {
             const name = toolDefinition.name;
             let loadedTool = null;
 
-            let button = DomBuilder.button(name, { class: 'btn btn-primary'}, () => {
+            let button = DomBuilder.button(name, { class: 'btn btn-primary', 'data-dismiss': 'modal'}, () => {
                 if (loadedTool !== null) {
 
                     const oldPrimary = this.#controls.getPrimaryTool();
