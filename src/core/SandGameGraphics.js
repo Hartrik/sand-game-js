@@ -28,6 +28,19 @@ export class SandGameGraphics {
 
     /**
      *
+     * @param aX {number}
+     * @param aY {number}
+     * @param bX {number}
+     * @param bY {number}
+     */
+    swap(aX, aY, bX, bY) {
+        if (this.#elementArea.isValidPosition(aX, aY) && this.#elementArea.isValidPosition(bX, bY)) {
+            this.#elementArea.swap(aX, aY, bX, bY);
+        }
+    }
+
+    /**
+     *
      * @param x {number}
      * @param y {number}
      * @param brushOrElement {Brush|Element}

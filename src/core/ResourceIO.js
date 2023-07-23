@@ -8,6 +8,7 @@ import {Scene} from "./Scene.js";
 import {SceneMetadata} from "./SceneMetadata.js";
 import {SceneImplSnapshot} from "./SceneImplSnapshot.js";
 import {SceneImplTemplate} from "./SceneImplTemplate.js";
+import {SceneImplModFlip} from "./SceneImplModFlip.js";
 import {Tool} from "./Tool.js";
 import {strToU8, strFromU8, zipSync, unzipSync} from 'fflate';
 
@@ -178,7 +179,14 @@ class NewIO {
 
             const scene = await ResourceIO.fromImage(imageData, parsedBrush, ElementArea.TRANSPARENT_ELEMENT,
                     parsedThreshold, undefined, undefined);
-            return [ scene ];
+            const scenes = [ scene ];
+
+            const randomFlipHorizontally = json.randomFlipHorizontally;
+            if (randomFlipHorizontally) {
+                scenes.push(new SceneImplModFlip(scene, true));
+            }
+
+            return scenes;
 
         } else if (type === 'random') {
             const actions = json.actions;

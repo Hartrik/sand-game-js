@@ -33,19 +33,22 @@ export class Templates {
                         type: "image-template",
                         imageData: _ASSET_ROCK_SM_1,
                         brush: "wall",
-                        threshold: 50
+                        threshold: 50,
+                        randomFlipHorizontally: true
                     },
                     {
                         type: "image-template",
                         imageData: _ASSET_ROCK_SM_2,
                         brush: "wall",
-                        threshold: 50
+                        threshold: 50,
+                        randomFlipHorizontally: true
                     },
                     {
                         type: "image-template",
                         imageData: _ASSET_ROCK_SM_3,
                         brush: "wall",
-                        threshold: 50
+                        threshold: 50,
+                        randomFlipHorizontally: true
                     }
                 ]
             }
@@ -61,37 +64,43 @@ export class Templates {
                         type: "image-template",
                         imageData: _ASSET_ROCK_1,
                         brush: "wall",
-                        threshold: 50
+                        threshold: 50,
+                        randomFlipHorizontally: true
                     },
                     {
                         type: "image-template",
                         imageData: _ASSET_ROCK_2,
                         brush: "wall",
-                        threshold: 50
+                        threshold: 50,
+                        randomFlipHorizontally: true
                     },
                     {
                         type: "image-template",
                         imageData: _ASSET_ROCK_3,
                         brush: "wall",
-                        threshold: 50
+                        threshold: 50,
+                        randomFlipHorizontally: true
                     },
                     {
                         type: "image-template",
                         imageData: _ASSET_ROCK_4,
                         brush: "wall",
-                        threshold: 50
+                        threshold: 50,
+                        randomFlipHorizontally: true
                     },
                     {
                         type: "image-template",
                         imageData: _ASSET_ROCK_5,
                         brush: "wall",
-                        threshold: 50
+                        threshold: 50,
+                        randomFlipHorizontally: true
                     },
                     {
                         type: "image-template",
                         imageData: _ASSET_ROCK_6,
                         brush: "wall",
-                        threshold: 50
+                        threshold: 50,
+                        randomFlipHorizontally: true
                     }
                 ]
             }
@@ -126,7 +135,8 @@ export class Templates {
                 type: "image-template",
                 imageData: _ASSET_WOODEN_HOUSE,
                 brush: "wood",
-                threshold: 50
+                threshold: 50,
+                randomFlipHorizontally: true
             }
         }
     ]
