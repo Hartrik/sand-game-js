@@ -179,40 +179,9 @@ export class SandGameControls {
 
     /**
      *
-     * @param tool {Tool}
-     * @returns void
+     * @returns {ServiceToolManager}
      */
-    setPrimaryTool(tool) {
-        throw 'Not implemented';
-    }
-
-    /**
-     *
-     * @param tool {Tool}
-     * @returns void
-     */
-    setSecondaryTool(tool) {
-        throw 'Not implemented';
-    }
-
-    /**
-     * @returns {Tool}
-     */
-    getPrimaryTool() {
-        throw 'Not implemented';
-    }
-
-    /**
-     * @returns {Tool}
-     */
-    getSecondaryTool() {
-        throw 'Not implemented';
-    }
-
-    /**
-     * @returns {Tool}
-     */
-    getTertiaryTool() {
+    getToolManager() {
         throw 'Not implemented';
     }
 

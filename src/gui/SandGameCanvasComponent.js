@@ -101,7 +101,7 @@ export class SandGameCanvasComponent {
                 e.preventDefault();
 
                 if (!e.altKey && !e.ctrlKey && !e.shiftKey) {
-                    const tool = this.#controls.getTertiaryTool();
+                    const tool = this.#controls.getToolManager().getTertiaryTool();
                     tool.applyPoint(x, y, sandGame.graphics(), false);
                     Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_TERTIARY);
                     Analytics.triggerToolUsed(tool);
@@ -112,10 +112,10 @@ export class SandGameCanvasComponent {
             }
 
             if (e.buttons === 1) {
-                lastTool = this.#controls.getPrimaryTool();
+                lastTool = this.#controls.getToolManager().getPrimaryTool();
                 Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_PRIMARY);
             } else {
-                lastTool = this.#controls.getSecondaryTool();
+                lastTool = this.#controls.getToolManager().getSecondaryTool();
                 Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_SECONDARY);
             }
 
@@ -150,7 +150,7 @@ export class SandGameCanvasComponent {
                     const [x, y] = getActualMousePosition(e);
                     this.#cursorOverlayComponent.moveCursor(x, y, scale);
                 } else {
-                    const cursorDefinition = this.#controls.getPrimaryTool().createCursor();
+                    const cursorDefinition = this.#controls.getToolManager().getPrimaryTool().createCursor();
                     if (cursorDefinition !== null) {
                         const [x, y] = getActualMousePosition(e);
                         this.#cursorOverlayComponent.showCursor(x, y, scale, cursorDefinition);
@@ -231,7 +231,7 @@ export class SandGameCanvasComponent {
             const [x, y] = getActualTouchPosition(e);
             lastX = x;
             lastY = y;
-            lastTool = this.#controls.getPrimaryTool();
+            lastTool = this.#controls.getToolManager().getPrimaryTool();
             lastTool.applyPoint(x, y, sandGame.graphics(), false);
             Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_PRIMARY);
             Analytics.triggerToolUsed(lastTool);

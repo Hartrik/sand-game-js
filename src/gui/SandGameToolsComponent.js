@@ -45,11 +45,11 @@ export class SandGameToolsComponent {
                 // select
                 button.addClass('selected');
 
-                this.#controls.setPrimaryTool(tool);
-                this.#controls.setSecondaryTool(Tools.byCodeName('air'));
+                this.#controls.getToolManager().setPrimaryTool(tool);
+                this.#controls.getToolManager().setSecondaryTool(Tools.byCodeName('air'));
             });
             // initial select
-            if (tool === this.#controls.getPrimaryTool()) {
+            if (tool === this.#controls.getToolManager().getPrimaryTool()) {
                 button.addClass('selected');
             }
 

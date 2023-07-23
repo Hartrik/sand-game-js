@@ -31,12 +31,13 @@ export class SandGameTemplatesComponent {
             let button = DomBuilder.button(name, { class: 'btn btn-primary', 'data-dismiss': 'modal'}, () => {
                 if (loadedTool !== null) {
 
-                    const oldPrimary = this.#controls.getPrimaryTool();
-                    const oldSecondary = this.#controls.getSecondaryTool();
-                    this.#controls.setPrimaryTool(loadedTool);
-                    this.#controls.setSecondaryTool(Tool.actionTool(null, null, null, () => {
-                        this.#controls.setPrimaryTool(oldPrimary);
-                        this.#controls.setSecondaryTool(oldSecondary);
+                    const toolManager = this.#controls.getToolManager();
+                    const oldPrimary = toolManager.getPrimaryTool();
+                    const oldSecondary = toolManager.getSecondaryTool();
+                    toolManager.setPrimaryTool(loadedTool);
+                    toolManager.setSecondaryTool(Tool.actionTool(null, null, null, () => {
+                        toolManager.setPrimaryTool(oldPrimary);
+                        toolManager.setSecondaryTool(oldSecondary);
                     }));
 
                 } else {

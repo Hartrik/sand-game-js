@@ -6,6 +6,7 @@ import {Scenes} from "../def/Scenes.js";
 import {SceneImplTmpResize} from "../core/SceneImplResize.js";
 import {Tools} from "../def/Tools.js";
 import {Tool} from "../core/Tool.js";
+import {ServiceToolManager} from "./ServiceToolManager.js";
 import {SandGameControls} from "./SandGameControls.js";
 import {SandGameControllerIO} from "./SandGameControllerIO.js";
 import {SandGameScenesComponent} from "./SandGameScenesComponent.js";
@@ -21,7 +22,7 @@ import _ASSET_SVG_ADJUST_SCALE from './assets/icon-adjust-scale.svg'
  * @requires jQuery
  *
  * @author Patrik Harag
- * @version 2023-06-05
+ * @version 2023-07-23
  */
 export class SandGameComponent extends SandGameControls {
 
@@ -49,10 +50,8 @@ export class SandGameComponent extends SandGameControls {
     /** @type boolean */
     #showActiveChunks = false;
     #showHeatmap = false;
-    /** @type Tool */
-    #primaryTool = Tools.byCodeName('sand');
-    #secondaryTool = Tools.byCodeName('air');
-    #tertiaryTool = Tools.byCodeName('meteor');
+    /** @type ServiceToolManager */
+    #serviceToolManager = new ServiceToolManager();
 
     #node = null;
     #nodeHolderTopToolbar;
@@ -310,15 +309,16 @@ export class SandGameComponent extends SandGameControls {
     }
 
     pasteScene(scene) {
-        const oldPrimary = this.getPrimaryTool();
-        const oldSecondary = this.getSecondaryTool();
+        const toolManager = this.getToolManager();
+        const oldPrimary = toolManager.getPrimaryTool();
+        const oldSecondary = toolManager.getSecondaryTool();
         const revert = () => {
-            this.setPrimaryTool(oldPrimary);
-            this.setSecondaryTool(oldSecondary);
+            toolManager.setPrimaryTool(oldPrimary);
+            toolManager.setSecondaryTool(oldSecondary);
         };
 
-        this.setPrimaryTool(Tool.insertElementAreaTool(null, null, null, [ scene ], revert));
-        this.setSecondaryTool(Tool.actionTool(null, null, null, revert));
+        toolManager.setPrimaryTool(Tool.insertElementAreaTool(null, null, null, [ scene ], revert));
+        toolManager.setSecondaryTool(Tool.actionTool(null, null, null, revert));
     }
 
     // SandGameControls / canvas size
@@ -398,24 +398,8 @@ export class SandGameComponent extends SandGameControls {
 
     // SandGameControls / tools
 
-    setPrimaryTool(tool) {
-        this.#primaryTool = tool;
-    }
-
-    setSecondaryTool(tool) {
-        this.#secondaryTool = tool;
-    }
-
-    getPrimaryTool() {
-        return this.#primaryTool;
-    }
-
-    getSecondaryTool() {
-        return this.#secondaryTool;
-    }
-
-    getTertiaryTool() {
-        return this.#tertiaryTool;
+    getToolManager() {
+        return this.#serviceToolManager;
     }
 
     // SandGameControls / ui
