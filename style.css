@@ -1,7 +1,7 @@
 
 /*
  * @author Patrik Harag
- * @version 2023-06-05
+ * @version 2023-07-23
  */
 
 .sand-game-component {
@@ -32,13 +32,13 @@
     user-select: none;
 }
 
-.sand-game-component .sand-game-brushes {
+.sand-game-component .sand-game-tools {
     display: inline-block;
     user-select: none;
     margin-bottom: 4pt;
 }
 
-.sand-game-component .sand-game-brushes .badge {
+.sand-game-component .sand-game-tools .badge {
     margin-right: 3pt;
     padding: 0.4em 0.4em;
     border: none;
@@ -88,6 +88,11 @@
 
 .sand-game-component .badge.meteor.selected {
     outline: black solid 1px;
+}
+
+.sand-game-component .badge.template {
+    background-color: #82309d;
+    margin-left: 0.4em;
 }
 
 .sand-game-component .badge.selected {
@@ -241,4 +246,8 @@
 
     padding: 0 0.5em 0 0.5em;
     font-size: 75%;
+}
+
+.sand-game-component .sand-game-templates .btn {
+    margin-right: 0.5em;
 }

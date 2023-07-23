@@ -1,23 +1,25 @@
 import {Assets} from "../Assets.js";
 import {Brush} from "./Brush.js";
+import {Brushes} from "./Brushes.js";
 import {ElementArea} from "./ElementArea.js";
 import {ElementTail} from "./ElementTail.js";
 import {Snapshot} from "./Snapshot";
+import {Scene} from "./Scene.js";
 import {SceneMetadata} from "./SceneMetadata.js";
 import {SceneImplSnapshot} from "./SceneImplSnapshot.js";
 import {SceneImplTemplate} from "./SceneImplTemplate.js";
+import {Tool} from "./Tool.js";
 import {strToU8, strFromU8, zipSync, unzipSync} from 'fflate';
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-05-19
+ * @version 2023-07-23
  */
 export class ResourceIO {
 
     static RESOURCE_TYPE_SCENE = 'scene';
-    static RESOURCE_TYPE_TEMPLATE = 'template';
-    static RESOURCE_TYPE_SCENE_OR_TEMPLATE = 'scene/template';
+    static RESOURCE_TYPE_TOOL = 'tool';
 
     /**
      *
@@ -48,8 +50,16 @@ export class ResourceIO {
 
     /**
      *
-     * @param content {ArrayBuffer}
-     * @param imageType {string}
+     * @param json
+     * @returns {Promise<Tool>}
+     */
+    static async parseToolDefinition(json) {
+        return NewIO.parseToolDefinition(json);
+    }
+
+    /**
+     *
+     * @param objectUrl {string}
      * @param brush {Brush}
      * @param defaultElement {Element}
      * @param threshold {number} 0-255
@@ -57,8 +67,8 @@ export class ResourceIO {
      * @param maxHeight {number|undefined}
      * @returns Promise<Scene>
      */
-    static async fromImage(content, imageType, brush, defaultElement, threshold, maxWidth, maxHeight) {
-        const imageData = await Assets.asImageData(Assets.asObjectUrl(content, imageType), maxWidth, maxHeight);
+    static async fromImage(objectUrl, brush, defaultElement, threshold, maxWidth, maxHeight) {
+        const imageData = await Assets.asImageData(objectUrl, maxWidth, maxHeight);
 
         const width = imageData.width;
         const height = imageData.height;
@@ -97,6 +107,105 @@ export class ResourceIO {
     }
 }
 
+/**
+ *
+ * @author Patrik Harag
+ * @version 2023-07-23
+ */
+class NewIO {
+
+    /**
+     *
+     * @param json
+     * @returns {Promise<Tool>}
+     */
+    static async parseToolDefinition(json) {
+        const type = json.type;
+        const name = json.name;
+        const category = json.category;
+        const action = json.action;
+
+        if (type === undefined) {
+            throw 'Tool definition: type not set';
+        }
+        if (name === undefined) {
+            throw 'Tool definition: name not set';
+        }
+        if (category === undefined) {
+            throw 'Tool definition: category not set';
+        }
+        if (action === undefined) {
+            throw 'Tool definition: action not set';
+        }
+
+        if (type === 'template') {
+            const scenes = await NewIO.parseSceneDefinition(action);
+            return Tool.insertElementAreaTool(category, null, name, scenes, undefined);
+
+        } else {
+            throw 'Tool type not supported: ' + type;
+        }
+    }
+
+    /**
+     *
+     * @param json
+     * @returns {Promise<Scene[]>}
+     */
+    static async parseSceneDefinition(json) {
+        const type = json.type;
+
+        if (type === 'image-template') {
+            const imageData = json.imageData;
+            if (imageData === undefined) {
+                throw 'Image template: imageData not set';
+            }
+
+            const threshold = json.threshold;
+            if (threshold === undefined) {
+                throw 'Image template: threshold not set';
+            }
+            const parsedThreshold = parseInt(threshold);
+
+            const brush = json.brush;
+            if (brush === undefined) {
+                throw 'Image template: brush not set';
+            }
+            const parsedBrush = Brushes.byCodeName(json.brush);
+            if (parsedBrush === null) {
+                throw 'Image template: brush not found: ' + brush;
+            }
+
+            const scene = await ResourceIO.fromImage(imageData, parsedBrush, ElementArea.TRANSPARENT_ELEMENT,
+                    parsedThreshold, undefined, undefined);
+            return [ scene ];
+
+        } else if (type === 'random') {
+            const actions = json.actions;
+            if (actions === undefined || actions.length === undefined || actions.length === 0) {
+                throw 'Image template: actions not set';
+            }
+
+            let scenes = [];
+            for (let i = 0; i < actions.length; i++) {
+                let parsedScenes = await NewIO.parseSceneDefinition(actions[i]);
+                for (let s of parsedScenes) {
+                    scenes.push(s);
+                }
+            }
+            return scenes;
+
+        } else {
+            throw 'Scene type not supported: ' + type;
+        }
+    }
+}
+
+/**
+ *
+ * @author Patrik Harag
+ * @version 2023-05-19
+ */
 class LegacySnapshotIO {
     /**
      *

@@ -3,16 +3,16 @@ import { Brushes } from "../core/Brushes";
 import { Brush } from "../core/Brush";
 
 /**
- * @interface
  *
  * @author Patrik Harag
- * @version 2023-04-15
+ * @version 2023-07-23
  */
 export class Tools {
 
     static DEFAULT_SIZE = 5;
 
     static CATEGORY_BRUSH = 'brush';
+    static CATEGORY_TEMPLATE = 'template';
 
     /** @type Tool[] */
     static DEFAULT_TOOLS = [

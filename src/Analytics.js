@@ -2,7 +2,7 @@ import { Tools } from "./def/Tools.js";
 
 /**
  *
- * @version 2023-05-17
+ * @version 2023-07-23
  * @author Patrik Harag
  */
 export class Analytics {
@@ -35,9 +35,12 @@ export class Analytics {
 
 
     static triggerToolUsed(tool) {
-        if (tool.getCategory() === Tools.CATEGORY_BRUSH) {
+        const category = tool.getCategory();
+        if (category === Tools.CATEGORY_BRUSH) {
             const feature = 'brush_' + tool.getCodeName();
             Analytics.triggerFeatureUsed(feature);
+        } else if (category === Tools.CATEGORY_TEMPLATE) {
+            Analytics.triggerFeatureUsed('brush_template');
         }
     }
 

@@ -12,7 +12,7 @@ import {SandGameScenesComponent} from "./SandGameScenesComponent.js";
 import {SandGameElementSizeComponent} from "./SandGameElementSizeComponent.js";
 import {SandGameOptionsComponent} from "./SandGameOptionsComponent.js";
 import {SandGameTestComponent} from "./SandGameTestComponent.js";
-import {SandGameBrushComponent} from "./SandGameBrushComponent.js";
+import {SandGameToolsComponent} from "./SandGameToolsComponent.js";
 import {SandGameCanvasComponent} from "./SandGameCanvasComponent.js";
 
 import _ASSET_SVG_ADJUST_SCALE from './assets/icon-adjust-scale.svg'
@@ -196,7 +196,7 @@ export class SandGameComponent extends SandGameControls {
     }
 
     enableBrushes() {
-        let component = new SandGameBrushComponent(this, Tools.DEFAULT_TOOLS);
+        let component = new SandGameToolsComponent(this, Tools.DEFAULT_TOOLS, true);
         this.#nodeHolderTopToolbar.append(component.createNode());
     }
 
@@ -317,7 +317,7 @@ export class SandGameComponent extends SandGameControls {
             this.setSecondaryTool(oldSecondary);
         };
 
-        this.setPrimaryTool(Tool.insertElementAreaTool(null, null, null, scene, revert));
+        this.setPrimaryTool(Tool.insertElementAreaTool(null, null, null, [ scene ], revert));
         this.setSecondaryTool(Tool.actionTool(null, null, null, revert));
     }
 

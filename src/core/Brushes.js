@@ -10,7 +10,7 @@ import _ASSET_TEXTURE_ROCK from './assets/texture-rock.png'
 /**
  *
  * @author Patrik Harag
- * @version 2023-04-10
+ * @version 2023-07-23
  */
 export class Brushes {
 
@@ -267,4 +267,29 @@ export class Brushes {
             ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_POWDER, ElementHead.BEHAVIOUR_METEOR),
             ElementTail.of(249, 219, 30))
     ]);
+
+
+    // --- SEARCH
+
+    static #LIST = [
+        { codeName: 'air', brush: Brushes.AIR },
+        { codeName: 'sand', brush: Brushes.SAND },
+        { codeName: 'soil', brush: Brushes.SOIL },
+        { codeName: 'gravel', brush: Brushes.STONE },
+        { codeName: 'wall', brush: Brushes.WALL },
+        { codeName: 'rock', brush: Brushes.ROCK },
+        { codeName: 'wood', brush: Brushes.TREE_WOOD },
+        { codeName: 'water', brush: Brushes.WATER },
+        { codeName: 'fire', brush: Brushes.FIRE },
+        { codeName: 'meteor', brush: Brushes.METEOR }
+    ]
+
+    static byCodeName(codeName) {
+        for (let brushEntry of this.#LIST) {
+            if (brushEntry.codeName === codeName) {
+                return brushEntry.brush;
+            }
+        }
+        return null;
+    }
 }

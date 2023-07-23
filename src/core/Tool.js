@@ -7,7 +7,7 @@ import { CursorDefinitionElementArea } from "./CursorDefinitionElementArea.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-05-04
+ * @version 2023-07-23
  */
 export class Tool {
 
@@ -129,8 +129,12 @@ export class Tool {
         return new PointBrushTool(category, codeName, displayName, brush);
     }
 
-    static insertElementAreaTool(category, codeName, displayName, scene, handler) {
-        return new InsertSceneTool(category, codeName, displayName, scene, handler);
+    static insertElementAreaTool(category, codeName, displayName, scenes, handler) {
+        if (scenes.length === 1) {
+            return new InsertSceneTool(category, codeName, displayName, scenes[0], handler);
+        } else {
+            return new InsertRandomSceneTool(category, codeName, displayName, scenes, handler);
+        }
     }
 
     static actionTool(category, codeName, displayName, handler) {
@@ -141,7 +145,7 @@ export class Tool {
 /**
  *
  * @author Patrik Harag
- * @version 2023-04-30
+ * @version 2023-07-23
  */
 class RectangleBrushTool extends Tool {
 
@@ -159,6 +163,10 @@ class RectangleBrushTool extends Tool {
         this.#brush = brush;
         this.#altBrush = Brush.gentle(brush);
         this.#size = size;
+    }
+
+    getBrush() {
+        return this.#brush;
     }
 
     isStrokeEnabled() {
@@ -266,11 +274,57 @@ class InsertSceneTool extends Tool {
                 graphics.draw(tx, ty, brush);
             }
         }
-        this.#onInsertHandler();
+
+        if (this.#onInsertHandler !== undefined) {
+            this.#onInsertHandler();
+        }
     }
 
     createCursor() {
         return new CursorDefinitionElementArea(this.#elementArea);
+    }
+}
+
+/**
+ *
+ * @author Patrik Harag
+ * @version 2023-07-23
+ */
+class InsertRandomSceneTool extends Tool {
+
+    /** @type Scene[] */
+    #scenes;
+
+    #currentTool;
+
+    /** @type function */
+    #onInsertHandler;
+
+    constructor(category, codeName, displayName, scenes, onInsertHandler) {
+        super(category, codeName, displayName);
+        this.#scenes = scenes;
+        this.#onInsertHandler = onInsertHandler;
+        this.#initRandomTool();
+    }
+
+    #initRandomTool() {
+        if (this.#scenes.length === undefined || this.#scenes.length === 0) {
+            throw 'Scenes not set';
+        }
+
+        const i = Math.trunc(Math.random() * this.#scenes.length);
+        const scene = this.#scenes[i];
+        this.#currentTool = new InsertSceneTool(this.getCategory(), this.getCodeName(), this.getDisplayName(),
+                scene, this.#onInsertHandler);
+    }
+
+    applyPoint(x, y, graphics, aldModifier) {
+        this.#currentTool.applyPoint(x, y, graphics, aldModifier);
+        this.#initRandomTool();
+    }
+
+    createCursor() {
+        return this.#currentTool.createCursor();
     }
 }
 

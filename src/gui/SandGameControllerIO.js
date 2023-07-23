@@ -107,7 +107,8 @@ export class SandGameControllerIO {
 
     #loadImageTemplate(content, image) {
         const handleImageTemplate = (brush, threshold, maxWidth, maxHeight) => {
-            ResourceIO.fromImage(content, image, brush, ElementArea.TRANSPARENT_ELEMENT, threshold, maxWidth, maxHeight)
+            const objectUrl = Assets.asObjectUrl(content, image);
+            ResourceIO.fromImage(objectUrl, brush, ElementArea.TRANSPARENT_ELEMENT, threshold, maxWidth, maxHeight)
                 .then(scene => this.#importImageTemplate(scene))
                 .catch(e => this.#handleError(e));
         };
