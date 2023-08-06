@@ -126,7 +126,7 @@ export class ElementHead {
         return (elementHead >> 20) & 0x00000003;
     }
 
-    static getMeltableType(elementHead) {
+    static getConductivityType(elementHead) {
         return (elementHead >> 22) & 0x00000003;
     }
 

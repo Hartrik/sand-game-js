@@ -2,6 +2,7 @@ import {Brush} from "./Brush.js";
 import {ElementHead} from "./ElementHead.js";
 import {ElementTail} from "./ElementTail.js";
 import {Element} from "./Element.js";
+import {VisualEffects} from "./VisualEffects.js";
 
 import _ASSET_TEXTURE_ROCK from './assets/texture-rock.png'
 
@@ -10,7 +11,7 @@ import _ASSET_TEXTURE_ROCK from './assets/texture-rock.png'
 /**
  *
  * @author Patrik Harag
- * @version 2023-07-23
+ * @version 2023-08-06
  */
 export class Brushes {
 
@@ -268,6 +269,15 @@ export class Brushes {
             ElementTail.of(249, 219, 30))
     ]);
 
+    static EFFECT_BURNT = Brush.custom((x, y, random, oldElement) => {
+        if (VisualEffects.isVisualBurnApplicable(oldElement.elementHead)) {
+            const burntLevel = ElementTail.getBurntLevel(oldElement.elementTail);
+            if (burntLevel < 3) {
+                return new Element(oldElement.elementHead, VisualEffects.visualBurn(oldElement.elementTail, 1));
+            }
+        }
+        return null;
+    });
 
     // --- SEARCH
 

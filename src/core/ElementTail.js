@@ -7,7 +7,7 @@
  *     | color blue                                                    8b  |
  *     | color green                                                   8b  |
  *     | color red                                                     8b  |
- *     |            2b  |            2b  |            2b  | blur beh.  2b  |
+ *     | blur type  2b  | burnt lvl  2b  |            2b  |            2b  |
  * </pre>
  *
  * @author Patrik Harag
@@ -22,7 +22,7 @@ export class ElementTail {
 
     static of(r, g, b, blurType=ElementTail.BLUR_TYPE_NONE) {
         let value = 0;
-        value = (value | (blurType & 0x3)) << 8;
+        value = (value | (blurType & 0x03)) << 8;
         value = (value | (r & 0xFF)) << 8;
         value = (value | (g & 0xFF)) << 8;
         value = value | (b & 0xFF);
@@ -45,10 +45,18 @@ export class ElementTail {
         return (elementTail >> 24) & 0x00000003;
     }
 
+    static getBurntLevel(elementTail) {
+        return (elementTail >> 26) & 0x00000003;
+    }
+
     static setColor(elementTail, r, g, b) {
         elementTail = (elementTail & ~(0x00FF0000)) | (r << 16);
         elementTail = (elementTail & ~(0x0000FF00)) | (g << 8);
         elementTail = (elementTail & ~(0x000000FF)) | (b);
         return elementTail;
+    }
+
+    static setBurntLevel(elementTail, burntLevel) {
+        return (elementTail & 0xF3FFFFFF) | (burntLevel << 26);
     }
 }

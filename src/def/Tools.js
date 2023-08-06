@@ -5,7 +5,7 @@ import { Brush } from "../core/Brush";
 /**
  *
  * @author Patrik Harag
- * @version 2023-07-23
+ * @version 2023-08-06
  */
 export class Tools {
 
@@ -24,6 +24,11 @@ export class Tools {
         Tool.rectangleBrushTool(Tools.CATEGORY_BRUSH, 'water', 'Water', Brushes.WATER, Tools.DEFAULT_SIZE),
         Tool.rectangleBrushTool(Tools.CATEGORY_BRUSH, 'fire', 'Fire', Brush.gentle(Brushes.FIRE), Tools.DEFAULT_SIZE),
         Tool.pointBrushTool(Tools.CATEGORY_BRUSH, 'meteor', 'Meteor', Brushes.METEOR),
+    ];
+
+    /** @type Tool[] */
+    static TEST_TOOLS = [
+        Tool.rectangleBrushTool(Tools.CATEGORY_BRUSH, 'effect_burnt', 'Burnt', Brushes.EFFECT_BURNT, Tools.DEFAULT_SIZE)
     ];
 
     static byCodeName(codeName) {

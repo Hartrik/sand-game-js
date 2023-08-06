@@ -1,6 +1,7 @@
 import {DomBuilder} from "./DomBuilder.js";
 import {Brush} from "../core/Brush.js";
 import {Brushes} from "../core/Brushes.js";
+import {Tools} from "../def/Tools.js";
 import {SandGameControls} from "./SandGameControls.js";
 import {BenchmarkProvider} from "./BenchmarkProvider.js";
 import FileSaver from 'file-saver';
@@ -8,7 +9,7 @@ import FileSaver from 'file-saver';
 /**
  *
  * @author Patrik Harag
- * @version 2023-05-24
+ * @version 2023-08-06
  */
 export class SandGameTestComponent {
 
@@ -45,8 +46,16 @@ export class SandGameTestComponent {
             }),
             DomBuilder.button('Benchmark', { class: 'btn btn-warning' }, e => {
                 this.#doBenchmark();
-            }),
+            })
         ]);
+
+        for (let tool of Tools.TEST_TOOLS) {
+            let button = DomBuilder.button(tool.getDisplayName(), { class: 'btn btn-success' }, e => {
+                this.#controls.getToolManager().setPrimaryTool(tool);
+            });
+            content.append(button);
+        }
+
         return content;
     }
 

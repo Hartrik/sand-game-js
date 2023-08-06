@@ -19,7 +19,7 @@ import {TemplateLayeredPainter} from "./TemplateLayeredPainter.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-05-16
+ * @version 2023-08-06
  */
 export class SandGame {
 
@@ -269,7 +269,8 @@ export class SandGame {
                     ElementTail.getColorGreen(elementTail),
                     ElementTail.getColorBlue(elementTail)
                 ],
-                blurType: ElementTail.getBlurType(elementTail)
+                blurType: ElementTail.getBlurType(elementTail),
+                burntLevel: ElementTail.getBurntLevel(elementTail)
             };
 
             let result = JSON.stringify(json)
