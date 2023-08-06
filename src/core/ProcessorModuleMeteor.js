@@ -1,16 +1,16 @@
 import {ElementHead} from "./ElementHead.js";
 import {Brushes} from "./Brushes.js";
 import {CircleIterator} from "./CircleIterator.js";
+import {VisualEffects} from "./VisualEffects.js";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-27
+ * @version 2023-08-06
  */
 export class ProcessorModuleMeteor {
 
     // TODO: left right direction
-    // TODO: radius of darkening
     // TODO: radius of heat
     // TODO: leave some burning elements behind...
     // TODO: leave some metal behind...
@@ -86,19 +86,33 @@ export class ProcessorModuleMeteor {
                     return;
                 }
 
-                if (level <= 8) {
+                if (level <= 7) {
                     // destroy elements & spawn fire
                     this.#elementArea.setElement(tx, ty, Brushes.FIRE.apply(tx, ty, this.#random));
                 } else {
-                    // set temperature and break solid elements
+                    // set temperature, apply visual changes, break solid elements
 
                     // TODO
                     // targetElementHead = ElementHead.setTemperature(targetElementHead, ProcessorModuleMeteor.EXPLOSION_HEAT);
 
+                    // visual burnt effect (color)
+                    if (VisualEffects.isVisualBurnApplicable(targetElementHead)) {
+                        let targetElementTail = this.#elementArea.getElementTail(tx, ty);
+                        if (level === 8) {
+                            targetElementTail = VisualEffects.visualBurn(targetElementTail, 2);
+                        } else {
+                            targetElementTail = VisualEffects.visualBurn(targetElementTail, 1);
+                        }
+                        this.#elementArea.setElementTail(tx, ty, targetElementTail);
+                    }
+
+                    // turn some solid elements into fragments
                     if (ElementHead.getTypeOrdinal(targetElementHead) === ElementHead.TYPE_STATIC
                             && ElementHead.getWeight(targetElementHead) === ElementHead.WEIGHT_WALL) {
-                        targetElementHead = ElementHead.setWeight(targetElementHead, ElementHead.WEIGHT_POWDER);
-                        targetElementHead = ElementHead.setType(targetElementHead, ElementHead.TYPE_SAND_1);
+                        if (level === 8 || (level === 9 && this.#random.nextInt(10) < 3)) {
+                            targetElementHead = ElementHead.setWeight(targetElementHead, ElementHead.WEIGHT_POWDER);
+                            targetElementHead = ElementHead.setType(targetElementHead, ElementHead.TYPE_SAND_1);
+                        }
                     }
 
                     this.#elementArea.setElementHead(tx, ty, targetElementHead);
