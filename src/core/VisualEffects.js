@@ -34,10 +34,10 @@ export class VisualEffects {
         newBurntLevel = Math.min(newBurntLevel, maxBurntLevel);
         newBurntLevel = Math.max(newBurntLevel, 0);
 
-        newTail = ElementTail.setBurntLevel(newTail, newBurntLevel);
-
         const appliedForce = newBurntLevel - burntLevel;
         if (appliedForce > 0) {
+            newTail = ElementTail.setBurntLevel(newTail, newBurntLevel);
+
             let red = ElementTail.getColorRed(elementTail);
             let green = ElementTail.getColorGreen(elementTail);
             let blue = ElementTail.getColorBlue(elementTail);

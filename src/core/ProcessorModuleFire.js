@@ -1,11 +1,12 @@
 import {ElementHead} from "./ElementHead.js";
 import {ElementTail} from "./ElementTail.js";
 import {Brushes} from "./Brushes.js";
+import {VisualEffects} from "./VisualEffects.js";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-19
+ * @version 2023-08-06
  */
 export class ProcessorModuleFire {
 
@@ -39,7 +40,7 @@ export class ProcessorModuleFire {
     }
 
     static #asFlameHeat(flameHeatType) {
-        return [0, 165, 220, 255][flameHeatType];
+        return [0, 165, 220, 255][flameHeatType];  // none .. very hot
     }
 
     static #asBurnDownChangeTo10000(burnableType) {
@@ -168,7 +169,7 @@ export class ProcessorModuleFire {
             return;
         }
 
-        // for solid elements...
+        // for flammable elements...
         const flammableType = ElementHead.getFlammableType(elementHead);
         if (flammableType !== ElementHead.FLAME_HEAT_TYPE_NONE) {
             if (ElementHead.getBehaviour(elementHead) === ElementHead.BEHAVIOUR_FIRE_SOURCE) {
@@ -183,6 +184,18 @@ export class ProcessorModuleFire {
                 modifiedElementHead = ElementHead.setTemperature(modifiedElementHead,
                         ProcessorModuleFire.#asFlameHeat(ElementHead.getFlameHeatType(elementHead)));
                 this.#elementArea.setElementHead(x, y, modifiedElementHead);
+                // change visual
+                const elementTail = this.#elementArea.getElementTail(x, y);
+                this.#elementArea.setElementTail(x, y, VisualEffects.visualBurn(elementTail, 2));
+                return;
+            }
+        }
+
+        // visual change
+        if (VisualEffects.isVisualBurnApplicable(elementHead)) {
+            if (this.#random.nextInt(10) === 0) {
+                const elementTail = this.#elementArea.getElementTail(x, y);
+                this.#elementArea.setElementTail(x, y, VisualEffects.visualBurn(elementTail, 1, 2));
             }
         }
     }
@@ -240,7 +253,9 @@ export class ProcessorModuleFire {
             return false;
         }
 
+        // air => spawn fire
         if (ElementHead.getWeight(elementHead) === ElementHead.WEIGHT_AIR) {
+            // air found
             const actualTemperature = this.#random.nextInt(temperature);
             if (actualTemperature < ProcessorModuleFire.#FIRE_MIN_TEMPERATURE) {
                 return true;
@@ -250,6 +265,15 @@ export class ProcessorModuleFire {
             this.#elementArea.setElementTail(x, y, ProcessorModuleFire.createFireElementTail(actualTemperature));
             return true;
         }
+
+        // visual change
+        if (VisualEffects.isVisualBurnApplicable(elementHead)) {
+            if (this.#random.nextInt(1000) === 0) {
+                const elementTail = this.#elementArea.getElementTail(x, y);
+                this.#elementArea.setElementTail(x, y, VisualEffects.visualBurn(elementTail, 1, 2));
+            }
+        }
+
         return false;
     }
 }
