@@ -54,12 +54,12 @@ export class Brushes {
     static AIR = Brush.random([
         new Element(
             ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_AIR),
-            ElementTail.of(255, 255, 255, ElementTail.MODIFIER_BACKGROUND))
+            ElementTail.of(255, 255, 255, ElementTail.BLUR_TYPE_BACKGROUND))
     ]);
 
     static WALL = Brush.randomFromHeadAndTails(ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_WALL), [
-        ElementTail.of(55, 55, 55, 0),
-        ElementTail.of(57, 57, 57, 0)
+        ElementTail.of(55, 55, 55),
+        ElementTail.of(57, 57, 57)
     ]);
 
     static ROCK = Brush.textureBrush(
@@ -67,111 +67,111 @@ export class Brushes {
         _ASSET_TEXTURE_ROCK);
 
     static SAND = Brush.randomFromHeadAndTails(ElementHead.of(ElementHead.TYPE_SAND_2 | ElementHead.TYPE__DRY_FLAG, ElementHead.WEIGHT_POWDER), [
-        ElementTail.of(214, 212, 154, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(214, 212, 154, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(214, 212, 154, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(214, 212, 154, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(225, 217, 171, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(225, 217, 171, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(225, 217, 171, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(225, 217, 171, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(203, 201, 142, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(203, 201, 142, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(203, 201, 142, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(203, 201, 142, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(195, 194, 134, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(195, 194, 134, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(218, 211, 165, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(218, 211, 165, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(223, 232, 201, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(186, 183, 128, ElementTail.MODIFIER_BLUR_ENABLED)
+        ElementTail.of(214, 212, 154, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(214, 212, 154, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(214, 212, 154, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(214, 212, 154, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(225, 217, 171, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(225, 217, 171, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(225, 217, 171, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(225, 217, 171, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(203, 201, 142, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(203, 201, 142, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(203, 201, 142, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(203, 201, 142, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(195, 194, 134, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(195, 194, 134, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(218, 211, 165, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(218, 211, 165, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(223, 232, 201, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(186, 183, 128, ElementTail.BLUR_TYPE_1)
     ]);
 
     static SOIL = Brush.randomFromHeadAndTails(ElementHead.of(ElementHead.TYPE_SAND_1 | ElementHead.TYPE__DRY_FLAG, ElementHead.WEIGHT_POWDER, ElementHead.BEHAVIOUR_SOIL), [
-        ElementTail.of(142, 104, 72, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(142, 104, 72, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(142, 104, 72, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(142, 104, 72, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(142, 104, 72, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(142, 104, 72, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(114, 81, 58, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(114, 81, 58, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(114, 81, 58, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(114, 81, 58, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(114, 81, 58, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(114, 81, 58, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(82, 64, 30, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(82, 64, 30, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(82, 64, 30, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(177, 133, 87, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(177, 133, 87, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(177, 133, 87, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(102, 102, 102, ElementTail.MODIFIER_BLUR_ENABLED)
+        ElementTail.of(142, 104, 72, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(142, 104, 72, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(142, 104, 72, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(142, 104, 72, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(142, 104, 72, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(142, 104, 72, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(114, 81, 58, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(114, 81, 58, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(114, 81, 58, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(114, 81, 58, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(114, 81, 58, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(114, 81, 58, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(82, 64, 30, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(82, 64, 30, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(82, 64, 30, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(177, 133, 87, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(177, 133, 87, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(177, 133, 87, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(102, 102, 102, ElementTail.BLUR_TYPE_1)
     ]);
 
     static STONE = Brush.randomFromHeadAndTails(ElementHead.of(ElementHead.TYPE_SAND_1 | ElementHead.TYPE__DRY_FLAG, ElementHead.WEIGHT_POWDER), [
-        ElementTail.of(97, 94, 88, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(111, 110, 106, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(117, 116, 112, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(117, 117, 113, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(120, 118, 115, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(104, 102, 97, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(113, 112, 107, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(129, 128, 125, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(124, 124, 121, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(81, 80, 75, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(80, 76, 69, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(123, 119, 111, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(105, 104, 99, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(84, 82, 78, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(77, 74, 69, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(91, 88, 82, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(68, 65, 60, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(79, 75, 69, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(85, 82, 77, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(98, 94, 88, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(105, 102, 96, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(104, 97, 86, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(60, 55, 47, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(93, 89, 81, ElementTail.MODIFIER_BLUR_ENABLED)
+        ElementTail.of(97, 94, 88, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(111, 110, 106, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(117, 116, 112, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(117, 117, 113, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(120, 118, 115, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(104, 102, 97, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(113, 112, 107, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(129, 128, 125, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(124, 124, 121, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(81, 80, 75, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(80, 76, 69, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(123, 119, 111, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(105, 104, 99, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(84, 82, 78, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(77, 74, 69, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(91, 88, 82, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(68, 65, 60, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(79, 75, 69, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(85, 82, 77, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(98, 94, 88, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(105, 102, 96, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(104, 97, 86, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(60, 55, 47, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(93, 89, 81, ElementTail.BLUR_TYPE_1)
     ]);
 
     static WATER = Brush.randomFromHeadAndTails(ElementHead.of(ElementHead.TYPE_FLUID_2, ElementHead.WEIGHT_WATER), [
-        ElementTail.of(4, 135, 186, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(5, 138, 189, ElementTail.MODIFIER_BLUR_ENABLED)
+        ElementTail.of(4, 135, 186, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(5, 138, 189, ElementTail.BLUR_TYPE_1)
     ]);
 
     static GRASS = Brush.random([
         new Element(
             ElementHead.of(ElementHead.TYPE_FALLING, ElementHead.WEIGHT_POWDER, ElementHead.BEHAVIOUR_GRASS, 5,
                 ElementHead.FLAMMABLE_TYPE_MEDIUM, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_FAST),
-            ElementTail.of(56, 126, 38, ElementTail.MODIFIER_BLUR_ENABLED)),
+            ElementTail.of(56, 126, 38, ElementTail.BLUR_TYPE_1)),
         new Element(
             ElementHead.of(ElementHead.TYPE_FALLING, ElementHead.WEIGHT_POWDER, ElementHead.BEHAVIOUR_GRASS, 3,
                 ElementHead.FLAMMABLE_TYPE_MEDIUM, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_FAST),
-            ElementTail.of(46, 102, 31, ElementTail.MODIFIER_BLUR_ENABLED)),
+            ElementTail.of(46, 102, 31, ElementTail.BLUR_TYPE_1)),
         new Element(
             ElementHead.of(ElementHead.TYPE_FALLING, ElementHead.WEIGHT_POWDER, ElementHead.BEHAVIOUR_GRASS, 4,
                 ElementHead.FLAMMABLE_TYPE_MEDIUM, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_FAST),
-            ElementTail.of(72, 130, 70, ElementTail.MODIFIER_BLUR_ENABLED))
+            ElementTail.of(72, 130, 70, ElementTail.BLUR_TYPE_1))
     ]);
 
     static FISH = Brush.random([
         new Element(
             ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_POWDER, ElementHead.BEHAVIOUR_FISH, 0),
-            ElementTail.of(37, 53, 66, 0)),
+            ElementTail.of(37, 53, 66)),
     ]);
 
     static FISH_BODY = Brush.random([
         new Element(
             ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_POWDER, ElementHead.BEHAVIOUR_FISH_BODY, 0),
-            ElementTail.of(37, 53, 66, 0)),
+            ElementTail.of(37, 53, 66)),
     ]);
 
     static FISH_CORPSE = Brush.random([
         new Element(
             ElementHead.of(ElementHead.TYPE_SAND_2, ElementHead.WEIGHT_POWDER),
-            ElementTail.of(61, 68, 74, 0)),
+            ElementTail.of(61, 68, 74)),
     ]);
 
     static TREE = Brush.custom((x, y, random) => {
@@ -179,45 +179,45 @@ export class Brushes {
         return new Element(
             ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_WALL, ElementHead.BEHAVIOUR_TREE, treeType,
                 ElementHead.FLAMMABLE_TYPE_SLOW, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_SLOW),
-            ElementTail.of(77, 41, 13, 0));
+            ElementTail.of(77, 41, 13));
     });
 
     static TREE_ROOT = Brush.random([
         new Element(
             ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_WALL, ElementHead.BEHAVIOUR_TREE_ROOT, 8,
                 ElementHead.FLAMMABLE_TYPE_SLOW, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_SLOW),
-            ElementTail.of(96, 50, 14, 0)),
+            ElementTail.of(96, 50, 14)),
         new Element(
             ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_WALL, ElementHead.BEHAVIOUR_TREE_ROOT, 5,
                 ElementHead.FLAMMABLE_TYPE_SLOW, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_SLOW),
-            ElementTail.of(77, 41, 13, 0))
+            ElementTail.of(77, 41, 13))
     ]);
 
     static TREE_WOOD = Brush.randomFromHeadAndTails(
         ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_WALL, ElementHead.BEHAVIOUR_TREE_TRUNK, 0,
             ElementHead.FLAMMABLE_TYPE_SLOW, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_SLOW), [
-            ElementTail.of(96, 50, 14, 0),
-            ElementTail.of(115, 64, 21, 0)
+            ElementTail.of(96, 50, 14),
+            ElementTail.of(115, 64, 21)
     ]);
 
     static TREE_LEAF_LIGHTER = Brush.randomFromHeadAndTails(
         ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_WALL, ElementHead.BEHAVIOUR_TREE_LEAF, 0,
             ElementHead.FLAMMABLE_TYPE_MEDIUM, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_MEDIUM), [
-            ElementTail.of(0, 129, 73, 0),
+            ElementTail.of(0, 129, 73),
     ]);
 
     static TREE_LEAF_DARKER = Brush.randomFromHeadAndTails(
         ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_WALL, ElementHead.BEHAVIOUR_TREE_LEAF, 0,
             ElementHead.FLAMMABLE_TYPE_MEDIUM, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_MEDIUM), [
-            ElementTail.of(0, 76, 72, 0),
+            ElementTail.of(0, 76, 72),
     ]);
 
     static TREE_LEAF_DEAD = Brush.randomFromHeadAndTails(
         ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_WALL, ElementHead.BEHAVIOUR_TREE_LEAF, 15,
             ElementHead.FLAMMABLE_TYPE_FAST, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_MEDIUM), [
-            ElementTail.of(150, 69, 41, 0),
-            ElementTail.of(185, 99, 75, 0),
-            ElementTail.of(174, 97, 81, 0),
+            ElementTail.of(150, 69, 41),
+            ElementTail.of(185, 99, 75),
+            ElementTail.of(174, 97, 81),
     ]);
 
     static #FIRE_ELEMENT_HEAD = ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_AIR, ElementHead.BEHAVIOUR_FIRE, 0);
@@ -228,38 +228,38 @@ export class Brushes {
     ]);
 
     static ASH = Brush.randomFromHeadAndTails(ElementHead.of(ElementHead.TYPE_SAND_2 | ElementHead.TYPE__DRY_FLAG, ElementHead.WEIGHT_POWDER, ElementHead.BEHAVIOUR_NONE, 0), [
-        ElementTail.of(131, 131, 131, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(131, 131, 131, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(131, 131, 131, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(131, 131, 131, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(131, 131, 131, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(131, 131, 131, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(135, 135, 135, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(135, 135, 135, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(135, 135, 135, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(135, 135, 135, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(135, 135, 135, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(135, 135, 135, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(145, 145, 145, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(145, 145, 145, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(145, 145, 145, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(145, 145, 145, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(145, 145, 145, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(145, 145, 145, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(148, 148, 148, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(148, 148, 148, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(148, 148, 148, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(148, 148, 148, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(148, 148, 148, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(148, 148, 148, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(160, 160, 160, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(160, 160, 160, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(160, 160, 160, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(160, 160, 160, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(160, 160, 160, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(160, 160, 160, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(114, 114, 114, ElementTail.MODIFIER_BLUR_ENABLED),
-        ElementTail.of(193, 193, 193, ElementTail.MODIFIER_BLUR_ENABLED)
+        ElementTail.of(131, 131, 131, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(131, 131, 131, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(131, 131, 131, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(131, 131, 131, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(131, 131, 131, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(131, 131, 131, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(135, 135, 135, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(135, 135, 135, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(135, 135, 135, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(135, 135, 135, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(135, 135, 135, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(135, 135, 135, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(145, 145, 145, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(145, 145, 145, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(145, 145, 145, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(145, 145, 145, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(145, 145, 145, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(145, 145, 145, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(148, 148, 148, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(148, 148, 148, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(148, 148, 148, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(148, 148, 148, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(148, 148, 148, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(148, 148, 148, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(160, 160, 160, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(160, 160, 160, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(160, 160, 160, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(160, 160, 160, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(160, 160, 160, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(160, 160, 160, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(114, 114, 114, ElementTail.BLUR_TYPE_1),
+        ElementTail.of(193, 193, 193, ElementTail.BLUR_TYPE_1)
     ]);
 
     static METEOR = Brush.random([

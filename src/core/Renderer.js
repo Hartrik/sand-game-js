@@ -196,7 +196,9 @@ export class Renderer {
         const pixelIndex = this.#width * y + x;
         const dataIndex = pixelIndex * 4;
 
-        if (ElementTail.isRenderingModifierBackground(elementTail)) {
+        const blurBehaviour = ElementTail.getBlurType(elementTail);
+
+        if (blurBehaviour === ElementTail.BLUR_TYPE_BACKGROUND) {
             // motion blur
 
             if (this.#canBeBlurred[pixelIndex] && Renderer.#isWhite(elementTail)) {
@@ -241,7 +243,7 @@ export class Renderer {
             data[dataIndex] = ElementTail.getColorRed(elementTail);
             data[dataIndex + 1] = ElementTail.getColorGreen(elementTail);
             data[dataIndex + 2] = ElementTail.getColorBlue(elementTail);
-            this.#canBeBlurred[pixelIndex] = ElementTail.isRenderingModifierBlurEnabled(elementTail);
+            this.#canBeBlurred[pixelIndex] = (blurBehaviour === ElementTail.BLUR_TYPE_1);
             this.#blur[pixelIndex] = false;
         } else {
             // custom rendering mode

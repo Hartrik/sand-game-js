@@ -18,7 +18,7 @@ export class ProcessorModuleFire {
     }
 
     static createFireElementTail(temperature) {
-        let elementTail = ElementTail.of(0, 0, 0, 0);
+        let elementTail = ElementTail.of(0, 0, 0);
 
         if (temperature > 213)
             elementTail = ElementTail.setColor(elementTail, 249, 219, 30);

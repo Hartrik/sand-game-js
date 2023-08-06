@@ -268,7 +268,8 @@ export class SandGame {
                     ElementTail.getColorRed(elementTail),
                     ElementTail.getColorGreen(elementTail),
                     ElementTail.getColorBlue(elementTail)
-                ]
+                ],
+                blurType: ElementTail.getBlurType(elementTail)
             };
 
             let result = JSON.stringify(json)

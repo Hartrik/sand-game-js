@@ -1,19 +1,31 @@
 
 /**
+ * Tools for working with the element tail.
+ *
+ * The element head structure:
+ * <pre>
+ *     | color blue                                                    8b  |
+ *     | color green                                                   8b  |
+ *     | color red                                                     8b  |
+ *     |            2b  |            2b  |            2b  | blur beh.  2b  |
+ * </pre>
  *
  * @author Patrik Harag
- * @version 2023-01-28
+ * @version 2023-08-06
  */
 export class ElementTail {
-    static MODIFIER_BACKGROUND = 0x01000000;
-    static MODIFIER_BLUR_ENABLED = 0x02000000;
 
-    static of(r, g, b, renderingModifiers) {
+    static BLUR_TYPE_NONE = 0x0;
+    /** This element acts as a background = blur can be applied over this element */
+    static BLUR_TYPE_BACKGROUND = 0x1;
+    static BLUR_TYPE_1 = 0x2;
+
+    static of(r, g, b, blurType=ElementTail.BLUR_TYPE_NONE) {
         let value = 0;
-        value = (value | r) << 8;
-        value = (value | g) << 8;
-        value = value | b;
-        value = value | renderingModifiers
+        value = (value | (blurType & 0x3)) << 8;
+        value = (value | (r & 0xFF)) << 8;
+        value = (value | (g & 0xFF)) << 8;
+        value = value | (b & 0xFF);
         return value;
     }
 
@@ -29,12 +41,8 @@ export class ElementTail {
         return elementTail & 0x000000FF;
     }
 
-    static isRenderingModifierBackground(elementTail) {
-        return (elementTail & ElementTail.MODIFIER_BACKGROUND) !== 0;
-    }
-
-    static isRenderingModifierBlurEnabled(elementTail) {
-        return (elementTail & ElementTail.MODIFIER_BLUR_ENABLED) !== 0;
+    static getBlurType(elementTail) {
+        return (elementTail >> 24) & 0x00000003;
     }
 
     static setColor(elementTail, r, g, b) {
