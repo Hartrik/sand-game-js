@@ -127,7 +127,8 @@ export class Templates {
                         type: "image-template",
                         imageData: _ASSET_ROCK_LG_2,
                         brush: "wall",
-                        threshold: 50
+                        threshold: 50,
+                        randomFlipHorizontally: true
                     }
                 ]
             }
