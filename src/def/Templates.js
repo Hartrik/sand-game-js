@@ -1,3 +1,4 @@
+import _ASSET_ROCK_ICON from './assets/rock-icon.png'
 import _ASSET_ROCK_1 from './assets/rock-1.png'
 import _ASSET_ROCK_2 from './assets/rock-2.png'
 import _ASSET_ROCK_3 from './assets/rock-3.png'
@@ -5,19 +6,22 @@ import _ASSET_ROCK_4 from './assets/rock-4.png'
 import _ASSET_ROCK_5 from './assets/rock-5.png'
 import _ASSET_ROCK_6 from './assets/rock-6.png'
 
+import _ASSET_ROCK_SM_ICON from './assets/rock-sm-icon.png'
 import _ASSET_ROCK_SM_1 from './assets/rock-sm-1.png'
 import _ASSET_ROCK_SM_2 from './assets/rock-sm-2.png'
 import _ASSET_ROCK_SM_3 from './assets/rock-sm-3.png'
 
+import _ASSET_ROCK_LG_ICON from './assets/rock-lg-icon.png'
 import _ASSET_ROCK_LG_1 from './assets/rock-lg-1.png'
 import _ASSET_ROCK_LG_2 from './assets/rock-lg-2.png'
 
+import _ASSET_WOODEN_HOUSE_ICON from './assets/wooden-house-icon.png'
 import _ASSET_WOODEN_HOUSE from './assets/wooden-house.png'
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-07-23
+ * @version 2023-08-10
  */
 export class Templates {
 
@@ -26,6 +30,9 @@ export class Templates {
             name: "Rock SM",
             category: "template",
             type: "template",
+            icon: {
+                imageData: _ASSET_ROCK_SM_ICON,
+            },
             action: {
                 type: "random",
                 actions: [
@@ -58,6 +65,9 @@ export class Templates {
             name: "Rock",
             category: "template",
             type: "template",
+            icon: {
+                imageData: _ASSET_ROCK_ICON,
+            },
             action: {
                 type: "random",
                 actions: [
@@ -114,6 +124,9 @@ export class Templates {
             name: "Rock LG",
             category: "template",
             type: "template",
+            icon: {
+                imageData: _ASSET_ROCK_LG_ICON,
+            },
             action: {
                 type: "random",
                 actions: [
@@ -134,9 +147,12 @@ export class Templates {
             }
         },
         {
-            name: "Wooden house",
+            name: "Cabin",
             category: "template",
             type: "template",
+            icon: {
+                imageData: _ASSET_WOODEN_HOUSE_ICON,
+            },
             action: {
                 type: "image-template",
                 imageData: _ASSET_WOODEN_HOUSE,

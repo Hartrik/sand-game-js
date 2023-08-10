@@ -7,7 +7,7 @@ import {Tool} from "../core/Tool.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-07-23
+ * @version 2023-08-10
  */
 export class SandGameTemplatesComponent {
 
@@ -28,7 +28,7 @@ export class SandGameTemplatesComponent {
             const name = toolDefinition.name;
             let loadedTool = null;
 
-            let button = DomBuilder.button(name, { class: 'btn btn-primary', 'data-dismiss': 'modal'}, () => {
+            let button = DomBuilder.button(name, { class: 'btn btn-light template-button', 'data-dismiss': 'modal'}, () => {
                 if (loadedTool !== null) {
 
                     const toolManager = this.#controls.getToolManager();
@@ -41,6 +41,8 @@ export class SandGameTemplatesComponent {
                     // this should not happen
                 }
             });
+            button.css('background-image', `url(${ toolDefinition.icon.imageData })`);
+
             buttons.push(button);
 
             ResourceIO.parseToolDefinition(toolDefinition).then(tool => {
