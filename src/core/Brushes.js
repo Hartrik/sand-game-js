@@ -11,7 +11,7 @@ import _ASSET_TEXTURE_ROCK from './assets/texture-rock.png'
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-06
+ * @version 2023-08-10
  */
 export class Brushes {
 
@@ -265,7 +265,19 @@ export class Brushes {
 
     static METEOR = Brush.random([
         new Element(
-            ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_POWDER, ElementHead.BEHAVIOUR_METEOR),
+            ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_POWDER, ElementHead.BEHAVIOUR_METEOR, 0),
+            ElementTail.of(249, 219, 30))
+    ]);
+
+    static METEOR_FROM_LEFT = Brush.random([
+        new Element(
+            ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_POWDER, ElementHead.BEHAVIOUR_METEOR, 1 << 1),
+            ElementTail.of(249, 219, 30))
+    ]);
+
+    static METEOR_FROM_RIGHT = Brush.random([
+        new Element(
+            ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_POWDER, ElementHead.BEHAVIOUR_METEOR, 2 << 1),
             ElementTail.of(249, 219, 30))
     ]);
 

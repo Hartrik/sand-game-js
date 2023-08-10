@@ -3,6 +3,7 @@ import { Element } from "./Element.js";
 import { ElementArea } from "./ElementArea.js";
 import { CursorDefinition } from "./CursorDefinition.js";
 import { CursorDefinitionElementArea } from "./CursorDefinitionElementArea.js";
+import { Brushes } from "./Brushes.js";
 
 /**
  *
@@ -129,6 +130,10 @@ export class Tool {
         return new PointBrushTool(category, codeName, displayName, brush);
     }
 
+    static meteorTool(category, codeName, displayName) {
+        return new MeteorTool(category, codeName, displayName);
+    }
+
     static insertElementAreaTool(category, codeName, displayName, scenes, handler) {
         if (scenes.length === 1) {
             return new InsertSceneTool(category, codeName, displayName, scenes[0], handler);
@@ -214,6 +219,46 @@ class PointBrushTool extends Tool {
 
     applyPoint(x, y, graphics, aldModifier) {
         graphics.draw(x, y, this.#brush);
+    }
+}
+
+/**
+ *
+ * @author Patrik Harag
+ * @version 2023-08-10
+ */
+class MeteorTool extends Tool {
+
+    constructor(category, codeName, displayName) {
+        super(category, codeName, displayName);
+    }
+
+    applyPoint(x, y, graphics, aldModifier) {
+        const diffSlope4 = Math.trunc(y / 4);
+        if (x < diffSlope4 + 10) {
+            // right only
+            graphics.draw(x + diffSlope4, 0, Brushes.METEOR_FROM_RIGHT);
+            return;
+        }
+        if (x > graphics.getWidth() - diffSlope4 - 10) {
+            // left only
+            graphics.draw(x - diffSlope4, 0, Brushes.METEOR_FROM_LEFT);
+            return;
+        }
+
+        if (x < graphics.getWidth() / 2) {
+            if (Math.random() < 0.8) {
+                graphics.draw(x + diffSlope4, 0, Brushes.METEOR_FROM_RIGHT);
+            } else {
+                graphics.draw(x, 0, Brushes.METEOR);
+            }
+        } else {
+            if (Math.random() < 0.8) {
+                graphics.draw(x - diffSlope4, 0, Brushes.METEOR_FROM_LEFT);
+            } else {
+                graphics.draw(x, 0, Brushes.METEOR);
+            }
+        }
     }
 }
 

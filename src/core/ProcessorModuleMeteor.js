@@ -6,11 +6,10 @@ import {VisualEffects} from "./VisualEffects.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-06
+ * @version 2023-08-10
  */
 export class ProcessorModuleMeteor {
 
-    // TODO: left right direction
     // TODO: radius of heat
     // TODO: leave some burning elements behind...
     // TODO: leave some metal behind...
@@ -18,6 +17,10 @@ export class ProcessorModuleMeteor {
     // TODO: add randomness to destruction
 
     static EXPLOSION_HEAT = 200;
+
+    static DIRECTION_FROM_TOP = 0;
+    static DIRECTION_FROM_LEFT = 1;
+    static DIRECTION_FROM_RIGHT = 2;
 
 
     /** @type ElementArea */
@@ -38,18 +41,39 @@ export class ProcessorModuleMeteor {
     behaviourMeteor(elementHead, x, y) {
         this.#spawnFire(elementHead, x, y);
 
-        const move = ElementHead.getSpecial(elementHead);
-        elementHead = ElementHead.setSpecial(elementHead, !move);
+        const special = ElementHead.getSpecial(elementHead);
+        const move = special & 0x1;
+        let newSpecial = special ^ (!move);
+        elementHead = ElementHead.setSpecial(elementHead, newSpecial);
         this.#elementArea.setElementHead(x, y, elementHead);
         if (!move) {
             return;  // move only once per simulation iteration
         }
 
-        if (this.#elementArea.isValidPosition(x + 1, y + 1)) {
-            let targetElementHead = this.#elementArea.getElementHead(x + 1, y + 1);
+        // resolve direction
+        const slope = 4;
+        const direction = (special & (~0x1)) >> 1;
+        let tx, ty;
+        if (direction === ProcessorModuleMeteor.DIRECTION_FROM_TOP) {
+            ty = y + 1;
+            tx = x;
+        } else if (direction === ProcessorModuleMeteor.DIRECTION_FROM_LEFT) {
+            ty = y + 1;
+            tx = x + (ty % slope === 0 ? 1 : 0);
+        } else if (direction === ProcessorModuleMeteor.DIRECTION_FROM_RIGHT) {
+            ty = y + 1;
+            tx = x - (ty % slope === 0 ? 1 : 0);
+        } else {
+            // unknown direction
+            ty = y + 1;
+            tx = x;
+        }
+
+        if (this.#elementArea.isValidPosition(tx, ty)) {
+            let targetElementHead = this.#elementArea.getElementHead(tx, ty);
             if (ElementHead.getWeight(targetElementHead) === ElementHead.WEIGHT_AIR) {
                 // move
-                this.#elementArea.swap(x, y, x + 1, y + 1);
+                this.#elementArea.swap(x, y, tx, ty);
             } else {
                this.#explode(elementHead, x, y);
             }
