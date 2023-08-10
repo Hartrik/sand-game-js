@@ -171,6 +171,11 @@
     height: 46px;
 }
 
+.sand-game-component .sand-game-views .adjust-scale svg {
+    width: 30px;
+    height: 30px;
+}
+
 .sand-game-component .sand-game-views .scenes {
     display: inline;
 }
