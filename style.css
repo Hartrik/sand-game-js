@@ -176,6 +176,18 @@
     height: 30px;
 }
 
+.sand-game-component .sand-game-views .scenes-label {
+    color: gray;
+    font-size: small;
+    transform: rotate(-70deg);
+    display: inline-block;
+    user-select: none;
+
+    padding-left: 6px;
+    margin-left: -6px;
+    margin-right: -3px;
+}
+
 .sand-game-component .sand-game-views .scenes {
     display: inline;
 }

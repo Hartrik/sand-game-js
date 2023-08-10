@@ -227,6 +227,7 @@ export class SandGameComponent extends SandGameControls {
                 dialog.addCloseButton('Close');
                 dialog.show(this.getDialogAnchor());
             }),
+            DomBuilder.span('Scenes', { class: 'scenes-label' }),
             scenesComponent.createNode(),
         ]));
     }
