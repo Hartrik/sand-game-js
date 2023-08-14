@@ -6,7 +6,7 @@ import _ASSET_GRADIENT_RAINBOW from './assets/gradient-rainbow.png'
 
 /**
  * @author Patrik Harag
- * @version 2023-02-18
+ * @version 2023-08-14
  */
 export class RenderingModeHeatmap extends RenderingMode {
 
@@ -24,13 +24,20 @@ export class RenderingModeHeatmap extends RenderingMode {
             return;
         }
 
-        const temperature = ElementHead.getTemperature(elementHead);
-        const x = Math.trunc(temperature / (1 << ElementHead.FIELD_TEMPERATURE_SIZE) * this.#gradientImageData.width);
-        const gradIndex = x * 4;
+        if (elementHead === 0x00) {
+            // background
+            data[dataIndex] = 0x00;
+            data[dataIndex + 1] = 0x00;
+            data[dataIndex + 2] = 0x00;
+        } else {
+            const temperature = ElementHead.getTemperature(elementHead);
+            const x = Math.trunc(temperature / (1 << ElementHead.FIELD_TEMPERATURE_SIZE) * this.#gradientImageData.width);
+            const gradIndex = x * 4;
+            data[dataIndex] = this.#gradientImageData.data[gradIndex];
+            data[dataIndex + 1] = this.#gradientImageData.data[gradIndex + 1];
+            data[dataIndex + 2] = this.#gradientImageData.data[gradIndex + 2];
+        }
 
-        data[dataIndex] = this.#gradientImageData.data[gradIndex];
-        data[dataIndex + 1] = this.#gradientImageData.data[gradIndex + 1];
-        data[dataIndex + 2] = this.#gradientImageData.data[gradIndex + 2];
         return false;
     }
 }
