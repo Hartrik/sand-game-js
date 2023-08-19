@@ -34,8 +34,8 @@ export class ProcessorModuleFish {
 
         // move down if flying
         if (y < this.#elementArea.getHeight() - 1) {
-            if (ElementHead.getWeight(this.#elementArea.getElementHead(x, y + 1)) < ElementHead.WEIGHT_WATER
-                && ElementHead.getWeight(this.#elementArea.getElementHead(x + 1, y + 1)) < ElementHead.WEIGHT_WATER) {
+            if (ElementHead.getTypeClass(this.#elementArea.getElementHead(x, y + 1)) < ElementHead.TYPE_POWDER_FLOATING
+                    && ElementHead.getTypeClass(this.#elementArea.getElementHead(x + 1, y + 1)) < ElementHead.TYPE_POWDER_FLOATING) {
                 this.#elementArea.swap(x, y, x, y + 1);
                 this.#elementArea.swap(x + 1, y, x + 1, y + 1);
                 return;
@@ -101,7 +101,7 @@ export class ProcessorModuleFish {
             return false;
         }
         let targetElementHead = this.#elementArea.getElementHead(x, y);
-        if (ElementHead.getTypeOrdinal(targetElementHead) !== ElementHead.TYPE_FLUID_2) {
+        if (ElementHead.getTypeClass(targetElementHead) !== ElementHead.TYPE_FLUID) {
             return false;
         }
         return true;
@@ -112,7 +112,7 @@ export class ProcessorModuleFish {
             return false;
         }
         let targetElementHead = this.#elementArea.getElementHead(x, y);
-        if (ElementHead.getTypeOrdinal(targetElementHead) === ElementHead.TYPE_FLUID_2) {
+        if (ElementHead.getTypeClass(targetElementHead) === ElementHead.TYPE_FLUID) {
             return true;
         }
         let behaviour = ElementHead.getBehaviour(targetElementHead);

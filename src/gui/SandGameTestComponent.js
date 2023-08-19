@@ -1,6 +1,7 @@
 import {DomBuilder} from "./DomBuilder.js";
 import {Brush} from "../core/Brush.js";
 import {Brushes} from "../core/Brushes.js";
+import {SandGame} from "../core/SandGame.js";
 import {Tools} from "../def/Tools.js";
 import {SandGameControls} from "./SandGameControls.js";
 import {BenchmarkProvider} from "./BenchmarkProvider.js";
@@ -9,7 +10,7 @@ import FileSaver from 'file-saver';
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-06
+ * @version 2023-08-18
  */
 export class SandGameTestComponent {
 
@@ -40,9 +41,12 @@ export class SandGameTestComponent {
                     this.#doTreeGrowTest(sandGame);
                 }
             }),
-            DomBuilder.button('Rendering: pixelated', { class: 'btn btn-info' }, e => {
+            DomBuilder.button('Pixelated', { class: 'btn btn-info' }, e => {
                 pixelated = !pixelated;
                 this.#controls.setCanvasImageRenderingStyle(pixelated ? 'pixelated' : 'unset');
+            }),
+            DomBuilder.button('Element type', { class: 'btn btn-info' }, e => {
+                this.#controls.setRenderingMode(SandGame.RENDERING_MODE_ELEMENT_TYPE);
             }),
             DomBuilder.button('Benchmark', { class: 'btn btn-warning' }, e => {
                 this.#doBenchmark();

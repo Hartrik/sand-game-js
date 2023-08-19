@@ -3,7 +3,7 @@
  * @interface
  *
  * @author Patrik Harag
- * @version 2023-04-29
+ * @version 2023-08-18
  */
 export class SandGameControls {
 
@@ -132,18 +132,18 @@ export class SandGameControls {
     }
 
     /**
-     * @returns {boolean}
+     * @returns {string}
      */
-    isShowHeatmap() {
+    getRenderingMode() {
         throw 'Not implemented';
     }
 
     /**
      *
-     * @param show {boolean}
+     * @param mode {string}
      * @returns void
      */
-    setShowHeatmap(show) {
+    setRenderingMode(mode) {
         throw 'Not implemented';
     }
 

@@ -1,6 +1,7 @@
 import {DomBuilder} from "./DomBuilder.js";
 import {SandGameControls} from "./SandGameControls.js";
 import {Processor} from "../core/Processor.js";
+import {SandGame} from "../core/SandGame.js";
 import {Analytics} from "../Analytics.js";
 
 import _ASSET_SVG_ICON_GEAR from './assets/icon-gear.svg'
@@ -8,7 +9,7 @@ import _ASSET_SVG_ICON_GEAR from './assets/icon-gear.svg'
 /**
  *
  * @author Patrik Harag
- * @version 2023-05-24
+ * @version 2023-08-18
  */
 export class SandGameOptionsComponent {
 
@@ -102,8 +103,8 @@ export class SandGameOptionsComponent {
                 DomBuilder.element('label', { class: 'form-check-label', for: 'rend-check-show-active-chunks' }, 'Show active chunks')
             ]),
             DomBuilder.div({ class: 'form-check' }, [
-                DomBuilder.element('input', { type: 'checkbox', checked: this.#controls.isShowHeatmap(), class: 'form-check-input', id: 'rend-check-show-heatmap' }).change((e) => {
-                    this.#controls.setShowHeatmap(e.target.checked);
+                DomBuilder.element('input', { type: 'checkbox', checked: this.#controls.getRenderingMode() === SandGame.RENDERING_MODE_HEATMAP, class: 'form-check-input', id: 'rend-check-show-heatmap' }).change((e) => {
+                    this.#controls.setRenderingMode(e.target.checked ? SandGame.RENDERING_MODE_HEATMAP : SandGame.RENDERING_MODE_CLASSIC);
                     Analytics.triggerFeatureUsed(Analytics.FEATURE_RENDERER_SHOW_HEATMAP);
                 }),
                 DomBuilder.element('label', { class: 'form-check-label', for: 'rend-check-show-heatmap' }, 'Show heatmap')

@@ -68,21 +68,17 @@ export class SpawningExtensionFish {
         if (!elementArea.isValidPosition(x, y)) {
             return false;
         }
-        let targetElementHead = elementArea.getElementHead(x, y);
-        if (ElementHead.getTypeOrdinal(targetElementHead) !== ElementHead.TYPE_FLUID_2) {
-            return false;
-        }
-        return true;
+        const targetElementHead = elementArea.getElementHead(x, y);
+        const type = ElementHead.getTypeClass(targetElementHead);
+        return type === ElementHead.TYPE_FLUID;
     }
 
     #isSand(elementArea, x, y) {
         if (!elementArea.isValidPosition(x, y)) {
             return false;
         }
-        let targetElementHead = elementArea.getElementHead(x, y);
-        if (ElementHead.getTypeOrdinal(targetElementHead) !== ElementHead.TYPE_SAND_2) {
-            return false;
-        }
-        return true;
+        const targetElementHead = elementArea.getElementHead(x, y);
+        const type = ElementHead.getTypeClass(targetElementHead);
+        return type === ElementHead.TYPE_POWDER || type === ElementHead.TYPE_POWDER_WET;
     }
 }

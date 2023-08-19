@@ -97,7 +97,7 @@ export class ProcessorModuleTree {
                             isHereAlready = true;
                         } else if (currentElementBehaviour === ElementHead.BEHAVIOUR_TREE_LEAF) {
                             canGrowHere = true;
-                        } else if (ElementHead.getWeight(currentElementHead) === ElementHead.WEIGHT_AIR) {
+                        } else if (ElementHead.getTypeClass(currentElementHead) === ElementHead.TYPE_AIR) {
                             canGrowHere = true;
                         } else if (currentElementBehaviour === ElementHead.BEHAVIOUR_SOIL) {
                             canGrowHere = true;
@@ -105,7 +105,7 @@ export class ProcessorModuleTree {
                             canGrowHere = true;
                         } else if (node.y > Math.min(-4, -7 + Math.abs(node.x))) {
                             // roots & bottom trunk only...
-                            if (ElementHead.getTypeOrdinal(currentElementHead) !== ElementHead.TYPE_STATIC) {
+                            if (ElementHead.getTypeClass(currentElementHead) !== ElementHead.TYPE_STATIC) {
                                 canGrowHere = true;
                             }
                         }
@@ -119,7 +119,7 @@ export class ProcessorModuleTree {
                             }
                         } else if (currentElementBehaviour === ElementHead.BEHAVIOUR_TREE_TRUNK) {
                             isHereAlready = true;
-                        } else if (ElementHead.getWeight(currentElementHead) === ElementHead.WEIGHT_AIR) {
+                        } else if (ElementHead.getTypeClass(currentElementHead) === ElementHead.TYPE_AIR) {
                             canGrowHere = true;
                         }
                         break;
@@ -189,8 +189,8 @@ export class ProcessorModuleTree {
 
         if (this.#elementArea.isValidPosition(targetX, targetY)) {
             let targetElementHead = this.#elementArea.getElementHead(targetX, targetY);
-            let type = ElementHead.getTypeOrdinal(targetElementHead);
-            if (type === ElementHead.TYPE_SAND_1 || type === ElementHead.TYPE_SAND_2) {
+            let type = ElementHead.getTypeClass(targetElementHead);
+            if (type === ElementHead.TYPE_POWDER || type === ElementHead.TYPE_POWDER_WET || type === ElementHead.TYPE_POWDER_FLOATING) {
                 let modifiedElementHead = ElementHead.setType(targetElementHead, ElementHead.TYPE_STATIC);
                 this.#elementArea.setElementHead(targetX, targetY, modifiedElementHead);
             }
@@ -210,7 +210,7 @@ export class ProcessorModuleTree {
         // grow down first if there is a free space
         if (y < this.#elementArea.getHeight() - 1) {
             let targetElementHead = this.#elementArea.getElementHead(x, y + 1);
-            if (ElementHead.getWeight(targetElementHead) === ElementHead.WEIGHT_AIR) {
+            if (ElementHead.getTypeClass(targetElementHead) === ElementHead.TYPE_AIR) {
                 doGrow(x, y + 1);
                 return;
             }
@@ -231,7 +231,7 @@ export class ProcessorModuleTree {
 
         if (this.#elementArea.isValidPosition(nx, ny)) {
             let targetElementHead = this.#elementArea.getElementHead(nx, ny);
-            if (ElementHead.getTypeOrdinal(targetElementHead) !== ElementHead.TYPE_STATIC) {
+            if (ElementHead.getTypeClass(targetElementHead) !== ElementHead.TYPE_STATIC) {
                 doGrow(nx, ny);
             }
         }
@@ -269,8 +269,8 @@ export class ProcessorModuleTree {
 
                 if (this.#elementArea.isValidPosition(targetX, targetY)) {
                     const elementHeadAbove = this.#elementArea.getElementHead(targetX, targetY);
-                    if (ElementHead.getTypeOrdinal(elementHeadAbove) !== ElementHead.TYPE_STATIC
-                        && ElementHead.getWeight(elementHeadAbove) >= ElementHead.WEIGHT_WATER) {
+                    if (ElementHead.getTypeClass(elementHeadAbove) !== ElementHead.TYPE_STATIC
+                            && ElementHead.getTypeClass(elementHeadAbove) >= ElementHead.TYPE_FLUID) {
                         this.#elementArea.setElement(x, y, this.#processorContext.getDefaultElement());
                     }
                 }

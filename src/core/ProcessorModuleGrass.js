@@ -16,7 +16,7 @@ export class ProcessorModuleGrass {
             return false;
         }
         let e1 = elementArea.getElementHead(x, y);
-        if (ElementHead.getWeight(e1) !== ElementHead.WEIGHT_AIR) {
+        if (ElementHead.getTypeClass(e1) !== ElementHead.TYPE_AIR) {
             return false;
         }
         let e2 = elementArea.getElementHead(x, y + 1);
@@ -24,7 +24,7 @@ export class ProcessorModuleGrass {
             return false;
         }
         let e3 = elementArea.getElementHead(x, y - 1);
-        if (ElementHead.getWeight(e3) !== ElementHead.WEIGHT_AIR) {
+        if (ElementHead.getTypeClass(e3) !== ElementHead.TYPE_AIR) {
             return false;
         }
         return true;
@@ -66,10 +66,10 @@ export class ProcessorModuleGrass {
             if (y > 0) {
                 let above1 = this.#elementArea.getElementHead(x, y - 1);
                 if (ElementHead.getBehaviour(above1) !== ElementHead.BEHAVIOUR_GRASS) {
-                    let weightAbove1 = ElementHead.getWeight(above1);
-                    // note: it takes longer for water to suffocate the grass
-                    if (weightAbove1 > ElementHead.WEIGHT_WATER
-                        || (weightAbove1 === ElementHead.WEIGHT_WATER && this.#random.nextInt(100) === 0)) {
+                    let typeAbove1 = ElementHead.getTypeClass(above1);
+                    if (typeAbove1 > ElementHead.TYPE_FLUID
+                            || (typeAbove1 === ElementHead.TYPE_FLUID && this.#random.nextInt(100) === 0)) {
+                        // note: it takes longer for water to suffocate the grass
                         // remove grass
                         this.#elementArea.setElement(x, y, this.#defaultElement);
                         return;
@@ -92,12 +92,12 @@ export class ProcessorModuleGrass {
                     return;
                 }
                 let above1 = this.#elementArea.getElementHead(x, y - 1);
-                if (ElementHead.getWeight(above1) !== ElementHead.WEIGHT_AIR) {
+                if (ElementHead.getTypeClass(above1) !== ElementHead.TYPE_AIR) {
                     return;
                 }
                 if (y > 1) {
                     let above2 = this.#elementArea.getElementHead(x, y - 2);
-                    if (ElementHead.getWeight(above2) !== ElementHead.WEIGHT_AIR) {
+                    if (ElementHead.getTypeClass(above2) !== ElementHead.TYPE_AIR) {
                         return;
                     }
                 }

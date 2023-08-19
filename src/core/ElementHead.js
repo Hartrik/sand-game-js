@@ -2,36 +2,35 @@
 /**
  * Tools for working with the element head.
  *
- * The element head structure:
+ * The element head structure: (32b)
  * <pre>
- *     | type                        4b  | weight                      4b  |
+ *     | type class         3b  | type modifiers                       5b  |
  *     | behaviour                   4b  | special                     4b  |
  *     | flammable  2b  | flame heat 2b  | burnable   2b  | t. cond.   2b  |
  *     | temperature                                                   8b  |
  * </pre>
  *
+ * Type modifier for powder-like types: (5b)
+ * <pre>
+ *     | sliding  1b |  direction  1b  | momentum  3b  |
+ * </pre>
+ *
  * @author Patrik Harag
- * @version 2023-04-10
+ * @version 2023-08-18
  */
 export class ElementHead {
 
-    static FIELD_TYPE_SIZE = 4;  // bits
-    static TYPE_STATIC = 0x0;
-    static TYPE_FALLING = 0x1;
-    static TYPE_SAND_1 = 0x2;
-    static TYPE_SAND_2 = 0x3;
-    static TYPE_FLUID_1 = 0x4;
-    static TYPE_FLUID_2 = 0x5;
-    static TYPE_RESERVED_1 = 0x6;
-    static TYPE_RESERVED_2 = 0x7;
-    // the last bit is DRY flag
-    static TYPE__DRY_FLAG = 0x8;
+    static FIELD_TYPE_CLASS_SIZE = 3;  // bits
+    static TYPE_AIR = 0x0;
+    static TYPE_EFFECT = 0x1;
+    static TYPE_POWDER_FLOATING = 0x2;   // floating, not wet, can turn into wet
+    static TYPE_FLUID = 0x3;
+    static TYPE_POWDER = 0x4;  // not wet, can turn into wet
+    static TYPE_POWDER_WET = 0x5;  // wet
+    // reserved: 0x6 TYPE_STRUCTURE?
+    static TYPE_STATIC = 0x7;
 
-    static FIELD_WEIGHT_SIZE = 4;  // bits
-    static WEIGHT_AIR = 0x0;
-    static WEIGHT_WATER = 0x1;
-    static WEIGHT_POWDER = 0x2;
-    static WEIGHT_WALL = 0x3;
+    static FIELD_TYPE_MODIFIERS_SIZE = 5;  // bits
 
     static FIELD_BEHAVIOUR_SIZE = 4;  // bits
     static BEHAVIOUR_NONE = 0x0;
@@ -76,7 +75,7 @@ export class ElementHead {
     static FIELD_TEMPERATURE_SIZE = 8;  // bits
 
 
-    static of(type = 0, weight = 0, behaviour = 0, special = 0,
+    static of(type8, behaviour = 0, special = 0,
             flammableType = 0, flameHeatType = 0, burnableType = 0, meltableType = 0,
             temperature = 0) {
 
@@ -86,24 +85,48 @@ export class ElementHead {
         value = (value | flameHeatType) << 2;
         value = (value | flammableType) << 4;
         value = (value | special) << 4;
-        value = (value | behaviour) << 4;
-        value = (value | weight) << 4;
-        value = value | type;
+        value = (value | behaviour) << 8;
+        value = value | type8;
         return value;
+    }
+
+    static type8(typeClass, typeModifiers = 0) {
+        return typeClass | (typeModifiers << 3);
+    }
+
+    static type8Powder(typeClass, momentum = 0, sliding = 0, direction = 0) {
+        let value = momentum << 1;
+        value = (value | direction) << 1;
+        value = (value | sliding) << 3;
+        value = value | typeClass;
+        return value;
+    }
+
+    // TODO TYPE_FLUID: density, step size, ? viscosity, ? pressure
+    static type8Fluid(typeClass) {
+        return typeClass;
     }
 
     // get methods
 
-    static getTypeOrdinal(elementHead) {
+    static getType(elementHead) {
+        return elementHead & 0x000000FF;
+    }
+
+    static getTypeClass(elementHead) {
         return elementHead & 0x00000007;
     }
 
-    static getTypeDry(elementHead) {
-        return (elementHead & ElementHead.TYPE__DRY_FLAG) !== 0;
+    static getTypeModifierPowderSliding(elementHead) {
+        return (elementHead >> 3) & 0x00000001;
     }
 
-    static getWeight(elementHead) {
-        return (elementHead >> 4) & 0x0000000F;
+    static getTypeModifierPowderDirection(elementHead) {
+        return (elementHead >> 4) & 0x00000001;
+    }
+
+    static getTypeModifierPowderMomentum(elementHead) {
+        return (elementHead >> 5) & 0x00000007;
     }
 
     static getBehaviour(elementHead) {
@@ -137,11 +160,23 @@ export class ElementHead {
     // set methods
 
     static setType(elementHead, type) {
-        return (elementHead & 0xFFFFFFF0) | type;
+        return (elementHead & 0xFFFFFF00) | type;
     }
 
-    static setWeight(elementHead, weight) {
-        return (elementHead & 0xFFFFFF0F) | (weight << 4);
+    static setTypeClass(elementHead, type) {
+        return (elementHead & 0xFFFFFFF8) | type;
+    }
+
+    static setTypeModifierPowderSliding(elementHead, val) {
+        return (elementHead & 0xFFFFFFF7) | (val << 3);
+    }
+
+    static setTypeModifierPowderDirection(elementHead, val) {
+        return (elementHead & 0xFFFFFFEF) | (val << 4);
+    }
+
+    static setTypeModifierPowderMomentum(elementHead, val) {
+        return (elementHead & 0xFFFFFF1F) | (val << 5);
     }
 
     static setBehaviour(elementHead, behaviour) {

@@ -82,7 +82,7 @@ export class SpawningExtensionTree {
 
     static #isSpaceHere(elementArea, tx, ty) {
         let targetElementHead = elementArea.getElementHead(tx, ty);
-        if (ElementHead.getWeight(targetElementHead) === ElementHead.WEIGHT_AIR) {
+        if (ElementHead.getTypeClass(targetElementHead) === ElementHead.TYPE_AIR) {
             return true;
         }
         if (ElementHead.getBehaviour(targetElementHead) === ElementHead.BEHAVIOUR_GRASS) {

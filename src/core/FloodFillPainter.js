@@ -37,7 +37,7 @@ export class FloodFillPainter {
      * @param brush {Brush}
      */
     paint(x, y, brush) {
-        const pattern = 0x00000FF7;  // type (without DRY flag), weight, behaviour
+        const pattern = 0b1111_11100111;  // TODO: different for fluid, powder-like...
         const matcher = this.#elementArea.getElementHead(x, y) & pattern;
 
         const w = this.#elementArea.getWidth();

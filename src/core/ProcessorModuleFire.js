@@ -6,14 +6,14 @@ import {VisualEffects} from "./VisualEffects.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-06
+ * @version 2023-08-19
  */
 export class ProcessorModuleFire {
 
     static #FIRE_MIN_TEMPERATURE = 34;
 
     static createFireElementHead(temperature) {
-        let elementHead = ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_AIR, ElementHead.BEHAVIOUR_FIRE);
+        let elementHead = ElementHead.of(ElementHead.TYPE_EFFECT, ElementHead.BEHAVIOUR_FIRE);
         elementHead = ElementHead.setTemperature(elementHead, temperature);
         return elementHead;
     }
@@ -136,8 +136,7 @@ export class ProcessorModuleFire {
     }
 
     #couldBeReplacedByFire(elementHead) {
-        return ElementHead.getWeight(elementHead) === ElementHead.WEIGHT_AIR
-                && ElementHead.getBehaviour(elementHead) !== ElementHead.BEHAVIOUR_FIRE;
+        return ElementHead.getTypeClass(elementHead) === ElementHead.TYPE_AIR;
     }
 
     #fireEffect(x, y, temperature) {
@@ -146,25 +145,26 @@ export class ProcessorModuleFire {
             return;
         }
 
-        // for air elements...
-        if (ElementHead.getWeight(elementHead) === ElementHead.WEIGHT_AIR) {
-            if (ElementHead.getBehaviour(elementHead) === ElementHead.BEHAVIOUR_FIRE) {
-                // affect fire
-                const otherTemperature = ElementHead.getTemperature(elementHead);
-                if (otherTemperature < temperature) {
-                    const newTemperature = Math.trunc((temperature - otherTemperature) / 2);
-                    if (newTemperature > ProcessorModuleFire.#FIRE_MIN_TEMPERATURE) {
-                        this.#elementArea.setElementHead(x, y, ProcessorModuleFire.createFireElementHead(newTemperature));
-                        this.#elementArea.setElementTail(x, y, ProcessorModuleFire.createFireElementTail(newTemperature));
-                    }
-                }
-            } else {
-                // spreading
-                const newTemperature = Math.trunc(temperature * 0.7);
+        if (ElementHead.getBehaviour(elementHead) === ElementHead.BEHAVIOUR_FIRE) {
+            // affect fire
+            const otherTemperature = ElementHead.getTemperature(elementHead);
+            if (otherTemperature < temperature) {
+                const newTemperature = Math.trunc((temperature - otherTemperature) / 2);
                 if (newTemperature > ProcessorModuleFire.#FIRE_MIN_TEMPERATURE) {
                     this.#elementArea.setElementHead(x, y, ProcessorModuleFire.createFireElementHead(newTemperature));
                     this.#elementArea.setElementTail(x, y, ProcessorModuleFire.createFireElementTail(newTemperature));
                 }
+            }
+            return;
+        }
+
+        // for air elements...
+        if (ElementHead.getTypeClass(elementHead) === ElementHead.TYPE_AIR) {
+            // spreading
+            const newTemperature = Math.trunc(temperature * 0.7);
+            if (newTemperature > ProcessorModuleFire.#FIRE_MIN_TEMPERATURE) {
+                this.#elementArea.setElementHead(x, y, ProcessorModuleFire.createFireElementHead(newTemperature));
+                this.#elementArea.setElementTail(x, y, ProcessorModuleFire.createFireElementTail(newTemperature));
             }
             return;
         }
@@ -233,12 +233,11 @@ export class ProcessorModuleFire {
             return;
         }
 
-        if (ElementHead.getTypeOrdinal(elementHead) === ElementHead.TYPE_STATIC) {
+        if (ElementHead.getTypeClass(elementHead) === ElementHead.TYPE_STATIC) {
             // occasionally a falling piece...
             if (this.#random.nextInt(10000) < 2) {
-                let modifiedElementHead = ElementHead.setType(elementHead, ElementHead.TYPE_SAND_1);
-                modifiedElementHead = ElementHead.setWeight(modifiedElementHead, ElementHead.WEIGHT_POWDER);
-                this.#elementArea.setElementHead(x, y, modifiedElementHead);
+                const type = ElementHead.type8Powder(ElementHead.TYPE_POWDER, 2);
+                this.#elementArea.setElementHead(x, y, ElementHead.setType(elementHead, type));
                 return;
             }
         }
@@ -254,7 +253,7 @@ export class ProcessorModuleFire {
         }
 
         // air => spawn fire
-        if (ElementHead.getWeight(elementHead) === ElementHead.WEIGHT_AIR) {
+        if (ElementHead.getTypeClass(elementHead) === ElementHead.TYPE_AIR) {
             // air found
             const actualTemperature = this.#random.nextInt(temperature);
             if (actualTemperature < ProcessorModuleFire.#FIRE_MIN_TEMPERATURE) {

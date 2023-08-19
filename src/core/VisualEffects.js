@@ -4,22 +4,13 @@ import { ElementHead } from "./ElementHead.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-06
+ * @version 2023-08-18
  */
 export class VisualEffects {
 
     static isVisualBurnApplicable(elementHead) {
-        const typeOrdinal = ElementHead.getTypeOrdinal(elementHead);
-
-        if (typeOrdinal === ElementHead.TYPE_SAND_1 || typeOrdinal === ElementHead.TYPE_SAND_2
-                || typeOrdinal === ElementHead.TYPE_FALLING) {
-            return true;
-        }
-        if (typeOrdinal === ElementHead.TYPE_STATIC) {
-            let weight = ElementHead.getWeight(elementHead);
-            return weight > ElementHead.WEIGHT_AIR;
-        }
-        return false;
+        const type = ElementHead.getTypeClass(elementHead);
+        return type > ElementHead.TYPE_FLUID || type === ElementHead.TYPE_POWDER_FLOATING;
     }
 
     static visualBurn(elementTail, force = 1, maxBurntLevel = 3) {

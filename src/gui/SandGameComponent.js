@@ -22,7 +22,7 @@ import _ASSET_SVG_ADJUST_SCALE from './assets/icon-adjust-scale.svg'
  * @requires jQuery
  *
  * @author Patrik Harag
- * @version 2023-07-23
+ * @version 2023-08-18
  */
 export class SandGameComponent extends SandGameControls {
 
@@ -49,7 +49,7 @@ export class SandGameComponent extends SandGameControls {
     #simulationEnabled = false;
     /** @type boolean */
     #showActiveChunks = false;
-    #showHeatmap = false;
+    #renderingMode = SandGame.RENDERING_MODE_CLASSIC;
     /** @type ServiceToolManager */
     #serviceToolManager = new ServiceToolManager();
 
@@ -107,9 +107,7 @@ export class SandGameComponent extends SandGameControls {
         const context = canvasComponent.getContext();
         this.#sandGame = scene.createSandGame(context, this.#currentWidthPoints, this.#currentHeightPoints, defaultElement);
         this.#sandGame.graphics().replace(ElementArea.TRANSPARENT_ELEMENT, defaultElement);
-        if (this.isShowHeatmap()) {
-            this.#sandGame.setRendererMode(SandGame.RENDERING_MODE_HEATMAP);
-        }
+        this.#sandGame.setRendererMode(this.getRenderingMode());
         this.#sandGame.addOnRendered((changedChunks) => {
             // show highlighted chunks
             if (this.isShowActiveChunks()) {
@@ -361,15 +359,15 @@ export class SandGameComponent extends SandGameControls {
         return this.#showActiveChunks;
     }
 
-    setShowHeatmap(show) {
-        this.#showHeatmap = show;
+    setRenderingMode(mode) {
+        this.#renderingMode = mode;
         if (this.#sandGame) {
-            this.#sandGame.setRendererMode(show ? SandGame.RENDERING_MODE_HEATMAP : SandGame.RENDERING_MODE_CLASSIC);
+            this.#sandGame.setRendererMode(mode);
         }
     }
 
-    isShowHeatmap() {
-        return this.#showHeatmap;
+    getRenderingMode() {
+        return this.#renderingMode;
     }
 
     setCanvasImageRenderingStyle(style) {

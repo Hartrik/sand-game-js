@@ -71,7 +71,7 @@ export class ProcessorModuleMeteor {
 
         if (this.#elementArea.isValidPosition(tx, ty)) {
             let targetElementHead = this.#elementArea.getElementHead(tx, ty);
-            if (ElementHead.getWeight(targetElementHead) === ElementHead.WEIGHT_AIR) {
+            if (ElementHead.getTypeClass(targetElementHead) <= ElementHead.TYPE_EFFECT) {
                 // move
                 this.#elementArea.swap(x, y, tx, ty);
             } else {
@@ -92,7 +92,7 @@ export class ProcessorModuleMeteor {
             const ty = y + dy;
             if (this.#elementArea.isValidPosition(tx, ty)) {
                 let targetElementHead = this.#elementArea.getElementHead(tx, ty);
-                if (ElementHead.getWeight(targetElementHead) === ElementHead.WEIGHT_AIR) {
+                if (ElementHead.getTypeClass(targetElementHead) <= ElementHead.TYPE_EFFECT) {
                     this.#elementArea.setElement(tx, ty, Brushes.FIRE.apply(tx, ty, this.#random));
                 }
             }
@@ -131,11 +131,10 @@ export class ProcessorModuleMeteor {
                     }
 
                     // turn some solid elements into fragments
-                    if (ElementHead.getTypeOrdinal(targetElementHead) === ElementHead.TYPE_STATIC
-                            && ElementHead.getWeight(targetElementHead) === ElementHead.WEIGHT_WALL) {
+                    if (ElementHead.getTypeClass(targetElementHead) === ElementHead.TYPE_STATIC) {
                         if (level === 8 || (level === 9 && this.#random.nextInt(10) < 3)) {
-                            targetElementHead = ElementHead.setWeight(targetElementHead, ElementHead.WEIGHT_POWDER);
-                            targetElementHead = ElementHead.setType(targetElementHead, ElementHead.TYPE_SAND_1);
+                            const type = ElementHead.type8Powder(ElementHead.TYPE_POWDER, 5);
+                            targetElementHead = ElementHead.setType(targetElementHead, type);
                         }
                     }
 

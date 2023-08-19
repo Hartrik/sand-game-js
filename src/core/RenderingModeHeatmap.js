@@ -37,7 +37,5 @@ export class RenderingModeHeatmap extends RenderingMode {
             data[dataIndex + 1] = this.#gradientImageData.data[gradIndex + 1];
             data[dataIndex + 2] = this.#gradientImageData.data[gradIndex + 2];
         }
-
-        return false;
     }
 }

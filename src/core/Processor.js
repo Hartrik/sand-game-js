@@ -10,7 +10,7 @@ import {ProcessorModuleTree} from "./ProcessorModuleTree.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-05-09
+ * @version 2023-08-19
  */
 export class Processor extends ProcessorContext {
 
@@ -383,41 +383,28 @@ export class Processor extends ProcessorContext {
      * @returns {boolean}
      */
     #testMovingBehaviour(elementHead, x, y) {
-        const type = ElementHead.getTypeOrdinal(elementHead);
+        const type = ElementHead.getTypeClass(elementHead);
         switch (type) {
+            case ElementHead.TYPE_AIR:
             case ElementHead.TYPE_STATIC:
                 // no action
                 return false;
 
-            case ElementHead.TYPE_FALLING:
-                //  #
-                //  #
-                //  #
-                return this.#testMove(elementHead, x, y, x, y + 1);
+            case ElementHead.TYPE_POWDER:
+            case ElementHead.TYPE_POWDER_FLOATING:
+            case ElementHead.TYPE_POWDER_WET:
+                if (ElementHead.getTypeModifierPowderSliding(elementHead)) {
+                    return true;
+                } else {
+                    return this.#testMove(elementHead, x, y, x, y + 1);
+                }
 
-            case ElementHead.TYPE_SAND_1:
-                //   #
-                //  ###
-                // #####
-                return this.#testMove(elementHead, x, y, x, y + 1)
-                        || this.#testMove(elementHead, x, y, x + 1, y + 1)
-                        || this.#testMove(elementHead, x, y, x - 1, y + 1);
-
-            case ElementHead.TYPE_SAND_2:
-                //     #
-                //   #####
-                // #########
-                return this.#testMove(elementHead, x, y, x, y + 1)
-                        || this.#testMove(elementHead, x, y, x + 1, y + 1)
-                        || this.#testMove(elementHead, x, y, x + 2, y + 1)
-                        || this.#testMove(elementHead, x, y, x - 1, y + 1)
-                        || this.#testMove(elementHead, x, y, x - 2, y + 1);
-
-            case ElementHead.TYPE_FLUID_1:
-            case ElementHead.TYPE_FLUID_2:
+            case ElementHead.TYPE_FLUID:
                 return this.#testMove(elementHead, x, y, x, y + 1)
                         || this.#testMove(elementHead, x, y, x + 1, y)
                         || this.#testMove(elementHead, x, y, x - 1, y);
+            default:
+                return true;
         }
         throw "Unknown element type: " + type;
     }
@@ -437,7 +424,7 @@ export class Processor extends ProcessorContext {
         }
 
         let elementHead2 = this.#elementArea.getElementHead(x2, y2);
-        return ElementHead.getWeight(elementHead) > ElementHead.getWeight(elementHead2);
+        return this.#canMove(elementHead, elementHead2);
     }
 
     /**
@@ -513,80 +500,82 @@ export class Processor extends ProcessorContext {
      * @returns {boolean}
      */
     #performMovingBehaviour(elementHead, x, y) {
-        const type = ElementHead.getTypeOrdinal(elementHead);
+        const type = ElementHead.getTypeClass(elementHead);
         switch (type) {
-            case ElementHead.TYPE_STATIC:
+            case ElementHead.TYPE_AIR:
                 // no action
                 return false;
 
-            case ElementHead.TYPE_FALLING:
-                //  #
-                //  #
-                //  #
-                return this.#move(elementHead, x, y, x, y + 1);
+            case ElementHead.TYPE_POWDER:
+            case ElementHead.TYPE_POWDER_WET:
+            case ElementHead.TYPE_POWDER_FLOATING:
+                if (this.#move(elementHead, x, y, x, y + 1)) {
+                    // moved down
 
-            case ElementHead.TYPE_SAND_1:
-                //   #
-                //  ###
-                // #####
-
-                if (!this.#move(elementHead, x, y, x, y + 1)) {
-                    let rnd = this.#random.nextInt(2);
-                    if (rnd === 0) {
-                        return this.#move(elementHead, x, y, x + 1, y + 1)
+                    if (y % 2 === 0) {
+                        this.#wake(x - 1, y + 1, 0);
                     } else {
-                        return this.#move(elementHead, x, y, x - 1, y + 1)
+                        this.#wake(x + 1, y + 1, 1);
                     }
-                }
-                return true;
 
-            case ElementHead.TYPE_SAND_2:
-                //     #
-                //   #####
-                // #########
+                    this.#wake(x, y + 1, y % 2);
 
-                if (!this.#move(elementHead, x, y, x, y + 1)) {
-                    let rnd = this.#random.nextInt(2);
-                    if (rnd === 0) {
-                        if (!this.#move(elementHead, x, y, x + 1, y + 1)) {
-                            if (this.#move(elementHead, x, y, x + 2, y + 1)) {
-                                this.trigger(x + 2, y + 1);
-                                return true;
-                            }
+                    if (y % 2 === 0) {
+                        this.#wake(x + 1, y, 0);
+                    } else {
+                        this.#wake(x - 1, y, 1);
+                    }
+
+                    return true;
+                } else {
+                    if (ElementHead.getTypeModifierPowderSliding(elementHead) === 1) {
+                        const momentum = ElementHead.getTypeModifierPowderMomentum(elementHead);
+
+                        const r = this.#random.nextInt(1000000);
+                        if (r > Processor.#asMomentumMoveInMillion(momentum)) {
+                            // stop - lost momentum
+                            this.#elementArea.setElementHead(x, y, ElementHead.setTypeModifierPowderSliding(elementHead, 0));
                             return false;
                         }
-                        return true;
-                    } else {
-                        if (!this.#move(elementHead, x, y, x - 1, y + 1)) {
-                            if (this.#move(elementHead, x, y, x - 2, y + 1)) {
-                                this.trigger(x - 2, y + 1);
-                                return true;
-                            }
+
+                        const direction = ElementHead.getTypeModifierPowderDirection(elementHead);
+                        this.#wake(x, y + 1, direction);
+
+                        const directionX = (direction === 0) ? -1 : 1;
+                        if (this.#move(elementHead, x, y, x + directionX, y)) {
+                            // moved horizontally
+                            this.#wake(x + directionX, y + 1, direction);
+                            this.#wake(x - directionX, y, direction);
+                            return true;
+                        } else {
+                            // stop - nowhere to go
+                            this.#wake(x + directionX, y + 1, direction);
+                            this.#elementArea.setElementHead(x, y, ElementHead.setTypeModifierPowderSliding(elementHead, 0));
                             return false;
                         }
-                        return true;
                     }
+                    return false;
                 }
-                return true;
+                return false;
 
-            case ElementHead.TYPE_FLUID_1:
+            case ElementHead.TYPE_FLUID:
                 // slow moving fluid
-                if (!this.#move(elementHead, x, y, x, y + 1)) {
-                    let rnd = this.#random.nextInt(2);
-                    if (rnd === 0) {
-                        return this.#move(elementHead, x, y, x + 1, y)
-                    } else {
-                        return this.#move(elementHead, x, y, x - 1, y)
-                    }
-                }
-                return true;
+                // if (!this.#move(elementHead, x, y, x, y + 1)) {
+                //     let rnd = this.#random.nextInt(2);
+                //     if (rnd === 0) {
+                //         return this.#move(elementHead, x, y, x + 1, y)
+                //     } else {
+                //         return this.#move(elementHead, x, y, x - 1, y)
+                //     }
+                // }
+                // return true;
 
-            case ElementHead.TYPE_FLUID_2:
                 // fast moving fluid (it can move by 3)
                 if (!this.#move(elementHead, x, y, x, y + 1)) {
                     let rnd = this.#random.nextInt(2);
                     if (rnd === 0) {
                         if (this.#move(elementHead, x, y, x + 1, y)) {
+                            this.#wake(x + 1, y + 1, 1);
                             if (this.#move(elementHead, x + 1, y, x + 2, y)) {
                                 if (this.#move(elementHead, x + 2, y, x + 3, y)) {
                                     this.trigger(x + 3, y);
@@ -599,6 +588,7 @@ export class Processor extends ProcessorContext {
                         return false;
                     } else {
                         if (this.#move(elementHead, x, y, x - 1, y)) {
+                            this.#wake(x - 1, y + 1, 0);
                             if (this.#move(elementHead, x - 1, y, x - 2, y)) {
                                 if (this.#move(elementHead, x - 2, y, x - 3, y)) {
                                     this.trigger(x - 3, y);
@@ -612,6 +602,11 @@ export class Processor extends ProcessorContext {
                     }
                 }
                 return true;
+
+            case ElementHead.TYPE_STATIC:
+            case ElementHead.TYPE_EFFECT:
+                // no action
+                return false;
         }
         throw "Unknown element type: " + type;
     }
@@ -630,14 +625,20 @@ export class Processor extends ProcessorContext {
             }
         }
 
-        let elementHead2 = this.#elementArea.getElementHead(x2, y2);
-        if (ElementHead.getWeight(elementHead) > ElementHead.getWeight(elementHead2)) {
+        const elementHead2 = this.#elementArea.getElementHead(x2, y2);
+        const elementType2 = ElementHead.getTypeClass(elementHead2);
+        if (elementType2 === ElementHead.TYPE_POWDER_FLOATING || elementType2 === ElementHead.TYPE_POWDER) {
+            return false;
+        }
+
+        const elementType1 = ElementHead.getTypeClass(elementHead);
+        if (elementType1 > elementType2) {
             // move
 
-            if (ElementHead.getTypeDry(elementHead) && ElementHead.getTypeOrdinal(elementHead2) === ElementHead.TYPE_FLUID_2) {
+            if (elementType1 === ElementHead.TYPE_POWDER && elementType2 === ElementHead.TYPE_FLUID) {
                 // element may cover element2
 
-                const elementHeadNonDry = ElementHead.setType(elementHead, ElementHead.getTypeOrdinal(elementHead));
+                const elementHeadWithAbsorbedFluid = ElementHead.setTypeClass(elementHead, ElementHead.TYPE_POWDER_WET);
                 const elementTail = this.#elementArea.getElementTail(x, y);
 
                 // sometimes element2 will not be covered - it looks better
@@ -648,7 +649,7 @@ export class Processor extends ProcessorContext {
                     this.#elementArea.setElementHead(x, y, elementHead2);
                     this.#elementArea.setElementTail(x, y, elementTail2);
                 }
-                this.#elementArea.setElementHead(x2, y2, elementHeadNonDry);
+                this.#elementArea.setElementHead(x2, y2, elementHeadWithAbsorbedFluid);
                 this.#elementArea.setElementTail(x2, y2, elementTail);
 
             } else {
@@ -665,5 +666,57 @@ export class Processor extends ProcessorContext {
             return true;
         }
         return false;
+    }
+
+    #canMove(elementHead1, elementHead2) {
+        const elementType2 = ElementHead.getTypeClass(elementHead2);
+        if (elementType2 === ElementHead.TYPE_POWDER_FLOATING || elementType2 === ElementHead.TYPE_POWDER) {
+            return false;
+        }
+
+        const elementType1 = ElementHead.getTypeClass(elementHead1);
+        return elementType1 > elementType2;
+    }
+
+    #wake(x, y, direction) {
+        if (this.#elementArea.isValidPosition(x, y)) {
+            let elementHead = this.#elementArea.getElementHead(x, y);
+            const type = ElementHead.getTypeClass(elementHead);
+            if (type === ElementHead.TYPE_POWDER
+                    || type === ElementHead.TYPE_POWDER_WET
+                    || type === ElementHead.TYPE_POWDER_FLOATING) {
+
+                const momentum = ElementHead.getTypeModifierPowderMomentum(elementHead);
+                if (momentum === 0) {
+                    return;  // never wake up
+                }
+
+                const directionX = (direction === 0) ? -1 : 1;
+                if (this.#elementArea.isValidPosition(x + directionX, y)) {
+                    const nextElementHead = this.#elementArea.getElementHead(x + directionX, y);
+                    if (!this.#canMove(elementHead, nextElementHead)) {
+                        return;  // target element has no space to move
+                    }
+                }
+
+                const r = this.#random.nextInt(1000000);
+                if (r > Processor.#asMomentumWakeupInMillion(momentum)) {
+                    return;  // not this time
+                }
+
+                elementHead = ElementHead.setTypeModifierPowderSliding(elementHead, 1);
+                elementHead = ElementHead.setTypeModifierPowderDirection(elementHead, direction);
+                this.#elementArea.setElementHead(x, y, elementHead);
+            }
+        }
+    }
+
+
+    static #asMomentumMoveInMillion(momentum) {
+        return [0, 400000, 600000, 700000, 700000, 800000, 950000, 950000][momentum];  // none .. almost always
+    }
+
+    static #asMomentumWakeupInMillion(momentum) {
+        return [0, 400000, 400000, 400000, 600000, 600000, 850000, 900000][momentum];  // never .. almost always
     }
 }

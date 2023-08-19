@@ -7,6 +7,7 @@ import {ElementHead} from "./ElementHead.js";
 import {ElementTail} from "./ElementTail.js";
 import {Renderer} from "./Renderer.js";
 import {RenderingModeHeatmap} from "./RenderingModeHeatmap.js";
+import {RenderingModeElementType} from "./RenderingModeElementType.js";
 import {SandGameGraphics} from "./SandGameGraphics.js";
 import {Snapshot} from "./Snapshot.js";
 import {SceneMetadata} from "./SceneMetadata.js";
@@ -19,12 +20,13 @@ import {TemplateLayeredPainter} from "./TemplateLayeredPainter.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-06
+ * @version 2023-08-18
  */
 export class SandGame {
 
     static RENDERING_MODE_CLASSIC = 'classic';
     static RENDERING_MODE_HEATMAP = 'heatmap';
+    static RENDERING_MODE_ELEMENT_TYPE = 'element-type';
 
     /** @type ElementArea */
     #elementArea;
@@ -157,6 +159,8 @@ export class SandGame {
             this.#renderer.setMode(null);
         } else if (mode === SandGame.RENDERING_MODE_HEATMAP) {
             this.#renderer.setMode(new RenderingModeHeatmap());
+        } else if (mode === SandGame.RENDERING_MODE_ELEMENT_TYPE) {
+            this.#renderer.setMode(new RenderingModeElementType());
         } else {
             throw 'Unknown rendering mode: ' + mode
         }
@@ -249,37 +253,35 @@ export class SandGame {
     }
 
     debugElementAt(x, y) {
-        if (this.#elementArea.isValidPosition(x, y)) {
-            const elementHead = this.#elementArea.getElementHead(x, y);
-            const elementTail = this.#elementArea.getElementTail(x, y);
-            const json = {
-                type: {
-                    ordinal: ElementHead.getTypeOrdinal(elementHead),
-                    dry: ElementHead.getTypeDry(elementHead)
-                },
-                weight: ElementHead.getWeight(elementHead),
-                behaviour: ElementHead.getBehaviour(elementHead),
-                special: ElementHead.getSpecial(elementHead),
-                flammableType: ElementHead.getFlammableType(elementHead),
-                flameHeatType: ElementHead.getFlameHeatType(elementHead),
-                burnableType: ElementHead.getBurnableType(elementHead),
-                temperature: ElementHead.getTemperature(elementHead),
-                color: [
-                    ElementTail.getColorRed(elementTail),
-                    ElementTail.getColorGreen(elementTail),
-                    ElementTail.getColorBlue(elementTail)
-                ],
-                blurType: ElementTail.getBlurType(elementTail),
-                burntLevel: ElementTail.getBurntLevel(elementTail)
-            };
+        if (!this.#elementArea.isValidPosition(x, y)) {
+            return 'Out of bounds';
+        }
 
-            let result = JSON.stringify(json)
+        const elementHead = this.#elementArea.getElementHead(x, y);
+        const elementTail = this.#elementArea.getElementTail(x, y);
+        const json = {
+            type: {
+                'class': ElementHead.getTypeClass(elementHead)
+            },
+            behaviour: ElementHead.getBehaviour(elementHead),
+            special: ElementHead.getSpecial(elementHead),
+            flammableType: ElementHead.getFlammableType(elementHead),
+            flameHeatType: ElementHead.getFlameHeatType(elementHead),
+            burnableType: ElementHead.getBurnableType(elementHead),
+            temperature: ElementHead.getTemperature(elementHead),
+            color: [
+                ElementTail.getColorRed(elementTail),
+                ElementTail.getColorGreen(elementTail),
+                ElementTail.getColorBlue(elementTail)
+            ],
+            blurType: ElementTail.getBlurType(elementTail),
+            burntLevel: ElementTail.getBurntLevel(elementTail)
+        };
+
+        let result = JSON.stringify(json)
                 .replaceAll('"', '')
                 .replaceAll(',', ', ')
                 .replaceAll(':', '=');
-            return result.substring(1, result.length - 1);  // remove {}
-        } else {
-            return 'Out of bounds';
-        }
+        return result.substring(1, result.length - 1);  // remove {}
     }
 }
