@@ -236,7 +236,7 @@ export class ProcessorModuleFire {
         if (ElementHead.getTypeClass(elementHead) === ElementHead.TYPE_STATIC) {
             // occasionally a falling piece...
             if (this.#random.nextInt(10000) < 2) {
-                const type = ElementHead.type8Powder(ElementHead.TYPE_POWDER, 2);
+                const type = ElementHead.type8Powder(ElementHead.TYPE_POWDER, 5, 1, this.#random.nextInt(2));
                 this.#elementArea.setElementHead(x, y, ElementHead.setType(elementHead, type));
                 return;
             }

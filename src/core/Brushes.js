@@ -228,7 +228,7 @@ export class Brushes {
         new Element(ElementHead.setTemperature(Brushes.#FIRE_ELEMENT_HEAD,120), ElementTail.of(249, 219, 30))
     ]);
 
-    static ASH = Brush.randomFromHeadAndTails(ElementHead.of(ElementHead.type8Powder(ElementHead.TYPE_POWDER, 6), ElementHead.BEHAVIOUR_NONE, 0), [
+    static ASH = Brush.randomFromHeadAndTails(ElementHead.of(ElementHead.type8Powder(ElementHead.TYPE_POWDER, 5), ElementHead.BEHAVIOUR_NONE, 0), [
         ElementTail.of(131, 131, 131, ElementTail.BLUR_TYPE_1),
         ElementTail.of(131, 131, 131, ElementTail.BLUR_TYPE_1),
         ElementTail.of(131, 131, 131, ElementTail.BLUR_TYPE_1),
