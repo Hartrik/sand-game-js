@@ -1,4 +1,6 @@
 
+// TODO: move into Controller
+
 /**
  * @interface
  *
@@ -175,13 +177,21 @@ export class SandGameControls {
         throw 'Not implemented';
     }
 
-    // tools
+    // services
 
     /**
      *
      * @returns {ServiceToolManager}
      */
     getToolManager() {
+        throw 'Not implemented';
+    }
+
+    /**
+     *
+     * @returns {ServiceIO}
+     */
+    getIOManager() {
         throw 'Not implemented';
     }
 

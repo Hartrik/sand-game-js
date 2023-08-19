@@ -1,14 +1,15 @@
-import {DomBuilder} from "./DomBuilder.js";
-import {Scenes} from "../def/Scenes.js";
-import {Analytics} from "../Analytics.js";
-import {SceneImplSnapshot} from "../core/SceneImplSnapshot.js";
+import { DomBuilder } from "./DomBuilder";
+import { Component } from "./Component";
+import { Scenes } from "../def/Scenes";
+import { Analytics } from "../Analytics";
+import { SceneImplSnapshot } from "../core/SceneImplSnapshot";
 
 /**
  *
  * @author Patrik Harag
  * @version 2023-06-05
  */
-export class SandGameScenesComponent {
+export class ComponentViewSceneSelection extends Component {
 
     static CLASS_SELECTED = 'selected-scene';
     static CLASS_VISITED = 'visited-scene';
@@ -39,6 +40,7 @@ export class SandGameScenesComponent {
      * @param initialScene
      */
     constructor(sandGameControls, initialScene) {
+        super();
         this.#controls = sandGameControls;
         this.#initialScene = initialScene;
 
@@ -50,9 +52,9 @@ export class SandGameScenesComponent {
         });
     }
 
-    createNode() {
+    createNode(sandGameControls) {
         let content = DomBuilder.div({ class: 'scenes' }, []);
-        for (let id of SandGameScenesComponent.SCENES) {
+        for (let id of ComponentViewSceneSelection.SCENES) {
             let scene = Scenes.SCENES[id];
 
             let label = DomBuilder.element('span', { class: 'scene-title' }, scene.name);
@@ -65,8 +67,8 @@ export class SandGameScenesComponent {
             if (id === this.#initialScene) {
                 this.#selected = node;
                 this.#selectedSceneId = id;
-                node.addClass(SandGameScenesComponent.CLASS_SELECTED);
-                node.addClass(SandGameScenesComponent.CLASS_VISITED);
+                node.addClass(ComponentViewSceneSelection.CLASS_SELECTED);
+                node.addClass(ComponentViewSceneSelection.CLASS_VISITED);
             }
 
             content.append(node);
@@ -112,8 +114,8 @@ export class SandGameScenesComponent {
 
         this.#selected = node;
         this.#selectedSceneId = id;
-        node.addClass(SandGameScenesComponent.CLASS_SELECTED);
-        node.addClass(SandGameScenesComponent.CLASS_VISITED);
+        node.addClass(ComponentViewSceneSelection.CLASS_SELECTED);
+        node.addClass(ComponentViewSceneSelection.CLASS_VISITED);
 
         // restore or build scene
         let snapshot = this.#closedScenes.get(id);
@@ -132,7 +134,7 @@ export class SandGameScenesComponent {
 
     #unselect() {
         if (this.#selected) {
-            this.#selected.removeClass(SandGameScenesComponent.CLASS_SELECTED);
+            this.#selected.removeClass(ComponentViewSceneSelection.CLASS_SELECTED);
         }
         this.#selected = null;
         this.#selectedSceneId = null;

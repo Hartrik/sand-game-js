@@ -4,14 +4,15 @@ import {Brushes} from "../core/Brushes.js";
 import {ElementArea} from "../core/ElementArea.js";
 import {ResourceIO} from "../core/ResourceIO.js";
 import {Analytics} from "../Analytics.js";
-import FileSaver from 'file-saver';
+
+// TODO: refactor
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-05-23
+ * @version 2023-08-19
  */
-export class SandGameControllerIO {
+export class ServiceIO {
 
     /** @type SandGameControls */
     #controls;
@@ -22,27 +23,6 @@ export class SandGameControllerIO {
     constructor(controls) {
         this.#controls = controls;
         this.#templateForm = new TemplateForm();
-    }
-
-    doExport() {
-        const snapshot = this.#controls.createSnapshot();
-        const bytes = ResourceIO.createResourceFromSnapshot(snapshot);
-        FileSaver.saveAs(new Blob([bytes]), this.#createFilename());
-        Analytics.triggerFeatureUsed(Analytics.FEATURE_IO_EXPORT);
-    }
-
-    #createFilename() {
-        let date = new Date().toISOString().slice(0, 10);
-        return `sand-game-js_${date}.sgjs`;
-    }
-
-    doImport() {
-        let input = document.createElement('input');
-        input.type = 'file';
-        input.onchange = e => {
-            this.#loadFromFiles(e.target.files);
-        }
-        input.click();
     }
 
     initFileDragAndDrop(node) {
@@ -67,11 +47,11 @@ export class SandGameControllerIO {
             e.stopPropagation()
             domNode.classList.remove('drag-and-drop-highlight');
 
-            this.#loadFromFiles(e.dataTransfer.files);
+            this.loadFromFiles(e.dataTransfer.files);
         });
     }
 
-    #loadFromFiles(files) {
+    loadFromFiles(files) {
         if (!files) {
             return;
         }
@@ -80,7 +60,7 @@ export class SandGameControllerIO {
         let reader = new FileReader();
         reader.onload = (readerEvent) => {
             let content = readerEvent.target.result;
-            this.#loadFromArrayBuffer(content, file.name);
+            this.loadFromArrayBuffer(content, file.name);
         }
         reader.readAsArrayBuffer(file);
     }
@@ -90,7 +70,7 @@ export class SandGameControllerIO {
      * @param content {ArrayBuffer}
      * @param filename {string}
      */
-    #loadFromArrayBuffer(content, filename) {
+    loadFromArrayBuffer(content, filename) {
         try {
             let imageTypeOrNull = Assets.getImageTypeOrNull(filename);
             if (imageTypeOrNull !== null) {
@@ -105,9 +85,9 @@ export class SandGameControllerIO {
         }
     }
 
-    #loadImageTemplate(content, image) {
+    #loadImageTemplate(content, imageType) {
         const handleImageTemplate = (brush, threshold, maxWidth, maxHeight) => {
-            const objectUrl = Assets.asObjectUrl(content, image);
+            const objectUrl = Assets.asObjectUrl(content, imageType);
             ResourceIO.fromImage(objectUrl, brush, ElementArea.TRANSPARENT_ELEMENT, threshold, maxWidth, maxHeight)
                 .then(scene => this.#importImageTemplate(scene))
                 .catch(e => this.#handleError(e));

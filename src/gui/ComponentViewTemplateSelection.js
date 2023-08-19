@@ -1,27 +1,17 @@
-import {DomBuilder} from "./DomBuilder.js";
-import {SandGameControls} from "./SandGameControls.js";
-import {Templates} from "../def/Templates.js";
-import {ResourceIO} from "../core/ResourceIO.js";
-import {Tool} from "../core/Tool.js";
+import { DomBuilder } from "./DomBuilder";
+import { Templates } from "../def/Templates";
+import { ResourceIO } from "../core/ResourceIO";
+import { Tool } from "../core/Tool";
+import { Component } from "./Component";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-10
+ * @version 2023-08-19
  */
-export class SandGameTemplatesComponent {
+export class ComponentViewTemplateSelection extends Component {
 
-    /** @type SandGameControls */
-    #controls;
-
-    /**
-     * @param sandGameControls {SandGameControls}
-     */
-    constructor(sandGameControls) {
-        this.#controls = sandGameControls;
-    }
-
-    createNode() {
+    createNode(sandGameControls) {
         let buttons = [];
 
         for (const toolDefinition of Templates.TOOLS) {
@@ -31,7 +21,7 @@ export class SandGameTemplatesComponent {
             let button = DomBuilder.button(name, { class: 'btn btn-light template-button', 'data-dismiss': 'modal'}, () => {
                 if (loadedTool !== null) {
 
-                    const toolManager = this.#controls.getToolManager();
+                    const toolManager = sandGameControls.getToolManager();
                     const revert = toolManager.createRevertAction();
 
                     toolManager.setPrimaryTool(loadedTool);

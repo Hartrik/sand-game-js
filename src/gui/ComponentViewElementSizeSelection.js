@@ -1,5 +1,6 @@
-import {DomBuilder} from "./DomBuilder.js";
-import {Analytics} from "../Analytics.js";
+import { DomBuilder } from "./DomBuilder";
+import { Component } from "./Component";
+import { Analytics } from "../Analytics";
 
 import _ASSET_IMG_ELEMENT_SIZE_1 from './assets/element-size-1.png'
 import _ASSET_IMG_ELEMENT_SIZE_2 from './assets/element-size-2.png'
@@ -9,9 +10,9 @@ import _ASSET_IMG_ELEMENT_SIZE_4 from './assets/element-size-4.png'
 /**
  *
  * @author Patrik Harag
- * @version 2023-06-05
+ * @version 2023-08-19
  */
-export class SandGameElementSizeComponent {
+export class ComponentViewElementSizeSelection extends Component {
 
     static CLASS_SELECTED = 'selected-size';
 
@@ -23,43 +24,22 @@ export class SandGameElementSizeComponent {
     ];
 
 
-    /** @type SandGameControls */
-    #controls;
-
-    /** @type function(scale) */
-    #selectFunction;
-
-    #initialScale;
-
     #nodes = [];
 
     #selected = null;
     #selectedScale = null;
 
-
-    /**
-     *
-     * @param sandGameControls {SandGameControls}
-     * @param selectFunction
-     * @param initialScale
-     */
-    constructor(sandGameControls, initialScale, selectFunction) {
-        this.#controls = sandGameControls;
-        this.#initialScale = initialScale;
-        this.#selectFunction = selectFunction;
-    }
-
-    createNode() {
-        for (let sizeDef of SandGameElementSizeComponent.SIZES) {
+    createNode(sandGameControls) {
+        for (let sizeDef of ComponentViewElementSizeSelection.SIZES) {
             let node = this.#createSizeCard(sizeDef.scale, sizeDef.image, sizeDef.description);
 
             // initial scale
-            if (sizeDef.scale === this.#initialScale) {
+            if (sizeDef.scale === sandGameControls.getCurrentScale()) {
                 this.#mark(node, sizeDef.scale);
             }
 
             node.on('click', e => {
-                this.#onSelect(node, sizeDef.scale);
+                this.#select(node, sizeDef.scale, sandGameControls);
             })
 
             this.#nodes.push(node);
@@ -77,25 +57,27 @@ export class SandGameElementSizeComponent {
         ]);
     }
 
-    #onSelect(node, scale) {
-        if (this.#selectedScale === scale) {
+    #select(node, newScale, sandGameControls) {
+        if (this.#selectedScale === newScale) {
             return;  // already selected
         }
 
-        this.#select(node, scale);
+        // mark selected
+        if (this.#selected) {
+            this.#selected.removeClass(ComponentViewElementSizeSelection.CLASS_SELECTED);
+        }
+        this.#mark(node, newScale);
+
+        // change scale
+        let w = Math.trunc(sandGameControls.getCurrentWidthPoints() / sandGameControls.getCurrentScale() * newScale);
+        let h = Math.trunc(sandGameControls.getCurrentHeightPoints() / sandGameControls.getCurrentScale() * newScale);
+        sandGameControls.changeCanvasSize(w, h, newScale);
+
         Analytics.triggerFeatureUsed(Analytics.FEATURE_SWITCH_SCALE);
     }
 
-    #select(node, scale) {
-        if (this.#selected) {
-            this.#selected.removeClass(SandGameElementSizeComponent.CLASS_SELECTED);
-        }
-        this.#mark(node, scale);
-        this.#selectFunction(scale);
-    }
-
     #mark(node, scale) {
-        node.addClass(SandGameElementSizeComponent.CLASS_SELECTED);
+        node.addClass(ComponentViewElementSizeSelection.CLASS_SELECTED);
         this.#selected = node;
         this.#selectedScale = scale;
     }

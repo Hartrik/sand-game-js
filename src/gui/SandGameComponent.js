@@ -1,29 +1,31 @@
-import {DomBuilder} from "./DomBuilder.js";
-import {ElementArea} from "../core/ElementArea.js";
-import {SandGame} from "../core/SandGame.js";
-import {Brushes} from "../core/Brushes.js";
-import {Scenes} from "../def/Scenes.js";
-import {SceneImplTmpResize} from "../core/SceneImplResize.js";
-import {Tools} from "../def/Tools.js";
-import {Tool} from "../core/Tool.js";
-import {ServiceToolManager} from "./ServiceToolManager.js";
-import {SandGameControls} from "./SandGameControls.js";
-import {SandGameControllerIO} from "./SandGameControllerIO.js";
-import {SandGameScenesComponent} from "./SandGameScenesComponent.js";
-import {SandGameElementSizeComponent} from "./SandGameElementSizeComponent.js";
-import {SandGameOptionsComponent} from "./SandGameOptionsComponent.js";
-import {ComponentViewTestTools} from "./ComponentViewTestTools.js";
-import {SandGameToolsComponent} from "./SandGameToolsComponent.js";
-import {SandGameCanvasComponent} from "./SandGameCanvasComponent.js";
-import {ActionDialogChangeCanvasSize} from "./ActionDialogChangeCanvasSize";
+import { DomBuilder } from "./DomBuilder.js";
+import { ElementArea } from "../core/ElementArea.js";
+import { SandGame } from "../core/SandGame.js";
+import { Brushes } from "../core/Brushes.js";
+import { Scenes } from "../def/Scenes.js";
+import { SceneImplTmpResize } from "../core/SceneImplResize.js";
+import { Tools } from "../def/Tools.js";
+import { Tool } from "../core/Tool.js";
+import { ServiceToolManager } from "./ServiceToolManager.js";
+import { SandGameControls } from "./SandGameControls.js";
+import { ServiceIO } from "./ServiceIO.js";
+import { ComponentViewSceneSelection } from "./ComponentViewSceneSelection.js";
+import { ComponentViewOptions } from "./ComponentViewOptions.js";
+import { ComponentViewTestTools } from "./ComponentViewTestTools.js";
+import { ComponentViewTools } from "./ComponentViewTools.js";
+import { ComponentViewCanvas } from "./ComponentViewCanvas.js";
+import { ActionDialogChangeElementSize } from "./ActionDialogChangeElementSize";
 
 import _ASSET_SVG_ADJUST_SCALE from './assets/icon-adjust-scale.svg'
+
+// TODO: extract Controller
+// TODO: implement Component
 
 /**
  * @requires jQuery
  *
  * @author Patrik Harag
- * @version 2023-08-18
+ * @version 2023-08-19
  */
 export class SandGameComponent extends SandGameControls {
 
@@ -53,6 +55,8 @@ export class SandGameComponent extends SandGameControls {
     #renderingMode = SandGame.RENDERING_MODE_CLASSIC;
     /** @type ServiceToolManager */
     #serviceToolManager = new ServiceToolManager();
+    /** @type ServiceIO */
+    #serviceIO = new ServiceIO(this);
 
     #node = null;
     #nodeHolderTopToolbar;
@@ -100,8 +104,8 @@ export class SandGameComponent extends SandGameControls {
             this.#currentScale = +(w / this.#init.canvasWidthPx).toFixed(3);
         }
 
-        const canvasComponent = new SandGameCanvasComponent(this);
-        this.#nodeHolderCanvas.append(canvasComponent.createNode());
+        const canvasComponent = new ComponentViewCanvas(this);
+        this.#nodeHolderCanvas.append(canvasComponent.createNode(this));
 
         // init game
         const defaultElement = Brushes.AIR.apply(0, 0, undefined);
@@ -194,41 +198,29 @@ export class SandGameComponent extends SandGameControls {
     }
 
     enableBrushes() {
-        let component = new SandGameToolsComponent(this, Tools.DEFAULT_TOOLS, true);
-        this.#nodeHolderTopToolbar.append(component.createNode());
+        let component = new ComponentViewTools(Tools.DEFAULT_TOOLS, true);
+        this.#nodeHolderTopToolbar.append(component.createNode(this));
     }
 
     enableOptions() {
-        let ioController = new SandGameControllerIO(this);
-        ioController.initFileDragAndDrop(this.#node);
+        this.#serviceIO.initFileDragAndDrop(this.#node);
 
-        let optionsComponent = new SandGameOptionsComponent(this, ioController);
-        this.#nodeHolderBottomToolbar.append(optionsComponent.createNode());
+        let optionsComponent = new ComponentViewOptions();
+        this.#nodeHolderBottomToolbar.append(optionsComponent.createNode(this));
     }
 
     enableScenes() {
-        let scenesComponent = new SandGameScenesComponent(this, this.#init.scene);
+        let scenesComponent = new ComponentViewSceneSelection(this, this.#init.scene);
 
         this.#nodeHolderAdditionalViews.append(DomBuilder.div(null, [
             DomBuilder.button(DomBuilder.create(_ASSET_SVG_ADJUST_SCALE), {
                 class: 'btn btn-outline-secondary adjust-scale',
                 'aria-label': 'Adjust scale'
             }, () => {
-                let elementSizeComponent = new SandGameElementSizeComponent(this, this.#currentScale, newScale => {
-                    let w = Math.trunc(this.#currentWidthPoints / this.#currentScale * newScale);
-                    let h = Math.trunc(this.#currentHeightPoints / this.#currentScale * newScale);
-                    this.changeCanvasSize(w, h, newScale);
-                });
-
-                let dialog = new DomBuilder.BootstrapDialog();
-                dialog.setHeaderContent('Adjust Scale');
-                dialog.setBodyContent(DomBuilder.div({ class: 'sand-game-component' }, elementSizeComponent.createNode()));
-                dialog.addSubmitButton("Set size manually", () => new ActionDialogChangeCanvasSize().performAction(this));
-                dialog.addCloseButton('Close');
-                dialog.show(this.getDialogAnchor());
+                new ActionDialogChangeElementSize().performAction(this);
             }),
             DomBuilder.span('Scenes', { class: 'scenes-label' }),
-            scenesComponent.createNode(),
+            scenesComponent.createNode(this),
         ]));
     }
 
@@ -391,10 +383,14 @@ export class SandGameComponent extends SandGameControls {
         this.#onPerformanceUpdate.push(handler);
     }
 
-    // SandGameControls / tools
+    // SandGameControls / services
 
     getToolManager() {
         return this.#serviceToolManager;
+    }
+
+    getIOManager() {
+        return this.#serviceIO;
     }
 
     // SandGameControls / ui

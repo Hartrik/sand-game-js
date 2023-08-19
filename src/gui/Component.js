@@ -10,6 +10,7 @@ export class Component {
     /**
      *
      * @param sandGameControls {SandGameControls}
+     * @return {jQuery<HTMLElement>}
      */
     createNode(sandGameControls) {
         throw 'Not implemented';

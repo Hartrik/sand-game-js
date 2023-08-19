@@ -1,68 +1,16 @@
-import {DomBuilder} from "./DomBuilder.js";
-import {SandGameControls} from "./SandGameControls.js";
-import {Processor} from "../core/Processor.js";
-import {Analytics} from "../Analytics.js";
+import { Analytics } from "../Analytics";
+import { DomBuilder } from "./DomBuilder";
+import { Processor } from "../core/Processor";
+import { Component } from "./Component";
 
 /**
  *
  * @author Patrik Harag
  * @version 2023-08-19
  */
-export class SandGameOptionsComponent {
+export class ComponentStatusIndicator extends Component {
 
-    /** @type SandGameControls */
-    #controls;
-    /** @type SandGameControllerIO */
-    #ioController;
-
-    /**
-     *
-     * @param sandGameControls {SandGameControls}
-     * @param ioController {SandGameControllerIO}
-     */
-    constructor(sandGameControls, ioController) {
-        this.#ioController = ioController;
-        this.#controls = sandGameControls;
-    }
-
-    createNode() {
-        return DomBuilder.div({class: 'sand-game-options'}, [
-            this.#createImportButton(),
-            this.#createExportButton(),
-            this.#createStartStopButton(),
-            this.#createStatusButton()
-        ]);
-    }
-
-    #createImportButton() {
-        return DomBuilder.button('Import', { class: 'btn btn-light' }, e => {
-            this.#ioController.doImport();
-        });
-    }
-
-    #createExportButton() {
-        return DomBuilder.button('Export', { class: 'btn btn-light' }, e => {
-            this.#ioController.doExport();
-        });
-    }
-
-    #createStartStopButton() {
-        const node = DomBuilder.button('', { class: 'btn btn-light' }, e => {
-            this.#controls.switchStartStop();
-            Analytics.triggerFeatureUsed(Analytics.FEATURE_PAUSE);
-        });
-
-        function updateStartStopButton(node, running) {
-            node.text(running ? 'Pause' : 'Start');
-        }
-
-        this.#controls.addOnStarted(() => updateStartStopButton(node, true));
-        this.#controls.addOnStopped(() => updateStartStopButton(node, false));
-
-        return node;
-    }
-
-    #createStatusButton() {
+    createNode(sandGameControls) {
         let currenStatus = '';
 
         const nodeStatusLabel = DomBuilder.span('');
@@ -79,7 +27,7 @@ export class SandGameOptionsComponent {
                 'aria-haspopup': 'true',
                 'aria-expanded': 'false'
             }, nodeLabel),
-            DomBuilder.element('form', { class: 'dropdown-menu p-2' }, this.#createStatusContent())
+            DomBuilder.element('form', { class: 'dropdown-menu p-2' }, this.#createStatusContent(sandGameControls))
         ]);
         node.on('show.bs.dropdown', function () {
             Analytics.triggerFeatureUsed(Analytics.FEATURE_STATUS_DISPLAYED);
@@ -94,9 +42,9 @@ export class SandGameOptionsComponent {
             }
         }
 
-        this.#controls.addOnStopped(() => updateStatus(node, 'stopped'));
-        this.#controls.addOnStarted(() => updateStatus(node, 'started'));
-        this.#controls.addOnPerformanceUpdate((cps, fps) => {
+        sandGameControls.addOnStopped(() => updateStatus(node, 'stopped'));
+        sandGameControls.addOnStarted(() => updateStatus(node, 'started'));
+        sandGameControls.addOnPerformanceUpdate((cps, fps) => {
             if (cps === 0) {
                 updateStatus(node, 'stopped');
                 return;
@@ -123,21 +71,21 @@ export class SandGameOptionsComponent {
         return node;
     }
 
-    #createStatusContent() {
+    #createStatusContent(sandGameControls) {
         const labelCPS = DomBuilder.span();
         const labelFPS = DomBuilder.span();
-        this.#controls.addOnPerformanceUpdate((cps, fps) => {
+        sandGameControls.addOnPerformanceUpdate((cps, fps) => {
             labelFPS.text('= ' + fps);
             labelCPS.text('= ' + cps);
         });
 
         const labelCanvasSize = DomBuilder.span();
         const updateCanvasSize = () => {
-            const w = this.#controls.getCurrentWidthPoints();
-            const h = this.#controls.getCurrentHeightPoints();
+            const w = sandGameControls.getCurrentWidthPoints();
+            const h = sandGameControls.getCurrentHeightPoints();
             labelCanvasSize.text(`= ${w.toLocaleString()}\u00D7${h.toLocaleString()} = ${(w * h).toLocaleString()}`);
         }
-        this.#controls.addOnInitialized(() => {
+        sandGameControls.addOnInitialized(() => {
             updateCanvasSize();
         });
         updateCanvasSize();

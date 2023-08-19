@@ -1,15 +1,16 @@
-import { DomBuilder } from "./DomBuilder.js";
-import { SandGameControls } from "./SandGameControls.js";
-import { CursorDefinitionElementArea } from "../core/CursorDefinitionElementArea.js";
-import { Renderer } from "../core/Renderer.js";
-import { Analytics } from "../Analytics.js";
+import { DomBuilder } from "./DomBuilder";
+import { SandGameControls } from "./SandGameControls";
+import { CursorDefinitionElementArea } from "../core/CursorDefinitionElementArea";
+import { Renderer } from "../core/Renderer";
+import { Analytics } from "../Analytics";
+import { Component } from "./Component";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-05-09
+ * @version 2023-08-19
  */
-export class SandGameCanvasComponent {
+export class ComponentViewCanvas extends Component {
 
     /** @type SandGameControls */
     #controls;
@@ -29,6 +30,7 @@ export class SandGameCanvasComponent {
      * @param sandGameControls {SandGameControls}
      */
     constructor(sandGameControls) {
+        super();
         this.#controls = sandGameControls;
 
         const w = this.#controls.getCurrentWidthPoints();
@@ -60,7 +62,7 @@ export class SandGameCanvasComponent {
         return canvas;
     }
 
-    createNode() {
+    createNode(sandGameControls) {
         return DomBuilder.div({
             style: 'position: relative;',
             class: 'sand-game-canvas-component'
