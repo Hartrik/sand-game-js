@@ -1,15 +1,12 @@
 import {DomBuilder} from "./DomBuilder.js";
 import {SandGameControls} from "./SandGameControls.js";
 import {Processor} from "../core/Processor.js";
-import {SandGame} from "../core/SandGame.js";
 import {Analytics} from "../Analytics.js";
-
-import _ASSET_SVG_ICON_GEAR from './assets/icon-gear.svg'
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-18
+ * @version 2023-08-19
  */
 export class SandGameOptionsComponent {
 
@@ -32,7 +29,6 @@ export class SandGameOptionsComponent {
         return DomBuilder.div({class: 'sand-game-options'}, [
             this.#createImportButton(),
             this.#createExportButton(),
-            this.#createOptionsButton(),
             this.#createStartStopButton(),
             this.#createStatusButton()
         ]);
@@ -64,75 +60,6 @@ export class SandGameOptionsComponent {
         this.#controls.addOnStopped(() => updateStartStopButton(node, false));
 
         return node;
-    }
-
-    #createOptionsButton() {
-        const label = DomBuilder.create(_ASSET_SVG_ICON_GEAR);
-        const button = DomBuilder.div({ class: 'btn-group' }, [
-            DomBuilder.element('button', {
-                type: 'button',
-                class: 'btn btn-light dropdown-toggle',
-                'data-toggle': 'dropdown',
-                'aria-haspopup': 'true',
-                'aria-expanded': 'false',
-                'aria-label': 'Options'
-            }, label),
-            DomBuilder.element('form', { class: 'dropdown-menu p-2' }, this.#createOptionsContent())
-        ]);
-        button.on('show.bs.dropdown', function () {
-            Analytics.triggerFeatureUsed(Analytics.FEATURE_OPTIONS_DISPLAYED);
-        });
-
-        return button;
-    }
-
-    #createOptionsContent() {
-        return [
-            DomBuilder.element('label', null, 'Canvas'),
-            DomBuilder.element('br'),
-            this.#createChangeCanvasSizeButton(),
-            DomBuilder.element('br'),
-            DomBuilder.element('br'),
-
-            DomBuilder.element('label', null, 'Rendering'),
-            DomBuilder.div({ class: 'form-check' }, [
-                DomBuilder.element('input', { type: 'checkbox', checked: this.#controls.isShowActiveChunks(), class: 'form-check-input', id: 'rend-check-show-active-chunks' }).change((e) => {
-                    this.#controls.setShowActiveChunks(e.target.checked);
-                    Analytics.triggerFeatureUsed(Analytics.FEATURE_RENDERER_SHOW_CHUNKS);
-                }),
-                DomBuilder.element('label', { class: 'form-check-label', for: 'rend-check-show-active-chunks' }, 'Show active chunks')
-            ]),
-            DomBuilder.div({ class: 'form-check' }, [
-                DomBuilder.element('input', { type: 'checkbox', checked: this.#controls.getRenderingMode() === SandGame.RENDERING_MODE_HEATMAP, class: 'form-check-input', id: 'rend-check-show-heatmap' }).change((e) => {
-                    this.#controls.setRenderingMode(e.target.checked ? SandGame.RENDERING_MODE_HEATMAP : SandGame.RENDERING_MODE_CLASSIC);
-                    Analytics.triggerFeatureUsed(Analytics.FEATURE_RENDERER_SHOW_HEATMAP);
-                }),
-                DomBuilder.element('label', { class: 'form-check-label', for: 'rend-check-show-heatmap' }, 'Show heatmap')
-            ])
-        ];
-    }
-
-    #createChangeCanvasSizeButton() {
-        return DomBuilder.button('Change size manually', { type: 'button', class: 'btn btn-light' }, e => {
-            let formBuilder = new DomBuilder.BootstrapSimpleForm();
-            formBuilder.addInput('Width', 'width', this.#controls.getCurrentWidthPoints());
-            formBuilder.addInput('Height', 'height', this.#controls.getCurrentHeightPoints());
-            formBuilder.addInput('Scale', 'scale', this.#controls.getCurrentScale());
-
-            let dialog = new DomBuilder.BootstrapDialog();
-            dialog.setHeaderContent('Change canvas size manually');
-            dialog.setBodyContent(formBuilder.createNode());
-            dialog.addSubmitButton('Submit', () => {
-                let data = formBuilder.getData();
-                let w = Number.parseInt(data['width']);
-                let h = Number.parseInt(data['height']);
-                let s = Number.parseFloat(data['scale']);
-                this.#controls.changeCanvasSize(w, h, s);
-                Analytics.triggerFeatureUsed(Analytics.FEATURE_CANVAS_SIZE_CHANGE);
-            });
-            dialog.addCloseButton('Close');
-            dialog.show(this.#controls.getDialogAnchor());
-        });
     }
 
     #createStatusButton() {

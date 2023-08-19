@@ -12,9 +12,10 @@ import {SandGameControllerIO} from "./SandGameControllerIO.js";
 import {SandGameScenesComponent} from "./SandGameScenesComponent.js";
 import {SandGameElementSizeComponent} from "./SandGameElementSizeComponent.js";
 import {SandGameOptionsComponent} from "./SandGameOptionsComponent.js";
-import {SandGameTestComponent} from "./SandGameTestComponent.js";
+import {ComponentViewTestTools} from "./ComponentViewTestTools.js";
 import {SandGameToolsComponent} from "./SandGameToolsComponent.js";
 import {SandGameCanvasComponent} from "./SandGameCanvasComponent.js";
+import {ActionDialogChangeCanvasSize} from "./ActionDialogChangeCanvasSize";
 
 import _ASSET_SVG_ADJUST_SCALE from './assets/icon-adjust-scale.svg'
 
@@ -222,6 +223,7 @@ export class SandGameComponent extends SandGameControls {
                 let dialog = new DomBuilder.BootstrapDialog();
                 dialog.setHeaderContent('Adjust Scale');
                 dialog.setBodyContent(DomBuilder.div({ class: 'sand-game-component' }, elementSizeComponent.createNode()));
+                dialog.addSubmitButton("Set size manually", () => new ActionDialogChangeCanvasSize().performAction(this));
                 dialog.addCloseButton('Close');
                 dialog.show(this.getDialogAnchor());
             }),
@@ -231,8 +233,7 @@ export class SandGameComponent extends SandGameControls {
     }
 
     enableTestTools() {
-        let component = new SandGameTestComponent(this);
-        this.#nodeHolderAdditionalViews.append(component.createNode());
+        this.#nodeHolderAdditionalViews.append(new ComponentViewTestTools().createNode(this));
     }
 
     // SandGameControls
