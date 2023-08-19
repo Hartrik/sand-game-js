@@ -29,17 +29,17 @@ export class ComponentViewElementSizeSelection extends Component {
     #selected = null;
     #selectedScale = null;
 
-    createNode(sandGameControls) {
+    createNode(controller) {
         for (let sizeDef of ComponentViewElementSizeSelection.SIZES) {
             let node = this.#createSizeCard(sizeDef.scale, sizeDef.image, sizeDef.description);
 
             // initial scale
-            if (sizeDef.scale === sandGameControls.getCurrentScale()) {
+            if (sizeDef.scale === controller.getCurrentScale()) {
                 this.#mark(node, sizeDef.scale);
             }
 
             node.on('click', e => {
-                this.#select(node, sizeDef.scale, sandGameControls);
+                this.#select(node, sizeDef.scale, controller);
             })
 
             this.#nodes.push(node);
@@ -57,7 +57,7 @@ export class ComponentViewElementSizeSelection extends Component {
         ]);
     }
 
-    #select(node, newScale, sandGameControls) {
+    #select(node, newScale, controller) {
         if (this.#selectedScale === newScale) {
             return;  // already selected
         }
@@ -69,9 +69,9 @@ export class ComponentViewElementSizeSelection extends Component {
         this.#mark(node, newScale);
 
         // change scale
-        let w = Math.trunc(sandGameControls.getCurrentWidthPoints() / sandGameControls.getCurrentScale() * newScale);
-        let h = Math.trunc(sandGameControls.getCurrentHeightPoints() / sandGameControls.getCurrentScale() * newScale);
-        sandGameControls.changeCanvasSize(w, h, newScale);
+        let w = Math.trunc(controller.getCurrentWidthPoints() / controller.getCurrentScale() * newScale);
+        let h = Math.trunc(controller.getCurrentHeightPoints() / controller.getCurrentScale() * newScale);
+        controller.changeCanvasSize(w, h, newScale);
 
         Analytics.triggerFeatureUsed(Analytics.FEATURE_SWITCH_SCALE);
     }

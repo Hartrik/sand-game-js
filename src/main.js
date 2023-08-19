@@ -1,7 +1,6 @@
 /**
- * Sand Game JS
  *
- * @author Patrik Harag, harag.cz
+ * @author Patrik Harag
  * @version 2023-08-19
  */
 

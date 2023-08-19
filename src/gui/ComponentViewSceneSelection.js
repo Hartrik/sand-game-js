@@ -24,7 +24,7 @@ export class ComponentViewSceneSelection extends Component {
 
 
     /** @type Controller */
-    #controls;
+    #controller;
 
     #ignoreOnBeforeNewSceneLoaded = false;
 
@@ -36,15 +36,15 @@ export class ComponentViewSceneSelection extends Component {
     #closedScenes = new Map();
 
     /**
-     * @param sandGameControls {Controller}
+     * @param controller {Controller}
      * @param initialScene
      */
-    constructor(sandGameControls, initialScene) {
+    constructor(controller, initialScene) {
         super();
-        this.#controls = sandGameControls;
+        this.#controller = controller;
         this.#initialScene = initialScene;
 
-        this.#controls.addOnBeforeNewSceneLoaded(() => {
+        this.#controller.addOnBeforeNewSceneLoaded(() => {
             if (!this.#ignoreOnBeforeNewSceneLoaded) {
                 this.#store();
                 this.#unselect();
@@ -52,7 +52,7 @@ export class ComponentViewSceneSelection extends Component {
         });
     }
 
-    createNode(sandGameControls) {
+    createNode(controller) {
         let content = DomBuilder.div({ class: 'scenes' }, []);
         for (let id of ComponentViewSceneSelection.SCENES) {
             let scene = Scenes.SCENES[id];
@@ -106,7 +106,7 @@ export class ComponentViewSceneSelection extends Component {
         ]);
         dialog.addSubmitButton('Confirm', onConfirm);
         dialog.addCloseButton('Close');
-        dialog.show(this.#controls.getDialogAnchor());
+        dialog.show(this.#controller.getDialogAnchor());
     }
 
     #select(node, id, scene) {
@@ -123,11 +123,11 @@ export class ComponentViewSceneSelection extends Component {
             this.#closedScenes.delete(id);
 
             this.#ignoreOnBeforeNewSceneLoaded = true;
-            this.#controls.openScene(new SceneImplSnapshot(snapshot));
+            this.#controller.openScene(new SceneImplSnapshot(snapshot));
             this.#ignoreOnBeforeNewSceneLoaded = false;
         } else {
             this.#ignoreOnBeforeNewSceneLoaded = true;
-            this.#controls.openScene(scene);
+            this.#controller.openScene(scene);
             this.#ignoreOnBeforeNewSceneLoaded = false;
         }
     }
@@ -142,7 +142,7 @@ export class ComponentViewSceneSelection extends Component {
 
     #store() {
         if (this.#selected) {
-            this.#closedScenes.set(this.#selectedSceneId, this.#controls.createSnapshot());
+            this.#closedScenes.set(this.#selectedSceneId, this.#controller.createSnapshot());
         }
     }
 }

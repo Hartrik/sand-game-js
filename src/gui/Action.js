@@ -9,10 +9,10 @@ export class Action {
 
     /**
      *
-     * @param sandGameControls {Controller}
+     * @param controller {Controller}
      * @returns void
      */
-    performAction(sandGameControls) {
+    performAction(controller) {
         throw 'Not implemented';
     }
 
@@ -48,7 +48,7 @@ class ActionAnonymous extends Action {
         this.#func = func;
     }
 
-    performAction(sandGameControls) {
-        this.#func(sandGameControls);
+    performAction(controller) {
+        this.#func(controller);
     }
 }

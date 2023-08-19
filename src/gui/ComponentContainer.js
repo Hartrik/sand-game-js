@@ -20,10 +20,10 @@ export class ComponentContainer {
         this.#components = components;
     }
 
-    createNode(sandGameControls) {
+    createNode(controller) {
         const content = DomBuilder.div({ class: this.#cssClass }, []);
         for (let component of this.#components) {
-            content.append(component.createNode(sandGameControls));
+            content.append(component.createNode(controller));
         }
         return content;
     }

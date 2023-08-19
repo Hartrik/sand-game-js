@@ -9,11 +9,11 @@ import { Analytics } from "../Analytics";
  */
 export class ActionDialogChangeCanvasSize extends Action {
 
-    performAction(sandGameControls) {
+    performAction(controller) {
         let formBuilder = new DomBuilder.BootstrapSimpleForm();
-        formBuilder.addInput('Width', 'width', '' + sandGameControls.getCurrentWidthPoints());
-        formBuilder.addInput('Height', 'height', '' + sandGameControls.getCurrentHeightPoints());
-        formBuilder.addInput('Scale', 'scale', '' + sandGameControls.getCurrentScale());
+        formBuilder.addInput('Width', 'width', '' + controller.getCurrentWidthPoints());
+        formBuilder.addInput('Height', 'height', '' + controller.getCurrentHeightPoints());
+        formBuilder.addInput('Scale', 'scale', '' + controller.getCurrentScale());
 
         let dialog = new DomBuilder.BootstrapDialog();
         dialog.setHeaderContent('Change canvas size manually');
@@ -23,10 +23,10 @@ export class ActionDialogChangeCanvasSize extends Action {
             let w = Number.parseInt(data['width']);
             let h = Number.parseInt(data['height']);
             let s = Number.parseFloat(data['scale']);
-            sandGameControls.changeCanvasSize(w, h, s);
+            controller.changeCanvasSize(w, h, s);
             Analytics.triggerFeatureUsed(Analytics.FEATURE_CANVAS_SIZE_CHANGE);
         });
         dialog.addCloseButton('Close');
-        dialog.show(sandGameControls.getDialogAnchor());
+        dialog.show(controller.getDialogAnchor());
     }
 }

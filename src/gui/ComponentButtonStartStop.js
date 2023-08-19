@@ -10,17 +10,17 @@ import { Analytics } from "../Analytics";
 export class ComponentButtonStartStop extends ComponentButton {
 
     constructor(cssClass) {
-        super('', cssClass, Action.create(controls => {
-            controls.switchStartStop();
+        super('', cssClass, Action.create(controller => {
+            controller.switchStartStop();
             Analytics.triggerFeatureUsed(Analytics.FEATURE_PAUSE);
         }));
     }
 
-    createNode(sandGameControls) {
-        const btn = super.createNode(sandGameControls);
+    createNode(controller) {
+        const btn = super.createNode(controller);
 
-        sandGameControls.addOnStarted(() => btn.text('Pause'));
-        sandGameControls.addOnStopped(() => btn.text('Start'));
+        controller.addOnStarted(() => btn.text('Pause'));
+        controller.addOnStopped(() => btn.text('Start'));
 
         return btn;
     }

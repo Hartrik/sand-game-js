@@ -10,7 +10,7 @@ import { Component } from "./Component";
  */
 export class ComponentStatusIndicator extends Component {
 
-    createNode(sandGameControls) {
+    createNode(controller) {
         let currenStatus = '';
 
         const nodeStatusLabel = DomBuilder.span('');
@@ -27,7 +27,7 @@ export class ComponentStatusIndicator extends Component {
                 'aria-haspopup': 'true',
                 'aria-expanded': 'false'
             }, nodeLabel),
-            DomBuilder.element('form', { class: 'dropdown-menu p-2' }, this.#createStatusContent(sandGameControls))
+            DomBuilder.element('form', { class: 'dropdown-menu p-2' }, this.#createStatusContent(controller))
         ]);
         node.on('show.bs.dropdown', function () {
             Analytics.triggerFeatureUsed(Analytics.FEATURE_STATUS_DISPLAYED);
@@ -42,11 +42,11 @@ export class ComponentStatusIndicator extends Component {
             }
         }
 
-        sandGameControls.addOnStopped(() => updateStatus(node, 'stopped'));
-        sandGameControls.addOnStarted(() => updateStatus(node, 'started'));
-        sandGameControls.addOnInitialized(sandGame => {
+        controller.addOnStopped(() => updateStatus(node, 'stopped'));
+        controller.addOnStarted(() => updateStatus(node, 'started'));
+        controller.addOnInitialized(sandGame => {
             sandGame.addOnRendered(() => {
-                const ips = sandGameControls.getSandGame().getIterationsPerSecond();
+                const ips = controller.getSandGame().getIterationsPerSecond();
                 if (ips === 0) {
                     updateStatus(node, 'stopped');
                     return;
@@ -74,13 +74,13 @@ export class ComponentStatusIndicator extends Component {
         return node;
     }
 
-    #createStatusContent(sandGameControls) {
+    #createStatusContent(controller) {
         const labelCPS = DomBuilder.span();
         const labelFPS = DomBuilder.span();
-        sandGameControls.addOnInitialized(sandGame => {
+        controller.addOnInitialized(sandGame => {
             sandGame.addOnRendered(() => {
-                const fps = sandGameControls.getSandGame().getFramesPerSecond();
-                const ips = sandGameControls.getSandGame().getIterationsPerSecond();
+                const fps = controller.getSandGame().getFramesPerSecond();
+                const ips = controller.getSandGame().getIterationsPerSecond();
                 labelFPS.text('= ' + fps);
                 labelCPS.text('= ' + ips);
             });
@@ -88,11 +88,11 @@ export class ComponentStatusIndicator extends Component {
 
         const labelCanvasSize = DomBuilder.span();
         const updateCanvasSize = () => {
-            const w = sandGameControls.getCurrentWidthPoints();
-            const h = sandGameControls.getCurrentHeightPoints();
+            const w = controller.getCurrentWidthPoints();
+            const h = controller.getCurrentHeightPoints();
             labelCanvasSize.text(`= ${w.toLocaleString()}\u00D7${h.toLocaleString()} = ${(w * h).toLocaleString()}`);
         }
-        sandGameControls.addOnInitialized(() => {
+        controller.addOnInitialized(() => {
             updateCanvasSize();
         });
         updateCanvasSize();

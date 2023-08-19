@@ -1,6 +1,38 @@
-import {Controller} from "./Controller.js";
-import {Brushes} from "../core/Brushes.js";
-import {SceneImplHardcoded} from "../core/SceneImplHardcoded.js";
+import { Controller } from "./Controller";
+import { Brushes } from "../core/Brushes";
+import { SceneImplHardcoded } from "../core/SceneImplHardcoded";
+import { Action } from "./Action";
+import { DomBuilder } from "./DomBuilder";
+import FileSaver from 'file-saver';
+
+/**
+ *
+ * @author Patrik Harag
+ * @version 2023-08-19
+ */
+export class ActionBenchmark extends Action {
+
+    performAction(controller) {
+        let benchmarkProvider = new BenchmarkProvider(controller, results => {
+            let dialog = new DomBuilder.BootstrapDialog();
+            dialog.setHeaderContent('Benchmark results');
+            dialog.setBodyContent([
+                DomBuilder.par(null, 'IPS AVG: ' + results.ipsAvg.toFixed(2)),
+                DomBuilder.par(null, 'IPS MIN: ' + results.ipsMin)
+            ]);
+            dialog.addCloseButton('Close');
+            dialog.addButton(
+                DomBuilder.button('Download results', { type: 'button', class: 'btn btn-primary' }, e => {
+                    const data = JSON.stringify(results, null, '  ');
+                    const blob = new Blob([data], { type: 'application/json;charset=utf-8' });
+                    FileSaver.saveAs(blob, 'benchmark.json');
+                })
+            );
+            dialog.show(controller.getDialogAnchor());
+        });
+        benchmarkProvider.start();
+    }
+}
 
 /**
  *
@@ -12,18 +44,18 @@ export class BenchmarkProvider {
     static WAITING_GAP = 300;
 
     /** @type Controller */
-    #controls;
+    #controller;
 
     /** @type function */
     #onFinish;
 
     /**
      *
-     * @param sandGameControls {Controller}
+     * @param controller {Controller}
      * @param onFinish {function({ipsAvg,ipsMin,benchmarks:{name,ipsAvg,ipsMin}[]})}
      */
-    constructor(sandGameControls, onFinish) {
-        this.#controls = sandGameControls;
+    constructor(controller, onFinish) {
+        this.#controller = controller;
         this.#onFinish = onFinish;
     }
 
@@ -32,8 +64,8 @@ export class BenchmarkProvider {
             apply: (sandGame) => this.#benchmarkScene(sandGame)
         });
 
-        this.#controls.openScene(scene);
-        this.#controls.start();
+        this.#controller.openScene(scene);
+        this.#controller.start();
     }
 
     #benchmarkScene(sandGame) {

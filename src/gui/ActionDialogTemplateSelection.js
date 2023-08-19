@@ -9,18 +9,18 @@ import { ComponentViewTemplateSelection } from "./ComponentViewTemplateSelection
  */
 export class ActionDialogTemplateSelection extends Action {
 
-    performAction(sandGameControls) {
+    performAction(controller) {
         let templatesComponent = new ComponentViewTemplateSelection();
 
         let dialog = new DomBuilder.BootstrapDialog();
         dialog.setHeaderContent('Templates');
         dialog.setBodyContent(DomBuilder.div({ class: 'sand-game-component' }, [
             DomBuilder.par(null, "Select a template"),
-            templatesComponent.createNode(sandGameControls),
+            templatesComponent.createNode(controller),
             DomBuilder.par(null, ""),
             DomBuilder.par(null, "You can also create your own template using an image. See the Import button.")
         ]));
         dialog.addCloseButton('Close');
-        dialog.show(sandGameControls.getDialogAnchor());
+        dialog.show(controller.getDialogAnchor());
     }
 }

@@ -15,13 +15,13 @@ import {Analytics} from "../Analytics.js";
 export class ServiceIO {
 
     /** @type Controller */
-    #controls;
+    #controller;
 
     /** @type TemplateForm */
     #templateForm;
 
-    constructor(controls) {
-        this.#controls = controls;
+    constructor(controller) {
+        this.#controller = controller;
         this.#templateForm = new TemplateForm();
     }
 
@@ -104,11 +104,11 @@ export class ServiceIO {
             handleImageTemplate(materialBrush, thresholdValue, maxWidth, maxHeight);
         });
         dialog.addCloseButton('Close');
-        dialog.show(this.#controls.getDialogAnchor());
+        dialog.show(this.#controller.getDialogAnchor());
     }
 
     #importImageTemplate(scene) {
-        this.#controls.pasteScene(scene);
+        this.#controller.pasteScene(scene);
         Analytics.triggerFeatureUsed(Analytics.FEATURE_IO_IMAGE_TEMPLATE);
     }
 
@@ -121,14 +121,14 @@ export class ServiceIO {
             ]);
             dialog.addSubmitButton('Open', () => {
                 Analytics.triggerFeatureUsed(Analytics.FEATURE_IO_IMPORT);
-                return this.#controls.openScene(scene);
+                return this.#controller.openScene(scene);
             });
             dialog.addSubmitButton('Place', () => {
                 Analytics.triggerFeatureUsed(Analytics.FEATURE_IO_IMPORT);
-                return this.#controls.pasteScene(scene);
+                return this.#controller.pasteScene(scene);
             });
             dialog.addCloseButton('Close');
-            dialog.show(this.#controls.getDialogAnchor());
+            dialog.show(this.#controller.getDialogAnchor());
         } catch (ex) {
             this.#handleError(ex);
         }
@@ -142,7 +142,7 @@ export class ServiceIO {
             DomBuilder.element('code', null, e)
         ]);
         dialog.addCloseButton('Close');
-        dialog.show(this.#controls.getDialogAnchor());
+        dialog.show(this.#controller.getDialogAnchor());
     }
 }
 

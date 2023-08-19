@@ -15,24 +15,24 @@ export class ComponentViewCanvas extends Component {
     #canvasHolderNode = DomBuilder.div({ class: 'sand-game-canvas-holder' });
     #currentCanvas = null;
 
-    createNode(sandGameControls) {
-        sandGameControls.registerCanvasInitializer(() => {
-            const canvasComponent = new ComponentViewInnerCanvas(sandGameControls);
-            this.#canvasHolderNode.append(canvasComponent.createNode(sandGameControls));
+    createNode(controller) {
+        controller.registerCanvasInitializer(() => {
+            const canvasComponent = new ComponentViewInnerCanvas(controller);
+            this.#canvasHolderNode.append(canvasComponent.createNode(controller));
             this.#currentCanvas = canvasComponent;
             return canvasComponent.getContext();
         });
 
-        sandGameControls.addOnImageRenderingStyleChanged((imageRenderingStyle) => {
+        controller.addOnImageRenderingStyleChanged((imageRenderingStyle) => {
             if (this.#currentCanvas !== null) {
                 this.#currentCanvas.setImageRenderingStyle(imageRenderingStyle)
             }
         });
 
-        sandGameControls.addOnInitialized((sandGame) => {
+        controller.addOnInitialized((sandGame) => {
             sandGame.addOnRendered((changedChunks) => {
                 // show highlighted chunks
-                if (sandGameControls.isShowActiveChunks()) {
+                if (controller.isShowActiveChunks()) {
                     this.#currentCanvas.highlightChunks(changedChunks);
                 } else {
                     this.#currentCanvas.highlightChunks(null);
@@ -43,7 +43,7 @@ export class ComponentViewCanvas extends Component {
             this.#currentCanvas.initMouseHandling(sandGame);
         })
 
-        sandGameControls.addOnBeforeClosed(() => {
+        controller.addOnBeforeClosed(() => {
             this.#currentCanvas = null;
             this.#canvasHolderNode.empty();
         })
@@ -61,7 +61,7 @@ export class ComponentViewCanvas extends Component {
 class ComponentViewInnerCanvas extends Component {
 
     /** @type Controller */
-    #controls;
+    #controller;
 
     #nodeCanvas;
 
@@ -75,21 +75,21 @@ class ComponentViewInnerCanvas extends Component {
 
 
     /**
-     * @param sandGameControls {Controller}
+     * @param controller {Controller}
      */
-    constructor(sandGameControls) {
+    constructor(controller) {
         super();
-        this.#controls = sandGameControls;
+        this.#controller = controller;
 
-        const w = this.#controls.getCurrentWidthPoints();
-        const h = this.#controls.getCurrentHeightPoints();
-        const scale = this.#controls.getCurrentScale();
+        const w = this.#controller.getCurrentWidthPoints();
+        const h = this.#controller.getCurrentHeightPoints();
+        const scale = this.#controller.getCurrentScale();
         this.#nodeCanvas = this.#createCanvas(w, h, scale);
 
-        this.#debugOverlayComponent = new SandGameCanvasDebugOverlayComponent(w, h, scale, sandGameControls);
+        this.#debugOverlayComponent = new SandGameCanvasDebugOverlayComponent(w, h, scale, controller);
         this.#nodeDebugOverlay = this.#debugOverlayComponent.createNode();
 
-        this.#cursorOverlayComponent = new SandGameCanvasCursorOverlayComponent(w, h, scale, sandGameControls);
+        this.#cursorOverlayComponent = new SandGameCanvasCursorOverlayComponent(w, h, scale, controller);
         this.#nodeCursorOverlay = this.#cursorOverlayComponent.createNode();
     }
 
@@ -105,12 +105,12 @@ class ComponentViewInnerCanvas extends Component {
 
         // rendering style
         let domCanvasNode = canvas[0];
-        domCanvasNode.style.imageRendering = this.#controls.getCanvasImageRenderingStyle();
+        domCanvasNode.style.imageRendering = this.#controller.getCanvasImageRenderingStyle();
 
         return canvas;
     }
 
-    createNode(sandGameControls) {
+    createNode(controller) {
         return DomBuilder.div({
             style: 'position: relative;',
             class: 'sand-game-canvas-component'
@@ -123,7 +123,7 @@ class ComponentViewInnerCanvas extends Component {
 
     initMouseHandling(sandGame) {
         let domNode = this.#nodeCursorOverlay[0];
-        const scale = this.#controls.getCurrentScale();
+        const scale = this.#controller.getCurrentScale();
 
         let getActualMousePosition = (e) => {
             const rect = domNode.getBoundingClientRect();
@@ -151,7 +151,7 @@ class ComponentViewInnerCanvas extends Component {
                 e.preventDefault();
 
                 if (!e.altKey && !e.ctrlKey && !e.shiftKey) {
-                    const tool = this.#controls.getToolManager().getTertiaryTool();
+                    const tool = this.#controller.getToolManager().getTertiaryTool();
                     tool.applyPoint(x, y, sandGame.graphics(), false);
                     Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_TERTIARY);
                     Analytics.triggerToolUsed(tool);
@@ -162,10 +162,10 @@ class ComponentViewInnerCanvas extends Component {
             }
 
             if (e.buttons === 1) {
-                lastTool = this.#controls.getToolManager().getPrimaryTool();
+                lastTool = this.#controller.getToolManager().getPrimaryTool();
                 Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_PRIMARY);
             } else {
-                lastTool = this.#controls.getToolManager().getSecondaryTool();
+                lastTool = this.#controller.getToolManager().getSecondaryTool();
                 Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_SECONDARY);
             }
 
@@ -200,7 +200,7 @@ class ComponentViewInnerCanvas extends Component {
                     const [x, y] = getActualMousePosition(e);
                     this.#cursorOverlayComponent.moveCursor(x, y, scale);
                 } else {
-                    const cursorDefinition = this.#controls.getToolManager().getPrimaryTool().createCursor();
+                    const cursorDefinition = this.#controller.getToolManager().getPrimaryTool().createCursor();
                     if (cursorDefinition !== null) {
                         const [x, y] = getActualMousePosition(e);
                         this.#cursorOverlayComponent.showCursor(x, y, scale, cursorDefinition);
@@ -281,7 +281,7 @@ class ComponentViewInnerCanvas extends Component {
             const [x, y] = getActualTouchPosition(e);
             lastX = x;
             lastY = y;
-            lastTool = this.#controls.getToolManager().getPrimaryTool();
+            lastTool = this.#controller.getToolManager().getPrimaryTool();
             lastTool.applyPoint(x, y, sandGame.graphics(), false);
             Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_PRIMARY);
             Analytics.triggerToolUsed(lastTool);
@@ -330,14 +330,14 @@ class ComponentViewInnerCanvas extends Component {
 class SandGameCanvasCursorOverlayComponent {
 
     /** @type Controller */
-    #controls;
+    #controller;
 
     #nodeOverlay;
 
     /** @type {{node:any,width:number,height:number}|null} */
     #cursor = null;
 
-    constructor(w, h, scale, controls) {
+    constructor(w, h, scale, controller) {
         const wPx = w / scale;
         const hPx = h / scale;
         this.#nodeOverlay = DomBuilder.div({
@@ -346,7 +346,7 @@ class SandGameCanvasCursorOverlayComponent {
             width: w + 'px',
             height: h + 'px',
         });
-        this.#controls = controls;
+        this.#controller = controller;
     }
 
     createNode() {
@@ -382,8 +382,8 @@ class SandGameCanvasCursorOverlayComponent {
     repaintLineSelection(lastX, lastY, x, y, scale) {
         this.#nodeOverlay.empty();
 
-        const w = this.#controls.getCurrentWidthPoints();
-        const h = this.#controls.getCurrentHeightPoints();
+        const w = this.#controller.getCurrentWidthPoints();
+        const h = this.#controller.getCurrentHeightPoints();
 
         const line = DomBuilder.create(`
             <svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
@@ -436,8 +436,8 @@ class SandGameCanvasCursorOverlayComponent {
     moveCursor(x, y, scale) {
         const cursor = this.#cursor;
 
-        const pxW = this.#controls.getCurrentWidthPoints() / scale;
-        const pxH = this.#controls.getCurrentHeightPoints() / scale;
+        const pxW = this.#controller.getCurrentWidthPoints() / scale;
+        const pxH = this.#controller.getCurrentHeightPoints() / scale;
 
         const pxTop = y / scale - Math.trunc(cursor.height / 2);
         const pxLeft = x / scale - Math.trunc(cursor.width / 2);
@@ -467,7 +467,7 @@ class SandGameCanvasCursorOverlayComponent {
 class SandGameCanvasDebugOverlayComponent {
 
     /** @type Controller */
-    #controls;
+    #controller;
 
     #nodeOverlay;
 
@@ -475,7 +475,7 @@ class SandGameCanvasDebugOverlayComponent {
     #h;
     #scale;
 
-    constructor(w, h, scale, controls) {
+    constructor(w, h, scale, controller) {
         this.#w = w;
         this.#h = h;
         this.#scale = scale;
@@ -487,7 +487,7 @@ class SandGameCanvasDebugOverlayComponent {
             width: w + 'px',
             height: h + 'px',
         });
-        this.#controls = controls;
+        this.#controller = controller;
     }
 
     /**
@@ -499,7 +499,7 @@ class SandGameCanvasDebugOverlayComponent {
 
         if (changedChunks) {
 
-            const sandGame = this.#controls.getSandGame();
+            const sandGame = this.#controller.getSandGame();
             const chunkSize = sandGame.getChunkSize();
             const horChunkCount = Math.ceil(sandGame.getWidth() / chunkSize);
             const verChunkCount = Math.ceil(sandGame.getHeight() / chunkSize);

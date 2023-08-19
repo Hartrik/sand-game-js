@@ -10,8 +10,8 @@ import FileSaver from 'file-saver';
  */
 export class ActionIOExport extends Action {
 
-    performAction(sandGameControls) {
-        const snapshot = sandGameControls.createSnapshot();
+    performAction(controller) {
+        const snapshot = controller.createSnapshot();
         const bytes = ResourceIO.createResourceFromSnapshot(snapshot);
         FileSaver.saveAs(new Blob([bytes]), this.#createFilename());
         Analytics.triggerFeatureUsed(Analytics.FEATURE_IO_EXPORT);

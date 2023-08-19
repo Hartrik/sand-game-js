@@ -11,12 +11,12 @@ import _ASSET_SVG_ADJUST_SCALE from "./assets/icon-adjust-scale.svg";
  */
 export class ComponentButtonAdjustScale extends Component {
 
-    createNode(sandGameControls) {
+    createNode(controller) {
         return DomBuilder.button(DomBuilder.create(_ASSET_SVG_ADJUST_SCALE), {
             class: 'btn btn-outline-secondary adjust-scale',
             'aria-label': 'Adjust scale'
         }, () => {
-            new ActionDialogChangeElementSize().performAction(sandGameControls);
+            new ActionDialogChangeElementSize().performAction(controller);
         });
     }
 }

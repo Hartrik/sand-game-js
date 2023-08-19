@@ -27,21 +27,21 @@ export class MainComponent extends Component {
         this.#enableTestTools = true;
     }
 
-    createNode(sandGameControls) {
+    createNode(controller) {
         let componentNode = DomBuilder.div({ class: 'sand-game-component' });
 
-        sandGameControls.registerDialogAnchor(componentNode);
+        controller.registerDialogAnchor(componentNode);
 
-        componentNode.append(new ComponentViewTools(Tools.DEFAULT_TOOLS, true).createNode(sandGameControls));
-        componentNode.append(new ComponentViewCanvas().createNode(sandGameControls));
-        componentNode.append(new ComponentViewOptions().createNode(sandGameControls));
+        componentNode.append(new ComponentViewTools(Tools.DEFAULT_TOOLS, true).createNode(controller));
+        componentNode.append(new ComponentViewCanvas().createNode(controller));
+        componentNode.append(new ComponentViewOptions().createNode(controller));
         componentNode.append(DomBuilder.div({ class: 'sand-game-views' }, [
             DomBuilder.div(null, [
-                new ComponentButtonAdjustScale().createNode(sandGameControls),
+                new ComponentButtonAdjustScale().createNode(controller),
                 DomBuilder.span('Scenes', { class: 'scenes-label' }),
-                new ComponentViewSceneSelection(sandGameControls, this.#init.scene).createNode(sandGameControls),
+                new ComponentViewSceneSelection(controller, this.#init.scene).createNode(controller),
             ]),
-            new ComponentViewTestTools().createNode(sandGameControls)
+            this.#enableTestTools ? new ComponentViewTestTools().createNode(controller) : null,
         ]));
 
         return componentNode;

@@ -1,6 +1,7 @@
 import { DomBuilder } from "./DomBuilder";
 import { Action } from "./Action";
 import { ActionsTest } from "./ActionsTest";
+import { ActionBenchmark } from "./ActionBenchmark";
 import { Component } from "./Component";
 import { ComponentButton } from "./ComponentButton";
 import { Tools } from "../def/Tools";
@@ -23,11 +24,11 @@ export class ComponentViewTestTools extends Component {
         new ComponentButton("M/element_type", ComponentButton.CLASS_INFO, Action.create(c => c.setRenderingMode(SandGame.RENDERING_MODE_ELEMENT_TYPE))),
         new ComponentButton("Pixelated", ComponentButton.CLASS_INFO, Action.createToggle(true, (c, v) => c.setCanvasImageRenderingStyle(v ? 'pixelated' : 'auto'))),
 
-        new ComponentButton("Benchmark", ComponentButton.CLASS_WARNING, ActionsTest.BENCHMARK),
+        new ComponentButton("Benchmark", ComponentButton.CLASS_WARNING, new ActionBenchmark()),
     ];
 
 
-    createNode(sandGameControls) {
+    createNode(controller) {
         let content = DomBuilder.div({ class: 'test-tools' }, []);
 
         let components = [...ComponentViewTestTools.COMPONENTS];
@@ -37,7 +38,7 @@ export class ComponentViewTestTools extends Component {
         }
 
         for (let component of components) {
-            content.append(component.createNode(sandGameControls));
+            content.append(component.createNode(controller));
         }
         return content;
     }

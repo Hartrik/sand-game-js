@@ -32,9 +32,9 @@ export class ComponentButton {
         this.#cssClass = (cssClass == null ? ComponentButton.CLASS_PRIMARY : cssClass);
     }
 
-    createNode(sandGameControls) {
+    createNode(controller) {
         return DomBuilder.button(this.#label, { class: 'btn ' + this.#cssClass }, e => {
-            this.#action.performAction(sandGameControls);
+            this.#action.performAction(controller);
         });
     }
 }

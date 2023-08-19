@@ -168,7 +168,7 @@ export class Controller {
         return this.#sandGame;
     }
 
-    // SandGameControls - simulation state
+    // controller - simulation state
 
     /** @type function(SandGame)[] */
     #onInitialized = [];
@@ -276,7 +276,7 @@ export class Controller {
         toolManager.setSecondaryTool(Tool.actionTool(null, null, null, revert));
     }
 
-    // SandGameControls / canvas size
+    // controller / canvas size
 
     /**
      *
@@ -329,7 +329,7 @@ export class Controller {
         this.#initialize(new SceneImplTmpResize(this.#sandGame));
     }
 
-    // SandGameControls / options
+    // controller / options
 
     /**
      *
@@ -394,7 +394,7 @@ export class Controller {
         this.#onImageRenderingStyleChanged.push(handler);
     }
 
-    // SandGameControls / services
+    // controller / services
 
     /**
      *
@@ -412,7 +412,7 @@ export class Controller {
         return this.#serviceIO;
     }
 
-    // SandGameControls / ui
+    // controller / ui
 
     getDialogAnchor() {
         return this.#dialogAnchor;

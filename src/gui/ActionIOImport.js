@@ -7,11 +7,11 @@ import { Action } from "./Action";
  */
 export class ActionIOImport extends Action {
 
-    performAction(sandGameControls) {
+    performAction(controller) {
         let input = document.createElement('input');
         input.type = 'file';
         input.onchange = e => {
-            sandGameControls.getIOManager().loadFromFiles(e.target.files);
+            controller.getIOManager().loadFromFiles(e.target.files);
         }
         input.click();
     }

@@ -11,7 +11,7 @@ import { Component } from "./Component";
  */
 export class ComponentViewTemplateSelection extends Component {
 
-    createNode(sandGameControls) {
+    createNode(controller) {
         let buttons = [];
 
         for (const toolDefinition of Templates.TOOLS) {
@@ -21,7 +21,7 @@ export class ComponentViewTemplateSelection extends Component {
             let button = DomBuilder.button(name, { class: 'btn btn-light template-button', 'data-dismiss': 'modal'}, () => {
                 if (loadedTool !== null) {
 
-                    const toolManager = sandGameControls.getToolManager();
+                    const toolManager = controller.getToolManager();
                     const revert = toolManager.createRevertAction();
 
                     toolManager.setPrimaryTool(loadedTool);
