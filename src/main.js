@@ -1,8 +1,14 @@
+/**
+ * Sand Game JS
+ *
+ * @author Patrik Harag, harag.cz
+ * @version 2023-08-19
+ */
 
-import { SandGameComponent } from "./gui/SandGameComponent.js";
-import { Analytics } from "./Analytics.js";
-
-export { Brushes } from "./core/Brushes.js";
+import { Analytics } from "./Analytics";
+import { Controller } from "./gui/Controller";
+import { MainComponent } from "./gui/MainComponent";
+export { Brushes } from "./core/Brushes";
 
 
 function determineSize(root) {
@@ -47,49 +53,55 @@ function determineOptimalScale(width, height, maxPoints) {
     }
 }
 
-export function initStandard(root, assetsContextPath) {
+export function initStandard(root) {
     const {width, height} = determineSize(root);
     const scale = determineOptimalScale(width, height, determineMaxNumberOfPoints());
 
-    let init = {
+    const init = {
         scale: scale,
         canvasWidthPx: width,
         canvasHeightPx: height,
-        scene: (Math.random() > 0.1) ? 'landscape_1' : 'landscape_2',
-        assetsContextPath: assetsContextPath
+        scene: (Math.random() > 0.1) ? 'landscape_1' : 'landscape_2'
     };
-    let sandGameComponent = new SandGameComponent(root, init);
-    sandGameComponent.enableGlobalShortcuts();
-    sandGameComponent.enableBrushes();
-    sandGameComponent.enableOptions();
-    sandGameComponent.enableScenes();
-    sandGameComponent.start();
+
+    const controller = new Controller(init);
+    const mainComponent = new MainComponent(init);
+    const node = mainComponent.createNode(controller);
+    root.append(node);
+
+    controller.setup();
+    controller.getIOManager().initFileDragAndDrop(node);
+    controller.enableGlobalShortcuts();
+    controller.start();
 
     Analytics.triggerFeatureUsed(Analytics.FEATURE_APP_INITIALIZED);
 
-    return sandGameComponent;
+    return controller;
 }
 
-export function initTest(root, assetsContextPath) {
+export function initTest(root) {
     const {width, height} = determineSize(root);
     const scale = determineOptimalScale(width, height, determineMaxNumberOfPoints());
 
-    let init = {
+    const init = {
         scale: scale,
         canvasWidthPx: width,
         canvasHeightPx: height,
-        scene: 'landscape_1',
-        assetsContextPath: assetsContextPath
+        scene: 'landscape_1'
     };
-    let sandGameComponent = new SandGameComponent(root, init);
-    sandGameComponent.enableGlobalShortcuts();
-    sandGameComponent.enableBrushes();
-    sandGameComponent.enableOptions();
-    sandGameComponent.enableScenes();
-    sandGameComponent.enableTestTools();
-    sandGameComponent.start();
+
+    const controller = new Controller(init);
+    const mainComponent = new MainComponent(init);
+    mainComponent.enableTestTools();
+    const node = mainComponent.createNode(controller);
+    root.append(node);
+
+    controller.setup();
+    controller.getIOManager().initFileDragAndDrop(node);
+    controller.enableGlobalShortcuts();
+    controller.start();
 
     Analytics.triggerFeatureUsed(Analytics.FEATURE_APP_INITIALIZED);
 
-    return sandGameComponent;
+    return controller;
 }

@@ -9,7 +9,7 @@ export class Action {
 
     /**
      *
-     * @param sandGameControls {SandGameControls}
+     * @param sandGameControls {Controller}
      * @returns void
      */
     performAction(sandGameControls) {
@@ -18,7 +18,7 @@ export class Action {
 
     /**
      *
-     * @param func {function(controller:SandGameControls):void}
+     * @param func {function(controller:Controller):void}
      * @returns {ActionAnonymous}
      */
     static create(func) {
@@ -28,7 +28,7 @@ export class Action {
     /**
      *
      * @param def {boolean}
-     * @param func {function(controller:SandGameControls,v:boolean):void}
+     * @param func {function(controller:Controller,v:boolean):void}
      * @returns {ActionAnonymous}
      */
     static createToggle(def, func) {

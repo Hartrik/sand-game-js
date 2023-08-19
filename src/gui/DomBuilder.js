@@ -9,7 +9,7 @@ export class DomBuilder {
     /**
      *
      * @param html {string}
-     * @return {JQuery<HTMLElement>}
+     * @return {jQuery<HTMLElement>}
      */
     static create(html) {
         return $(html);

@@ -1,5 +1,5 @@
 import { DomBuilder } from "./DomBuilder";
-import { SandGameControls } from "./SandGameControls";
+import { Controller } from "./Controller";
 import { CursorDefinitionElementArea } from "../core/CursorDefinitionElementArea";
 import { Renderer } from "../core/Renderer";
 import { Analytics } from "../Analytics";
@@ -12,7 +12,55 @@ import { Component } from "./Component";
  */
 export class ComponentViewCanvas extends Component {
 
-    /** @type SandGameControls */
+    #canvasHolderNode = DomBuilder.div({ class: 'sand-game-canvas-holder' });
+    #currentCanvas = null;
+
+    createNode(sandGameControls) {
+        sandGameControls.registerCanvasInitializer(() => {
+            const canvasComponent = new ComponentViewInnerCanvas(sandGameControls);
+            this.#canvasHolderNode.append(canvasComponent.createNode(sandGameControls));
+            this.#currentCanvas = canvasComponent;
+            return canvasComponent.getContext();
+        });
+
+        sandGameControls.addOnImageRenderingStyleChanged((imageRenderingStyle) => {
+            if (this.#currentCanvas !== null) {
+                this.#currentCanvas.setImageRenderingStyle(imageRenderingStyle)
+            }
+        });
+
+        sandGameControls.addOnInitialized((sandGame) => {
+            sandGame.addOnRendered((changedChunks) => {
+                // show highlighted chunks
+                if (sandGameControls.isShowActiveChunks()) {
+                    this.#currentCanvas.highlightChunks(changedChunks);
+                } else {
+                    this.#currentCanvas.highlightChunks(null);
+                }
+            });
+
+            // mouse handling
+            this.#currentCanvas.initMouseHandling(sandGame);
+        })
+
+        sandGameControls.addOnBeforeClosed(() => {
+            this.#currentCanvas = null;
+            this.#canvasHolderNode.empty();
+        })
+
+        return this.#canvasHolderNode;
+    }
+}
+
+/**
+ *
+ *
+ * @author Patrik Harag
+ * @version 2023-08-19
+ */
+class ComponentViewInnerCanvas extends Component {
+
+    /** @type Controller */
     #controls;
 
     #nodeCanvas;
@@ -27,7 +75,7 @@ export class ComponentViewCanvas extends Component {
 
 
     /**
-     * @param sandGameControls {SandGameControls}
+     * @param sandGameControls {Controller}
      */
     constructor(sandGameControls) {
         super();
@@ -272,10 +320,6 @@ export class ComponentViewCanvas extends Component {
     highlightChunks(changedChunks) {
         this.#debugOverlayComponent.highlightChunks(changedChunks);
     }
-
-    close() {
-        // TODO
-    }
 }
 
 /**
@@ -285,7 +329,7 @@ export class ComponentViewCanvas extends Component {
  */
 class SandGameCanvasCursorOverlayComponent {
 
-    /** @type SandGameControls */
+    /** @type Controller */
     #controls;
 
     #nodeOverlay;
@@ -422,7 +466,7 @@ class SandGameCanvasCursorOverlayComponent {
  */
 class SandGameCanvasDebugOverlayComponent {
 
-    /** @type SandGameControls */
+    /** @type Controller */
     #controls;
 
     #nodeOverlay;

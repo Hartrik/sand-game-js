@@ -1,4 +1,4 @@
-import {SandGameControls} from "./SandGameControls.js";
+import {Controller} from "./Controller.js";
 import {Brushes} from "../core/Brushes.js";
 import {SceneImplHardcoded} from "../core/SceneImplHardcoded.js";
 
@@ -11,7 +11,7 @@ export class BenchmarkProvider {
 
     static WAITING_GAP = 300;
 
-    /** @type SandGameControls */
+    /** @type Controller */
     #controls;
 
     /** @type function */
@@ -19,7 +19,7 @@ export class BenchmarkProvider {
 
     /**
      *
-     * @param sandGameControls {SandGameControls}
+     * @param sandGameControls {Controller}
      * @param onFinish {function({ipsAvg,ipsMin,benchmarks:{name,ipsAvg,ipsMin}[]})}
      */
     constructor(sandGameControls, onFinish) {

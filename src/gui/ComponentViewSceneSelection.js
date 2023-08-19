@@ -23,7 +23,7 @@ export class ComponentViewSceneSelection extends Component {
     ];
 
 
-    /** @type SandGameControls */
+    /** @type Controller */
     #controls;
 
     #ignoreOnBeforeNewSceneLoaded = false;
@@ -36,7 +36,7 @@ export class ComponentViewSceneSelection extends Component {
     #closedScenes = new Map();
 
     /**
-     * @param sandGameControls {SandGameControls}
+     * @param sandGameControls {Controller}
      * @param initialScene
      */
     constructor(sandGameControls, initialScene) {

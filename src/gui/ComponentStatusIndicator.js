@@ -44,28 +44,31 @@ export class ComponentStatusIndicator extends Component {
 
         sandGameControls.addOnStopped(() => updateStatus(node, 'stopped'));
         sandGameControls.addOnStarted(() => updateStatus(node, 'started'));
-        sandGameControls.addOnPerformanceUpdate((cps, fps) => {
-            if (cps === 0) {
-                updateStatus(node, 'stopped');
-                return;
-            }
-            if (cps > 105) {
-                updateStatus(node, 'best');
-                return;
-            }
-            if (cps > 80) {
-                updateStatus(node, 'good');
-                return;
-            }
-            if (cps > 50) {
-                updateStatus(node, 'medium');
-                return;
-            }
-            if (cps > 40) {
-                updateStatus(node, 'low');
-                return;
-            }
-            updateStatus(node, 'poor');
+        sandGameControls.addOnInitialized(sandGame => {
+            sandGame.addOnRendered(() => {
+                const ips = sandGameControls.getSandGame().getIterationsPerSecond();
+                if (ips === 0) {
+                    updateStatus(node, 'stopped');
+                    return;
+                }
+                if (ips > 105) {
+                    updateStatus(node, 'best');
+                    return;
+                }
+                if (ips > 80) {
+                    updateStatus(node, 'good');
+                    return;
+                }
+                if (ips > 50) {
+                    updateStatus(node, 'medium');
+                    return;
+                }
+                if (ips > 40) {
+                    updateStatus(node, 'low');
+                    return;
+                }
+                updateStatus(node, 'poor');
+            });
         });
 
         return node;
@@ -74,9 +77,13 @@ export class ComponentStatusIndicator extends Component {
     #createStatusContent(sandGameControls) {
         const labelCPS = DomBuilder.span();
         const labelFPS = DomBuilder.span();
-        sandGameControls.addOnPerformanceUpdate((cps, fps) => {
-            labelFPS.text('= ' + fps);
-            labelCPS.text('= ' + cps);
+        sandGameControls.addOnInitialized(sandGame => {
+            sandGame.addOnRendered(() => {
+                const fps = sandGameControls.getSandGame().getFramesPerSecond();
+                const ips = sandGameControls.getSandGame().getIterationsPerSecond();
+                labelFPS.text('= ' + fps);
+                labelCPS.text('= ' + ips);
+            });
         });
 
         const labelCanvasSize = DomBuilder.span();

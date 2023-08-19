@@ -20,10 +20,10 @@
           let root = $('#sand-game-root');
           root.empty();
 
-          // const component = SandGameJS.initStandard(root);
-          const component = SandGameJS.initTest(root);
-          sandGame = component.getSandGame();
-          component.addOnInitialized(s => {
+          // const controller = SandGameJS.initStandard(root);
+          const controller = SandGameJS.initTest(root);
+          sandGame = controller.getSandGame();
+          controller.addOnInitialized(s => {
               sandGame = s;
           });
           brushes = SandGameJS.Brushes;

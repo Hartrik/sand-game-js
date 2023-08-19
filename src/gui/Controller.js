@@ -1,40 +1,24 @@
-import { DomBuilder } from "./DomBuilder.js";
-import { ElementArea } from "../core/ElementArea.js";
-import { SandGame } from "../core/SandGame.js";
-import { Brushes } from "../core/Brushes.js";
-import { Scenes } from "../def/Scenes.js";
-import { SceneImplTmpResize } from "../core/SceneImplResize.js";
-import { Tools } from "../def/Tools.js";
-import { Tool } from "../core/Tool.js";
-import { ServiceToolManager } from "./ServiceToolManager.js";
-import { SandGameControls } from "./SandGameControls.js";
-import { ServiceIO } from "./ServiceIO.js";
-import { ComponentViewSceneSelection } from "./ComponentViewSceneSelection.js";
-import { ComponentViewOptions } from "./ComponentViewOptions.js";
-import { ComponentViewTestTools } from "./ComponentViewTestTools.js";
-import { ComponentViewTools } from "./ComponentViewTools.js";
-import { ComponentViewCanvas } from "./ComponentViewCanvas.js";
-import { ActionDialogChangeElementSize } from "./ActionDialogChangeElementSize";
-
-import _ASSET_SVG_ADJUST_SCALE from './assets/icon-adjust-scale.svg'
-
-// TODO: extract Controller
-// TODO: implement Component
+import { ElementArea } from "../core/ElementArea";
+import { SandGame } from "../core/SandGame";
+import { Brushes } from "../core/Brushes";
+import { Scenes } from "../def/Scenes";
+import { SceneImplTmpResize } from "../core/SceneImplResize";
+import { Tool } from "../core/Tool";
+import { ServiceToolManager } from "./ServiceToolManager";
+import { ServiceIO } from "./ServiceIO";
 
 /**
- * @requires jQuery
  *
  * @author Patrik Harag
  * @version 2023-08-19
  */
-export class SandGameComponent extends SandGameControls {
+export class Controller {
 
     #init = {
         scale: 0.5,
         canvasWidthPx: 700,
         canvasHeightPx: 400,
-        scene: 'empty',
-        assetsContextPath: './assets'
+        scene: 'empty'
     };
 
     /** @type number */
@@ -48,30 +32,27 @@ export class SandGameComponent extends SandGameControls {
     #sandGame = null;
     /** @type string */
     #imageRendering = 'pixelated';
+    /** @type function[] */
+    #onImageRenderingStyleChanged = [];
     /** @type boolean */
     #simulationEnabled = false;
     /** @type boolean */
     #showActiveChunks = false;
     #renderingMode = SandGame.RENDERING_MODE_CLASSIC;
+
     /** @type ServiceToolManager */
     #serviceToolManager = new ServiceToolManager();
     /** @type ServiceIO */
     #serviceIO = new ServiceIO(this);
 
-    #node = null;
-    #nodeHolderTopToolbar;
-    #nodeHolderCanvas;
-    #nodeHolderBottomToolbar;
-    #nodeHolderAdditionalViews;
+    #dialogAnchor;
+    #canvasInitializer = null;
 
-    /** @type function|null */
-    #canvasFinalizer = null;
-    /** @type function|null */
-    #canvasSettingsUpdater = null;
-
-    constructor(rootNode, init) {
-        super();
-
+    /**
+     *
+     * @param init
+     */
+    constructor(init) {
         if (init) {
             this.#init = init;
         }
@@ -79,16 +60,21 @@ export class SandGameComponent extends SandGameControls {
         this.#currentWidthPoints = Math.trunc(this.#init.canvasWidthPx * this.#init.scale);
         this.#currentHeightPoints = Math.trunc(this.#init.canvasHeightPx * this.#init.scale);
         this.#currentScale = this.#init.scale;
+    }
 
-        // create component node
-        this.#node = DomBuilder.div({ class: 'sand-game-component' }, [
-            this.#nodeHolderTopToolbar = DomBuilder.div(),
-            this.#nodeHolderCanvas = DomBuilder.div(),
-            this.#nodeHolderBottomToolbar = DomBuilder.div(),
-            this.#nodeHolderAdditionalViews = DomBuilder.div({ class: 'sand-game-views' }),
-        ]);
-        rootNode.append(this.#node);
+    /**
+     *
+     * @param canvasInitializer {function():CanvasRenderingContext2D}
+     */
+    registerCanvasInitializer(canvasInitializer) {
+        this.#canvasInitializer = canvasInitializer;
+    }
 
+    registerDialogAnchor(dialogAnchor) {
+        this.#dialogAnchor = dialogAnchor;
+    }
+
+    setup() {
         this.#initialize(Scenes.SCENES[this.#init.scene]);
     }
 
@@ -97,6 +83,13 @@ export class SandGameComponent extends SandGameControls {
      * @param scene {Scene}
      */
     #initialize(scene) {
+        if (this.#canvasInitializer == null) {
+            throw 'Illegal state: canvas initializer not registered!';
+        }
+        if (this.#dialogAnchor == null) {
+            throw 'Illegal state: dialog anchor not registered!';
+        }
+
         const [w, h] = scene.countSize(this.#currentWidthPoints, this.#currentHeightPoints);
         if (w !== this.#currentWidthPoints || h !== this.#currentHeightPoints) {
             this.#currentWidthPoints = w;
@@ -104,40 +97,14 @@ export class SandGameComponent extends SandGameControls {
             this.#currentScale = +(w / this.#init.canvasWidthPx).toFixed(3);
         }
 
-        const canvasComponent = new ComponentViewCanvas(this);
-        this.#nodeHolderCanvas.append(canvasComponent.createNode(this));
-
         // init game
         const defaultElement = Brushes.AIR.apply(0, 0, undefined);
-        const context = canvasComponent.getContext();
+        const context = this.#canvasInitializer();
         this.#sandGame = scene.createSandGame(context, this.#currentWidthPoints, this.#currentHeightPoints, defaultElement);
         this.#sandGame.graphics().replace(ElementArea.TRANSPARENT_ELEMENT, defaultElement);
         this.#sandGame.setRendererMode(this.getRenderingMode());
-        this.#sandGame.addOnRendered((changedChunks) => {
-            // show highlighted chunks
-            if (this.isShowActiveChunks()) {
-                canvasComponent.highlightChunks(changedChunks);
-            } else {
-                canvasComponent.highlightChunks(null);
-            }
 
-            // update metrics
-            const fps = this.#sandGame.getFramesPerSecond();
-            const ips = this.#sandGame.getIterationsPerSecond();
-            this.#onPerformanceUpdate.forEach(f => f(ips, fps))
-        });
-
-        // mouse handling
-        canvasComponent.initMouseHandling(this.#sandGame);
-
-        // handlers
-        this.#canvasSettingsUpdater = () => {
-            canvasComponent.setImageRenderingStyle(this.#imageRendering);
-        };
-        this.#canvasFinalizer = () => {
-            canvasComponent.close();
-            this.#nodeHolderCanvas.empty();
-        };
+        this.#onInitialized.forEach(f => f(this.#sandGame));
 
         // start rendering
         this.#sandGame.startRendering();
@@ -146,8 +113,6 @@ export class SandGameComponent extends SandGameControls {
         if (this.#simulationEnabled) {
             this.#sandGame.startProcessing();
         }
-
-        this.#onInitialized.forEach(f => f(this.#sandGame));
     }
 
     #close() {
@@ -155,11 +120,9 @@ export class SandGameComponent extends SandGameControls {
             this.#sandGame.stopProcessing();
             this.#sandGame.stopRendering();
         }
-        if (this.#canvasFinalizer !== null) {
-            this.#canvasFinalizer();
+        for (let func of this.#onBeforeClosed) {
+            func();
         }
-        this.#canvasFinalizer = null;
-        this.#canvasSettingsUpdater = null;
     }
 
     enableGlobalShortcuts() {
@@ -197,39 +160,10 @@ export class SandGameComponent extends SandGameControls {
         };
     }
 
-    enableBrushes() {
-        let component = new ComponentViewTools(Tools.DEFAULT_TOOLS, true);
-        this.#nodeHolderTopToolbar.append(component.createNode(this));
-    }
-
-    enableOptions() {
-        this.#serviceIO.initFileDragAndDrop(this.#node);
-
-        let optionsComponent = new ComponentViewOptions();
-        this.#nodeHolderBottomToolbar.append(optionsComponent.createNode(this));
-    }
-
-    enableScenes() {
-        let scenesComponent = new ComponentViewSceneSelection(this, this.#init.scene);
-
-        this.#nodeHolderAdditionalViews.append(DomBuilder.div(null, [
-            DomBuilder.button(DomBuilder.create(_ASSET_SVG_ADJUST_SCALE), {
-                class: 'btn btn-outline-secondary adjust-scale',
-                'aria-label': 'Adjust scale'
-            }, () => {
-                new ActionDialogChangeElementSize().performAction(this);
-            }),
-            DomBuilder.span('Scenes', { class: 'scenes-label' }),
-            scenesComponent.createNode(this),
-        ]));
-    }
-
-    enableTestTools() {
-        this.#nodeHolderAdditionalViews.append(new ComponentViewTestTools().createNode(this));
-    }
-
-    // SandGameControls
-
+    /**
+     *
+     * @returns {SandGame|null}
+     */
     getSandGame() {
         return this.#sandGame;
     }
@@ -238,6 +172,8 @@ export class SandGameComponent extends SandGameControls {
 
     /** @type function(SandGame)[] */
     #onInitialized = [];
+    /** @type function(SandGame)[] */
+    #onBeforeClosed = [];
     /** @type function[] */
     #onBeforeNewSceneLoaded = [];
     /** @type function[] */
@@ -245,18 +181,47 @@ export class SandGameComponent extends SandGameControls {
     /** @type function[] */
     #onStopped = [];
 
+    /**
+     *
+     * @param handler {function(SandGame)}
+     * @returns void
+     */
     addOnInitialized(handler) {
         this.#onInitialized.push(handler);
     }
 
+    /**
+     *
+     * @param handler {function}
+     * @returns void
+     */
     addOnBeforeNewSceneLoaded(handler) {
         this.#onBeforeNewSceneLoaded.push(handler);
     }
 
+    /**
+     *
+     * @param handler {function}
+     * @returns void
+     */
+    addOnBeforeClosed(handler) {
+        this.#onBeforeClosed.push(handler);
+    }
+
+    /**
+     *
+     * @param handler {function}
+     * @returns void
+     */
     addOnStarted(handler) {
         this.#onStarted.push(handler);
     }
 
+    /**
+     *
+     * @param handler {function}
+     * @returns void
+     */
     addOnStopped(handler) {
         this.#onStopped.push(handler);
     }
@@ -285,6 +250,9 @@ export class SandGameComponent extends SandGameControls {
         }
     }
 
+    /**
+     * @returns Snapshot
+     */
     createSnapshot() {
         let snapshot = this.#sandGame.createSnapshot();
         snapshot.metadata.scale = this.getCurrentScale();
@@ -310,18 +278,37 @@ export class SandGameComponent extends SandGameControls {
 
     // SandGameControls / canvas size
 
+    /**
+     *
+     * @returns {number}
+     */
     getCurrentWidthPoints() {
         return this.#currentWidthPoints;
     }
 
+    /**
+     *
+     * @returns {number}
+     */
     getCurrentHeightPoints() {
         return this.#currentHeightPoints;
     }
 
+    /**
+     *
+     * @returns {number}
+     */
     getCurrentScale() {
         return this.#currentScale;
     }
 
+    /**
+     *
+     * @param width
+     * @param height
+     * @param scale
+     * @returns void
+     */
     changeCanvasSize(width, height, scale) {
         if (typeof width !== 'number' || !(width > 0 && width < 2048)) {
             throw 'Incorrect width';
@@ -344,14 +331,27 @@ export class SandGameComponent extends SandGameControls {
 
     // SandGameControls / options
 
+    /**
+     *
+     * @param show {boolean}
+     * @returns void
+     */
     setShowActiveChunks(show) {
         this.#showActiveChunks = show;
     }
 
+    /**
+     * @returns {boolean}
+     */
     isShowActiveChunks() {
         return this.#showActiveChunks;
     }
 
+    /**
+     *
+     * @param mode {string}
+     * @returns void
+     */
     setRenderingMode(mode) {
         this.#renderingMode = mode;
         if (this.#sandGame) {
@@ -359,36 +359,55 @@ export class SandGameComponent extends SandGameControls {
         }
     }
 
+    /**
+     * @returns {string}
+     */
     getRenderingMode() {
         return this.#renderingMode;
     }
 
+    /**
+     *
+     * @param style {string}
+     * @returns void
+     */
     setCanvasImageRenderingStyle(style) {
         this.#imageRendering = style;
-        if (this.#canvasSettingsUpdater !== null) {
-            this.#canvasSettingsUpdater();
+        for (let func of this.#onImageRenderingStyleChanged) {
+            func(style);
         }
     }
 
+    /**
+     * @returns {string}
+     */
     getCanvasImageRenderingStyle() {
         return this.#imageRendering;
     }
 
-    // SandGameControls / performance
-
-    /** @type function[] */
-    #onPerformanceUpdate = [];
-
-    addOnPerformanceUpdate(handler) {
-        this.#onPerformanceUpdate.push(handler);
+    /**
+     *
+     * @param handler {function(string)}
+     * @returns void
+     */
+    addOnImageRenderingStyleChanged(handler) {
+        this.#onImageRenderingStyleChanged.push(handler);
     }
 
     // SandGameControls / services
 
+    /**
+     *
+     * @returns {ServiceToolManager}
+     */
     getToolManager() {
         return this.#serviceToolManager;
     }
 
+    /**
+     *
+     * @returns {ServiceIO}
+     */
     getIOManager() {
         return this.#serviceIO;
     }
@@ -396,6 +415,6 @@ export class SandGameComponent extends SandGameControls {
     // SandGameControls / ui
 
     getDialogAnchor() {
-        return this.#node;
+        return this.#dialogAnchor;
     }
 }

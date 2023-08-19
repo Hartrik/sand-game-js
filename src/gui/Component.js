@@ -9,7 +9,7 @@ export class Component {
 
     /**
      *
-     * @param sandGameControls {SandGameControls}
+     * @param sandGameControls {Controller}
      * @return {jQuery<HTMLElement>}
      */
     createNode(sandGameControls) {

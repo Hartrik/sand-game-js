@@ -14,7 +14,7 @@ import {Analytics} from "../Analytics.js";
  */
 export class ServiceIO {
 
-    /** @type SandGameControls */
+    /** @type Controller */
     #controls;
 
     /** @type TemplateForm */
