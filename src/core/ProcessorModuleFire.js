@@ -253,7 +253,7 @@ export class ProcessorModuleFire {
         }
 
         // air => spawn fire
-        if (ElementHead.getTypeClass(elementHead) === ElementHead.TYPE_AIR) {
+        if (ElementHead.getTypeClass(elementHead) <= ElementHead.TYPE_EFFECT) {
             // air found
             const actualTemperature = this.#random.nextInt(temperature);
             if (actualTemperature < ProcessorModuleFire.#FIRE_MIN_TEMPERATURE) {
