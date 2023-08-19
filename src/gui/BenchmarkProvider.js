@@ -60,7 +60,7 @@ export class BenchmarkProvider {
             i++;
             const ips = sandGame.getIterationsPerSecond();
             ipsSum = ipsSum + ips;
-            ipsMin = Math.min(ipsSum, ips);
+            ipsMin = Math.min(ipsMin, ips);
 
             if (benchmark.iterations === i) {
                 const ipsAvg = ipsSum / benchmark.iterations;
