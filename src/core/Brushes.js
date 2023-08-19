@@ -15,40 +15,41 @@ import _ASSET_TEXTURE_ROCK from './assets/texture-rock.png'
  */
 export class Brushes {
 
-    // // bright red color for testing purposes
-    // static _TEST_SOLID = Brush.random([
-    //     new Element(
-    //         ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_WALL),
-    //         ElementTail.of(255, 0, 0))
-    // ]);
-    //
-    // // bright red color for testing purposes
-    // static _TEST_AIR = Brush.random([
-    //     new Element(
-    //         ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_AIR),
-    //         ElementTail.of(214, 212, 154))
-    // ]);
-    //
-    // static _TEST_FLAMMABLE_SOLID_1 = Brush.random([
-    //     new Element(
-    //         ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_WALL, 0, 0,
-    //             ElementHead.FLAMMABLE_TYPE_FAST, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_NEVER),
-    //         ElementTail.of(25, 52, 56))
-    // ]);
-    //
-    // static _TEST_FLAMMABLE_SOLID_2 = Brush.random([
-    //     new Element(
-    //         ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_WALL, 0, 0,
-    //             ElementHead.FLAMMABLE_TYPE_FAST, ElementHead.FLAME_HEAT_TYPE_HIGH, ElementHead.BURNABLE_TYPE_NEVER),
-    //         ElementTail.of(25, 56, 49))
-    // ]);
-    //
-    // static _TEST_FLAMMABLE_SOLID_3 = Brush.random([
-    //     new Element(
-    //         ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.WEIGHT_WALL, 0, 0,
-    //             ElementHead.FLAMMABLE_TYPE_FAST, ElementHead.FLAME_HEAT_TYPE_EXTREME, ElementHead.BURNABLE_TYPE_NEVER),
-    //         ElementTail.of(25, 33, 56))
-    // ]);
+    // TEST brushes
+    // bright color for testing purposes
+
+    static _TEST_SOLID = Brush.random([
+        new Element(
+            ElementHead.of(ElementHead.TYPE_STATIC),
+            ElementTail.of(255, 0, 125))
+    ]);
+
+    static _TEST_AIR = Brush.random([
+        new Element(
+            ElementHead.of(ElementHead.TYPE_AIR),
+            ElementTail.of(255, 0, 125))
+    ]);
+
+    static _TEST_FLAMMABLE_SOLID_M = Brush.random([
+        new Element(
+            ElementHead.of(ElementHead.TYPE_STATIC, 0, 0,
+                ElementHead.FLAMMABLE_TYPE_FAST, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_NEVER),
+            ElementTail.of(25, 52, 56))
+    ]);
+
+    static _TEST_FLAMMABLE_SOLID_H = Brush.random([
+        new Element(
+            ElementHead.of(ElementHead.TYPE_STATIC, 0, 0,
+                ElementHead.FLAMMABLE_TYPE_FAST, ElementHead.FLAME_HEAT_TYPE_HIGH, ElementHead.BURNABLE_TYPE_NEVER),
+            ElementTail.of(25, 56, 49))
+    ]);
+
+    static _TEST_FLAMMABLE_SOLID_E = Brush.random([
+        new Element(
+            ElementHead.of(ElementHead.TYPE_STATIC, 0, 0,
+                ElementHead.FLAMMABLE_TYPE_FAST, ElementHead.FLAME_HEAT_TYPE_EXTREME, ElementHead.BURNABLE_TYPE_NEVER),
+            ElementTail.of(25, 33, 56))
+    ]);
 
     // ---
 
