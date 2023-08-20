@@ -2,11 +2,11 @@
 /**
  *
  * @author Patrik Harag
- * @version 2023-04-28
+ * @version 2023-08-20
  */
 export class SceneMetadata {
 
-    static CURRENT_FORMAT_VERSION = 1;
+    static CURRENT_FORMAT_VERSION = 2;
 
 
     /** @type number */

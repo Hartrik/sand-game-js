@@ -1,16 +1,17 @@
-import {Assets} from "../Assets.js";
-import {Brush} from "./Brush.js";
-import {Brushes} from "./Brushes.js";
-import {ElementArea} from "./ElementArea.js";
-import {ElementTail} from "./ElementTail.js";
-import {Snapshot} from "./Snapshot";
-import {Scene} from "./Scene.js";
-import {SceneMetadata} from "./SceneMetadata.js";
-import {SceneImplSnapshot} from "./SceneImplSnapshot.js";
-import {SceneImplTemplate} from "./SceneImplTemplate.js";
-import {SceneImplModFlip} from "./SceneImplModFlip.js";
-import {Tool} from "./Tool.js";
-import {strToU8, strFromU8, zipSync, unzipSync} from 'fflate';
+import { Assets } from "../Assets";
+import { Brush } from "./Brush";
+import { Brushes } from "./Brushes";
+import { ElementArea } from "./ElementArea";
+import { ElementHead } from "./ElementHead";
+import { ElementTail } from "./ElementTail";
+import { Snapshot } from "./Snapshot";
+import { Scene } from "./Scene";
+import { SceneMetadata } from "./SceneMetadata";
+import { SceneImplSnapshot } from "./SceneImplSnapshot";
+import { SceneImplTemplate } from "./SceneImplTemplate";
+import { SceneImplModFlip } from "./SceneImplModFlip";
+import { Tool } from "./Tool";
+import { strToU8, strFromU8, zipSync, unzipSync } from 'fflate';
 
 /**
  *
@@ -219,7 +220,7 @@ class NewIO {
 /**
  *
  * @author Patrik Harag
- * @version 2023-05-19
+ * @version 2023-08-20
  */
 class LegacySnapshotIO {
     /**
@@ -251,6 +252,12 @@ class LegacySnapshotIO {
             throw 'metadata.json not found';
         }
         snapshot.metadata = Object.assign(new SceneMetadata(), JSON.parse(strFromU8(metadataRaw)));
+        if (typeof snapshot.metadata.width !== "number") {
+            throw 'Metadata property wrong format: width';
+        }
+        if (typeof snapshot.metadata.height !== "number") {
+            throw 'Metadata property wrong format: height';
+        }
 
         let dataRaw = zip['data.bin'];
         if (!dataRaw) {
@@ -258,6 +265,48 @@ class LegacySnapshotIO {
         }
         snapshot.data = dataRaw.buffer;
 
+        // ensure backward compatibility
+        if (snapshot.metadata.formatVersion === 1) {
+            LegacySnapshotIO.#convertToV2(snapshot);
+        }
+
         return snapshot;
+    }
+
+    static #convertToV2(snapshot) {
+        // after 23w32a first byte of element head was changed
+        const elementArea = ElementArea.from(snapshot.metadata.width, snapshot.metadata.height, snapshot.data);
+
+        for (let y = 0; y < snapshot.metadata.height; y++) {
+            for (let x = 0; x < snapshot.metadata.width; x++) {
+
+                // TODO: dry flag ignored
+                let elementHead = elementArea.getElementHead(x, y);
+                let oldType = elementHead & 0b111;  // type without dry flag
+                let oldWeight = (elementHead >> 4) & 0x0000000F;
+
+                if (oldType === 0x0 && oldWeight === 0x0) {
+                    // air
+                } else if (oldType === 0x0) {
+                    // static
+                    elementArea.setElementHead(x, y, ElementHead.setType(elementHead, 0x7));
+                } else if (oldType === 0x1) {
+                    // falling (grass only)
+                    elementArea.setElementHead(x, y, ElementHead.setType(elementHead, 0x5));
+                } else if (oldType === 0x2) {
+                    // sand 1 (soil, gravel)
+                    elementArea.setElementHead(x, y, ElementHead.setType(elementHead, 0x5 | (4 << 5)));
+                } else if (oldType === 0x3) {
+                    // sand 2 (sand)
+                    elementArea.setElementHead(x, y, ElementHead.setType(elementHead, 0x5 | (6 << 5)));
+                } else if (oldType === 0x4 || oldType === 0x5) {
+                    // fluid 1 (not used) or fluid 2 (water)
+                    elementArea.setElementHead(x, y, ElementHead.setType(elementHead, 0x3));
+                }
+            }
+        }
+
+        snapshot.metadata.formatVersion = 2;
+        snapshot.data = elementArea.getData();
     }
 }
