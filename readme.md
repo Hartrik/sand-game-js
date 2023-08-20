@@ -17,6 +17,10 @@ You can play it here: https://harag.cz/app/sand-game-js
 
 ## Development
 
+Dev build: https://harag.cz/app/sand-game-js?stage=dev (with test tools enabled, sometimes with experimental changes)
+
+Build:
+
 `npm run build` builds the library to `dist`.
 
 `npm run dev` builds the library, then keeps rebuilding it whenever the source files change using rollup-watch.
