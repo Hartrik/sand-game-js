@@ -16,7 +16,7 @@
  * </pre>
  *
  * @author Patrik Harag
- * @version 2023-08-18
+ * @version 2023-08-20
  */
 export class ElementHead {
 
@@ -75,7 +75,7 @@ export class ElementHead {
     static FIELD_TEMPERATURE_SIZE = 8;  // bits
 
 
-    static of(type8, behaviour = 0, special = 0,
+    static of(type8, behaviour8 = 0,
             flammableType = 0, flameHeatType = 0, burnableType = 0, meltableType = 0,
             temperature = 0) {
 
@@ -83,9 +83,8 @@ export class ElementHead {
         value = (value | meltableType) << 2;
         value = (value | burnableType) << 2;
         value = (value | flameHeatType) << 2;
-        value = (value | flammableType) << 4;
-        value = (value | special) << 4;
-        value = (value | behaviour) << 8;
+        value = (value | flammableType) << 8;
+        value = (value | behaviour8) << 8;
         value = value | type8;
         return value;
     }
@@ -105,6 +104,10 @@ export class ElementHead {
     // TODO TYPE_FLUID: density, step size, ? viscosity, ? pressure
     static type8Fluid(typeClass) {
         return typeClass;
+    }
+
+    static behaviour8(behaviour, special = 0) {
+        return behaviour | (special << 4);
     }
 
     // get methods

@@ -11,7 +11,7 @@ import _ASSET_TEXTURE_ROCK from './assets/texture-rock.png'
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-19
+ * @version 2023-08-20
  */
 export class Brushes {
 
@@ -32,21 +32,21 @@ export class Brushes {
 
     static _TEST_FLAMMABLE_SOLID_M = Brush.random([
         new Element(
-            ElementHead.of(ElementHead.TYPE_STATIC, 0, 0,
+            ElementHead.of(ElementHead.TYPE_STATIC, 0,
                 ElementHead.FLAMMABLE_TYPE_FAST, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_NEVER),
             ElementTail.of(25, 52, 56))
     ]);
 
     static _TEST_FLAMMABLE_SOLID_H = Brush.random([
         new Element(
-            ElementHead.of(ElementHead.TYPE_STATIC, 0, 0,
+            ElementHead.of(ElementHead.TYPE_STATIC, 0,
                 ElementHead.FLAMMABLE_TYPE_FAST, ElementHead.FLAME_HEAT_TYPE_HIGH, ElementHead.BURNABLE_TYPE_NEVER),
             ElementTail.of(25, 56, 49))
     ]);
 
     static _TEST_FLAMMABLE_SOLID_E = Brush.random([
         new Element(
-            ElementHead.of(ElementHead.TYPE_STATIC, 0, 0,
+            ElementHead.of(ElementHead.TYPE_STATIC, 0,
                 ElementHead.FLAMMABLE_TYPE_FAST, ElementHead.FLAME_HEAT_TYPE_EXTREME, ElementHead.BURNABLE_TYPE_NEVER),
             ElementTail.of(25, 33, 56))
     ]);
@@ -89,7 +89,8 @@ export class Brushes {
         ElementTail.of(186, 183, 128, ElementTail.BLUR_TYPE_1)
     ]);
 
-    static SOIL = Brush.randomFromHeadAndTails(ElementHead.of(ElementHead.type8Powder(ElementHead.TYPE_POWDER, 5), ElementHead.BEHAVIOUR_SOIL), [
+    static SOIL = Brush.randomFromHeadAndTails(ElementHead.of(
+            ElementHead.type8Powder(ElementHead.TYPE_POWDER, 5), ElementHead.behaviour8(ElementHead.BEHAVIOUR_SOIL)), [
         ElementTail.of(142, 104, 72, ElementTail.BLUR_TYPE_1),
         ElementTail.of(142, 104, 72, ElementTail.BLUR_TYPE_1),
         ElementTail.of(142, 104, 72, ElementTail.BLUR_TYPE_1),
@@ -145,28 +146,31 @@ export class Brushes {
 
     static GRASS = Brush.random([
         new Element(
-            ElementHead.of(ElementHead.type8Powder(ElementHead.TYPE_POWDER, 0), ElementHead.BEHAVIOUR_GRASS, 5,
+            ElementHead.of(ElementHead.type8Powder(ElementHead.TYPE_POWDER, 0),
+                ElementHead.behaviour8(ElementHead.BEHAVIOUR_GRASS, 5),
                 ElementHead.FLAMMABLE_TYPE_MEDIUM, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_FAST),
             ElementTail.of(56, 126, 38, ElementTail.BLUR_TYPE_1)),
         new Element(
-            ElementHead.of(ElementHead.type8Powder(ElementHead.TYPE_POWDER, 0), ElementHead.BEHAVIOUR_GRASS, 3,
+            ElementHead.of(ElementHead.type8Powder(ElementHead.TYPE_POWDER, 0),
+                ElementHead.behaviour8(ElementHead.BEHAVIOUR_GRASS, 3),
                 ElementHead.FLAMMABLE_TYPE_MEDIUM, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_FAST),
             ElementTail.of(46, 102, 31, ElementTail.BLUR_TYPE_1)),
         new Element(
-            ElementHead.of(ElementHead.type8Powder(ElementHead.TYPE_POWDER, 0), ElementHead.BEHAVIOUR_GRASS, 4,
+            ElementHead.of(ElementHead.type8Powder(ElementHead.TYPE_POWDER, 0),
+                ElementHead.behaviour8(ElementHead.BEHAVIOUR_GRASS, 4),
                 ElementHead.FLAMMABLE_TYPE_MEDIUM, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_FAST),
             ElementTail.of(72, 130, 70, ElementTail.BLUR_TYPE_1))
     ]);
 
     static FISH = Brush.random([
         new Element(
-            ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.BEHAVIOUR_FISH, 0),
+            ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.behaviour8(ElementHead.BEHAVIOUR_FISH, 0)),
             ElementTail.of(37, 53, 66)),
     ]);
 
     static FISH_BODY = Brush.random([
         new Element(
-            ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.BEHAVIOUR_FISH_BODY, 0),
+            ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.behaviour8(ElementHead.BEHAVIOUR_FISH_BODY, 0)),
             ElementTail.of(37, 53, 66)),
     ]);
 
@@ -179,57 +183,58 @@ export class Brushes {
     static TREE = Brush.custom((x, y, random) => {
         let treeType = random.nextInt(17);
         return new Element(
-            ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.BEHAVIOUR_TREE, treeType,
+            ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.behaviour8(ElementHead.BEHAVIOUR_TREE, treeType),
                 ElementHead.FLAMMABLE_TYPE_SLOW, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_SLOW),
             ElementTail.of(77, 41, 13));
     });
 
     static TREE_ROOT = Brush.random([
         new Element(
-            ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.BEHAVIOUR_TREE_ROOT, 8,
+            ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.behaviour8(ElementHead.BEHAVIOUR_TREE_ROOT, 8),
                 ElementHead.FLAMMABLE_TYPE_SLOW, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_SLOW),
             ElementTail.of(96, 50, 14)),
         new Element(
-            ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.BEHAVIOUR_TREE_ROOT, 5,
+            ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.behaviour8(ElementHead.BEHAVIOUR_TREE_ROOT, 5),
                 ElementHead.FLAMMABLE_TYPE_SLOW, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_SLOW),
             ElementTail.of(77, 41, 13))
     ]);
 
     static TREE_WOOD = Brush.randomFromHeadAndTails(
-        ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.BEHAVIOUR_TREE_TRUNK, 0,
+        ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.behaviour8(ElementHead.BEHAVIOUR_TREE_TRUNK, 0),
             ElementHead.FLAMMABLE_TYPE_SLOW, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_SLOW), [
             ElementTail.of(96, 50, 14),
             ElementTail.of(115, 64, 21)
     ]);
 
     static TREE_LEAF_LIGHTER = Brush.randomFromHeadAndTails(
-        ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.BEHAVIOUR_TREE_LEAF, 0,
+        ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.behaviour8(ElementHead.BEHAVIOUR_TREE_LEAF, 0),
             ElementHead.FLAMMABLE_TYPE_MEDIUM, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_MEDIUM), [
             ElementTail.of(0, 129, 73),
     ]);
 
     static TREE_LEAF_DARKER = Brush.randomFromHeadAndTails(
-        ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.BEHAVIOUR_TREE_LEAF, 0,
+        ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.behaviour8(ElementHead.BEHAVIOUR_TREE_LEAF, 0),
             ElementHead.FLAMMABLE_TYPE_MEDIUM, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_MEDIUM), [
             ElementTail.of(0, 76, 72),
     ]);
 
     static TREE_LEAF_DEAD = Brush.randomFromHeadAndTails(
-        ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.BEHAVIOUR_TREE_LEAF, 15,
+        ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.behaviour8(ElementHead.BEHAVIOUR_TREE_LEAF, 15),
             ElementHead.FLAMMABLE_TYPE_FAST, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_MEDIUM), [
             ElementTail.of(150, 69, 41),
             ElementTail.of(185, 99, 75),
             ElementTail.of(174, 97, 81),
     ]);
 
-    static #FIRE_ELEMENT_HEAD = ElementHead.of(ElementHead.TYPE_EFFECT, ElementHead.BEHAVIOUR_FIRE, 0);
+    static #FIRE_ELEMENT_HEAD = ElementHead.of(ElementHead.TYPE_EFFECT, ElementHead.behaviour8(ElementHead.BEHAVIOUR_FIRE, 0));
     static FIRE = Brush.random([
-        new Element(ElementHead.setTemperature(Brushes.#FIRE_ELEMENT_HEAD,255), ElementTail.of(249, 219, 30)),
-        new Element(ElementHead.setTemperature(Brushes.#FIRE_ELEMENT_HEAD,255), ElementTail.of(249, 219, 30)),
-        new Element(ElementHead.setTemperature(Brushes.#FIRE_ELEMENT_HEAD,120), ElementTail.of(249, 219, 30))
+        new Element(ElementHead.setTemperature(Brushes.#FIRE_ELEMENT_HEAD, 255), ElementTail.of(249, 219, 30)),
+        new Element(ElementHead.setTemperature(Brushes.#FIRE_ELEMENT_HEAD, 255), ElementTail.of(249, 219, 30)),
+        new Element(ElementHead.setTemperature(Brushes.#FIRE_ELEMENT_HEAD, 120), ElementTail.of(249, 219, 30))
     ]);
 
-    static ASH = Brush.randomFromHeadAndTails(ElementHead.of(ElementHead.type8Powder(ElementHead.TYPE_POWDER, 5), ElementHead.BEHAVIOUR_NONE, 0), [
+    static ASH = Brush.randomFromHeadAndTails(ElementHead.of(ElementHead.type8Powder(ElementHead.TYPE_POWDER, 5),
+            ElementHead.behaviour8(ElementHead.BEHAVIOUR_NONE, 0)), [
         ElementTail.of(131, 131, 131, ElementTail.BLUR_TYPE_1),
         ElementTail.of(131, 131, 131, ElementTail.BLUR_TYPE_1),
         ElementTail.of(131, 131, 131, ElementTail.BLUR_TYPE_1),
@@ -266,19 +271,19 @@ export class Brushes {
 
     static METEOR = Brush.random([
         new Element(
-            ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.BEHAVIOUR_METEOR, 0),
+            ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.behaviour8(ElementHead.BEHAVIOUR_METEOR, 0)),
             ElementTail.of(249, 219, 30))
     ]);
 
     static METEOR_FROM_LEFT = Brush.random([
         new Element(
-            ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.BEHAVIOUR_METEOR, 1 << 1),
+            ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.behaviour8(ElementHead.BEHAVIOUR_METEOR, 1 << 1)),
             ElementTail.of(249, 219, 30))
     ]);
 
     static METEOR_FROM_RIGHT = Brush.random([
         new Element(
-            ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.BEHAVIOUR_METEOR, 2 << 1),
+            ElementHead.of(ElementHead.TYPE_STATIC, ElementHead.behaviour8(ElementHead.BEHAVIOUR_METEOR, 2 << 1)),
             ElementTail.of(249, 219, 30))
     ]);
 
@@ -296,6 +301,7 @@ export class Brushes {
 
     static LIST = [
         { codeName: 'air', brush: Brushes.AIR },
+        { codeName: 'ash', brush: Brushes.ASH },
         { codeName: 'sand', brush: Brushes.SAND },
         { codeName: 'soil', brush: Brushes.SOIL },
         { codeName: 'gravel', brush: Brushes.STONE },
@@ -304,7 +310,9 @@ export class Brushes {
         { codeName: 'wood', brush: Brushes.TREE_WOOD },
         { codeName: 'water', brush: Brushes.WATER },
         { codeName: 'fire', brush: Brushes.FIRE },
-        { codeName: 'meteor', brush: Brushes.METEOR }
+        { codeName: 'meteor', brush: Brushes.METEOR },
+        { codeName: 'meteor_l', brush: Brushes.METEOR_FROM_LEFT },
+        { codeName: 'meteor_r', brush: Brushes.METEOR_FROM_RIGHT },
     ]
 
     static byCodeName(codeName) {
