@@ -26,10 +26,14 @@
           controller.addOnInitialized(s => {
               sandGame = s;
           });
-          brushes = SandGameJS.Brushes;
-
-          console.log('Globals: sandGame, brushes');
-          console.log('Example: sandGame.graphics().drawLine(10, 10, 300, 150, 2, brushes.SAND);');
+          if (SandGameJS.brushes !== undefined) {
+            brushes = SandGameJS.brushes;
+            console.log('Globals:');
+            console.log('  sandGame, brushes');
+            console.log('Examples:');
+            console.log('  sandGame.graphics().drawLine(10, 10, 300, 150, 2, brushes.sand);');
+            console.log('  sandGame.graphics().draw(100, 20, brushes.meteor);');
+          }
       });
   </script>
 </head>

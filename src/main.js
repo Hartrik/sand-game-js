@@ -1,14 +1,18 @@
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-19
+ * @version 2023-08-20
  */
 
 import { Analytics } from "./Analytics";
 import { Controller } from "./gui/Controller";
 import { MainComponent } from "./gui/MainComponent";
-export { Brushes } from "./core/Brushes";
+import { Brushes } from "./core/Brushes";
 
+export const brushes = {};
+for (let brush of Brushes.LIST) {
+    brushes[brush.codeName] = brush.brush;
+}
 
 function determineSize(root) {
     let parentWidth;

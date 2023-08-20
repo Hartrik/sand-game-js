@@ -294,7 +294,7 @@ export class Brushes {
 
     // --- SEARCH
 
-    static #LIST = [
+    static LIST = [
         { codeName: 'air', brush: Brushes.AIR },
         { codeName: 'sand', brush: Brushes.SAND },
         { codeName: 'soil', brush: Brushes.SOIL },
@@ -308,7 +308,7 @@ export class Brushes {
     ]
 
     static byCodeName(codeName) {
-        for (let brushEntry of this.#LIST) {
+        for (let brushEntry of Brushes.LIST) {
             if (brushEntry.codeName === codeName) {
                 return brushEntry.brush;
             }
