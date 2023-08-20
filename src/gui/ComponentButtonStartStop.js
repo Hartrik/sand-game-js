@@ -1,11 +1,15 @@
 import { Action } from "./Action";
 import { ComponentButton } from "./ComponentButton";
 import { Analytics } from "../Analytics";
+import { DomBuilder } from "./DomBuilder";
+
+import _ASSET_SVG_PAUSE from "./assets/icon-pause.svg";
+import _ASSET_SVG_PLAY from "./assets/icon-play.svg";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-19
+ * @version 2023-08-20
  */
 export class ComponentButtonStartStop extends ComponentButton {
 
@@ -19,8 +23,8 @@ export class ComponentButtonStartStop extends ComponentButton {
     createNode(controller) {
         const btn = super.createNode(controller);
 
-        controller.addOnStarted(() => btn.text('Pause'));
-        controller.addOnStopped(() => btn.text('Start'));
+        controller.addOnStarted(() => btn.html([DomBuilder.create(_ASSET_SVG_PAUSE), 'Pause']));
+        controller.addOnStopped(() => btn.html([DomBuilder.create(_ASSET_SVG_PLAY), 'Start']));
 
         return btn;
     }
