@@ -15,7 +15,7 @@ export class Brush {
      *
      * @param x
      * @param y
-     * @param random {DeterministicRandom|undefined}
+     * @param random {DeterministicRandom}
      * @param oldElement {Element}
      * @return {Element}
      */
@@ -49,7 +49,7 @@ export class Brush {
 
     /**
      *
-     * @param func {function(x: number, y: number, random: DeterministicRandom|undefined, oldElement: Element)}
+     * @param func {function(x: number, y: number, random: DeterministicRandom, oldElement: Element)}
      * @returns {Brush}
      */
     static custom(func) {
@@ -163,7 +163,7 @@ class TextureBrush extends Brush {
  */
 class CustomBrush extends Brush {
 
-    /** @type function(x: number, y: number, random: DeterministicRandom|undefined, oldElement: Element) */
+    /** @type function(x: number, y: number, random: DeterministicRandom, oldElement: Element) */
     #func;
 
     constructor(func) {

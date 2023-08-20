@@ -68,76 +68,81 @@ export class Brushes {
         Brush.random([new Element(ElementHead.of(ElementHead.TYPE_STATIC), 0)]),
         _ASSET_TEXTURE_ROCK);
 
-    static SAND = Brush.randomFromHeadAndTails(ElementHead.of(ElementHead.type8Powder(ElementHead.TYPE_POWDER, 6)), [
-        ElementTail.of(214, 212, 154, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(214, 212, 154, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(214, 212, 154, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(214, 212, 154, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(225, 217, 171, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(225, 217, 171, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(225, 217, 171, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(225, 217, 171, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(203, 201, 142, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(203, 201, 142, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(203, 201, 142, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(203, 201, 142, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(195, 194, 134, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(195, 194, 134, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(218, 211, 165, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(218, 211, 165, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(223, 232, 201, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(186, 183, 128, ElementTail.BLUR_TYPE_1)
-    ]);
+    static SAND = Brush.custom((x, y, random) => {
+        const type = random.nextInt(100) < 60 ? ElementHead.TYPE_POWDER : ElementHead.TYPE_POWDER_WET;
+        const elementHead = ElementHead.of(ElementHead.type8Powder(type, 6));
 
-    static SOIL = Brush.randomFromHeadAndTails(ElementHead.of(
-            ElementHead.type8Powder(ElementHead.TYPE_POWDER, 5), ElementHead.behaviour8(ElementHead.BEHAVIOUR_SOIL)), [
-        ElementTail.of(142, 104, 72, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(142, 104, 72, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(142, 104, 72, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(142, 104, 72, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(142, 104, 72, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(142, 104, 72, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(114, 81, 58, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(114, 81, 58, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(114, 81, 58, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(114, 81, 58, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(114, 81, 58, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(114, 81, 58, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(82, 64, 30, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(82, 64, 30, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(82, 64, 30, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(177, 133, 87, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(177, 133, 87, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(177, 133, 87, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(102, 102, 102, ElementTail.BLUR_TYPE_1)
-    ]);
+        let elementTail = ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_1);
+        const colors = [
+            [214, 212, 154], [214, 212, 154], [214, 212, 154], [214, 212, 154],
+            [225, 217, 171], [225, 217, 171], [225, 217, 171], [225, 217, 171],
+            [203, 201, 142], [203, 201, 142], [203, 201, 142], [203, 201, 142],
+            [195, 194, 134], [195, 194, 134],
+            [218, 211, 165], [218, 211, 165],
+            [223, 232, 201],
+            [186, 183, 128],
+        ];
+        const [r, g, b] = colors[Math.trunc(random.nextInt(colors.length))];
+        elementTail = ElementTail.setColor(elementTail, r, g, b);
 
-    static STONE = Brush.randomFromHeadAndTails(ElementHead.of(ElementHead.type8Powder(ElementHead.TYPE_POWDER, 2)), [
-        ElementTail.of(97, 94, 88, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(111, 110, 106, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(117, 116, 112, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(117, 117, 113, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(120, 118, 115, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(104, 102, 97, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(113, 112, 107, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(129, 128, 125, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(124, 124, 121, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(81, 80, 75, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(80, 76, 69, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(123, 119, 111, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(105, 104, 99, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(84, 82, 78, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(77, 74, 69, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(91, 88, 82, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(68, 65, 60, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(79, 75, 69, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(85, 82, 77, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(98, 94, 88, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(105, 102, 96, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(104, 97, 86, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(60, 55, 47, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(93, 89, 81, ElementTail.BLUR_TYPE_1)
-    ]);
+        return new Element(elementHead, elementTail);
+    });
+
+    static SOIL = Brush.custom((x, y, random) => {
+        const type = random.nextInt(100) < 40 ? ElementHead.TYPE_POWDER : ElementHead.TYPE_POWDER_WET;
+        const elementHead = ElementHead.of(
+                ElementHead.type8Powder(type, 5), ElementHead.behaviour8(ElementHead.BEHAVIOUR_SOIL));
+
+        let elementTail = ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_1);
+        const colors = [
+            [142, 104, 72], [142, 104, 72], [142, 104, 72], [142, 104, 72], [142, 104, 72], [142, 104, 72],
+            [114,  81, 58], [114,  81, 58], [114,  81, 58], [114,  81, 58], [114,  81, 58], [114,  81, 58],
+            [82,  64,  30], [82,   64, 30], [ 82,  64, 30],
+            [177, 133, 87], [177, 133, 87], [177, 133, 87],
+            [102, 102, 102],
+        ];
+        const [r, g, b] = colors[Math.trunc(random.nextInt(colors.length))];
+        elementTail = ElementTail.setColor(elementTail, r, g, b);
+
+        return new Element(elementHead, elementTail);
+    });
+
+    static STONE = Brush.custom((x, y, random) => {
+        const type = random.nextInt(100) < 20 ? ElementHead.TYPE_POWDER : ElementHead.TYPE_POWDER_WET;
+        const elementHead = ElementHead.of(ElementHead.type8Powder(type, 3));
+
+        let elementTail = ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_1);
+        const colors = [
+            [97, 94, 88],
+            [111, 110, 106],
+            [117, 116, 112],
+            [117, 117, 113],
+            [120, 118, 115],
+            [104, 102, 97],
+            [113, 112, 107],
+            [129, 128, 125],
+            [124, 124, 121],
+            [81, 80, 75],
+            [80, 76, 69],
+            [123, 119, 111],
+            [105, 104, 99],
+            [84, 82, 78],
+            [77, 74, 69],
+            [91, 88, 82],
+            [68, 65, 60],
+            [79, 75, 69],
+            [85, 82, 77],
+            [98, 94, 88],
+            [105, 102, 96],
+            [104, 97, 86],
+            [60, 55, 47],
+            [93, 89, 81],
+        ];
+        const [r, g, b] = colors[Math.trunc(random.nextInt(colors.length))];
+        elementTail = ElementTail.setColor(elementTail, r, g, b);
+
+        return new Element(elementHead, elementTail);
+    });
 
     static WATER = Brush.randomFromHeadAndTails(ElementHead.of(ElementHead.type8Fluid(ElementHead.TYPE_FLUID)), [
         ElementTail.of(4, 135, 186, ElementTail.BLUR_TYPE_1),
@@ -233,41 +238,25 @@ export class Brushes {
         new Element(ElementHead.setTemperature(Brushes.#FIRE_ELEMENT_HEAD, 120), ElementTail.of(249, 219, 30))
     ]);
 
-    static ASH = Brush.randomFromHeadAndTails(ElementHead.of(ElementHead.type8Powder(ElementHead.TYPE_POWDER, 5),
-            ElementHead.behaviour8(ElementHead.BEHAVIOUR_NONE, 0)), [
-        ElementTail.of(131, 131, 131, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(131, 131, 131, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(131, 131, 131, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(131, 131, 131, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(131, 131, 131, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(131, 131, 131, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(135, 135, 135, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(135, 135, 135, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(135, 135, 135, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(135, 135, 135, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(135, 135, 135, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(135, 135, 135, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(145, 145, 145, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(145, 145, 145, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(145, 145, 145, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(145, 145, 145, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(145, 145, 145, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(145, 145, 145, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(148, 148, 148, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(148, 148, 148, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(148, 148, 148, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(148, 148, 148, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(148, 148, 148, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(148, 148, 148, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(160, 160, 160, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(160, 160, 160, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(160, 160, 160, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(160, 160, 160, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(160, 160, 160, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(160, 160, 160, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(114, 114, 114, ElementTail.BLUR_TYPE_1),
-        ElementTail.of(193, 193, 193, ElementTail.BLUR_TYPE_1)
-    ]);
+    static ASH = Brush.custom((x, y, random) => {
+        const type = random.nextInt(100) < 80 ? ElementHead.TYPE_POWDER : ElementHead.TYPE_POWDER_WET;
+        const elementHead = ElementHead.of(ElementHead.type8Powder(type, 6));
+
+        let elementTail = ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_1);
+        const colors = [
+            [131, 131, 131], [131, 131, 131], [131, 131, 131], [131, 131, 131], [131, 131, 131], [131, 131, 131],
+            [135, 135, 135], [135, 135, 135], [135, 135, 135], [135, 135, 135], [135, 135, 135], [135, 135, 135],
+            [145, 145, 145], [145, 145, 145], [145, 145, 145], [145, 145, 145], [145, 145, 145], [145, 145, 145],
+            [148, 148, 148], [148, 148, 148], [148, 148, 148], [148, 148, 148], [148, 148, 148], [148, 148, 148],
+            [160, 160, 160], [160, 160, 160], [160, 160, 160], [160, 160, 160], [160, 160, 160], [160, 160, 160],
+            [114, 114, 114],
+            [193, 193, 193],
+        ];
+        const [r, g, b] = colors[Math.trunc(random.nextInt(colors.length))];
+        elementTail = ElementTail.setColor(elementTail, r, g, b);
+
+        return new Element(elementHead, elementTail);
+    });
 
     static METEOR = Brush.random([
         new Element(

@@ -5,7 +5,7 @@ import { Brush } from "../core/Brush";
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-10
+ * @version 2023-08-20
  */
 export class Tools {
 
@@ -28,7 +28,8 @@ export class Tools {
 
     /** @type Tool[] */
     static TEST_TOOLS = [
-        Tool.rectangleBrushTool(Tools.CATEGORY_BRUSH, 'effect_burnt', 'Burnt', Brushes.EFFECT_BURNT, Tools.DEFAULT_SIZE)
+        Tool.rectangleBrushTool(Tools.CATEGORY_BRUSH, 'effect_burnt', 'Burnt', Brushes.EFFECT_BURNT, Tools.DEFAULT_SIZE),
+        Tool.rectangleBrushTool(Tools.CATEGORY_BRUSH, 'ash', 'Ash', Brushes.ASH, Tools.DEFAULT_SIZE),
     ];
 
     static byCodeName(codeName) {

@@ -1,8 +1,9 @@
+import { ElementHead } from "./ElementHead";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-04-10
+ * @version 2023-08-20
  */
 export class FloodFillPainter {
 
@@ -38,7 +39,7 @@ export class FloodFillPainter {
      */
     paint(x, y, brush) {
         const pattern = 0b1111_11100111;  // TODO: different for fluid, powder-like...
-        const matcher = this.#elementArea.getElementHead(x, y) & pattern;
+        const matcher = this.#normalize(this.#elementArea.getElementHead(x, y)) & pattern;
 
         const w = this.#elementArea.getWidth();
 
@@ -98,6 +99,15 @@ export class FloodFillPainter {
 
     #equals(x, y, pattern, matcher) {
         let elementHead = this.#elementArea.getElementHead(x, y);
+        elementHead = this.#normalize(elementHead);
         return (elementHead & pattern) === matcher;
+    }
+
+    #normalize(elementHead) {
+        // wetness is ignored
+        if (ElementHead.getTypeClass(elementHead) === ElementHead.TYPE_POWDER_WET) {
+            elementHead = ElementHead.setTypeClass(elementHead, ElementHead.TYPE_POWDER);
+        }
+        return elementHead;
     }
 }
