@@ -5,7 +5,7 @@ import {SceneImplHardcoded} from "../core/SceneImplHardcoded.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-04-28
+ * @version 2023-08-20
  */
 export class Scenes {
 
@@ -79,24 +79,19 @@ export class Scenes {
         description: 'Fall-through mode',
         apply: function (sandGame) {
             sandGame.setFallThroughMode();
-            sandGame.blockTemplate()
-                .withBlueprint([
-                    '          ',
-                    '     ww   ',
-                    '          ',
-                    'ss ssss ss',
-                    '          ',
-                    '  s   ss  ',
-                    '          ',
-                    '          ',
-                    '          ',
-                    '          ',
-                ])
-                .withBrushes({
-                    w: Brush.withIntensity(Brushes.WATER, 0.5),
-                    s: Brushes.WALL
-                })
-                .paint();
+            const graphics = sandGame.graphics();
+            const xo = Math.trunc((sandGame.getWidth() - 150) / 2 - 15);
+            const yo = Math.trunc((sandGame.getHeight() - 150) / 2);
+            graphics.drawRectangle(40 + xo, 20 + yo, 60 + xo, 40 + yo, Brushes.WATER);
+            graphics.drawLine(30 + xo, 30 + yo, 30 + xo, 50 + yo, 5, Brushes.WALL, true);
+            graphics.drawLine(30 + xo, 50 + yo, 70 + xo, 80 + yo, 5, Brushes.WALL, true);
+            graphics.drawLine(65 + xo, 90 + yo, 100 + xo, 100 + yo, 5, Brushes.WALL, true);
+            graphics.drawLine(55 + xo, 140 + yo, 125 + xo, 140 + yo, 10, Brushes.WALL, false);
+            graphics.drawLine(55 + xo, 130 + yo, 55 + xo, 140 + yo, 10, Brushes.WALL, false);
+            graphics.drawLine(70 + xo, 125 + yo, 90 + xo, 125 + yo, 10, Brushes.SAND, false);
+            graphics.draw(120 + xo, 130 + yo, Brushes.SAND);
+            graphics.drawLine(150 + xo, 10 + yo, 80 + xo, 35 + yo, 5, Brushes.WALL, true);
+            graphics.drawLine(80 + xo, 35 + yo, 80 + xo, 15 + yo, 5, Brushes.WALL, true);
         }
     });
 
