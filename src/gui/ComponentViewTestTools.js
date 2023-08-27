@@ -5,12 +5,12 @@ import { ActionBenchmark } from "./ActionBenchmark";
 import { Component } from "./Component";
 import { ComponentButton } from "./ComponentButton";
 import { Tools } from "../def/Tools";
-import { SandGame } from "../core/SandGame";
+import { RendererInitializer } from "../core/RendererInitializer";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-19
+ * @version 2023-08-27
  */
 export class ComponentViewTestTools extends Component {
 
@@ -19,9 +19,9 @@ export class ComponentViewTestTools extends Component {
         new ComponentButton("Tree grow", ComponentButton.CLASS_SECONDARY, ActionsTest.TREE_GROW_TEST),
 
         new ComponentButton("Chunks", ComponentButton.CLASS_INFO, Action.createToggle(false, (c, v) => c.setShowActiveChunks(v))),
-        new ComponentButton("M/classic", ComponentButton.CLASS_INFO, Action.create(c => c.setRenderingMode(SandGame.RENDERING_MODE_CLASSIC))),
-        new ComponentButton("M/heatmap", ComponentButton.CLASS_INFO, Action.create(c => c.setRenderingMode(SandGame.RENDERING_MODE_HEATMAP))),
-        new ComponentButton("M/element_type", ComponentButton.CLASS_INFO, Action.create(c => c.setRenderingMode(SandGame.RENDERING_MODE_ELEMENT_TYPE))),
+        new ComponentButton("M/classic", ComponentButton.CLASS_INFO, Action.create(c => c.setRendererInitializer(RendererInitializer.canvas2d()))),
+        new ComponentButton("M/heatmap", ComponentButton.CLASS_INFO, Action.create(c => c.setRendererInitializer(RendererInitializer.canvas2dHeatmap()))),
+        new ComponentButton("M/element_type", ComponentButton.CLASS_INFO, Action.create(c => c.setRendererInitializer(RendererInitializer.canvas2dElementType()))),
         new ComponentButton("Pixelated", ComponentButton.CLASS_INFO, Action.createToggle(true, (c, v) => c.setCanvasImageRenderingStyle(v ? 'pixelated' : 'auto'))),
 
         new ComponentButton("Benchmark", ComponentButton.CLASS_WARNING, new ActionBenchmark()),

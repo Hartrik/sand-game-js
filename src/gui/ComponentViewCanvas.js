@@ -1,7 +1,7 @@
 import { DomBuilder } from "./DomBuilder";
 import { Controller } from "./Controller";
 import { CursorDefinitionElementArea } from "../core/CursorDefinitionElementArea";
-import { Renderer } from "../core/Renderer";
+import { Renderer2D } from "../core/Renderer2D";
 import { Analytics } from "../Analytics";
 import { Component } from "./Component";
 
@@ -16,11 +16,11 @@ export class ComponentViewCanvas extends Component {
     #currentCanvas = null;
 
     createNode(controller) {
-        controller.registerCanvasInitializer(() => {
+        controller.registerCanvasInitializer((contextId) => {
             const canvasComponent = new ComponentViewInnerCanvas(controller);
             this.#canvasHolderNode.append(canvasComponent.createNode(controller));
             this.#currentCanvas = canvasComponent;
-            return canvasComponent.getContext();
+            return canvasComponent.getContext(contextId);
         });
 
         controller.addOnImageRenderingStyleChanged((imageRenderingStyle) => {
@@ -307,9 +307,9 @@ class ComponentViewInnerCanvas extends Component {
         });
     }
 
-    getContext() {
+    getContext(contextId) {
         let domCanvasNode = this.#nodeCanvas[0];
-        return domCanvasNode.getContext('2d');
+        return domCanvasNode.getContext(contextId);
     }
 
     setImageRenderingStyle(style) {
@@ -410,7 +410,7 @@ class SandGameCanvasCursorOverlayComponent {
             // render preview
             let domCanvasNode = node[0];
             domCanvasNode.style.imageRendering = 'pixelated';
-            Renderer.renderPreview(cursorDefinition.getElementArea(), domCanvasNode.getContext('2d'), 0xBB);
+            Renderer2D.renderPreview(cursorDefinition.getElementArea(), domCanvasNode.getContext('2d'), 0xBB);
 
             this.#cursor = {
                 width: wPx,

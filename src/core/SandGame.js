@@ -5,9 +5,8 @@ import {Processor} from "./Processor.js";
 import {Element} from "./Element.js";
 import {ElementHead} from "./ElementHead.js";
 import {ElementTail} from "./ElementTail.js";
-import {Renderer} from "./Renderer.js";
-import {RenderingModeHeatmap} from "./RenderingModeHeatmap.js";
-import {RenderingModeElementType} from "./RenderingModeElementType.js";
+import {RendererInitializer} from "./RendererInitializer.js";
+import {RendererInterface} from "./RendererInterface.js";
 import {SandGameGraphics} from "./SandGameGraphics.js";
 import {Snapshot} from "./Snapshot.js";
 import {SceneMetadata} from "./SceneMetadata.js";
@@ -20,13 +19,9 @@ import {TemplateLayeredPainter} from "./TemplateLayeredPainter.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-18
+ * @version 2023-08-27
  */
 export class SandGame {
-
-    static RENDERING_MODE_CLASSIC = 'classic';
-    static RENDERING_MODE_HEATMAP = 'heatmap';
-    static RENDERING_MODE_ELEMENT_TYPE = 'element-type';
 
     /** @type ElementArea */
     #elementArea;
@@ -49,7 +44,7 @@ export class SandGame {
     /** @type Processor */
     #processor;
 
-    /** @type Renderer */
+    /** @type RendererInterface */
     #renderer;
 
     /** @type number|null */
@@ -66,18 +61,19 @@ export class SandGame {
 
     /**
      *
-     * @param context {CanvasRenderingContext2D}
      * @param elementArea {ElementArea}
      * @param sceneMetadata {SceneMetadata|null}
      * @param defaultElement {Element}
+     * @param context {CanvasRenderingContext2D|WebGL2RenderingContext}
+     * @param rendererInitializer {RendererInitializer}
      */
-    constructor(context, elementArea, sceneMetadata, defaultElement) {
+    constructor(elementArea, sceneMetadata, defaultElement, context, rendererInitializer) {
         this.#elementArea = elementArea;
         this.#random = new DeterministicRandom((sceneMetadata) ? sceneMetadata.random : 0);
         this.#framesCounter = new Counter();
         this.#iterationsCounter = new Counter();
         this.#processor = new Processor(this.#elementArea, 16, this.#random, defaultElement, sceneMetadata);
-        this.#renderer = new Renderer(this.#elementArea, 16, context);
+        this.#renderer = rendererInitializer.initialize(this.#elementArea, 16, context);
         this.#width = elementArea.getWidth();
         this.#height = elementArea.getHeight();
 
@@ -152,18 +148,6 @@ export class SandGame {
 
     layeredTemplate() {
         return new TemplateLayeredPainter(this.#elementArea, this.graphics(), this.#random, this.#processor);
-    }
-
-    setRendererMode(mode) {
-        if (mode === SandGame.RENDERING_MODE_CLASSIC) {
-            this.#renderer.setMode(null);
-        } else if (mode === SandGame.RENDERING_MODE_HEATMAP) {
-            this.#renderer.setMode(new RenderingModeHeatmap());
-        } else if (mode === SandGame.RENDERING_MODE_ELEMENT_TYPE) {
-            this.#renderer.setMode(new RenderingModeElementType());
-        } else {
-            throw 'Unknown rendering mode: ' + mode
-        }
     }
 
     setBoxedMode() {

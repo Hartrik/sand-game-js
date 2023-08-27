@@ -28,9 +28,9 @@ export class SceneImplModFlip extends Scene {
         this.#original.countSize(prefWidth, prefHeight);
     }
 
-    createSandGame(context, prefWidth, prefHeight, defaultElement) {
+    createSandGame(prefWidth, prefHeight, defaultElement, context, rendererInitializer) {
         let elementArea = this.createElementArea(prefWidth, prefHeight, defaultElement);
-        return new SandGame(context, elementArea, null, defaultElement);
+        return new SandGame(elementArea, null, defaultElement, context, rendererInitializer);
         // TODO: sceneMetadata not set
     }
 

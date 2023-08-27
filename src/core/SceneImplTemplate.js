@@ -27,9 +27,9 @@ export class SceneImplTemplate extends Scene {
         return [this.#elementArea.getWidth(), this.#elementArea.getHeight()];
     }
 
-    createSandGame(context, prefWidth, prefHeight, defaultElement) {
+    createSandGame(prefWidth, prefHeight, defaultElement, context, rendererInitializer) {
         let elementArea = this.createElementArea(prefWidth, prefHeight, defaultElement);
-        return new SandGame(context, elementArea, null, defaultElement);
+        return new SandGame(elementArea, null, defaultElement, context, rendererInitializer);
     }
 
     createElementArea(prefWidth, prefHeight, defaultElement) {

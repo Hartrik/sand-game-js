@@ -6,11 +6,12 @@ import { SceneImplTmpResize } from "../core/SceneImplResize";
 import { Tool } from "../core/Tool";
 import { ServiceToolManager } from "./ServiceToolManager";
 import { ServiceIO } from "./ServiceIO";
+import { RendererInitializer } from "../core/RendererInitializer";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-19
+ * @version 2023-08-27
  */
 export class Controller {
 
@@ -38,7 +39,7 @@ export class Controller {
     #simulationEnabled = false;
     /** @type boolean */
     #showActiveChunks = false;
-    #renderingMode = SandGame.RENDERING_MODE_CLASSIC;
+    #rendererInitializer = RendererInitializer.canvas2d();
 
     /** @type ServiceToolManager */
     #serviceToolManager = new ServiceToolManager();
@@ -64,7 +65,7 @@ export class Controller {
 
     /**
      *
-     * @param canvasInitializer {function():CanvasRenderingContext2D}
+     * @param canvasInitializer {function(contextId:string):CanvasRenderingContext2D|WebGLRenderingContext}
      */
     registerCanvasInitializer(canvasInitializer) {
         this.#canvasInitializer = canvasInitializer;
@@ -99,10 +100,9 @@ export class Controller {
 
         // init game
         const defaultElement = Brushes.AIR.apply(0, 0, undefined);
-        const context = this.#canvasInitializer();
-        this.#sandGame = scene.createSandGame(context, this.#currentWidthPoints, this.#currentHeightPoints, defaultElement);
+        const context = this.#canvasInitializer(this.#rendererInitializer.getContextType());
+        this.#sandGame = scene.createSandGame(w, h, defaultElement, context, this.#rendererInitializer);
         this.#sandGame.graphics().replace(ElementArea.TRANSPARENT_ELEMENT, defaultElement);
-        this.#sandGame.setRendererMode(this.getRenderingMode());
 
         this.#onInitialized.forEach(f => f(this.#sandGame));
 
@@ -349,21 +349,22 @@ export class Controller {
 
     /**
      *
-     * @param mode {string}
+     * @param initializer {RendererInitializer}
      * @returns void
      */
-    setRenderingMode(mode) {
-        this.#renderingMode = mode;
+    setRendererInitializer(initializer) {
+        this.#rendererInitializer = initializer;
         if (this.#sandGame) {
-            this.#sandGame.setRendererMode(mode);
+            this.#close();
+            this.#initialize(new SceneImplTmpResize(this.#sandGame));
         }
     }
 
     /**
-     * @returns {string}
+     * @returns {RendererInitializer}
      */
-    getRenderingMode() {
-        return this.#renderingMode;
+    getRendererInitializer() {
+        return this.#rendererInitializer;
     }
 
     /**

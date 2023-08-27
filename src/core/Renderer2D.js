@@ -1,14 +1,15 @@
-import {ElementTail} from "./ElementTail.js";
-import {ElementArea} from "./ElementArea.js";
-import {RenderingMode} from "./RenderingMode.js";
+import { ElementTail } from "./ElementTail";
+import { ElementArea } from "./ElementArea";
+import { RenderingMode } from "./RenderingMode";
+import { RendererInterface } from "./RendererInterface";
 
 /**
  * Double buffered renderer. With motion blur.
  *
  * @author Patrik Harag
- * @version 2023-05-16
+ * @version 2023-08-27
  */
-export class Renderer {
+export class Renderer2D extends RendererInterface {
 
     /**
      *
@@ -82,6 +83,7 @@ export class Renderer {
     #canBeBlurred;
 
     constructor(elementArea, chunkSize, context) {
+        super();
         this.#context = context;
         this.#elementArea = elementArea;
         this.#width = elementArea.getWidth();
@@ -201,7 +203,7 @@ export class Renderer {
         if (blurBehaviour === ElementTail.BLUR_TYPE_BACKGROUND) {
             // motion blur
 
-            if (this.#canBeBlurred[pixelIndex] && Renderer.#isWhite(elementTail)) {
+            if (this.#canBeBlurred[pixelIndex] && Renderer2D.#isWhite(elementTail)) {
                 // init fading here
 
                 this.#blur[pixelIndex] = true;

@@ -3,7 +3,7 @@
  * @interface
  *
  * @author Patrik Harag
- * @version 2023-04-29
+ * @version 2023-08-27
  */
 export class Scene {
 
@@ -15,13 +15,14 @@ export class Scene {
     }
 
     /**
-     * @param context {CanvasRenderingContext2D}
      * @param prefWidth {number}
      * @param prefHeight {number}
      * @param defaultElement {Element}
+     * @param context {CanvasRenderingContext2D|WebGL2RenderingContext}
+     * @param rendererInitializer {RendererInitializer}
      * @returns SandGame
      */
-    createSandGame(context, prefWidth, prefHeight, defaultElement) {
+    createSandGame(prefWidth, prefHeight, defaultElement, context, rendererInitializer) {
         throw 'Not implemented';
     }
 
