@@ -1,7 +1,7 @@
+import { ElementHead } from "./ElementHead";
 import { ElementTail } from "./ElementTail";
 import { ElementArea } from "./ElementArea";
 import { Renderer } from "./Renderer";
-import { ElementHead } from "./ElementHead";
 
 /**
  * WebGL test.
@@ -41,7 +41,7 @@ export class RendererWebGL extends Renderer {
             varying vec2 v_texcoord;
             void main() {
               gl_Position = a_position;
-            
+
               // assuming a unit quad for position we
               // can just use that for texcoords. Flip Y though so we get the top at 0
               v_texcoord = a_position.xy * vec2(0.5, -0.5) + 0.5;
@@ -54,11 +54,9 @@ export class RendererWebGL extends Renderer {
             precision mediump float;
             varying vec2 v_texcoord;
             uniform sampler2D u_image;
-            uniform sampler2D u_palette;
-                
+
             void main() {
-                float index = texture2D(u_image, v_texcoord).a * 255.0;
-                gl_FragColor = texture2D(u_palette, vec2((index + 0.5) / 256.0, 0.5));
+                gl_FragColor = texture2D(u_image, v_texcoord);
             }
         `;
         gl.attachShader(program, this.#loadShader(gl, fragmentShader, gl.FRAGMENT_SHADER));
@@ -69,11 +67,7 @@ export class RendererWebGL extends Renderer {
         // ----------------------------
 
         gl.useProgram(program);
-        var imageLoc = gl.getUniformLocation(program, "u_image");
-        var paletteLoc = gl.getUniformLocation(program, "u_palette");
-        // tell it to use texture units 0 and 1 for the image and palette
-        gl.uniform1i(imageLoc, 0);
-        gl.uniform1i(paletteLoc, 1);
+        gl.uniform1i(gl.getUniformLocation(program, "u_image"), 0);
 
         // Setup a unit quad
         var positions = [
@@ -90,34 +84,16 @@ export class RendererWebGL extends Renderer {
         gl.enableVertexAttribArray(0);
         gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
 
-        // Setup a palette.
-        const paletteSize = 256;
-        const palette = new Uint8Array(paletteSize * 4);
-        function setPalette(index, r, g, b, a) {
-            palette[index * 4] = r;
-            palette[index * 4 + 1] = g;
-            palette[index * 4 + 2] = b;
-            palette[index * 4 + 3] = a;
-        }
-        setPalette(0, 255, 255, 255, 255); // white
-        setPalette(1, 0, 0, 0, 255); // black
-
-        // make palette texture and upload palette
-        gl.activeTexture(gl.TEXTURE1);
-        var paletteTex = gl.createTexture();
-        gl.bindTexture(gl.TEXTURE_2D, paletteTex);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, paletteSize, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, palette);
-
-        const image = new Uint8Array(this.#width * this.#height);
+        const image = new Uint8Array(this.#width * this.#height * 4);
         this.#doRendering = () => {
+            // TODO: without copying
             for (let cy = 0; cy < this.#height; cy++) {
                 for (let cx = 0; cx < this.#width; cx++) {
-                    let elementHead = this.#elementArea.getElementHead(cx, cy);
-                    image[cy * this.#width + cx] = ElementHead.getTypeClass(elementHead) === 0 ? 0 : 1;
+                    let elementTail = this.#elementArea.getElementTail(cx, cy);
+                    image[cy * this.#width * 4 + cx * 4] = ElementTail.getColorRed(elementTail);
+                    image[cy * this.#width * 4 + cx * 4 + 1] = ElementTail.getColorGreen(elementTail);
+                    image[cy * this.#width * 4 + cx * 4 + 2] = ElementTail.getColorBlue(elementTail);
+                    image[cy * this.#width * 4 + cx * 4 + 3] = 0xFF;
                 }
             }
 
@@ -129,7 +105,7 @@ export class RendererWebGL extends Renderer {
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.ALPHA, this.#width, this.#height, 0, gl.ALPHA, gl.UNSIGNED_BYTE, image);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.#width, this.#height, 0, gl.RGBA, gl.UNSIGNED_BYTE, image);
 
             gl.drawArrays(gl.TRIANGLES, 0, positions.length / 2);
         };
