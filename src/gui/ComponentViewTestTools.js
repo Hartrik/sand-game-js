@@ -21,7 +21,8 @@ export class ComponentViewTestTools extends Component {
         new ComponentButton("Chunks", ComponentButton.CLASS_INFO, Action.createToggle(false, (c, v) => c.setShowActiveChunks(v))),
         new ComponentButton("M/classic", ComponentButton.CLASS_INFO, Action.create(c => c.setRendererInitializer(RendererInitializer.canvas2d()))),
         new ComponentButton("M/heatmap", ComponentButton.CLASS_INFO, Action.create(c => c.setRendererInitializer(RendererInitializer.canvas2dHeatmap()))),
-        new ComponentButton("M/element_type", ComponentButton.CLASS_INFO, Action.create(c => c.setRendererInitializer(RendererInitializer.canvas2dElementType()))),
+        new ComponentButton("M/type", ComponentButton.CLASS_INFO, Action.create(c => c.setRendererInitializer(RendererInitializer.canvas2dElementType()))),
+        new ComponentButton("M/webgl-test", ComponentButton.CLASS_INFO, Action.create(c => c.setRendererInitializer(RendererInitializer.canvasWebGL()))),
         new ComponentButton("Pixelated", ComponentButton.CLASS_INFO, Action.createToggle(true, (c, v) => c.setCanvasImageRenderingStyle(v ? 'pixelated' : 'auto'))),
 
         new ComponentButton("Benchmark", ComponentButton.CLASS_WARNING, new ActionBenchmark()),

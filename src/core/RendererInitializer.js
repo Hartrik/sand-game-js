@@ -2,6 +2,7 @@ import { Renderer } from "./Renderer";
 import { Renderer2D } from "./Renderer2D";
 import { RenderingModeHeatmap } from "./RenderingModeHeatmap";
 import { RenderingModeElementType } from "./RenderingModeElementType";
+import { RendererWebGL } from "./RendererWebGL";
 
 /**
  * @interface
@@ -39,6 +40,10 @@ export class RendererInitializer {
     static canvas2dElementType() {
         return new RendererInitializer2D(new RenderingModeElementType())
     }
+
+    static canvasWebGL() {
+        return new RendererInitializerWebGL();
+    }
 }
 
 class RendererInitializer2D extends RendererInitializer {
@@ -60,5 +65,16 @@ class RendererInitializer2D extends RendererInitializer {
             renderer.setMode(this.#mode);
         }
         return renderer;
+    }
+}
+
+class RendererInitializerWebGL extends RendererInitializer {
+
+    getContextType() {
+        return 'webgl';
+    }
+
+    initialize(elementArea, chunkSize, context) {
+        return new RendererWebGL(elementArea, chunkSize, context);
     }
 }
