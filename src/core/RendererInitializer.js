@@ -1,4 +1,4 @@
-import { RendererInterface } from "./RendererInterface";
+import { Renderer } from "./Renderer";
 import { Renderer2D } from "./Renderer2D";
 import { RenderingModeHeatmap } from "./RenderingModeHeatmap";
 import { RenderingModeElementType } from "./RenderingModeElementType";
@@ -20,7 +20,7 @@ export class RendererInitializer {
      * @param elementArea
      * @param chunkSize
      * @param context
-     * @return {RendererInterface}
+     * @return {Renderer}
      */
     initialize(elementArea, chunkSize, context) {
         throw 'Not implemented'

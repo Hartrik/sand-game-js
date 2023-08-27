@@ -5,8 +5,8 @@ import {Processor} from "./Processor.js";
 import {Element} from "./Element.js";
 import {ElementHead} from "./ElementHead.js";
 import {ElementTail} from "./ElementTail.js";
+import {Renderer} from "./Renderer.js";
 import {RendererInitializer} from "./RendererInitializer.js";
-import {RendererInterface} from "./RendererInterface.js";
 import {SandGameGraphics} from "./SandGameGraphics.js";
 import {Snapshot} from "./Snapshot.js";
 import {SceneMetadata} from "./SceneMetadata.js";
@@ -44,7 +44,7 @@ export class SandGame {
     /** @type Processor */
     #processor;
 
-    /** @type RendererInterface */
+    /** @type Renderer */
     #renderer;
 
     /** @type number|null */

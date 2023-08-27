@@ -1,7 +1,7 @@
 import { ElementTail } from "./ElementTail";
 import { ElementArea } from "./ElementArea";
 import { RenderingMode } from "./RenderingMode";
-import { RendererInterface } from "./RendererInterface";
+import { Renderer } from "./Renderer";
 
 /**
  * Double buffered renderer. With motion blur.
@@ -9,7 +9,7 @@ import { RendererInterface } from "./RendererInterface";
  * @author Patrik Harag
  * @version 2023-08-27
  */
-export class Renderer2D extends RendererInterface {
+export class Renderer2D extends Renderer {
 
     /**
      *

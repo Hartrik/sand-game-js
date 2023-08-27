@@ -5,7 +5,7 @@
  * @author Patrik Harag
  * @version 2023-08-27
  */
-export class RendererInterface {
+export class Renderer {
 
     trigger(x, y) {
         throw 'Not implemented';
