@@ -7,7 +7,7 @@ import { Renderer } from "./Renderer";
  * WebGL test.
  *
  * @author Patrik Harag
- * @version 2023-08-27
+ * @version 2023-10-09
  */
 export class RendererWebGL extends Renderer {
 
@@ -56,7 +56,14 @@ export class RendererWebGL extends Renderer {
             uniform sampler2D u_image;
 
             void main() {
-                gl_FragColor = texture2D(u_image, v_texcoord);
+                // element tail
+                vec4 color = texture2D(u_image, v_texcoord);
+                
+                // map element tail to WebGL color
+                float r = color[2];
+                float g = color[1];
+                float b = color[0];
+                gl_FragColor = vec4(r, g, b, 255);
             }
         `;
         gl.attachShader(program, this.#loadShader(gl, fragmentShader, gl.FRAGMENT_SHADER));
@@ -85,15 +92,14 @@ export class RendererWebGL extends Renderer {
         gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
 
         const image = new Uint8Array(this.#width * this.#height * 4);
+        const dataView = new DataView(image.buffer);
         this.#doRendering = () => {
             // TODO: without copying
             for (let cy = 0; cy < this.#height; cy++) {
                 for (let cx = 0; cx < this.#width; cx++) {
-                    let elementTail = this.#elementArea.getElementTail(cx, cy);
-                    image[cy * this.#width * 4 + cx * 4] = ElementTail.getColorRed(elementTail);
-                    image[cy * this.#width * 4 + cx * 4 + 1] = ElementTail.getColorGreen(elementTail);
-                    image[cy * this.#width * 4 + cx * 4 + 2] = ElementTail.getColorBlue(elementTail);
-                    image[cy * this.#width * 4 + cx * 4 + 3] = 0xFF;
+                    const elementTail = this.#elementArea.getElementTail(cx, cy);
+                    const byteOffset = (this.#width * cy + cx) * 4;
+                    dataView.setUint32(byteOffset, elementTail, ElementArea.LITTLE_ENDIAN);
                 }
             }
 
