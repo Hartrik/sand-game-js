@@ -3,12 +3,13 @@ import { Renderer2D } from "./Renderer2D";
 import { RenderingModeHeatmap } from "./RenderingModeHeatmap";
 import { RenderingModeElementType } from "./RenderingModeElementType";
 import { RendererWebGL } from "./RendererWebGL";
+import { RendererNull } from "./RendererNull";
 
 /**
  * @interface
  *
  * @author Patrik Harag
- * @version 2023-08-27
+ * @version 2023-10-11
  */
 export class RendererInitializer {
 
@@ -44,6 +45,10 @@ export class RendererInitializer {
     static canvasWebGL() {
         return new RendererInitializerWebGL();
     }
+
+    static nullRenderer() {
+        return new RendererInitializerNull();
+    }
 }
 
 class RendererInitializer2D extends RendererInitializer {
@@ -76,5 +81,20 @@ class RendererInitializerWebGL extends RendererInitializer {
 
     initialize(elementArea, chunkSize, context) {
         return new RendererWebGL(elementArea, chunkSize, context);
+    }
+}
+
+class RendererInitializerNull extends RendererInitializer {
+
+    constructor() {
+        super();
+    }
+
+    getContextType() {
+        return '2d';
+    }
+
+    initialize(elementArea, chunkSize, context) {
+        return new RendererNull();
     }
 }

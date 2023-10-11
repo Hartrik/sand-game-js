@@ -10,7 +10,7 @@ import { RendererInitializer } from "../core/RendererInitializer";
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-27
+ * @version 2023-10-11
  */
 export class ComponentViewTestTools extends Component {
 
@@ -22,7 +22,8 @@ export class ComponentViewTestTools extends Component {
         new ComponentButton("M/classic", ComponentButton.CLASS_INFO, Action.create(c => c.setRendererInitializer(RendererInitializer.canvas2d()))),
         new ComponentButton("M/heatmap", ComponentButton.CLASS_INFO, Action.create(c => c.setRendererInitializer(RendererInitializer.canvas2dHeatmap()))),
         new ComponentButton("M/type", ComponentButton.CLASS_INFO, Action.create(c => c.setRendererInitializer(RendererInitializer.canvas2dElementType()))),
-        new ComponentButton("M/webgl-test", ComponentButton.CLASS_INFO, Action.create(c => c.setRendererInitializer(RendererInitializer.canvasWebGL()))),
+        new ComponentButton("M/webgl-experimental", ComponentButton.CLASS_INFO, Action.create(c => c.setRendererInitializer(RendererInitializer.canvasWebGL()))),
+        new ComponentButton("M/null", ComponentButton.CLASS_INFO, Action.create(c => c.setRendererInitializer(RendererInitializer.nullRenderer()))),
         new ComponentButton("Pixelated", ComponentButton.CLASS_INFO, Action.createToggle(true, (c, v) => c.setCanvasImageRenderingStyle(v ? 'pixelated' : 'auto'))),
 
         new ComponentButton("Benchmark", ComponentButton.CLASS_WARNING, new ActionBenchmark()),
