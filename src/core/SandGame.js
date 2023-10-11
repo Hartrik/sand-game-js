@@ -232,7 +232,8 @@ export class SandGame {
 
         let snapshot = new Snapshot();
         snapshot.metadata = metadata;
-        snapshot.data = this.#elementArea.getData();
+        snapshot.dataHeads = this.#elementArea.getDataHeads();
+        snapshot.dataTails = this.#elementArea.getDataTails();
         return snapshot;
     }
 

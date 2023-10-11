@@ -6,7 +6,7 @@
  */
 export class SceneMetadata {
 
-    static CURRENT_FORMAT_VERSION = 2;
+    static CURRENT_FORMAT_VERSION = 3;
 
 
     /** @type number */

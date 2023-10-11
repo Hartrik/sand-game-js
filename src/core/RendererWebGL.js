@@ -7,7 +7,7 @@ import { Renderer } from "./Renderer";
  * WebGL test.
  *
  * @author Patrik Harag
- * @version 2023-10-09
+ * @version 2023-10-11
  */
 export class RendererWebGL extends Renderer {
 
@@ -91,19 +91,10 @@ export class RendererWebGL extends Renderer {
         gl.enableVertexAttribArray(0);
         gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
 
-        const image = new Uint8Array(this.#width * this.#height * 4);
-        const dataView = new DataView(image.buffer);
         this.#doRendering = () => {
-            // TODO: without copying
-            for (let cy = 0; cy < this.#height; cy++) {
-                for (let cx = 0; cx < this.#width; cx++) {
-                    const elementTail = this.#elementArea.getElementTail(cx, cy);
-                    const byteOffset = (this.#width * cy + cx) * 4;
-                    dataView.setUint32(byteOffset, elementTail, ElementArea.LITTLE_ENDIAN);
-                }
-            }
+            const image = new Uint8Array(this.#elementArea.getDataTails());
 
-            // make image textures and upload image
+            // set texture (element tails)
             gl.activeTexture(gl.TEXTURE0);
             var imageTex = gl.createTexture();
             gl.bindTexture(gl.TEXTURE_2D, imageTex);
@@ -113,6 +104,7 @@ export class RendererWebGL extends Renderer {
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.#width, this.#height, 0, gl.RGBA, gl.UNSIGNED_BYTE, image);
 
+            // redraw
             gl.drawArrays(gl.TRIANGLES, 0, positions.length / 2);
         };
     }

@@ -33,9 +33,10 @@ export class SceneImplTemplate extends Scene {
     }
 
     createElementArea(prefWidth, prefHeight, defaultElement) {
-        let width = this.#elementArea.getWidth();
-        let height = this.#elementArea.getHeight();
-        let data = this.#elementArea.getData();
-        return ElementArea.from(width, height, data);
+        return ElementArea.from(
+                this.#elementArea.getWidth(),
+                this.#elementArea.getHeight(),
+                this.#elementArea.getDataHeads(),
+                this.#elementArea.getDataTails());
     }
 }

@@ -220,7 +220,7 @@ class NewIO {
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-20
+ * @version 2023-10-11
  */
 class LegacySnapshotIO {
     /**
@@ -230,18 +230,18 @@ class LegacySnapshotIO {
      */
     static createSave(snapshot) {
         const metadata = strToU8(JSON.stringify(snapshot.metadata, null, 2));
-        let data = new Uint8Array(snapshot.data);
 
         let zipData = {
             'metadata.json': metadata,
-            'data.bin': data
+            'data-heads.bin': new Uint8Array(snapshot.dataHeads),
+            'data-tails.bin': new Uint8Array(snapshot.dataTails)
         };
         return zipSync(zipData, { level: 9 });
     }
 
     /**
      *
-     * @param zip
+     * @param zip {{[path: string]: Uint8Array}}
      * @returns Snapshot
      */
     static parseSave(zip) {
@@ -259,23 +259,62 @@ class LegacySnapshotIO {
             throw 'Metadata property wrong format: height';
         }
 
-        let dataRaw = zip['data.bin'];
-        if (!dataRaw) {
-            throw 'data.bin not found';
+        // load element data
+        if (snapshot.metadata.formatVersion < 3) {
+            // ensure backward compatibility
+            // legacy interleaving buffer (element head 1, element tail 1, element head 2, element tail 2, ...)
+            const dataRaw = zip['data.bin'];
+            if (dataRaw) {
+                if (dataRaw.byteLength % 8 !== 0) {
+                    throw 'Buffer length is not divisible by 8';
+                }
+                const elements = dataRaw.byteLength / 8;
+                const dataHeads = new Uint8Array(new ArrayBuffer(elements * 4));
+                const dataTails = new Uint8Array(new ArrayBuffer(elements * 4));
+                for (let i = 0; i < elements; i++) {
+                    for (let j = 0; j < 4; j++) {  // 4 bytes
+                        dataHeads[(i * 4) + j] = dataRaw[(i * 8) + j];
+                        dataTails[(i * 4) + j] = dataRaw[(i * 8) + j + 4];
+                    }
+                }
+                snapshot.dataHeads = dataHeads.buffer;
+                snapshot.dataTails = dataTails.buffer;
+            } else {
+                throw 'data.bin not found';
+            }
+        } else {
+            // one buffer for element heads and one for element tails
+            const dataRawHeads = zip['data-heads.bin'];
+            if (dataRawHeads) {
+                snapshot.dataHeads = dataRawHeads.buffer;
+            } else {
+                throw 'data-heads.bin not found';
+            }
+            const dataRawTails = zip['data-tails.bin'];
+            if (!dataRawTails) {
+                throw 'data-tails.bin not found';
+            }
+            snapshot.dataTails = dataRawTails.buffer;
         }
-        snapshot.data = dataRaw.buffer;
 
         // ensure backward compatibility
         if (snapshot.metadata.formatVersion === 1) {
+            // after 23w32a first byte of element head was changed (powder elements reworked)
             LegacySnapshotIO.#convertToV2(snapshot);
+            snapshot.metadata.formatVersion = 2;
+        }
+        if (snapshot.metadata.formatVersion === 2) {
+            // interleaving buffer >> element head buffer & element tail buffer
+            snapshot.metadata.formatVersion = 3;
         }
 
         return snapshot;
     }
 
     static #convertToV2(snapshot) {
-        // after 23w32a first byte of element head was changed
-        const elementArea = ElementArea.from(snapshot.metadata.width, snapshot.metadata.height, snapshot.data);
+        const elementArea = ElementArea.from(
+                snapshot.metadata.width, snapshot.metadata.height,
+                snapshot.dataHeads, snapshot.dataTails);
 
         for (let y = 0; y < snapshot.metadata.height; y++) {
             for (let x = 0; x < snapshot.metadata.width; x++) {
@@ -306,7 +345,7 @@ class LegacySnapshotIO {
             }
         }
 
-        snapshot.metadata.formatVersion = 2;
-        snapshot.data = elementArea.getData();
+        snapshot.dataHeads = elementArea.getDataHeads();
+        snapshot.dataTails = elementArea.getDataTails();
     }
 }

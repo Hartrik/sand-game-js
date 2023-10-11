@@ -3,7 +3,7 @@ import {Element} from "./Element.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-05-16
+ * @version 2023-10-11
  */
 export class ElementArea {
 
@@ -16,7 +16,9 @@ export class ElementArea {
     static LITTLE_ENDIAN = true;
 
     static create(width, height, defaultElement) {
-        let instance = new ElementArea(width, height, new DataView(new ArrayBuffer(width * height * 8)));
+        let bufferHeads = new DataView(new ArrayBuffer(width * height * 4));
+        let bufferTails = new DataView(new ArrayBuffer(width * height * 4));
+        let instance = new ElementArea(width, height, bufferHeads, bufferTails);
 
         // set default elements
         for (let y = 0; y < instance.#height; y++) {
@@ -27,8 +29,16 @@ export class ElementArea {
         return instance;
     }
 
-    static from(width, height, arrayBuffer) {
-        return new ElementArea(width, height, new DataView(arrayBuffer));
+    /**
+     *
+     * @param width
+     * @param height
+     * @param dataHeads {ArrayBuffer}
+     * @param dataTails {ArrayBuffer}
+     * @returns {ElementArea}
+     */
+    static from(width, height, dataHeads, dataTails) {
+        return new ElementArea(width, height, new DataView(dataHeads), new DataView(dataTails));
     }
 
 
@@ -39,12 +49,16 @@ export class ElementArea {
     #height;
 
     /** @type DataView */
-    #buffer;
+    #bufferHeads;
 
-    constructor(width, height, buffer) {
+    /** @type DataView */
+    #bufferTails;
+
+    constructor(width, height, bufferHeads, bufferTails) {
         this.#width = width;
         this.#height = height;
-        this.#buffer = buffer;
+        this.#bufferHeads = bufferHeads;
+        this.#bufferTails = bufferTails;
     }
 
     isValidPosition(x, y) {
@@ -65,31 +79,31 @@ export class ElementArea {
     }
 
     setElementHeadAndTail(x, y, elementHead, elementTail) {
-        const byteOffset = (this.#width * y + x) * 8;
-        this.#buffer.setUint32(byteOffset, elementHead, ElementArea.LITTLE_ENDIAN);
-        this.#buffer.setUint32(byteOffset + 4, elementTail, ElementArea.LITTLE_ENDIAN);
+        const byteOffset = (this.#width * y + x) * 4;
+        this.#bufferHeads.setUint32(byteOffset, elementHead, ElementArea.LITTLE_ENDIAN);
+        this.#bufferTails.setUint32(byteOffset, elementTail, ElementArea.LITTLE_ENDIAN);
     }
 
     setElementHead(x, y, elementHead) {
-        const byteOffset = (this.#width * y + x) * 8;
-        this.#buffer.setUint32(byteOffset, elementHead, ElementArea.LITTLE_ENDIAN);
+        const byteOffset = (this.#width * y + x) * 4;
+        this.#bufferHeads.setUint32(byteOffset, elementHead, ElementArea.LITTLE_ENDIAN);
     }
 
     setElementTail(x, y, elementTail) {
-        const byteOffset = (this.#width * y + x) * 8;
-        this.#buffer.setUint32(byteOffset + 4, elementTail, ElementArea.LITTLE_ENDIAN);
+        const byteOffset = (this.#width * y + x) * 4;
+        this.#bufferTails.setUint32(byteOffset, elementTail, ElementArea.LITTLE_ENDIAN);
     }
 
     getElement(x, y) {
-        const byteOffset = (this.#width * y + x) * 8;
-        const elementHead = this.#buffer.getUint32(byteOffset, ElementArea.LITTLE_ENDIAN);
-        const elementTail = this.#buffer.getUint32(byteOffset + 4, ElementArea.LITTLE_ENDIAN);
+        const byteOffset = (this.#width * y + x) * 4;
+        const elementHead = this.#bufferHeads.getUint32(byteOffset, ElementArea.LITTLE_ENDIAN);
+        const elementTail = this.#bufferTails.getUint32(byteOffset, ElementArea.LITTLE_ENDIAN);
         return new Element(elementHead, elementTail);
     }
 
     getElementHead(x, y) {
-        const byteOffset = (this.#width * y + x) * 8;
-        return this.#buffer.getUint32(byteOffset, ElementArea.LITTLE_ENDIAN);
+        const byteOffset = (this.#width * y + x) * 4;
+        return this.#bufferHeads.getUint32(byteOffset, ElementArea.LITTLE_ENDIAN);
     }
 
     getElementHeadOrNull(x, y) {
@@ -100,8 +114,8 @@ export class ElementArea {
     }
 
     getElementTail(x, y) {
-        const byteOffset = (this.#width * y + x) * 8;
-        return this.#buffer.getUint32(byteOffset + 4, ElementArea.LITTLE_ENDIAN);
+        const byteOffset = (this.#width * y + x) * 4;
+        return this.#bufferTails.getUint32(byteOffset, ElementArea.LITTLE_ENDIAN);
     }
 
     getElementTailOrNull(x, y) {
@@ -127,8 +141,16 @@ export class ElementArea {
      *
      * @return {ArrayBuffer}
      */
-    getData() {
-        return this.#buffer.buffer;
+    getDataHeads() {
+        return this.#bufferHeads.buffer;
+    }
+
+    /**
+     *
+     * @return {ArrayBuffer}
+     */
+    getDataTails() {
+        return this.#bufferTails.buffer;
     }
 
     /**

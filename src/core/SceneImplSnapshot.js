@@ -33,6 +33,10 @@ export class SceneImplSnapshot extends Scene {
     }
 
     createElementArea(prefWidth, prefHeight, defaultElement) {
-        return ElementArea.from(this.#snapshot.metadata.width, this.#snapshot.metadata.height, this.#snapshot.data);
+        return ElementArea.from(
+                this.#snapshot.metadata.width,
+                this.#snapshot.metadata.height,
+                this.#snapshot.dataHeads,
+                this.#snapshot.dataTails);
     }
 }
