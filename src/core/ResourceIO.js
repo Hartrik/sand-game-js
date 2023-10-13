@@ -12,6 +12,7 @@ import { SceneImplTemplate } from "./SceneImplTemplate";
 import { SceneImplModFlip } from "./SceneImplModFlip";
 import { Tool } from "./Tool";
 import { strToU8, strFromU8, zipSync, unzipSync } from 'fflate';
+import {DeterministicRandom} from "./DeterministicRandom";
 
 /**
  *
@@ -77,6 +78,8 @@ export class ResourceIO {
 
         const elementArea = ElementArea.create(width, height, defaultElement);
 
+        const random = new DeterministicRandom(0);
+
         for (let y = 0; y < height; y++) {
             for (let x = 0; x < width; x++) {
                 const index = (y * width + x) * 4;
@@ -98,7 +101,7 @@ export class ResourceIO {
                     continue;  // white
                 }
 
-                const element = brush.apply(x, y, undefined, undefined);
+                const element = brush.apply(x, y, random);
                 const elementHead = element.elementHead;
                 const elementTail = ElementTail.setColor(element.elementTail, red, green, blue);
                 elementArea.setElementHeadAndTail(x, y, elementHead, elementTail);
