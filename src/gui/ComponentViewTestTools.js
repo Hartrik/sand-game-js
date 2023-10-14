@@ -10,7 +10,7 @@ import { RendererInitializer } from "../core/RendererInitializer";
 /**
  *
  * @author Patrik Harag
- * @version 2023-10-11
+ * @version 2023-10-14
  */
 export class ComponentViewTestTools extends Component {
 
@@ -19,10 +19,10 @@ export class ComponentViewTestTools extends Component {
         new ComponentButton("Tree grow", ComponentButton.CLASS_SECONDARY, ActionsTest.TREE_GROW_TEST),
 
         new ComponentButton("Chunks", ComponentButton.CLASS_INFO, Action.createToggle(false, (c, v) => c.setShowActiveChunks(v))),
+        new ComponentButton("M/webgl", ComponentButton.CLASS_INFO, Action.create(c => c.setRendererInitializer(RendererInitializer.canvasWebGL()))),
         new ComponentButton("M/classic", ComponentButton.CLASS_INFO, Action.create(c => c.setRendererInitializer(RendererInitializer.canvas2d()))),
         new ComponentButton("M/heatmap", ComponentButton.CLASS_INFO, Action.create(c => c.setRendererInitializer(RendererInitializer.canvas2dHeatmap()))),
         new ComponentButton("M/type", ComponentButton.CLASS_INFO, Action.create(c => c.setRendererInitializer(RendererInitializer.canvas2dElementType()))),
-        new ComponentButton("M/webgl-experimental", ComponentButton.CLASS_INFO, Action.create(c => c.setRendererInitializer(RendererInitializer.canvasWebGL()))),
         new ComponentButton("M/null", ComponentButton.CLASS_INFO, Action.create(c => c.setRendererInitializer(RendererInitializer.nullRenderer()))),
         new ComponentButton("Pixelated", ComponentButton.CLASS_INFO, Action.createToggle(true, (c, v) => c.setCanvasImageRenderingStyle(v ? 'pixelated' : 'auto'))),
 

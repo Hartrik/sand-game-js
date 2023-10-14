@@ -8,7 +8,7 @@ import { Renderer } from "./Renderer";
 //       But at least current solution does not require WebGL 2
 
 /**
- * WebGL test.
+ * WebGL renderer.
  *
  * @author Patrik Harag
  * @version 2023-10-14
@@ -39,7 +39,7 @@ export class RendererWebGL extends Renderer {
 
         // --- build programs
 
-        const vertexShaderTexture = `
+        const vertexShaderBlur = `
             attribute vec4 a_position;
             
             varying vec2 v_texcoord;
@@ -50,47 +50,71 @@ export class RendererWebGL extends Renderer {
             }
         `;
 
-        const fragmentShaderElementRendering = `
+        const fragmentShaderBlur = `
             precision mediump float;
             
             varying vec2 v_texcoord;
             
             uniform sampler2D u_element_tails;
-            uniform int u_mode;  // 0=all, 1=non-blurrable, 2=bg&blurrable
+            uniform sampler2D u_blur;
+
+            float rand(vec2 co) {
+                return fract(sin(dot(co.xy, vec2(12.9898,78.233))) * 43758.5453);
+            }
 
             void main() {
                 vec4 elementTail = texture2D(u_element_tails, v_texcoord);
-                
-                if (u_mode != 0) {
-                    int flags = int(floor(elementTail[3] * 255.0 + 0.5));
-                
-                    if (u_mode == 1) {
-                        // do not render background and blurrable elements
-                        if (flags != 0x00) {  // != BLUR_TYPE_NONE
-                            gl_FragColor = vec4(1.0, 1.0, 1.0, 0.0);
-                            return;
-                        }
+                int flags = int(floor(elementTail[3] * 255.0 + 0.5));
+            
+                if (flags == 0x00) {  // == BLUR_TYPE_NONE
+                    // do not render non-blurrable elements
+                    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+                    
+                } else if (flags == 0x01) {  // == BLUR_TYPE_BACKGROUND
+                    // fade out...
+                    
+                    vec4 blurElementTail = texture2D(u_blur, v_texcoord);
+                    float r = blurElementTail[0];  // 0..1
+                    float g = blurElementTail[1];
+                    float b = blurElementTail[2];
+                    
+                    float alpha;  // dynamic alpha
+                    float m = max(r, max(g, b));
+                    if (m > 0.9) {
+                        alpha = 0.875 + (rand(v_texcoord.xy) * 0.1 - 0.05);
+                    } else {
+                        alpha = 0.775 + (rand(v_texcoord.xy) * 0.04 - 0.02);
                     }
-                    if (u_mode == 2) {
-                        // do not render non-blurrable elements
-                        if (flags == 0x00) {  // == BLUR_TYPE_NONE
-                            gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
-                            return;
-                        }
+                    float whiteBackground = 1.0 - alpha;
+                    
+                    float nr = (r * alpha) + whiteBackground;
+                    float ng = (g * alpha) + whiteBackground;
+                    float nb = (b * alpha) + whiteBackground;
+                    
+                    if (int(nr * 255.0) == int(r * 255.0)
+                            && int(ng * 255.0) == int(g * 255.0)
+                            && int(nb * 255.0) == int(b * 255.0)) {
+                            
+                        // no change - delete blur (otherwise there could be visible remains)
+                        gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+                        
+                    } else {
+                        gl_FragColor = vec4(nr, ng, nb, 1.0);
                     }
+                    
+                } else {  // == BLUR_TYPE_1
+                    // render element
+                    float r = elementTail[2];  // 0..1
+                    float g = elementTail[1];
+                    float b = elementTail[0];
+                    gl_FragColor = vec4(r, g, b, 1.0);
                 }
-                
-                // render element
-                float r = elementTail[2];  // 0..1
-                float g = elementTail[1];
-                float b = elementTail[0];
-                gl_FragColor = vec4(r, g, b, 1.0);
             }
         `;
 
-        const elementsProgram = this.#loadProgram(gl, vertexShaderTexture, fragmentShaderElementRendering);
-        const elementsProgramLocationElementTails = gl.getUniformLocation(elementsProgram, "u_element_tails");
-        const elementsProgramLocationMode = gl.getUniformLocation(elementsProgram, "u_mode");
+        const blurProgram = this.#loadProgram(gl, vertexShaderBlur, fragmentShaderBlur);
+        const blurProgramLocationElementTails = gl.getUniformLocation(blurProgram, "u_element_tails");
+        const blurProgramLocationBlur = gl.getUniformLocation(blurProgram, "u_blur");
 
         const vertexShaderMerging = `
             attribute vec4 a_position;
@@ -151,24 +175,33 @@ export class RendererWebGL extends Renderer {
         gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
 
         // --- prepare texture and associated frame buffer for motion blur
+        // it is not possible to sample a texture and render to that same texture at the same time
+        // two textures needs to be used - "ping-pong" approach
 
-        const motionBlurData = new Uint8Array(this.#elementArea.getDataTails().byteLength);
-        const motionBlurTexture = gl.createTexture();
-        gl.activeTexture(gl.TEXTURE1);
-        gl.bindTexture(gl.TEXTURE_2D, motionBlurTexture);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.#width, this.#height, 0, gl.RGBA, gl.UNSIGNED_BYTE, motionBlurData);
+        const createTextureAndFrameBuffer = (textureId) => {
+            const motionBlurData = new Uint8Array(this.#elementArea.getDataTails().byteLength).fill(0xFF);
+            const motionBlurTexture = gl.createTexture();
+            gl.activeTexture(textureId);
+            gl.bindTexture(gl.TEXTURE_2D, motionBlurTexture);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.#width, this.#height, 0, gl.RGBA, gl.UNSIGNED_BYTE, motionBlurData);
 
-        const motionBlurFrameBuffer = gl.createFramebuffer();
-        gl.bindFramebuffer(gl.FRAMEBUFFER, motionBlurFrameBuffer);
-        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, motionBlurTexture, 0);
+            const motionBlurFrameBuffer = gl.createFramebuffer();
+            gl.bindFramebuffer(gl.FRAMEBUFFER, motionBlurFrameBuffer);
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, motionBlurTexture, 0);
+
+            return motionBlurFrameBuffer;
+        }
+
+        const motionBlurFrameBuffer1 = createTextureAndFrameBuffer(gl.TEXTURE1);
+        const motionBlurFrameBuffer2 = createTextureAndFrameBuffer(gl.TEXTURE2);
 
         // ---
 
-        let firstRender = true;
+        let blurTexture = 1;  // "ping-pong" approach - see above
         this.#doRendering = () => {
 
             // init element tails texture - TEXTURE0
@@ -181,20 +214,13 @@ export class RendererWebGL extends Renderer {
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.#width, this.#height, 0, gl.RGBA, gl.UNSIGNED_BYTE, image);
 
-            // render blurrable elements and blur into texture
-            gl.bindFramebuffer(gl.FRAMEBUFFER, motionBlurFrameBuffer);
+            // render blurrable elements and blur into a texture
+            // - reduce blur from previous iterations (fading out) and render blurrable elements over
+            gl.bindFramebuffer(gl.FRAMEBUFFER, blurTexture === 1 ? motionBlurFrameBuffer1 : motionBlurFrameBuffer2);
 
-            if (firstRender) {
-                firstRender = false;
-            } else {
-                // fade out...
-                // TODO
-            }
-
-            // - render blurrable elements over blur from last iterations
-            gl.useProgram(elementsProgram);
-            gl.uniform1i(elementsProgramLocationElementTails, 0);  // texture 0
-            gl.uniform1i(elementsProgramLocationMode, 2);  // 2 = bg & blurrable
+            gl.useProgram(blurProgram);
+            gl.uniform1i(blurProgramLocationElementTails, 0);  // texture 0
+            gl.uniform1i(blurProgramLocationBlur, (blurTexture === 1) ? 2 : 1);  // texture 2 or 1
 
             gl.drawArrays(gl.TRIANGLES, 0, positions.length / 2);
 
@@ -204,9 +230,11 @@ export class RendererWebGL extends Renderer {
 
             gl.useProgram(mergeProgram);
             gl.uniform1i(mergeProgramLocationElementTails, 0);  // texture 0
-            gl.uniform1i(mergeProgramLocationBlur, 1);  // texture 1
+            gl.uniform1i(mergeProgramLocationBlur, blurTexture);  // texture 1 or 2
 
             gl.drawArrays(gl.TRIANGLES, 0, positions.length / 2);
+
+            blurTexture = (blurTexture === 1) ? 2 : 1;
         };
     }
 

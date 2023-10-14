@@ -11,7 +11,7 @@ import { RendererInitializer } from "../core/RendererInitializer";
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-27
+ * @version 2023-10-14
  */
 export class Controller {
 
@@ -39,7 +39,7 @@ export class Controller {
     #simulationEnabled = false;
     /** @type boolean */
     #showActiveChunks = false;
-    #rendererInitializer = RendererInitializer.canvas2d();
+    #rendererInitializer = RendererInitializer.canvasWebGL();
 
     /** @type ServiceToolManager */
     #serviceToolManager = new ServiceToolManager();
