@@ -3,11 +3,15 @@ import { ElementTail } from "./ElementTail";
 import { ElementArea } from "./ElementArea";
 import { Renderer } from "./Renderer";
 
+// TODO: Currently element tail bytes are stored as floats (0-1) in texture and then transformed back to integers
+//       My attempts to use integer texture with texelFetch has failed
+//       But at least current solution does not require WebGL 2
+
 /**
  * WebGL test.
  *
  * @author Patrik Harag
- * @version 2023-10-11
+ * @version 2023-10-14
  */
 export class RendererWebGL extends Renderer {
 
@@ -38,12 +42,14 @@ export class RendererWebGL extends Renderer {
 
         const vertexShader = `
             attribute vec4 a_position;
+            
             varying vec2 v_texcoord;
+            
             void main() {
               gl_Position = a_position;
 
-              // assuming a unit quad for position we
-              // can just use that for texcoords. Flip Y though so we get the top at 0
+              // Assuming a unit quad for position we can just use that for texcoords.
+              // Flip Y though so we get the top at 0
               v_texcoord = a_position.xy * vec2(0.5, -0.5) + 0.5;
             }
         `;
@@ -52,29 +58,49 @@ export class RendererWebGL extends Renderer {
 
         const fragmentShader = `
             precision mediump float;
+            
             varying vec2 v_texcoord;
-            uniform sampler2D u_image;
+            
+            uniform sampler2D u_element_tails;
+            uniform int u_mode;  // 0=all, 1=non-blurrable, 2=bg&blurrable
 
             void main() {
-                // element tail
-                vec4 color = texture2D(u_image, v_texcoord);
+                vec4 elementTail = texture2D(u_element_tails, v_texcoord);
+                
+                if (u_mode != 0) {
+                    int flags = int(floor(elementTail[3] * 255.0 + 0.5));
+                
+                    if (u_mode == 1) {
+                        // do not render background and blurrable elements
+                        if (flags != 0x00) {  // != BLUR_TYPE_NONE
+                            gl_FragColor = vec4(1.0, 1.0, 1.0, 0.0);
+                            return;
+                        }
+                    }
+                    if (u_mode == 2) {
+                        // do not render non-blurrable elements
+                        if (flags == 0x00) {  // == BLUR_TYPE_NONE
+                            gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+                            return;
+                        }
+                    }
+                }
                 
                 // map element tail to WebGL color
-                float r = color[2];
-                float g = color[1];
-                float b = color[0];
-                gl_FragColor = vec4(r, g, b, 255);
+                float r = elementTail[2];  // 0..1
+                float g = elementTail[1];
+                float b = elementTail[0];
+                gl_FragColor = vec4(r, g, b, 1.0);
             }
         `;
         gl.attachShader(program, this.#loadShader(gl, fragmentShader, gl.FRAGMENT_SHADER));
-        gl.bindAttribLocation(program, 1, "a_textureIndex");
 
         gl.linkProgram(program);
         this.#checkLinkStatus(gl, program);
         // ----------------------------
 
         gl.useProgram(program);
-        gl.uniform1i(gl.getUniformLocation(program, "u_image"), 0);
+        gl.uniform1i(gl.getUniformLocation(program, "u_element_tails"), 0);
 
         // Setup a unit quad
         var positions = [
@@ -105,6 +131,13 @@ export class RendererWebGL extends Renderer {
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.#width, this.#height, 0, gl.RGBA, gl.UNSIGNED_BYTE, image);
 
             // redraw
+            gl.disable(gl.BLEND);
+            gl.uniform1i(gl.getUniformLocation(program, "u_mode"), 2);  // 2=bg&blurrable
+            gl.drawArrays(gl.TRIANGLES, 0, positions.length / 2);
+
+            gl.enable(gl.BLEND);
+            gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+            gl.uniform1i(gl.getUniformLocation(program, "u_mode"), 1);  // 1=non-blurrable
             gl.drawArrays(gl.TRIANGLES, 0, positions.length / 2);
         };
     }
