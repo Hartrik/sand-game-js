@@ -56,7 +56,7 @@ export class ComponentViewCanvas extends Component {
  *
  *
  * @author Patrik Harag
- * @version 2023-08-19
+ * @version 2023-10-14
  */
 class ComponentViewInnerCanvas extends Component {
 
@@ -106,6 +106,17 @@ class ComponentViewInnerCanvas extends Component {
         // rendering style
         let domCanvasNode = canvas[0];
         domCanvasNode.style.imageRendering = this.#controller.getCanvasImageRenderingStyle();
+
+        // handle WebGL failures
+        domCanvasNode.addEventListener("webglcontextlost", (e) => {
+            // GPU memory leak, GPU failure, etc.
+            e.preventDefault();
+            console.warn("WebGL context loss detected");
+            setTimeout(() => {
+                console.warn("Restarting");
+                this.#controller.restartAfterFailure();
+            }, 4000);
+        }, false);
 
         return canvas;
     }

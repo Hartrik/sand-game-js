@@ -199,20 +199,25 @@ export class RendererWebGL extends Renderer {
         const motionBlurFrameBuffer1 = createTextureAndFrameBuffer(gl.TEXTURE1);
         const motionBlurFrameBuffer2 = createTextureAndFrameBuffer(gl.TEXTURE2);
 
+        // --- prepare element tails texture - TEXTURE0
+
+        const elementTailsTexture = gl.createTexture();
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, elementTailsTexture);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
         // ---
 
         let blurTexture = 1;  // "ping-pong" approach - see above
         this.#doRendering = () => {
 
-            // init element tails texture - TEXTURE0
-            const image = new Uint8Array(this.#elementArea.getDataTails());
-            gl.activeTexture(gl.TEXTURE0);
-            gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.#width, this.#height, 0, gl.RGBA, gl.UNSIGNED_BYTE, image);
+            // update element tails texture
+            const elementTails = new Uint8Array(this.#elementArea.getDataTails());
+            gl.bindTexture(gl.TEXTURE_2D, elementTailsTexture);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.#width, this.#height, 0, gl.RGBA, gl.UNSIGNED_BYTE, elementTails);
 
             // render blurrable elements and blur into a texture
             // - reduce blur from previous iterations (fading out) and render blurrable elements over

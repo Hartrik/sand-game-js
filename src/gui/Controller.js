@@ -7,6 +7,7 @@ import { Tool } from "../core/Tool";
 import { ServiceToolManager } from "./ServiceToolManager";
 import { ServiceIO } from "./ServiceIO";
 import { RendererInitializer } from "../core/RendererInitializer";
+import { SceneImplSnapshot } from "../core/SceneImplSnapshot";
 
 /**
  *
@@ -224,6 +225,11 @@ export class Controller {
      */
     addOnStopped(handler) {
         this.#onStopped.push(handler);
+    }
+
+    restartAfterFailure() {
+        const snapshot = this.createSnapshot();
+        this.openScene(new SceneImplSnapshot(snapshot));
     }
 
     start() {
