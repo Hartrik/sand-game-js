@@ -8,11 +8,12 @@ import { ServiceToolManager } from "./ServiceToolManager";
 import { ServiceIO } from "./ServiceIO";
 import { RendererInitializer } from "../core/RendererInitializer";
 import { SceneImplSnapshot } from "../core/SceneImplSnapshot";
+import { DomBuilder } from "./DomBuilder";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-10-14
+ * @version 2023-10-15
  */
 export class Controller {
 
@@ -101,7 +102,16 @@ export class Controller {
 
         // init game
         const defaultElement = Brushes.AIR.apply(0, 0, undefined);
-        const context = this.#canvasInitializer(this.#rendererInitializer.getContextType());
+        let contextType = this.#rendererInitializer.getContextType();
+        let context = this.#canvasInitializer(contextType);
+        if ((contextType === 'webgl' || contextType === 'webgl2') && (context === null || context === undefined)) {
+            // WebGL is not supported - unsupported at all / unsupported after recent failure
+            // - to test this, run Chrome with --disable-3d-apis
+            this.#reportRenderingFailure("Unable to get WebGL context. Using fallback renderer; game performance may be affected");
+            this.#rendererInitializer = RendererInitializer.canvas2d();
+            contextType = this.#rendererInitializer.getContextType();
+            context = this.#canvasInitializer(contextType);
+        }
         this.#sandGame = scene.createSandGame(w, h, defaultElement, context, this.#rendererInitializer);
         this.#sandGame.graphics().replace(ElementArea.TRANSPARENT_ELEMENT, defaultElement);
 
@@ -227,9 +237,21 @@ export class Controller {
         this.#onStopped.push(handler);
     }
 
-    restartAfterFailure() {
+    restartAfterRenderingFailure(cause) {
+        this.#reportRenderingFailure(cause)
         const snapshot = this.createSnapshot();
+        this.#rendererInitializer = RendererInitializer.canvas2d();  // fallback to classic CPU renderer
         this.openScene(new SceneImplSnapshot(snapshot));
+    }
+
+    #reportRenderingFailure(message) {
+        console.warn(message);
+
+        let toast = new DomBuilder.BootstrapToast();
+        toast.setHeaderContent(DomBuilder.element('strong', { style: 'color: orange;' }, 'Warning'));
+        toast.setBodyContent(DomBuilder.par(null, message));
+        toast.setDelay(20000);
+        toast.show(this.#dialogAnchor);
     }
 
     start() {

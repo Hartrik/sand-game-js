@@ -200,6 +200,7 @@ export class RendererWebGL extends Renderer {
         const motionBlurFrameBuffer2 = createTextureAndFrameBuffer(gl.TEXTURE2);
 
         // --- prepare element tails texture - TEXTURE0
+        // move the texture definition into rendering loop to create a memory leak - to test WebGL failure recovery
 
         const elementTailsTexture = gl.createTexture();
         gl.activeTexture(gl.TEXTURE0);

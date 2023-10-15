@@ -8,7 +8,7 @@ import { Component } from "./Component";
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-19
+ * @version 2023-10-15
  */
 export class ComponentViewCanvas extends Component {
 
@@ -17,6 +17,8 @@ export class ComponentViewCanvas extends Component {
 
     createNode(controller) {
         controller.registerCanvasInitializer((contextId) => {
+            this.#canvasHolderNode.empty();
+
             const canvasComponent = new ComponentViewInnerCanvas(controller);
             this.#canvasHolderNode.append(canvasComponent.createNode(controller));
             this.#currentCanvas = canvasComponent;
@@ -56,7 +58,7 @@ export class ComponentViewCanvas extends Component {
  *
  *
  * @author Patrik Harag
- * @version 2023-10-14
+ * @version 2023-10-15
  */
 class ComponentViewInnerCanvas extends Component {
 
@@ -106,17 +108,6 @@ class ComponentViewInnerCanvas extends Component {
         // rendering style
         let domCanvasNode = canvas[0];
         domCanvasNode.style.imageRendering = this.#controller.getCanvasImageRenderingStyle();
-
-        // handle WebGL failures
-        domCanvasNode.addEventListener("webglcontextlost", (e) => {
-            // GPU memory leak, GPU failure, etc.
-            e.preventDefault();
-            console.warn("WebGL context loss detected");
-            setTimeout(() => {
-                console.warn("Restarting");
-                this.#controller.restartAfterFailure();
-            }, 4000);
-        }, false);
 
         return canvas;
     }
@@ -320,6 +311,22 @@ class ComponentViewInnerCanvas extends Component {
 
     getContext(contextId) {
         let domCanvasNode = this.#nodeCanvas[0];
+
+        if (contextId === 'webgl' || contextId === 'webgl2') {
+            // handle WebGL failures
+
+            domCanvasNode.addEventListener('webglcontextlost', (e) => {
+                // GPU memory leak, GPU failure, etc.
+                // - to test this move the texture definition into rendering loop to create a memory leak
+
+                const cause = 'WebGL context loss detected. Using fallback renderer; game performance may be affected';
+                e.preventDefault();
+                setTimeout(() => {
+                    this.#controller.restartAfterRenderingFailure(cause);
+                }, 2000);
+            }, false);
+        }
+
         return domCanvasNode.getContext(contextId);
     }
 
