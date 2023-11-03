@@ -32,7 +32,7 @@ export class ComponentViewTools extends Component {
         for (let tool of this.#tools) {
             let cssName = tool.getCodeName();
             let displayName = tool.getDisplayName();
-            let button = DomBuilder.button(displayName, { class: 'badge badge-secondary ' + cssName }, () => {
+            let button = DomBuilder.button(displayName, { class: 'btn btn-secondary btn-sand-game-tool ' + cssName }, () => {
                 controller.getToolManager().setPrimaryTool(tool);
                 controller.getToolManager().setSecondaryTool(Tools.byCodeName('air'));
             });
@@ -54,7 +54,7 @@ export class ComponentViewTools extends Component {
         }
 
         if (this.#templates) {
-            let button = DomBuilder.button('Template', { class: 'badge badge-secondary template'}, () => {
+            let button = DomBuilder.button('Template', { class: 'btn btn-secondary btn-sand-game-tool template'}, () => {
                 new ActionDialogTemplateSelection().performAction(controller);
             });
             buttons.push(button);

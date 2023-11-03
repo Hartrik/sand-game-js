@@ -1,7 +1,7 @@
 
 /*
  * @author Patrik Harag
- * @version 2023-10-31
+ * @version 2023-11-03
  */
 
 .sand-game-component {
@@ -38,64 +38,67 @@
     margin-bottom: 4pt;
 }
 
-.sand-game-component .sand-game-tools .badge {
+.sand-game-component .btn-sand-game-tool {
     margin-right: 3pt;
-    padding: 0.4em 0.4em;
+    line-height: 2;
+    font-weight: 700;
+    padding: 0 0.4em 0 0.4em;
+    font-size: 75%;
     border: none;
 }
 
-.sand-game-component .badge.air {
+.sand-game-component .btn.air {
     background-color: rgb(230, 230, 230);
     color: black;
     margin-right: 0.8em;
 }
 
-.sand-game-component .badge.sand {
+.sand-game-component .btn.sand {
     background-color: rgb(183, 166, 67);
 }
 
-.sand-game-component .badge.soil {
+.sand-game-component .btn.soil {
     background-color: rgb(142, 104, 72);
 }
 
-.sand-game-component .badge.gravel {
+.sand-game-component .btn.gravel {
     background-color: rgb(101, 101, 101);
 }
 
-.sand-game-component .badge.wall {
+.sand-game-component .btn.wall {
     background-color: rgb(56, 56, 56);
 }
 
-.sand-game-component .badge.wood {
+.sand-game-component .btn.wood {
     background-color: rgb(87, 48, 5);
 }
 
-.sand-game-component .badge.water {
+.sand-game-component .btn.water {
     background-color: rgb(4, 135, 186);
 }
 
-.sand-game-component .badge.fire {
+.sand-game-component .btn.fire {
     background-color: #ff5900;
 }
 
-.sand-game-component .badge.fire.selected {
+.sand-game-component .btn.fire.selected {
     outline: black solid 1px;
 }
 
-.sand-game-component .badge.meteor {
+.sand-game-component .btn.meteor {
     background-color: #ff5900;
 }
 
-.sand-game-component .badge.meteor.selected {
+.sand-game-component .btn.meteor.selected {
     outline: black solid 1px;
 }
 
-.sand-game-component .badge.template {
+.sand-game-component .btn.template {
     background-color: #82309d;
     margin-left: 0.4em;
 }
 
-.sand-game-component .badge.selected {
+.sand-game-component .btn.selected {
     outline: red solid 1px;
 }
 
@@ -263,10 +266,11 @@
 }
 
 .sand-game-component .test-tools .btn {
-    margin-right: 0.5em;
-
-    padding: 0 0.5em 0 0.5em;
+    margin-right: 3pt;
+    line-height: 2;
+    padding: 0 0.4em 0 0.4em;
     font-size: 75%;
+    border: none;
 }
 
 .sand-game-component .sand-game-templates .template-button {

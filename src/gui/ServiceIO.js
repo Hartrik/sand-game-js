@@ -272,7 +272,7 @@ class TemplateForm {
 
         return DomBuilder.div({ class: 'form-check' }, [
             input,
-            DomBuilder.element('label', { class: 'form-check-label badge badge-secondary ' + value, 'for': id }, label)
+            DomBuilder.element('label', { class: 'form-check-label btn btn-secondary btn-sand-game-tool ' + value, 'for': id }, label)
         ]);
     }
 
