@@ -8,6 +8,7 @@ import { Analytics } from "./Analytics";
 import { Controller } from "./gui/Controller";
 import { MainComponent } from "./gui/MainComponent";
 import { Brushes } from "./core/Brushes";
+import $ from "jquery";
 
 export const brushes = {};
 for (let brush of Brushes.LIST) {
@@ -57,6 +58,8 @@ function determineOptimalScale(width, height, maxPoints) {
 }
 
 export function initStandard(root) {
+    root = $(root);
+
     const {width, height} = determineSize(root);
     const scale = determineOptimalScale(width, height, determineMaxNumberOfPoints());
 
@@ -70,6 +73,7 @@ export function initStandard(root) {
     const controller = new Controller(init);
     const mainComponent = new MainComponent(init);
     const node = mainComponent.createNode(controller);
+    root.empty();
     root.append(node);
 
     controller.setup();
@@ -83,6 +87,8 @@ export function initStandard(root) {
 }
 
 export function initTest(root) {
+    root = $(root);
+
     const {width, height} = determineSize(root);
     const scale = determineOptimalScale(width, height, determineMaxNumberOfPoints());
 
@@ -97,6 +103,7 @@ export function initTest(root) {
     const mainComponent = new MainComponent(init);
     mainComponent.enableTestTools();
     const node = mainComponent.createNode(controller);
+    root.empty();
     root.append(node);
 
     controller.setup();

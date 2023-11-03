@@ -30,7 +30,7 @@ export class MainComponent extends Component {
     createNode(controller) {
         let componentNode = DomBuilder.div({ class: 'sand-game-component' });
 
-        controller.registerDialogAnchor(componentNode);
+        controller.registerDialogAnchor(componentNode);  // TODO
 
         componentNode.append(new ComponentViewTools(Tools.DEFAULT_TOOLS, true).createNode(controller));
         componentNode.append(new ComponentViewCanvas().createNode(controller));

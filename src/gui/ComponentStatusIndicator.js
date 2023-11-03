@@ -23,8 +23,7 @@ export class ComponentStatusIndicator extends Component {
             DomBuilder.element('button', {
                 type: 'button',
                 class: 'btn btn-link dropdown-toggle',
-                'data-toggle': 'dropdown',
-                'aria-haspopup': 'true',
+                'data-bs-toggle': 'dropdown',
                 'aria-expanded': 'false'
             }, nodeLabel),
             DomBuilder.element('form', { class: 'dropdown-menu p-2' }, this.#createStatusContent(controller))

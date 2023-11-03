@@ -162,7 +162,7 @@ class TemplateForm {
 
     create() {
         return DomBuilder.element('form', null, [
-            DomBuilder.element('fieldset', { class: 'form-group row' }, [
+            DomBuilder.element('fieldset', { class: 'mb-3 row' }, [
                 DomBuilder.element('legend', { class: 'col-form-label col-sm-3 float-sm-left pt-0' }, 'Material'),
                 DomBuilder.div({ class: 'col-sm-9' }, [
                     this.#creatMaterialFormGroup('sand', Brushes.SAND, 'Sand'),
@@ -171,13 +171,13 @@ class TemplateForm {
                     this.#creatMaterialFormGroup('wood', Brushes.TREE_WOOD, 'Wood')
                 ])
             ]),
-            DomBuilder.element('fieldset', { class: 'form-group row' }, [
+            DomBuilder.element('fieldset', { class: 'mb-3 row' }, [
                 DomBuilder.element('legend', { class: 'col-form-label col-sm-3 float-sm-left pt-0' }, 'Background threshold'),
                 DomBuilder.div({ class: 'col-sm-9' }, [
                     this.#createThresholdSliderFormGroup(),
                 ])
             ]),
-            DomBuilder.element('fieldset', { class: 'form-group row' }, [
+            DomBuilder.element('fieldset', { class: 'mb-3 row' }, [
                 DomBuilder.element('legend', { class: 'col-form-label col-sm-3 float-sm-left pt-0' }, 'Max size'),
                 DomBuilder.div({ class: 'col-sm-9' }, [
                     this.#createMaxWidthFormGroup(),
@@ -194,7 +194,7 @@ class TemplateForm {
 
         const slider = DomBuilder.element('input', {
             id: id,
-            class: 'form-control-range',
+            class: 'form-range',
             type: 'range',
             min: 0, max: 255, value: this.#thresholdValue
         });
@@ -203,7 +203,7 @@ class TemplateForm {
             label.text('Value: ' + this.#thresholdValue);
         });
 
-        return DomBuilder.div({ class: 'form-group' }, [
+        return DomBuilder.div({ class: 'mb-3' }, [
             slider,
             DomBuilder.element('small', null, label)
         ]);
@@ -216,7 +216,7 @@ class TemplateForm {
 
         const slider = DomBuilder.element('input', {
             id: id,
-            class: 'form-control-range',
+            class: 'form-range',
             type: 'range',
             min: 25, max: 800, value: this.#maxWidth
         });
@@ -225,7 +225,7 @@ class TemplateForm {
             label.text('Width: ' + this.#maxWidth);
         });
 
-        return DomBuilder.div({ class: 'form-group' }, [
+        return DomBuilder.div({ class: 'mb-3' }, [
             slider,
             DomBuilder.element('small', null, label)
         ]);
@@ -238,7 +238,7 @@ class TemplateForm {
 
         const slider = DomBuilder.element('input', {
             id: id,
-            class: 'form-control-range',
+            class: 'form-range',
             type: 'range',
             min: 25, max: 800, value: this.#maxHeight
         });
@@ -247,7 +247,7 @@ class TemplateForm {
             label.text('Height: ' + this.#maxHeight);
         });
 
-        return DomBuilder.div({ class: 'form-group' }, [
+        return DomBuilder.div({ class: 'mb-3' }, [
             slider,
             DomBuilder.element('small', null, label)
         ]);

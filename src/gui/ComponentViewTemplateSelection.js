@@ -18,7 +18,7 @@ export class ComponentViewTemplateSelection extends Component {
             const name = toolDefinition.name;
             let loadedTool = null;
 
-            let button = DomBuilder.button(name, { class: 'btn btn-light template-button', 'data-dismiss': 'modal'}, () => {
+            let button = DomBuilder.button(name, { class: 'btn btn-light template-button', 'data-bs-dismiss': 'modal'}, () => {
                 if (loadedTool !== null) {
 
                     const toolManager = controller.getToolManager();
