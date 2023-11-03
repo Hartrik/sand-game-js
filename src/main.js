@@ -1,10 +1,11 @@
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-20
+ * @version 2023-11-03
  */
 
 import { Analytics } from "./Analytics";
+import { DomBuilder } from "./gui/DomBuilder";
 import { Controller } from "./gui/Controller";
 import { MainComponent } from "./gui/MainComponent";
 import { Brushes } from "./core/Brushes";
@@ -70,7 +71,10 @@ export function initStandard(root) {
         scene: (Math.random() > 0.1) ? 'landscape_1' : 'landscape_2'
     };
 
-    const controller = new Controller(init);
+    const dialogAnchorNode = DomBuilder.div({ class: 'sand-game-dialog-anchor sand-game-component' });
+    document.body.prepend(dialogAnchorNode[0]);
+
+    const controller = new Controller(init, dialogAnchorNode);
     const mainComponent = new MainComponent(init);
     const node = mainComponent.createNode(controller);
     root.empty();
@@ -99,7 +103,10 @@ export function initTest(root) {
         scene: 'landscape_1'
     };
 
-    const controller = new Controller(init);
+    const dialogAnchorNode = DomBuilder.div({ class: 'sand-game-dialog-anchor sand-game-component' });
+    document.body.prepend(dialogAnchorNode[0]);
+
+    const controller = new Controller(init, dialogAnchorNode);
     const mainComponent = new MainComponent(init);
     mainComponent.enableTestTools();
     const node = mainComponent.createNode(controller);

@@ -11,7 +11,7 @@ import { ComponentButtonAdjustScale } from "./ComponentButtonAdjustScale";
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-19
+ * @version 2023-11-03
  */
 export class MainComponent extends Component {
 
@@ -29,8 +29,6 @@ export class MainComponent extends Component {
 
     createNode(controller) {
         let componentNode = DomBuilder.div({ class: 'sand-game-component' });
-
-        controller.registerDialogAnchor(componentNode);  // TODO
 
         componentNode.append(new ComponentViewTools(Tools.DEFAULT_TOOLS, true).createNode(controller));
         componentNode.append(new ComponentViewCanvas().createNode(controller));

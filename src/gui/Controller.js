@@ -13,7 +13,7 @@ import { DomBuilder } from "./DomBuilder";
 /**
  *
  * @author Patrik Harag
- * @version 2023-10-15
+ * @version 2023-11-03
  */
 export class Controller {
 
@@ -55,10 +55,12 @@ export class Controller {
      *
      * @param init
      */
-    constructor(init) {
+    constructor(init, dialogAnchor) {
         if (init) {
             this.#init = init;
         }
+
+        this.#dialogAnchor = dialogAnchor;
 
         this.#currentWidthPoints = Math.trunc(this.#init.canvasWidthPx * this.#init.scale);
         this.#currentHeightPoints = Math.trunc(this.#init.canvasHeightPx * this.#init.scale);
@@ -71,10 +73,6 @@ export class Controller {
      */
     registerCanvasInitializer(canvasInitializer) {
         this.#canvasInitializer = canvasInitializer;
-    }
-
-    registerDialogAnchor(dialogAnchor) {
-        this.#dialogAnchor = dialogAnchor;
     }
 
     setup() {
