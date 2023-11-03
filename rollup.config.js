@@ -5,50 +5,50 @@ import { string } from "rollup-plugin-string";
 import terser from '@rollup/plugin-terser';
 import pkg from './package.json';
 
+const PLUGINS_COMMON = [
+    resolve(), // so Rollup can find libraries
+    commonjs(), // so Rollup can convert libraries to an ES modules
+    image({
+        include: "**/*.png",
+        exclude: []
+    }),
+    string({
+        include: "**/*.svg",
+        exclude: []
+    })
+];
+
+const PLUGINS_MIN = [
+    terser({
+        sourceMap: true,
+        format: {
+            preamble: pkg.copyright,
+            comments: false
+        }
+    })
+];
+
 export default [
-    // browser-friendly UMD build
     {
         input: 'src/main.js',
-        output: {
-            name: 'SandGameJS',
-            file: pkg.browser,
-            format: 'umd'
-        },
-        plugins: [
-            resolve(), // so Rollup can find libraries
-            commonjs(), // so Rollup can convert libraries to an ES modules
-            image({
-                include: "**/*.png",
-                exclude: []
-            }),
-            string({
-                include: "**/*.svg",
-                exclude: []
-            })
+        plugins: PLUGINS_COMMON,
+        output: [
+            {
+                // browser-friendly UMD build
+                name: 'SandGameJS',
+                file: 'dist/sand-game-js.umd.js',
+                banner: pkg.copyright,
+                format: 'umd',
+                sourcemap: true,
+            },
+            {
+                // browser-friendly UMD build, MINIMIZED
+                name: 'SandGameJS',
+                file: 'dist/sand-game-js.umd.min.js',
+                format: 'umd',
+                sourcemap: true,
+                plugins: PLUGINS_MIN,
+            },
         ]
     },
-
-    // browser-friendly UMD build, MINIMIZED
-    {
-        input: 'src/main.js',
-        output: {
-            name: 'SandGameJS',
-            file: pkg.browser_min,
-            format: 'umd'
-        },
-        plugins: [
-            resolve(), // so Rollup can find libraries
-            commonjs(), // so Rollup can convert libraries to an ES modules
-            image({
-                include: "**/*.png",
-                exclude: []
-            }),
-            string({
-                include: "**/*.svg",
-                exclude: []
-            }),
-
-            terser()
-        ]
-    }
 ];

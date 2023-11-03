@@ -1,9 +1,7 @@
 {
   "name": "sand-game-js",
   "version": "1.0.0-SNAPSHOT",
-  "module": "dist/sand-game-js.esm.js",
-  "browser": "dist/sand-game-js.umd.js",
-  "browser_min": "dist/sand-game-js.umd.min.js",
+  "copyright": "/* Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved */",
   "dependencies": {
     "cubic-spline": "^3.0.3",
     "fflate": "^0.7.4",
