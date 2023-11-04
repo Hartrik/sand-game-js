@@ -1,7 +1,7 @@
 /**
  *
  * @author Patrik Harag
- * @version 2023-11-03
+ * @version 2023-11-04
  */
 
 import { Analytics } from "./Analytics";
@@ -58,7 +58,7 @@ function determineOptimalScale(width, height, maxPoints) {
     }
 }
 
-export function initStandard(root) {
+export function initStandard(root, config) {
     root = $(root);
 
     const {width, height} = determineSize(root);
@@ -70,6 +70,9 @@ export function initStandard(root) {
         canvasHeightPx: height,
         scene: (Math.random() > 0.1) ? 'landscape_1' : 'landscape_2'
     };
+    if (config.version !== undefined) {
+        init.version = config.version;
+    }
 
     const dialogAnchorNode = DomBuilder.div({ class: 'sand-game-dialog-anchor sand-game-component' });
     document.body.prepend(dialogAnchorNode[0]);
@@ -90,7 +93,7 @@ export function initStandard(root) {
     return controller;
 }
 
-export function initTest(root) {
+export function initTest(root, config) {
     root = $(root);
 
     const {width, height} = determineSize(root);
@@ -102,6 +105,9 @@ export function initTest(root) {
         canvasHeightPx: height,
         scene: 'landscape_1'
     };
+    if (config.version !== undefined) {
+        init.version = config.version;
+    }
 
     const dialogAnchorNode = DomBuilder.div({ class: 'sand-game-dialog-anchor sand-game-component' });
     document.body.prepend(dialogAnchorNode[0]);

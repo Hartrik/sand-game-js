@@ -13,7 +13,7 @@ import { DomBuilder } from "./DomBuilder";
 /**
  *
  * @author Patrik Harag
- * @version 2023-11-03
+ * @version 2023-11-04
  */
 export class Controller {
 
@@ -282,6 +282,9 @@ export class Controller {
     createSnapshot() {
         let snapshot = this.#sandGame.createSnapshot();
         snapshot.metadata.scale = this.getCurrentScale();
+        if (this.#init.version !== undefined) {
+            snapshot.metadata.appVersion = this.#init.version;
+        }
         return snapshot;
     }
 

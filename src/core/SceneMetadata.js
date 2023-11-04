@@ -2,7 +2,7 @@
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-20
+ * @version 2023-11-04
  */
 export class SceneMetadata {
 
@@ -11,6 +11,9 @@ export class SceneMetadata {
 
     /** @type number */
     formatVersion;
+
+    /** @type string */
+    appVersion;
 
     /** @type number|undefined */
     created;
