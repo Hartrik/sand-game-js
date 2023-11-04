@@ -429,7 +429,7 @@ DomBuilder.BootstrapToast = class {
         }
 
         const wrapper = $(`<div class="position-fixed bottom-0 right-0 p-3" style="z-index: 5; right: 0; bottom: 0;"></div>`)
-            .append(this.#toast = $(`<div class="toast hide" role="alert" aria-live="assertive" aria-atomic="true" data-delay="${this.#dataDelay}">`)
+            .append(this.#toast = $(`<div class="toast hide" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="${this.#dataDelay}">`)
                 .append($(`<div class="toast-header"></div>`)
                     .append(this.#headerNode)
                     .append($(`<button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>`))
