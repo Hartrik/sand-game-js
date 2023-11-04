@@ -28,9 +28,8 @@
       document.addEventListener('DOMContentLoaded', () => {
           const root = document.getElementById('sand-game-root');
 
-          const config = { version: 'dev' };
-          // const controller = SandGameJS.initStandard(root, config);
-          const controller = SandGameJS.initTest(root, config);
+          const config = { version: 'dev', debug: true };
+          const controller = SandGameJS.init(root, config);
           sandGame = controller.getSandGame();
           controller.addOnInitialized(s => {
               sandGame = s;

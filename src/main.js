@@ -58,8 +58,17 @@ function determineOptimalScale(width, height, maxPoints) {
     }
 }
 
-export function initStandard(root, config) {
-    root = $(root);
+/**
+ *
+ * @param root {HTMLElement}
+ * @param config {{version: undefined|string, debug: undefined|boolean, scene: undefined|string}|undefined}
+ * @returns {Controller}
+ */
+export function init(root, config) {
+    root = $(root);  // convert into jQuery node
+    if (config === undefined) {
+        config = {};
+    }
 
     const {width, height} = determineSize(root);
     const scale = determineOptimalScale(width, height, determineMaxNumberOfPoints());
@@ -67,11 +76,25 @@ export function initStandard(root, config) {
     const init = {
         scale: scale,
         canvasWidthPx: width,
-        canvasHeightPx: height,
-        scene: (Math.random() > 0.1) ? 'landscape_1' : 'landscape_2'
+        canvasHeightPx: height
     };
+
+    if (config.scene !== undefined) {
+        init.scene = config.scene;
+    } else {
+        // default scene
+        if (config.debug) {
+            init.scene = 'landscape_1';  // always the same
+        } else {
+            init.scene = (Math.random() > 0.1) ? 'landscape_1' : 'landscape_2';
+        }
+    }
+
     if (config.version !== undefined) {
         init.version = config.version;
+    } else {
+        // default version
+        init.version = undefined;
     }
 
     const dialogAnchorNode = DomBuilder.div({ class: 'sand-game-dialog-anchor sand-game-component' });
@@ -79,42 +102,9 @@ export function initStandard(root, config) {
 
     const controller = new Controller(init, dialogAnchorNode);
     const mainComponent = new MainComponent(init);
-    const node = mainComponent.createNode(controller);
-    root.empty();
-    root.append(node);
-
-    controller.setup();
-    controller.getIOManager().initFileDragAndDrop(node);
-    controller.enableGlobalShortcuts();
-    controller.start();
-
-    Analytics.triggerFeatureUsed(Analytics.FEATURE_APP_INITIALIZED);
-
-    return controller;
-}
-
-export function initTest(root, config) {
-    root = $(root);
-
-    const {width, height} = determineSize(root);
-    const scale = determineOptimalScale(width, height, determineMaxNumberOfPoints());
-
-    const init = {
-        scale: scale,
-        canvasWidthPx: width,
-        canvasHeightPx: height,
-        scene: 'landscape_1'
-    };
-    if (config.version !== undefined) {
-        init.version = config.version;
+    if (config.debug) {
+        mainComponent.enableTestTools();
     }
-
-    const dialogAnchorNode = DomBuilder.div({ class: 'sand-game-dialog-anchor sand-game-component' });
-    document.body.prepend(dialogAnchorNode[0]);
-
-    const controller = new Controller(init, dialogAnchorNode);
-    const mainComponent = new MainComponent(init);
-    mainComponent.enableTestTools();
     const node = mainComponent.createNode(controller);
     root.empty();
     root.append(node);
