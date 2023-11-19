@@ -1,3 +1,4 @@
+import copy from 'rollup-plugin-copy'
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import image from '@rollup/plugin-image';
@@ -6,8 +7,15 @@ import terser from '@rollup/plugin-terser';
 import pkg from './package.json';
 
 const PLUGINS_COMMON = [
+    copy({
+        targets: [
+            { src: 'src/style.css', dest: 'dist', rename: 'sand-game-js.css' }
+        ]
+    }),
+
     resolve(), // so Rollup can find libraries
     commonjs(), // so Rollup can convert libraries to an ES modules
+
     image({
         include: "**/*.png",
         exclude: []

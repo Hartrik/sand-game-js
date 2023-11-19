@@ -14,6 +14,7 @@
     "@rollup/plugin-node-resolve": "^15.0.1",
     "@rollup/plugin-terser": "^0.4.3",
     "rollup": "^2.70.1",
+    "rollup-plugin-copy": "^3.5.0",
     "rollup-plugin-string": "^3.0.0"
   },
   "scripts": {
