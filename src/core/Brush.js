@@ -2,6 +2,7 @@ import {Assets} from "../Assets.js";
 import {Element} from "./Element.js";
 import {ElementTail} from "./ElementTail.js";
 import {ElementHead} from "./ElementHead.js";
+import {DeterministicRandom} from "./DeterministicRandom";
 
 /**
  * @interface
@@ -10,8 +11,6 @@ import {ElementHead} from "./ElementHead.js";
  * @version 2023-11-20
  */
 export class Brush {
-
-    // TODO: use default random if null
 
     /**
      *
@@ -72,7 +71,7 @@ export class Brush {
      */
     static withIntensity(intensity, brush) {
         return Brush.custom((x, y, random, oldElement) => {
-            let rnd = (random) ? random.next() : Math.random();
+            let rnd = ((random) ? random : DeterministicRandom.DEFAULT).next();
             if (rnd < intensity) {
                 return brush.apply(x, y, random, oldElement);
             }
@@ -112,12 +111,7 @@ class RandomBrush extends Brush {
 
     apply(x, y, random, oldElement) {
         if (this.#elements.length > 1) {
-            let i;
-            if (random) {
-                i = random.nextInt(this.#elements.length);
-            } else {
-                i = Math.trunc(Math.random() * this.#elements.length);
-            }
+            const i = ((random) ? random : DeterministicRandom.DEFAULT).nextInt(this.#elements.length);
             return this.#elements[i];
         } else {
             return this.#elements[0];
@@ -150,12 +144,7 @@ class PaletteBrush extends Brush {
             return null;
         }
 
-        let i;
-        if (random) {
-            i = random.nextInt(this.#palette.length);
-        } else {
-            i = Math.trunc(Math.random() * this.#palette.length);
-        }
+        const i = ((random) ? random : DeterministicRandom.DEFAULT).nextInt(this.#palette.length);
         const [r, g, b] = this.#palette[i];
 
         element.elementTail = ElementTail.setColor(element.elementTail, r, g, b);

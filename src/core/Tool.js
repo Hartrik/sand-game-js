@@ -4,6 +4,7 @@ import { ElementArea } from "./ElementArea.js";
 import { CursorDefinition } from "./CursorDefinition.js";
 import { CursorDefinitionElementArea } from "./CursorDefinitionElementArea.js";
 import { Brushes } from "./Brushes.js";
+import { DeterministicRandom } from "./DeterministicRandom";
 
 /**
  *
@@ -225,7 +226,7 @@ class PointBrushTool extends Tool {
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-10
+ * @version 2023-11-20
  */
 class MeteorTool extends Tool {
 
@@ -247,13 +248,13 @@ class MeteorTool extends Tool {
         }
 
         if (x < graphics.getWidth() / 2) {
-            if (Math.random() < 0.8) {
+            if (DeterministicRandom.DEFAULT.next() < 0.8) {
                 graphics.draw(x + diffSlope4, 0, Brushes.METEOR_FROM_RIGHT);
             } else {
                 graphics.draw(x, 0, Brushes.METEOR);
             }
         } else {
-            if (Math.random() < 0.8) {
+            if (DeterministicRandom.DEFAULT.next() < 0.8) {
                 graphics.draw(x - diffSlope4, 0, Brushes.METEOR_FROM_LEFT);
             } else {
                 graphics.draw(x, 0, Brushes.METEOR);
@@ -333,7 +334,7 @@ class InsertSceneTool extends Tool {
 /**
  *
  * @author Patrik Harag
- * @version 2023-07-23
+ * @version 2023-11-20
  */
 class InsertRandomSceneTool extends Tool {
 
@@ -357,7 +358,7 @@ class InsertRandomSceneTool extends Tool {
             throw 'Scenes not set';
         }
 
-        const i = Math.trunc(Math.random() * this.#scenes.length);
+        const i = DeterministicRandom.DEFAULT.nextInt(this.#scenes.length);
         const scene = this.#scenes[i];
         this.#currentTool = new InsertSceneTool(this.getCategory(), this.getCodeName(), this.getDisplayName(),
                 scene, this.#onInsertHandler);
