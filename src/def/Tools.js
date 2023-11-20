@@ -19,7 +19,7 @@ export class Tools {
         Tool.rectangleBrushTool(Tools.CATEGORY_BRUSH, 'air', 'Erase', Brushes.AIR, Tools.DEFAULT_SIZE),
         Tool.rectangleBrushTool(Tools.CATEGORY_BRUSH, 'sand', 'Sand', Brushes.SAND, Tools.DEFAULT_SIZE),
         Tool.rectangleBrushTool(Tools.CATEGORY_BRUSH, 'soil', 'Soil', Brushes.SOIL, Tools.DEFAULT_SIZE),
-        Tool.rectangleBrushTool(Tools.CATEGORY_BRUSH, 'gravel', 'Gravel', Brushes.STONE,Tools.DEFAULT_SIZE),
+        Tool.rectangleBrushTool(Tools.CATEGORY_BRUSH, 'gravel', 'Gravel', Brushes.GRAVEL,Tools.DEFAULT_SIZE),
         Tool.rectangleBrushTool(Tools.CATEGORY_BRUSH, 'wall', 'Rock', Brushes.ROCK, Tools.DEFAULT_SIZE),
         Tool.rectangleBrushTool(Tools.CATEGORY_BRUSH, 'water', 'Water', Brushes.WATER, Tools.DEFAULT_SIZE),
         Tool.rectangleBrushTool(Tools.CATEGORY_BRUSH, 'fire', 'Fire', Brush.gentle(Brushes.FIRE), Tools.DEFAULT_SIZE),

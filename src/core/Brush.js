@@ -7,9 +7,11 @@ import {ElementHead} from "./ElementHead.js";
  * @interface
  *
  * @author Patrik Harag
- * @version 2023-02-20
+ * @version 2023-11-20
  */
 export class Brush {
+
+    // TODO: use default random if null
 
     /**
      *
@@ -35,16 +37,22 @@ export class Brush {
         return new RandomBrush(elements);
     }
 
-    static randomFromHeadAndTails(elementHead, elementTails) {
-        let elements = [];
-        for (let elementTail of elementTails) {
-            elements.push(new Element(elementHead, elementTail));
-        }
-        return new RandomBrush(elements);
+    static textureBrush(base64, innerBrush) {
+        return new TextureBrush(innerBrush, base64);
     }
 
-    static textureBrush(innerBrush, base64) {
-        return new TextureBrush(innerBrush, base64);
+    /**
+     *
+     * @param palette {number[][]|string}
+     * @param innerBrush
+     * @returns {Brush}
+     */
+    static paletteBrush(palette, innerBrush) {
+        if (typeof palette === 'string') {
+            // parse
+            palette = palette.split('\n').map(line => line.split(',').map(Number));
+        }
+        return new PaletteBrush(innerBrush, palette);
     }
 
     /**
@@ -62,7 +70,7 @@ export class Brush {
      * @param intensity {number} 0..1
      * @returns {Brush}
      */
-    static withIntensity(brush, intensity) {
+    static withIntensity(intensity, brush) {
         return Brush.custom((x, y, random, oldElement) => {
             let rnd = (random) ? random.next() : Math.random();
             if (rnd < intensity) {
@@ -120,6 +128,44 @@ class RandomBrush extends Brush {
 /**
  *
  * @author Patrik Harag
+ * @version 2023-11-20
+ */
+class PaletteBrush extends Brush {
+
+    /** @type Brush */
+    #innerBrush;
+
+    /** @type number[][] */
+    #palette;
+
+    constructor(innerBrush, palette) {
+        super();
+        this.#innerBrush = innerBrush;
+        this.#palette = palette;
+    }
+
+    apply(x, y, random, oldElement) {
+        const element = this.#innerBrush.apply(x, y, random);
+        if (element === null) {
+            return null;
+        }
+
+        let i;
+        if (random) {
+            i = random.nextInt(this.#palette.length);
+        } else {
+            i = Math.trunc(Math.random() * this.#palette.length);
+        }
+        const [r, g, b] = this.#palette[i];
+
+        element.elementTail = ElementTail.setColor(element.elementTail, r, g, b);
+        return element;
+    }
+}
+
+/**
+ *
+ * @author Patrik Harag
  * @version 2023-02-20
  */
 class TextureBrush extends Brush {
@@ -139,6 +185,9 @@ class TextureBrush extends Brush {
 
     apply(x, y, random, oldElement) {
         const element = this.#innerBrush.apply(x, y, random);
+        if (element === null) {
+            return null;
+        }
 
         if (this.#imageData != null) {
             const cx = x % this.#imageData.width;

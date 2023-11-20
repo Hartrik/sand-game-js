@@ -31,7 +31,7 @@ export class ActionsTest {
             return;
         }
 
-        let treeBrush = Brush.withIntensity(Brushes.TREE, 0.05);
+        let treeBrush = Brush.withIntensity(0.05, Brushes.TREE);
 
         sandGame.graphics().fill(Brushes.AIR);
         sandGame.graphics().drawRectangle(0, -10, -1, -1, Brushes.SOIL, true);
