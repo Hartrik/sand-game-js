@@ -8,7 +8,7 @@ import { Component } from "./Component";
 /**
  *
  * @author Patrik Harag
- * @version 2023-10-15
+ * @version 2023-11-20
  */
 export class ComponentViewCanvas extends Component {
 
@@ -16,13 +16,20 @@ export class ComponentViewCanvas extends Component {
     #currentCanvas = null;
 
     createNode(controller) {
-        controller.registerCanvasInitializer((contextId) => {
+        controller.registerCanvasNodeInitializer(() => {
             this.#canvasHolderNode.empty();
 
             const canvasComponent = new ComponentViewInnerCanvas(controller);
             this.#canvasHolderNode.append(canvasComponent.createNode(controller));
             this.#currentCanvas = canvasComponent;
-            return canvasComponent.getContext(contextId);
+            return canvasComponent.getCanvasNode()[0];
+        });
+
+        controller.registerCanvasNodeProvider(() => {
+            if (this.#currentCanvas !== null) {
+                return this.#currentCanvas.getCanvasNode()[0];
+            }
+            return null;
         });
 
         controller.addOnImageRenderingStyleChanged((imageRenderingStyle) => {
@@ -58,7 +65,7 @@ export class ComponentViewCanvas extends Component {
  *
  *
  * @author Patrik Harag
- * @version 2023-10-15
+ * @version 2023-11-20
  */
 class ComponentViewInnerCanvas extends Component {
 
@@ -309,25 +316,8 @@ class ComponentViewInnerCanvas extends Component {
         });
     }
 
-    getContext(contextId) {
-        let domCanvasNode = this.#nodeCanvas[0];
-
-        if (contextId === 'webgl' || contextId === 'webgl2') {
-            // handle WebGL failures
-
-            domCanvasNode.addEventListener('webglcontextlost', (e) => {
-                // GPU memory leak, GPU failure, etc.
-                // - to test this move the texture definition into rendering loop to create a memory leak
-
-                const cause = 'WebGL context loss detected. Using fallback renderer; game performance may be affected';
-                e.preventDefault();
-                setTimeout(() => {
-                    this.#controller.restartAfterRenderingFailure(cause);
-                }, 2000);
-            }, false);
-        }
-
-        return domCanvasNode.getContext(contextId);
+    getCanvasNode() {
+        return this.#nodeCanvas;
     }
 
     setImageRenderingStyle(style) {

@@ -13,7 +13,7 @@ import { DomBuilder } from "./DomBuilder";
 /**
  *
  * @author Patrik Harag
- * @version 2023-11-04
+ * @version 2023-11-20
  */
 export class Controller {
 
@@ -48,8 +48,12 @@ export class Controller {
     /** @type ServiceIO */
     #serviceIO = new ServiceIO(this);
 
+    /** @type jQuery<HTMLElement> */
     #dialogAnchor;
+    /** @type function():HTMLElement|null */
     #canvasInitializer = null;
+    /** @type function():HTMLElement|null */
+    #canvasProvider = null;
 
     /**
      *
@@ -69,10 +73,18 @@ export class Controller {
 
     /**
      *
-     * @param canvasInitializer {function(contextId:string):CanvasRenderingContext2D|WebGLRenderingContext}
+     * @param canvasInitializer {function():HTMLElement}
      */
-    registerCanvasInitializer(canvasInitializer) {
+    registerCanvasNodeInitializer(canvasInitializer) {
         this.#canvasInitializer = canvasInitializer;
+    }
+
+    /**
+     *
+     * @param canvasProvider {function():HTMLElement}
+     */
+    registerCanvasNodeProvider(canvasProvider) {
+        this.#canvasProvider = canvasProvider;
     }
 
     setup() {
@@ -100,16 +112,7 @@ export class Controller {
 
         // init game
         const defaultElement = Brushes.AIR.apply(0, 0, undefined);
-        let contextType = this.#rendererInitializer.getContextType();
-        let context = this.#canvasInitializer(contextType);
-        if ((contextType === 'webgl' || contextType === 'webgl2') && (context === null || context === undefined)) {
-            // WebGL is not supported - unsupported at all / unsupported after recent failure
-            // - to test this, run Chrome with --disable-3d-apis
-            this.#reportRenderingFailure("Unable to get WebGL context. Using fallback renderer; game performance may be affected");
-            this.#rendererInitializer = RendererInitializer.canvas2d();
-            contextType = this.#rendererInitializer.getContextType();
-            context = this.#canvasInitializer(contextType);
-        }
+        const context = this.#initializeContext();
         this.#sandGame = scene.createSandGame(w, h, defaultElement, context, this.#rendererInitializer);
         this.#sandGame.graphics().replace(ElementArea.TRANSPARENT_ELEMENT, defaultElement);
 
@@ -122,6 +125,39 @@ export class Controller {
         if (this.#simulationEnabled) {
             this.#sandGame.startProcessing();
         }
+    }
+
+    #initializeContext() {
+        const canvas = this.#canvasInitializer();
+        let contextType = this.#rendererInitializer.getContextType();
+        let context = this.#initializeContextAs(canvas, contextType);
+        if ((contextType === 'webgl' || contextType === 'webgl2') && (context === null || context === undefined)) {
+            // WebGL is not supported - unsupported at all / unsupported after recent failure
+            // - to test this, run Chrome with --disable-3d-apis
+            this.#reportRenderingFailure("Unable to get WebGL context. Using fallback renderer; game performance may be affected");
+            this.#rendererInitializer = RendererInitializer.canvas2d();
+            contextType = this.#rendererInitializer.getContextType();
+            context = this.#initializeContextAs(canvas, contextType);
+        }
+        return context;
+    }
+
+    #initializeContextAs(canvasDomNode, contextId) {
+        if (contextId === 'webgl' || contextId === 'webgl2') {
+            // handle WebGL failures
+
+            canvasDomNode.addEventListener('webglcontextlost', (e) => {
+                // GPU memory leak, GPU failure, etc.
+                // - to test this move the texture definition into rendering loop to create a memory leak
+
+                const cause = 'WebGL context loss detected. Using fallback renderer; game performance may be affected';
+                e.preventDefault();
+                setTimeout(() => {
+                    this.restartAfterRenderingFailure(cause);
+                }, 2000);
+            }, false);
+        }
+        return canvasDomNode.getContext(contextId);
     }
 
     #close() {
@@ -175,6 +211,17 @@ export class Controller {
      */
     getSandGame() {
         return this.#sandGame;
+    }
+
+    /**
+     *
+     * @returns {HTMLElement|null}
+     */
+    getCanvas() {
+        if (this.#canvasProvider !== null) {
+            return this.#canvasProvider();
+        }
+        return null;
     }
 
     // controller - simulation state
@@ -444,6 +491,10 @@ export class Controller {
 
     // controller / ui
 
+    /**
+     *
+     * @returns {jQuery<HTMLElement>}
+     */
     getDialogAnchor() {
         return this.#dialogAnchor;
     }

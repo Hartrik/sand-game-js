@@ -6,6 +6,7 @@ import { Component } from "./Component";
 import { ComponentButton } from "./ComponentButton";
 import { Tools } from "../def/Tools";
 import { RendererInitializer } from "../core/RendererInitializer";
+import { ActionScreenshot } from "./ActionScreenshot";
 
 /**
  *
@@ -27,6 +28,7 @@ export class ComponentViewTestTools extends Component {
         new ComponentButton("Pixelated", ComponentButton.CLASS_INFO, Action.createToggle(true, (c, v) => c.setCanvasImageRenderingStyle(v ? 'pixelated' : 'auto'))),
 
         new ComponentButton("Benchmark", ComponentButton.CLASS_WARNING, new ActionBenchmark()),
+        new ComponentButton("Screenshot", ComponentButton.CLASS_WARNING, new ActionScreenshot()),
     ];
 
 
