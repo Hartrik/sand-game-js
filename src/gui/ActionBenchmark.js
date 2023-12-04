@@ -8,7 +8,7 @@ import FileSaver from 'file-saver';
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-19
+ * @version 2023-12-04
  */
 export class ActionBenchmark extends Action {
 
@@ -25,12 +25,24 @@ export class ActionBenchmark extends Action {
                 DomBuilder.button('Download results', { type: 'button', class: 'btn btn-primary' }, e => {
                     const data = JSON.stringify(results, null, '  ');
                     const blob = new Blob([data], { type: 'application/json;charset=utf-8' });
-                    FileSaver.saveAs(blob, 'benchmark.json');
+                    const date = this.#formatDate(new Date());
+                    FileSaver.saveAs(blob, `${date}.benchmark.json`);
                 })
             );
             dialog.show(controller.getDialogAnchor());
         });
         benchmarkProvider.start();
+    }
+
+    #formatDate(date) {
+        let dd = String(date.getDate()).padStart(2, '0');
+        let MM = String(date.getMonth() + 1).padStart(2, '0');  // January is 0!
+        let yyyy = date.getFullYear();
+
+        let hh = String(date.getHours()).padStart(2, '0');
+        let mm = String(date.getMinutes()).padStart(2, '0');
+
+        return `${yyyy}-${MM}-${dd}_${hh}-${mm}`;
     }
 }
 
