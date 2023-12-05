@@ -76,7 +76,7 @@ class RendererInitializer2D extends RendererInitializer {
 class RendererInitializerWebGL extends RendererInitializer {
 
     getContextType() {
-        return 'webgl';
+        return 'webgl2';
     }
 
     initialize(elementArea, chunkSize, context) {

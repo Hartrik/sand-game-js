@@ -43,11 +43,11 @@ export class ProcessorModuleFire {
         return [0, 165, 220, 255][flameHeatType];  // none .. very hot
     }
 
-    static #asBurnDownChangeTo10000(burnableType) {
+    static #asBurnDownChanceTo10000(burnableType) {
         return [0, 2, 100, 1000][burnableType];  // none .. fast
     }
 
-    static #asFlammableChangeTo10000(flammableType) {
+    static #asFlammableChanceTo10000(flammableType) {
         return [0, 100, 4500, 10000][flammableType];  // never .. quickly
     }
 
@@ -178,7 +178,7 @@ export class ProcessorModuleFire {
             }
 
             const random = this.#random.nextInt(10000);
-            if (random < ProcessorModuleFire.#asFlammableChangeTo10000(flammableType)) {
+            if (random < ProcessorModuleFire.#asFlammableChanceTo10000(flammableType)) {
                 // ignite
                 let modifiedElementHead = ElementHead.setBehaviour(elementHead, ElementHead.BEHAVIOUR_FIRE_SOURCE);
                 modifiedElementHead = ElementHead.setTemperature(modifiedElementHead,
@@ -188,6 +188,15 @@ export class ProcessorModuleFire {
                 const elementTail = this.#elementArea.getElementTail(x, y);
                 this.#elementArea.setElementTail(x, y, VisualEffects.visualBurn(elementTail, 2));
                 return;
+            }
+        }
+
+        // increase temperature
+        if (this.#random.nextInt(5) === 0) {
+            const currentTemperature = ElementHead.getTemperature(elementHead);
+            if (currentTemperature < temperature) {
+                const modifiedElementHead = ElementHead.setTemperature(elementHead, temperature);
+                this.#elementArea.setElementHead(x, y, modifiedElementHead);
             }
         }
 
@@ -205,14 +214,16 @@ export class ProcessorModuleFire {
     behaviourFireSource(elementHead, x, y) {
         const flameHeat = ProcessorModuleFire.#asFlameHeat(ElementHead.getFlameHeatType(elementHead));
 
-        const burnDownChange = ProcessorModuleFire.#asBurnDownChangeTo10000(ElementHead.getBurnableType(elementHead));
+        const burnDownChange = ProcessorModuleFire.#asBurnDownChanceTo10000(ElementHead.getBurnableType(elementHead));
         if (this.#random.nextInt(10000) < burnDownChange) {
             // burned down
             if (this.#random.nextInt(100) < 8) {
                 // turn into ash
-                let ashElement = Brushes.ASH.apply(x, y, this.#random);
-                this.#elementArea.setElement(x, y, ashElement);
-                // TODO: keep temperature
+                const oldTemperature = ElementHead.getTemperature(elementHead);
+                const ashElement = Brushes.ASH.apply(x, y, this.#random);
+                const modifiedAshElementHead = ElementHead.setTemperature(ashElement.elementHead, oldTemperature);
+                const modifiedAshElementTail = ashElement.elementTail;
+                this.#elementArea.setElementHeadAndTail(x, y, modifiedAshElementHead, modifiedAshElementTail);
             } else {
                 // turn into fire element
                 this.#elementArea.setElementHead(x, y, ProcessorModuleFire.createFireElementHead(flameHeat));

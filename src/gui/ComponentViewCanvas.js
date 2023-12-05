@@ -470,7 +470,7 @@ class SandGameCanvasCursorOverlayComponent {
 /**
  *
  * @author Patrik Harag
- * @version 2023-05-14
+ * @version 2023-12-04
  */
 class SandGameCanvasDebugOverlayComponent {
 
@@ -478,6 +478,9 @@ class SandGameCanvasDebugOverlayComponent {
     #controller;
 
     #nodeOverlay;
+
+    #nodeLabel = null;
+    #nodeRectangles = null;
 
     #w;
     #h;
@@ -503,36 +506,70 @@ class SandGameCanvasDebugOverlayComponent {
      * @param changedChunks {boolean[]}
      */
     highlightChunks(changedChunks) {
-        this.#nodeOverlay.empty();
-
-        if (changedChunks) {
-
-            const sandGame = this.#controller.getSandGame();
-            const chunkSize = sandGame.getChunkSize();
-            const horChunkCount = Math.ceil(sandGame.getWidth() / chunkSize);
-            const verChunkCount = Math.ceil(sandGame.getHeight() / chunkSize);
-
-            let highlighted = 0;
-
-            for (let cy = 0; cy < verChunkCount; cy++) {
-                for (let cx = 0; cx < horChunkCount; cx++) {
-                    const chunkIndex = cy * horChunkCount + cx;
-                    if (changedChunks[chunkIndex]) {
-                        this.#highlightChunk(cx, cy, chunkSize);
-                        highlighted++;
-                    }
-                }
+        if (changedChunks === null) {
+            if (this.#nodeRectangles !== null) {
+                // hide
+                this.#nodeOverlay.hide();
             }
-
-            // show stats
-            const total = horChunkCount * verChunkCount;
-            const highlightedPercent = Math.trunc(highlighted / total * 100);
-            this.#showText(0, 0, `${highlighted}/${total} (${highlightedPercent}%)`);
+            return;
         }
+
+        if (this.#nodeRectangles === null) {
+            this.#init();
+        }
+        this.#nodeOverlay.show();
+        this.#update(changedChunks);
     }
 
-    #showText(x, y, text) {
-        const label = DomBuilder.span(text);
+    #update(changedChunks) {
+        const sandGame = this.#controller.getSandGame();
+        const chunkSize = sandGame.getChunkSize();
+        const horChunkCount = Math.ceil(sandGame.getWidth() / chunkSize);
+        const verChunkCount = Math.ceil(sandGame.getHeight() / chunkSize);
+
+        let highlighted = 0;
+        for (let cy = 0; cy < verChunkCount; cy++) {
+            for (let cx = 0; cx < horChunkCount; cx++) {
+                const chunkIndex = cy * horChunkCount + cx;
+                const rect = this.#nodeRectangles[chunkIndex];
+                if (changedChunks[chunkIndex]) {
+                    highlighted++;
+                    rect.show();
+                } else {
+                    rect.hide();
+                }
+            }
+        }
+
+        // show stats
+        const total = horChunkCount * verChunkCount;
+        const highlightedPercent = Math.trunc(highlighted / total * 100);
+        this.#nodeLabel.text(`${highlighted}/${total} (${highlightedPercent}%)`);
+    }
+
+    #init() {
+        const sandGame = this.#controller.getSandGame();
+        const chunkSize = sandGame.getChunkSize();
+        const horChunkCount = Math.ceil(sandGame.getWidth() / chunkSize);
+        const verChunkCount = Math.ceil(sandGame.getHeight() / chunkSize);
+
+        const rects = Array(verChunkCount * horChunkCount);
+        for (let cy = 0; cy < verChunkCount; cy++) {
+            for (let cx = 0; cx < horChunkCount; cx++) {
+                const chunkIndex = cy * horChunkCount + cx;
+                rects[chunkIndex] = this.#createRectangle(cx, cy, chunkSize);
+            }
+        }
+
+        this.#nodeRectangles = rects;
+        this.#nodeOverlay.append(rects);
+
+        this.#nodeLabel = this.#createLabel(0, 0);
+        this.#nodeOverlay.append(this.#nodeLabel);
+    }
+
+    #createLabel(x, y) {
+        const label = DomBuilder.span('');
         const xPx = x / this.#scale;
         const yPx = y / this.#scale;
         label.css({
@@ -541,10 +578,10 @@ class SandGameCanvasDebugOverlayComponent {
             position: 'absolute',
             color: 'rgb(0, 255, 0)'
         });
-        this.#nodeOverlay.append(label);
+        return label;
     }
 
-    #highlightChunk(cx, cy, chunkSize) {
+    #createRectangle(cx, cy, chunkSize) {
         const wPx = this.#w / this.#scale;
         const hPx = this.#h / this.#scale;
         const xPx = cx * chunkSize / this.#scale;
@@ -552,8 +589,8 @@ class SandGameCanvasDebugOverlayComponent {
         const cwPx = chunkSize / this.#scale;
         const chPx = chunkSize / this.#scale;
 
-        const selection = DomBuilder.div();
-        selection.css({
+        const rectangle = DomBuilder.div();
+        rectangle.css({
             left: xPx + 'px',
             top: yPx + 'px',
             width: cwPx + 'px',
@@ -571,12 +608,12 @@ class SandGameCanvasDebugOverlayComponent {
             const pxClipBottom = yPx + chunkSize >= hPx ? yPx + chPx - hPx : UNSET;
             const pxClipLeft = UNSET;
 
-            selection.css({
+            rectangle.css({
                 'clip-path': `inset(${pxClipTop}px ${pxClipRight}px ${pxClipBottom}px ${pxClipLeft}px)`
             });
         }
 
-        this.#nodeOverlay.append(selection);
+        return rectangle;
     }
 
     createNode() {

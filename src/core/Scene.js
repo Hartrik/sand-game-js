@@ -18,7 +18,7 @@ export class Scene {
      * @param prefWidth {number}
      * @param prefHeight {number}
      * @param defaultElement {Element}
-     * @param context {CanvasRenderingContext2D|WebGL2RenderingContext}
+     * @param context {CanvasRenderingContext2D|WebGLRenderingContext}
      * @param rendererInitializer {RendererInitializer}
      * @returns SandGame
      */

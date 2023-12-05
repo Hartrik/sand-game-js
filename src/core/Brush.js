@@ -8,7 +8,7 @@ import {DeterministicRandom} from "./DeterministicRandom";
  * @interface
  *
  * @author Patrik Harag
- * @version 2023-11-20
+ * @version 2023-12-04
  */
 export class Brush {
 
@@ -90,6 +90,16 @@ export class Brush {
                 return brush.apply(x, y, random, oldElement);
             }
             return null;
+        });
+    }
+
+    static temperature(value) {
+        return Brush.custom((x, y, random, oldElement) => {
+            if (oldElement === null) {
+                return null;
+            }
+            const newElementHead = ElementHead.setTemperature(oldElement.elementHead, value & 0xFF);
+            return new Element(newElementHead, oldElement.elementTail);
         });
     }
 }

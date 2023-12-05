@@ -8,7 +8,7 @@ export class Element {
     elementHead;
     elementTail;
 
-    constructor(elementHead, elementTail) {
+    constructor(elementHead = 0, elementTail = 0) {
         this.elementHead = elementHead;
         this.elementTail = elementTail;
     }

@@ -10,7 +10,7 @@ import {ProcessorModuleTree} from "./ProcessorModuleTree.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-19
+ * @version 2023-12-04
  */
 export class Processor extends ProcessorContext {
 
@@ -202,6 +202,16 @@ export class Processor extends ProcessorContext {
         const activeChunks = Array.from(this.#activeChunks);
         this.#activeChunks.fill(false);
 
+        // TODO: try extra temperature active chunks with extra loop
+        // element temperature is processed once per 9 iterations...
+        //   x
+        // y 1 2 3
+        //   4 5 6
+        //   7 8 9
+        const temperatureProcessingMod = this.#iteration % 9;
+        const temperatureProcessingMod3Y = Math.trunc(temperatureProcessingMod / 3);
+        const temperatureProcessingMod3X = temperatureProcessingMod % 3;
+
         for (let cy = this.#verChunkCount - 1; cy >= 0; cy--) {
             const cyTop = cy * this.#chunkSize;
             const cyBottom = Math.min((cy + 1) * this.#chunkSize - 1, this.#height - 1);
@@ -225,7 +235,9 @@ export class Processor extends ProcessorContext {
                         for (let j = 0; j < this.#chunkSize; j++) {
                             let x = cx * this.#chunkSize + chunkXOder[j];
                             if (x < this.#width) {
-                                let activeElement = this.#nextPoint(x, y);
+                                const processTemperature = (x % 3 === temperatureProcessingMod3X)
+                                        && (y % 3 === temperatureProcessingMod3Y);
+                                const activeElement = this.#nextPoint(x, y, processTemperature);
                                 if (activeElement) {
                                     activeElements++;
                                 }
@@ -359,20 +371,20 @@ export class Processor extends ProcessorContext {
     #testPoint(x, y) {
         const elementHead = this.#elementArea.getElementHead(x, y);
 
+        if (ElementHead.getTemperature(elementHead) > 0) {
+            return true;
+        }
         if (this.#testMovingBehaviour(elementHead, x, y)) {
             return true;
         }
-
-        const behaviour = ElementHead.getBehaviour(elementHead);
-        switch (behaviour) {
+        switch (ElementHead.getBehaviour(elementHead)) {
             case ElementHead.BEHAVIOUR_NONE:
             case ElementHead.BEHAVIOUR_SOIL:
             case ElementHead.BEHAVIOUR_TREE_TRUNK:
-                break;
+                return false;
             default:
                 return true;
         }
-        return false;
     }
 
     /**
@@ -431,9 +443,10 @@ export class Processor extends ProcessorContext {
      *
      * @param x {number}
      * @param y {number}
+     * @param processTemperature {boolean}
      * @return {boolean} active
      */
-    #nextPoint(x, y) {
+    #nextPoint(x, y, processTemperature) {
         const elementHead = this.#elementArea.getElementHead(x, y);
         const moved = this.#performMovingBehaviour(elementHead, x, y);
 
@@ -442,54 +455,122 @@ export class Processor extends ProcessorContext {
         }
 
         const behaviour = ElementHead.getBehaviour(elementHead);
-        let activeBehaviour = false;
+        let active = false;
         switch (behaviour) {
             case ElementHead.BEHAVIOUR_NONE:
             case ElementHead.BEHAVIOUR_SOIL:
                 break;
             case ElementHead.BEHAVIOUR_FIRE:
                 this.#moduleFire.behaviourFire(elementHead, x, y);
-                activeBehaviour = true;
+                active = true;
+                processTemperature = false;
                 break;
             case ElementHead.BEHAVIOUR_GRASS:
                 this.#moduleGrass.behaviourGrass(elementHead, x, y);
-                activeBehaviour = true;
+                active = true;
                 break;
             case ElementHead.BEHAVIOUR_TREE:
                 this.#moduleTree.behaviourTree(elementHead, x, y);
-                activeBehaviour = true;
+                active = true;
                 break;
             case ElementHead.BEHAVIOUR_TREE_LEAF:
                 this.#moduleTree.behaviourTreeLeaf(elementHead, x, y);
-                activeBehaviour = true;
+                active = true;
                 break;
             case ElementHead.BEHAVIOUR_TREE_TRUNK:
                 break;
             case ElementHead.BEHAVIOUR_TREE_ROOT:
                 this.#moduleTree.behaviourTreeRoot(elementHead, x, y);
-                activeBehaviour = true;
+                active = true;
                 break;
             case ElementHead.BEHAVIOUR_FIRE_SOURCE:
                 this.#moduleFire.behaviourFireSource(elementHead, x, y);
-                activeBehaviour = true;
+                active = true;
+                processTemperature = false;
                 break;
             case ElementHead.BEHAVIOUR_METEOR:
                 this.#moduleMeteor.behaviourMeteor(elementHead, x, y);
-                activeBehaviour = true;
+                active = true;
+                processTemperature = false;
                 break;
             case ElementHead.BEHAVIOUR_FISH:
                 this.#moduleFish.behaviourFish(elementHead, x, y);
-                activeBehaviour = true;
+                active = true;
                 break;
             case ElementHead.BEHAVIOUR_FISH_BODY:
                 this.#moduleFish.behaviourFishBody(elementHead, x, y);
-                activeBehaviour = true;
+                active = true;
                 break;
             default:
                 throw "Unknown element behaviour: " + behaviour;
         }
 
-        return activeBehaviour;
+        const temp = ElementHead.getTemperature(elementHead);
+        if (temp > 0) {
+            active = true;
+            if (processTemperature) {
+                this.#temperature(elementHead, x, y, temp);
+            }
+        }
+
+        return active;
+    }
+
+    /**
+     *
+     * @param elementHead
+     * @param x {number}
+     * @param y {number}
+     * @param temp {number}
+     * @returns {boolean}
+     */
+    #temperature(elementHead, x, y, temp) {
+        let tx = x, ty = y;
+        switch (this.#random.nextInt(4)) {
+            case 0: ty--; break;  // Move Up
+            case 1: tx++; break;  // Move Right
+            case 2: ty++; break;  // Move Down
+            case 3: tx--; break;  // Move Left
+        }
+
+        const conductivityType = ElementHead.getConductivityType(elementHead);
+        const heatLoss = (this.#random.nextInt(10000) < Processor.#asHeatLossChanceTo10000(conductivityType));
+
+        if (this.#elementArea.isValidPosition(tx, ty)) {
+            const targetElementHead = this.#elementArea.getElementHead(tx, ty);
+            const targetTemp = ElementHead.getTemperature(targetElementHead);
+
+            const conductiveIndex = Processor.#asConductiveIndex(conductivityType);
+            let newTemp = Math.trunc((conductiveIndex * targetTemp) + (1 - conductiveIndex) * temp);
+            if (heatLoss) {
+                newTemp = Math.max(newTemp - 1, 0);
+            }
+            this.#elementArea.setElementHead(x, y, ElementHead.setTemperature(elementHead, newTemp));
+
+            const diff = temp - newTemp;
+            if (diff !== 0) {
+                let newTargetTemp = Math.trunc(targetTemp + diff)
+                if (heatLoss) {
+                    newTargetTemp = newTemp - 1;
+                }
+                newTargetTemp = Math.max(newTargetTemp, 0);
+                this.#elementArea.setElementHead(tx, ty, ElementHead.setTemperature(targetElementHead, newTargetTemp));
+                this.trigger(tx, ty);
+            }
+        } else {
+            if (heatLoss) {
+                const newTemp = Math.max(temp - 1, 0);
+                this.#elementArea.setElementHead(x, y, ElementHead.setTemperature(elementHead, newTemp));
+            }
+        }
+    }
+
+    static #asHeatLossChanceTo10000(conductivityType) {
+        return [2500, 500, 20, 10][conductivityType];  // big .. small
+    }
+
+    static #asConductiveIndex(conductivityType) {
+        return [0.2, 0.25, 0.3, 0.45][conductivityType];  // small .. big
     }
 
     /**

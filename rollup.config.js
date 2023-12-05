@@ -17,11 +17,18 @@ const PLUGINS_COMMON = [
     commonjs(), // so Rollup can convert libraries to an ES modules
 
     image({
-        include: ["**/assets/**.png"],
+        include: [
+            "**/assets/**.png",
+            "**/assets/brushes/**.png"
+        ],
         exclude: []
     }),
     string({
-        include: ["**/assets/**.svg", "**/assets/**.csv"],
+        include: [
+            "**/assets/*.svg",
+            "**/assets/*.csv",
+            "**/assets/brushes/*.csv",
+        ],
         exclude: []
     })
 ];

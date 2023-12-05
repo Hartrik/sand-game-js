@@ -131,7 +131,7 @@ export class Controller {
         const canvas = this.#canvasInitializer();
         let contextType = this.#rendererInitializer.getContextType();
         let context = this.#initializeContextAs(canvas, contextType);
-        if ((contextType === 'webgl' || contextType === 'webgl2') && (context === null || context === undefined)) {
+        if ((contextType === 'webgl2') && (context === null || context === undefined)) {
             // WebGL is not supported - unsupported at all / unsupported after recent failure
             // - to test this, run Chrome with --disable-3d-apis
             this.#reportRenderingFailure("Unable to get WebGL context. Using fallback renderer; game performance may be affected");
@@ -143,7 +143,7 @@ export class Controller {
     }
 
     #initializeContextAs(canvasDomNode, contextId) {
-        if (contextId === 'webgl' || contextId === 'webgl2') {
+        if (contextId === 'webgl2') {
             // handle WebGL failures
 
             canvasDomNode.addEventListener('webglcontextlost', (e) => {

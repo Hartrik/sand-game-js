@@ -5,7 +5,7 @@ import { Brush } from "../core/Brush";
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-20
+ * @version 2023-12-04
  */
 export class Tools {
 
@@ -28,8 +28,16 @@ export class Tools {
 
     /** @type Tool[] */
     static TEST_TOOLS = [
+        Tool.pointBrushTool(Tools.CATEGORY_BRUSH, 'grass', 'Grass', Brushes.GRASS),
+        Tool.pointBrushTool(Tools.CATEGORY_BRUSH, 'tree', 'Tree', Brushes.TREE),
+        Tool.point2BrushTool(Tools.CATEGORY_BRUSH, 'fish', 'Fish', Brushes.FISH, Brushes.FISH_BODY),
         Tool.rectangleBrushTool(Tools.CATEGORY_BRUSH, 'effect_burnt', 'Burnt', Brushes.EFFECT_BURNT, Tools.DEFAULT_SIZE),
+        Tool.rectangleBrushTool(Tools.CATEGORY_BRUSH, 'effect_temp_0', 'Temp 0', Brushes.EFFECT_TEMP_0, Tools.DEFAULT_SIZE),
+        Tool.rectangleBrushTool(Tools.CATEGORY_BRUSH, 'effect_temp_127', 'Temp 127', Brushes.EFFECT_TEMP_127, Tools.DEFAULT_SIZE),
+        Tool.rectangleBrushTool(Tools.CATEGORY_BRUSH, 'effect_temp_200', 'Temp 200', Brushes.EFFECT_TEMP_200, Tools.DEFAULT_SIZE),
+        Tool.rectangleBrushTool(Tools.CATEGORY_BRUSH, 'effect_temp_255', 'Temp 255', Brushes.EFFECT_TEMP_255, Tools.DEFAULT_SIZE),
         Tool.rectangleBrushTool(Tools.CATEGORY_BRUSH, 'ash', 'Ash', Brushes.ASH, Tools.DEFAULT_SIZE),
+        Tool.rectangleBrushTool(Tools.CATEGORY_BRUSH, 'metal', 'Metal', Brushes.METAL, Tools.DEFAULT_SIZE),
     ];
 
     static byCodeName(codeName) {

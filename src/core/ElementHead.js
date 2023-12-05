@@ -2,7 +2,7 @@
 /**
  * Tools for working with the element head.
  *
- * The element head structure: (32b)
+ * The element head structure: <code>0x[type][beh.][flags][temp.]</code> (32b)
  * <pre>
  *     | type class         3b  | type modifiers                       5b  |
  *     | behaviour                   4b  | special                     4b  |
@@ -16,7 +16,7 @@
  * </pre>
  *
  * @author Patrik Harag
- * @version 2023-08-20
+ * @version 2023-12-05
  */
 export class ElementHead {
 
@@ -75,15 +75,9 @@ export class ElementHead {
     static FIELD_TEMPERATURE_SIZE = 8;  // bits
 
 
-    static of(type8, behaviour8 = 0,
-            flammableType = 0, flameHeatType = 0, burnableType = 0, meltableType = 0,
-            temperature = 0) {
-
-        let value = temperature << 2;
-        value = (value | meltableType) << 2;
-        value = (value | burnableType) << 2;
-        value = (value | flameHeatType) << 2;
-        value = (value | flammableType) << 8;
+    static of(type8, behaviour8 = 0, modifiers8 = 0, temperature = 0) {
+        let value = temperature << 8;
+        value = (value | modifiers8) << 8;
         value = (value | behaviour8) << 8;
         value = value | type8;
         return value;
@@ -106,8 +100,16 @@ export class ElementHead {
         return typeClass;
     }
 
-    static behaviour8(behaviour, special = 0) {
+    static behaviour8(behaviour = 0, special = 0) {
         return behaviour | (special << 4);
+    }
+
+    static modifiers8(flammableType = 0, flameHeatType = 0, burnableType = 0, conductivityType = 0) {
+        let value = conductivityType << 2;
+        value = (value | burnableType) << 2;
+        value = (value | flameHeatType) << 2;
+        value = value | flammableType
+        return value;
     }
 
     // get methods

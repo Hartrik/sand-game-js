@@ -1,0 +1,4 @@
+temperature.palette.csv contains color temperatures
+from 1000 K (the first entry
+to 10000 K (the last entry)
+by 100 K

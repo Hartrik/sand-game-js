@@ -2,7 +2,7 @@ import {RenderingMode} from "./RenderingMode.js";
 import {ElementHead} from "./ElementHead.js";
 import {Assets} from "../Assets.js";
 
-import _ASSET_GRADIENT_RAINBOW from './assets/gradient-rainbow.png'
+import _ASSET_GRADIENT_RAINBOW from './assets/heatmap.palette.png'
 
 /**
  * @author Patrik Harag

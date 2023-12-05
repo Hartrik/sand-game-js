@@ -5,9 +5,34 @@ import { Brush } from "../core/Brush";
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-19
+ * @version 2023-12-05
  */
 export class ActionsTest {
+
+    static ALL_MATERIALS = function (controller) {
+        let sandGame = controller.getSandGame();
+        if (sandGame === null) {
+            return;
+        }
+
+        const brushes = [
+            'ash',
+            'sand',
+            'soil',
+            'gravel',
+            'wall',
+            'rock',
+            'metal',
+            'wood',
+            'water'
+        ];
+
+        const segment = sandGame.getWidth() / brushes.length;
+        for (let i = 0; i < brushes.length; i++) {
+            const brush = Brushes.byCodeName(brushes[i]);
+            sandGame.graphics().drawRectangle(i * segment, 0, (i + 1) * segment, -1, brush, true);
+        }
+    }
 
     static TREE_SPAWN_TEST = function (controller) {
         let sandGame = controller.getSandGame();

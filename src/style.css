@@ -168,14 +168,14 @@
     margin: 1em 0 2em;
 }
 
-.sand-game-component .sand-game-views .btn-outline-secondary:hover {
-    background-color: #ebebeb;
-}
-
 .sand-game-component .sand-game-views .adjust-scale {
     vertical-align: top;
     margin-right: 0.5em;
     height: 46px;
+}
+
+.sand-game-component .sand-game-views .adjust-scale:hover {
+    background-color: #ebebeb;
 }
 
 .sand-game-component .sand-game-views .adjust-scale svg {
@@ -212,6 +212,10 @@
 .sand-game-component .sand-game-views .scenes .scene .card-title {
     font-weight: 500;
     font-size: 100%;
+}
+
+.sand-game-component .sand-game-views .scenes .scene:hover {
+    background-color: #ebebeb;
 }
 
 .sand-game-component .sand-game-views .scenes .scene.visited-scene {
@@ -267,10 +271,10 @@
 
 .sand-game-component .test-tools .btn {
     margin-right: 3pt;
+    margin-bottom: 3pt;
     line-height: 2;
     padding: 0 0.4em 0 0.4em;
     font-size: 75%;
-    border: none;
 }
 
 .sand-game-component .sand-game-templates .template-button {

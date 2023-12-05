@@ -64,7 +64,7 @@ export class SandGame {
      * @param elementArea {ElementArea}
      * @param sceneMetadata {SceneMetadata|null}
      * @param defaultElement {Element}
-     * @param context {CanvasRenderingContext2D|WebGL2RenderingContext}
+     * @param context {CanvasRenderingContext2D|WebGLRenderingContext}
      * @param rendererInitializer {RendererInitializer}
      */
     constructor(elementArea, sceneMetadata, defaultElement, context, rendererInitializer) {

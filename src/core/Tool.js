@@ -9,7 +9,7 @@ import { DeterministicRandom } from "./DeterministicRandom";
 /**
  *
  * @author Patrik Harag
- * @version 2023-07-23
+ * @version 2023-12-05
  */
 export class Tool {
 
@@ -131,6 +131,10 @@ export class Tool {
         return new PointBrushTool(category, codeName, displayName, brush);
     }
 
+    static point2BrushTool(category, codeName, displayName, brush1, brush2) {
+        return new Point2BrushTool(category, codeName, displayName, brush1, brush2);
+    }
+
     static meteorTool(category, codeName, displayName) {
         return new MeteorTool(category, codeName, displayName);
     }
@@ -220,6 +224,30 @@ class PointBrushTool extends Tool {
 
     applyPoint(x, y, graphics, aldModifier) {
         graphics.draw(x, y, this.#brush);
+    }
+}
+
+/**
+ *
+ * @author Patrik Harag
+ * @version 2023-12-05
+ */
+class Point2BrushTool extends Tool {
+
+    /** @type Brush */
+    #brush1;
+    /** @type Brush */
+    #brush2;
+
+    constructor(category, codeName, displayName, brush1, brush2) {
+        super(category, codeName, displayName);
+        this.#brush1 = brush1;
+        this.#brush2 = brush2;
+    }
+
+    applyPoint(x, y, graphics, aldModifier) {
+        graphics.draw(x, y, this.#brush1);
+        graphics.draw(x + 1, y, this.#brush2);
     }
 }
 
