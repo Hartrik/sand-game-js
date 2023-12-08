@@ -4,7 +4,7 @@ import {Brushes} from "./Brushes.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-05-16
+ * @version 2023-12-08
  */
 export class SpawningExtensionFish {
 
@@ -48,6 +48,12 @@ export class SpawningExtensionFish {
             return false;
         }
         if (x + 1 >= elementArea.getWidth() || y + 1 >= elementArea.getHeight()) {
+            return false;
+        }
+
+        // check temperature
+        const elementHead = elementArea.getElementHead(x, y);
+        if (ElementHead.getTemperature(elementHead) > 0) {
             return false;
         }
 

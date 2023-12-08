@@ -4,7 +4,7 @@ import {Brushes} from "./Brushes.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-05-16
+ * @version 2023-12-08
  */
 export class SpawningExtensionTree {
     static STARTING_COUNTER_VALUE = 1000;
@@ -48,8 +48,14 @@ export class SpawningExtensionTree {
         if (ElementHead.getBehaviour(e1) !== ElementHead.BEHAVIOUR_GRASS) {
             return false;
         }
+        if (ElementHead.getTemperature(e1) > 0) {
+            return false;
+        }
         let e2 = elementArea.getElementHead(x, y + 1);
         if (ElementHead.getBehaviour(e2) !== ElementHead.BEHAVIOUR_SOIL) {
+            return false;
+        }
+        if (ElementHead.getTemperature(e2) > 0) {
             return false;
         }
 
