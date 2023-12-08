@@ -1,5 +1,4 @@
 import {ElementHead} from "./ElementHead.js";
-import {Brushes} from "../def/Brushes.js";
 import {VisualEffects} from "./VisualEffects";
 
 /**
@@ -123,12 +122,14 @@ export class ProcessorModuleGrass {
             } else if (random === 1) {
                 // grow right
                 if (ProcessorModuleGrass.canGrowUpHere(this.#elementArea, x + 1, y + 1)) {
-                    this.#elementArea.setElement(x + 1, y + 1, Brushes.GRASS.apply(x, y, this.#random));
+                    const brush = this.#processorContext.getDefaults().getBrushGrass();
+                    this.#elementArea.setElement(x + 1, y + 1, brush.apply(x, y, this.#random));
                 }
             } else if (random === 2) {
                 // grow left
                 if (ProcessorModuleGrass.canGrowUpHere(this.#elementArea, x - 1, y + 1)) {
-                    this.#elementArea.setElement(x - 1, y + 1, Brushes.GRASS.apply(x, y, this.#random));
+                    const brush = this.#processorContext.getDefaults().getBrushGrass();
+                    this.#elementArea.setElement(x - 1, y + 1, brush.apply(x, y, this.#random));
                 }
             }
         }

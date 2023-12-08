@@ -1,4 +1,3 @@
-import {Element} from "../core/Element";
 import {ProcessorDefaults} from "../core/ProcessorDefaults";
 import {Brushes} from "./Brushes";
 
@@ -11,11 +10,15 @@ export class Defaults extends ProcessorDefaults {
 
     static #DEFAULT_ELEMENT = Brushes.AIR.apply(0, 0, undefined);
 
-    /**
-     * @return Element
-     */
     getDefaultElement() {
         return Defaults.#DEFAULT_ELEMENT;
     }
 
+    getBrushGrass() {
+        return Brushes.GRASS;
+    }
+
+    getBrushTree() {
+        return Brushes.TREE;
+    }
 }

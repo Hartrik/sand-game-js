@@ -1,18 +1,19 @@
 import {ProcessorModuleGrass} from "./ProcessorModuleGrass.js";
-import {Brushes} from "../def/Brushes.js";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-05-16
+ * @version 2023-12-08
  */
 export class SpawningExtensionGrass {
     static MAX_COUNTER_VALUE = 2;
 
+    /** @type ElementArea */
     #elementArea;
+    /** @type DeterministicRandom */
     #random;
+    /** @type ProcessorContext */
     #processorContext;
-    #brush = Brushes.GRASS;
 
     #counter = SpawningExtensionGrass.MAX_COUNTER_VALUE;
 
@@ -30,7 +31,8 @@ export class SpawningExtensionGrass {
             const y = this.#random.nextInt(this.#elementArea.getHeight() - 3) + 2;
 
             if (ProcessorModuleGrass.canGrowUpHere(this.#elementArea, x, y)) {
-                this.#elementArea.setElement(x, y, this.#brush.apply(x, y, this.#random));
+                const brush = this.#processorContext.getDefaults().getBrushGrass();
+                this.#elementArea.setElement(x, y, brush.apply(x, y, this.#random));
                 this.#processorContext.trigger(x, y);
             }
         }

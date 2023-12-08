@@ -1,4 +1,5 @@
 import {Element} from "./Element.js";
+import {Brush} from "./Brush.js";
 
 /**
  * @interface
@@ -15,4 +16,17 @@ export class ProcessorDefaults {
         throw 'Not implemented';
     }
 
+    /**
+     * @return Brush
+     */
+    getBrushGrass() {
+        throw 'Not implemented';
+    }
+
+    /**
+     * @return Brush
+     */
+    getBrushTree() {
+        throw 'Not implemented';
+    }
 }

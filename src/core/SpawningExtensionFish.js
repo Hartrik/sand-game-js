@@ -8,8 +8,11 @@ import {Brushes} from "../def/Brushes.js";
  */
 export class SpawningExtensionFish {
 
+    /** @type ElementArea */
     #elementArea;
+    /** @type DeterministicRandom */
     #random;
+    /** @type ProcessorContext */
     #processorContext;
     #brushHead = Brushes.FISH;
     #brushBody = Brushes.FISH_BODY;

@@ -1,5 +1,4 @@
 import {ElementHead} from "./ElementHead.js";
-import {Brushes} from "../def/Brushes.js";
 
 /**
  *
@@ -10,10 +9,12 @@ export class SpawningExtensionTree {
     static STARTING_COUNTER_VALUE = 1000;
     static MAX_COUNTER_VALUE = 4;
 
+    /** @type ElementArea */
     #elementArea;
+    /** @type DeterministicRandom */
     #random;
+    /** @type ProcessorContext */
     #processorContext;
-    #brush = Brushes.TREE;
 
     #counter = SpawningExtensionTree.STARTING_COUNTER_VALUE;
 
@@ -31,7 +32,8 @@ export class SpawningExtensionTree {
             const y = this.#random.nextInt(this.#elementArea.getHeight() - 16) + 15;
 
             if (SpawningExtensionTree.couldGrowUpHere(this.#elementArea, x, y)) {
-                this.#elementArea.setElement(x, y, this.#brush.apply(x, y, this.#random));
+                const brush = this.#processorContext.getDefaults().getBrushTree();
+                this.#elementArea.setElement(x, y, brush.apply(x, y, this.#random));
                 this.#processorContext.trigger(x, y);
             }
         }

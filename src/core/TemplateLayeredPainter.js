@@ -1,12 +1,11 @@
 import Spline from "cubic-spline";
-import { Brushes } from "../def/Brushes.js";
 import { ProcessorModuleGrass } from "./ProcessorModuleGrass.js";
 import { ProcessorModuleTree } from "./ProcessorModuleTree.js";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-25
+ * @version 2023-12-08
  */
 export class TemplateLayeredPainter {
 
@@ -106,7 +105,8 @@ export class TemplateLayeredPainter {
             const y = this.#elementArea.getHeight() - 1 - lastLevel;
 
             if (ProcessorModuleGrass.canGrowUpHere(this.#elementArea, x, y)) {
-                ProcessorModuleGrass.spawnHere(this.#elementArea, x, y, Brushes.GRASS, this.#random);
+                const brush = this.#processorContext.getDefaults().getBrushGrass();
+                ProcessorModuleGrass.spawnHere(this.#elementArea, x, y, brush, this.#random);
             }
         }
         return this;
@@ -120,7 +120,8 @@ export class TemplateLayeredPainter {
         const lastLevel = this.#lastLevel[x];
         const y = this.#elementArea.getHeight() - 1 - lastLevel;
 
-        ProcessorModuleTree.spawnHere(this.#elementArea, x, y, type, Brushes.TREE, this.#random, this.#processorContext);
+        const brush = this.#processorContext.getDefaults().getBrushTree();
+        ProcessorModuleTree.spawnHere(this.#elementArea, x, y, type, brush, this.#random, this.#processorContext);
         return this;
     }
 }
