@@ -1,4 +1,5 @@
 import {ElementHead} from "./ElementHead.js";
+import {Brush} from "./Brush.js";
 import {Brushes} from "./Brushes.js";
 import {ProcessorContext} from "./ProcessorContext.js";
 import {DeterministicRandom} from "./DeterministicRandom.js";
@@ -6,9 +7,13 @@ import {DeterministicRandom} from "./DeterministicRandom.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-25
+ * @version 2023-12-08
  */
 export class ProcessorModuleTree {
+
+    static #MAX_TREE_TEMPERATURE = 100;
+    static #MAX_WOOD_TEMPERATURE = 50;
+    static #MAX_LEAF_TEMPERATURE = 40;
 
     static spawnHere(elementArea, x, y, type, brush, random, processorContext) {
         type = type % (1 << ElementHead.FIELD_SPECIAL_SIZE);
@@ -63,8 +68,16 @@ export class ProcessorModuleTree {
     }
 
     behaviourTree(elementHead, x, y) {
+        // check temperature
+        if (ElementHead.getTemperature(elementHead) > ProcessorModuleTree.#MAX_TREE_TEMPERATURE) {
+            // => destroy tree instantly
+            this.#elementArea.setElementHead(x, y, ElementHead.setBehaviour(elementHead, 0));
+            return;
+        }
+
         const random = this.#random.nextInt(ProcessorContext.OPT_CYCLES_PER_SECOND);
         if (random === 0) {
+            // check status
             const template = TreeTemplates.getTemplate(ElementHead.getSpecial(elementHead));
             const level = this.#treeGrow(elementHead, x, y, template, false);
             this.#treeCheckStatus(x, y, level, template);
@@ -168,6 +181,13 @@ export class ProcessorModuleTree {
     }
 
     behaviourTreeRoot(elementHead, x, y) {
+        // check temperature
+        if (ElementHead.getTemperature(elementHead) > ProcessorModuleTree.#MAX_TREE_TEMPERATURE) {
+            // => destroy instantly
+            this.#elementArea.setElementHead(x, y, ElementHead.setBehaviour(elementHead, 0));
+            return;
+        }
+
         let growIndex = ElementHead.getSpecial(elementHead);
         if (growIndex === 0) {
             // maximum size
@@ -238,6 +258,17 @@ export class ProcessorModuleTree {
     }
 
     behaviourTreeLeaf(elementHead, x, y) {
+        // check temperature
+        const temperature = ElementHead.getTemperature(elementHead);
+        if (temperature > ProcessorModuleTree.#MAX_LEAF_TEMPERATURE) {
+            // => destroy instantly, keep temperature
+            const newElement = Brushes.TREE_LEAF_DEAD.apply(x, y, this.#random);
+            const newElementHead = ElementHead.setTemperature(newElement.elementHead, temperature);
+            const newElementTail = newElement.elementTail;
+            this.#elementArea.setElementHeadAndTail(x, y, newElementHead, newElementTail);
+            return;
+        }
+
         // decrement vitality (if not dead already)
         let vitality = ElementHead.getSpecial(elementHead);
         if (vitality < 15) {
