@@ -1,12 +1,15 @@
 import {ElementHead} from "./ElementHead.js";
 import {Brushes} from "./Brushes.js";
+import {VisualEffects} from "./VisualEffects";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-25
+ * @version 2023-12-08
  */
 export class ProcessorModuleGrass {
+
+    static #MAX_TEMPERATURE = 20;
 
     static canGrowUpHere(elementArea, x, y) {
         if (x < 0 || y - 1 < 0) {
@@ -19,8 +22,14 @@ export class ProcessorModuleGrass {
         if (ElementHead.getTypeClass(e1) !== ElementHead.TYPE_AIR) {
             return false;
         }
+        if (ElementHead.getTemperature(e1) >= this.#MAX_TEMPERATURE) {
+            return false;
+        }
         let e2 = elementArea.getElementHead(x, y + 1);
         if (ElementHead.getBehaviour(e2) !== ElementHead.BEHAVIOUR_SOIL) {
+            return false;
+        }
+        if (ElementHead.getTemperature(e2) >= this.#MAX_TEMPERATURE) {
             return false;
         }
         let e3 = elementArea.getElementHead(x, y - 1);
@@ -60,6 +69,14 @@ export class ProcessorModuleGrass {
     }
 
     behaviourGrass(elementHead, x, y) {
+        // check temperature
+        if (ElementHead.getTemperature(elementHead) > ProcessorModuleGrass.#MAX_TEMPERATURE) {
+            this.#elementArea.setElementHead(x, y, ElementHead.setBehaviour(elementHead, 0));
+            const elementTail = this.#elementArea.getElementTail(x, y);
+            const visualEffectForce = this.#random.nextInt(2) + 1;
+            this.#elementArea.setElementTail(x, y, VisualEffects.visualBurn(elementTail, visualEffectForce))
+        }
+
         let random = this.#random.nextInt(100);
         if (random < 3) {
             // check above
