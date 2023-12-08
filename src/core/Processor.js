@@ -495,6 +495,7 @@ export class Processor extends ProcessorContext {
                 break;
             case ElementHead.BEHAVIOUR_FISH:
                 this.#moduleFish.behaviourFish(elementHead, x, y);
+                processTemperature = false;
                 active = true;
                 break;
             case ElementHead.BEHAVIOUR_FISH_BODY:

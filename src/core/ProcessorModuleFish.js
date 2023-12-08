@@ -5,9 +5,11 @@ import {ProcessorContext} from "./ProcessorContext.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-24
+ * @version 2023-12-08
  */
 export class ProcessorModuleFish {
+
+    static #MAX_TEMPERATURE = 20;
 
     /** @type ElementArea */
     #elementArea;
@@ -27,9 +29,18 @@ export class ProcessorModuleFish {
     behaviourFish(elementHead, x, y) {
         // check has body
         if (x === this.#elementArea.getWidth() - 1
-            || ElementHead.getBehaviour(this.#elementArea.getElementHead(x + 1, y)) !== ElementHead.BEHAVIOUR_FISH_BODY) {
+                || ElementHead.getBehaviour(this.#elementArea.getElementHead(x + 1, y)) !== ElementHead.BEHAVIOUR_FISH_BODY) {
             // => turn into corpse
             this.#elementArea.setElement(x, y, Brushes.FISH_CORPSE.apply(x, y, this.#random));
+            return;
+        }
+
+        // check temperature
+        if (ElementHead.getTemperature(elementHead) > ProcessorModuleFish.#MAX_TEMPERATURE) {
+            // => turn into corpse
+            this.#elementArea.setElement(x, y, Brushes.FISH_CORPSE.apply(x, y, this.#random));
+            this.#elementArea.setElement(x + 1, y, Brushes.FISH_CORPSE.apply(x + 1, y, this.#random));
+            return;
         }
 
         // move down if flying
