@@ -1,6 +1,6 @@
 import { Assets } from "../Assets";
 import { Brush } from "./Brush";
-import { Brushes } from "./Brushes";
+import { Brushes } from "../def/Brushes";
 import { ElementArea } from "./ElementArea";
 import { ElementHead } from "./ElementHead";
 import { ElementTail } from "./ElementTail";

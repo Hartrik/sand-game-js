@@ -1,4 +1,4 @@
-import {Brushes} from "../core/Brushes.js";
+import {Brushes} from "./Brushes.js";
 import {Brush} from "../core/Brush.js";
 import {SceneImplHardcoded} from "../core/SceneImplHardcoded.js";
 

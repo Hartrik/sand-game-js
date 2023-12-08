@@ -1,5 +1,5 @@
 import {ElementHead} from "./ElementHead.js";
-import {Brushes} from "./Brushes.js";
+import {Brushes} from "../def/Brushes.js";
 import {VisualEffects} from "./VisualEffects";
 
 /**
@@ -59,13 +59,13 @@ export class ProcessorModuleGrass {
     /** @type DeterministicRandom */
     #random;
 
-    /** @type Element */
-    #defaultElement;
+    /** @type ProcessorContext */
+    #processorContext;
 
-    constructor(elementArea, random, defaultElement) {
+    constructor(elementArea, random, processorContext) {
         this.#elementArea = elementArea;
         this.#random = random;
-        this.#defaultElement = defaultElement;
+        this.#processorContext = processorContext;
     }
 
     behaviourGrass(elementHead, x, y) {
@@ -88,7 +88,7 @@ export class ProcessorModuleGrass {
                             || (typeAbove1 === ElementHead.TYPE_FLUID && this.#random.nextInt(100) === 0)) {
                         // note: it takes longer for water to suffocate the grass
                         // remove grass
-                        this.#elementArea.setElement(x, y, this.#defaultElement);
+                        this.#elementArea.setElement(x, y, this.#processorContext.getDefaults().getDefaultElement());
                         return;
                     }
                 }
@@ -101,7 +101,7 @@ export class ProcessorModuleGrass {
                     // maximum height
                     if (this.#random.nextInt(5) === 0) {
                         // remove top element to create some movement
-                        this.#elementArea.setElement(x, y, this.#defaultElement);
+                        this.#elementArea.setElement(x, y, this.#processorContext.getDefaults().getDefaultElement());
                     }
                     return;
                 }

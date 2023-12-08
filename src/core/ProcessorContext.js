@@ -18,9 +18,9 @@ export class ProcessorContext {
     }
 
     /**
-     * @returns Element
+     * @returns ProcessorDefaults
      */
-    getDefaultElement() {
+    getDefaults() {
         throw 'Not implemented';
     }
 

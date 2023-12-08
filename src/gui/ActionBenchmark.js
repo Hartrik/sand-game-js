@@ -1,5 +1,5 @@
 import { Controller } from "./Controller";
-import { Brushes } from "../core/Brushes";
+import { Brushes } from "../def/Brushes";
 import { SceneImplHardcoded } from "../core/SceneImplHardcoded";
 import { Action } from "./Action";
 import { DomBuilder } from "./DomBuilder";

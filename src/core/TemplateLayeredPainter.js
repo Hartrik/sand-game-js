@@ -1,5 +1,5 @@
 import Spline from "cubic-spline";
-import { Brushes } from "./Brushes.js";
+import { Brushes } from "../def/Brushes.js";
 import { ProcessorModuleGrass } from "./ProcessorModuleGrass.js";
 import { ProcessorModuleTree } from "./ProcessorModuleTree.js";
 

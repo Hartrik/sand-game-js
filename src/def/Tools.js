@@ -1,5 +1,5 @@
 import { Tool } from "../core/Tool.js";
-import { Brushes } from "../core/Brushes";
+import { Brushes } from "./Brushes";
 import { Brush } from "../core/Brush";
 
 /**

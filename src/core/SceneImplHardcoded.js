@@ -25,9 +25,9 @@ export class SceneImplHardcoded extends Scene {
         return [prefWidth, prefHeight];
     }
 
-    createSandGame(prefWidth, prefHeight, defaultElement, context, rendererInitializer) {
-        let elementArea = this.createElementArea(prefWidth, prefHeight, defaultElement);
-        let sandGame = new SandGame(elementArea, null, defaultElement, context, rendererInitializer);
+    createSandGame(prefWidth, prefHeight, defaults, context, rendererInitializer) {
+        let elementArea = this.createElementArea(prefWidth, prefHeight, defaults.getDefaultElement());
+        let sandGame = new SandGame(elementArea, null, defaults, context, rendererInitializer);
         this.#apply(sandGame);
         return sandGame;
     }

@@ -1,5 +1,5 @@
 import {ElementHead} from "./ElementHead.js";
-import {Brushes} from "./Brushes.js";
+import {Brushes} from "../def/Brushes.js";
 
 /**
  *

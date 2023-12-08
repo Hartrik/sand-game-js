@@ -1,6 +1,6 @@
 import {ElementHead} from "./ElementHead.js";
 import {ElementTail} from "./ElementTail.js";
-import {Brushes} from "./Brushes.js";
+import {Brushes} from "../def/Brushes.js";
 import {VisualEffects} from "./VisualEffects.js";
 
 /**
@@ -58,13 +58,13 @@ export class ProcessorModuleFire {
     /** @type DeterministicRandom */
     #random;
 
-    /** @type Element */
-    #defaultElement;
+    /** @type ProcessorContext */
+    #processorContext;
 
-    constructor(elementArea, random, defaultElement) {
+    constructor(elementArea, random, processorContext) {
         this.#elementArea = elementArea;
         this.#random = random;
-        this.#defaultElement = defaultElement;
+        this.#processorContext = processorContext;
     }
 
     // FIRE
@@ -79,7 +79,7 @@ export class ProcessorModuleFire {
         const newTemperature = this.#countNewTemperature(x, y, temperature);
         if (newTemperature < ProcessorModuleFire.#FIRE_MIN_TEMPERATURE) {
             // the fire will disappear
-            this.#elementArea.setElement(x, y, this.#defaultElement);
+            this.#elementArea.setElement(x, y, this.#processorContext.getDefaults().getDefaultElement());
             return;
         }
 

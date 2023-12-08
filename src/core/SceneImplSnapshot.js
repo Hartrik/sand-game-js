@@ -27,9 +27,9 @@ export class SceneImplSnapshot extends Scene {
         return [this.#snapshot.metadata.width, this.#snapshot.metadata.height];
     }
 
-    createSandGame(prefWidth, prefHeight, defaultElement, context, rendererInitializer) {
-        let elementArea = this.createElementArea(prefWidth, prefHeight, defaultElement);
-        return new SandGame(elementArea, this.#snapshot.metadata, defaultElement, context, rendererInitializer);
+    createSandGame(prefWidth, prefHeight, defaults, context, rendererInitializer) {
+        let elementArea = this.createElementArea(prefWidth, prefHeight, defaults.getDefaultElement());
+        return new SandGame(elementArea, this.#snapshot.metadata, defaults, context, rendererInitializer);
     }
 
     createElementArea(prefWidth, prefHeight, defaultElement) {

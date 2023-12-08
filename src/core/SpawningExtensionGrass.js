@@ -1,5 +1,5 @@
 import {ProcessorModuleGrass} from "./ProcessorModuleGrass.js";
-import {Brushes} from "./Brushes.js";
+import {Brushes} from "../def/Brushes.js";
 
 /**
  *

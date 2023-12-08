@@ -1,6 +1,7 @@
 import {ElementHead} from "./ElementHead.js";
 import {DeterministicRandom} from "./DeterministicRandom.js";
 import {ProcessorContext} from "./ProcessorContext.js";
+import {ProcessorDefaults} from "./ProcessorDefaults.js";
 import {ProcessorModuleFire} from "./ProcessorModuleFire.js";
 import {ProcessorModuleMeteor} from "./ProcessorModuleMeteor.js";
 import {ProcessorModuleGrass} from "./ProcessorModuleGrass.js";
@@ -10,7 +11,7 @@ import {ProcessorModuleTree} from "./ProcessorModuleTree.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-04
+ * @version 2023-12-08
  */
 export class Processor extends ProcessorContext {
 
@@ -47,8 +48,8 @@ export class Processor extends ProcessorContext {
     /** @type boolean */
     #erasingEnabled = false;
 
-    /** @type Element */
-    #defaultElement;
+    /** @type ProcessorDefaults */
+    #processorDefaults;
 
     static RANDOM_DATA_COUNT = 32;
 
@@ -70,7 +71,7 @@ export class Processor extends ProcessorContext {
     /** @type ProcessorModuleTree */
     #moduleTree;
 
-    constructor(elementArea, chunkSize, random, defaultElement, sceneMetadata) {
+    constructor(elementArea, chunkSize, random, processorDefaults, sceneMetadata) {
         super();
         this.#elementArea = elementArea;
         this.#width = elementArea.getWidth();
@@ -95,12 +96,12 @@ export class Processor extends ProcessorContext {
             Processor.RANDOM_DATA_COUNT, this.#chunkSize, rndDataRandom);
 
         this.#random = random;
-        this.#defaultElement = defaultElement;
+        this.#processorDefaults = processorDefaults;
 
-        this.#moduleFire = new ProcessorModuleFire(elementArea, random, defaultElement);
-        this.#moduleMeteor = new ProcessorModuleMeteor(elementArea, random, defaultElement);
-        this.#moduleGrass = new ProcessorModuleGrass(elementArea, random, defaultElement);
-        this.#moduleFish = new ProcessorModuleFish(elementArea, random, defaultElement);
+        this.#moduleFire = new ProcessorModuleFire(elementArea, random, this);
+        this.#moduleMeteor = new ProcessorModuleMeteor(elementArea, random, this);
+        this.#moduleGrass = new ProcessorModuleGrass(elementArea, random, this);
+        this.#moduleFish = new ProcessorModuleFish(elementArea, random, this);
         this.#moduleTree = new ProcessorModuleTree(elementArea, random, this);
 
         if (sceneMetadata) {
@@ -158,8 +159,8 @@ export class Processor extends ProcessorContext {
         return this.#iteration;
     }
 
-    getDefaultElement() {
-        return this.#defaultElement;
+    getDefaults() {
+        return this.#processorDefaults;
     }
 
     setFallThroughEnabled(enabled) {
@@ -283,13 +284,14 @@ export class Processor extends ProcessorContext {
 
         // erasing mode
         if (this.#erasingEnabled) {
+            const defaultElement = this.#processorDefaults.getDefaultElement();
             for (let x = 0; x < this.#width; x++) {
-                this.#elementArea.setElement(x, 0, this.#defaultElement);
-                this.#elementArea.setElement(x, this.#height - 1, this.#defaultElement);
+                this.#elementArea.setElement(x, 0, defaultElement);
+                this.#elementArea.setElement(x, this.#height - 1, defaultElement);
             }
             for (let y = 1; y < this.#height - 1; y++) {
-                this.#elementArea.setElement(0, y, this.#defaultElement);
-                this.#elementArea.setElement(this.#width - 1, y, this.#defaultElement);
+                this.#elementArea.setElement(0, y, defaultElement);
+                this.#elementArea.setElement(this.#width - 1, y, defaultElement);
             }
         }
 
@@ -725,7 +727,7 @@ export class Processor extends ProcessorContext {
 
                 // sometimes element2 will not be covered - it looks better
                 if (this.#random.nextInt(100) > 9) {
-                    this.#elementArea.setElement(x, y, this.#defaultElement);
+                    this.#elementArea.setElement(x, y, this.#processorDefaults.getDefaultElement());
                 } else {
                     const elementTail2 = this.#elementArea.getElementTail(x2, y2);
                     this.#elementArea.setElementHead(x, y, elementHead2);

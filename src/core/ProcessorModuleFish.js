@@ -1,5 +1,5 @@
 import {ElementHead} from "./ElementHead.js";
-import {Brushes} from "./Brushes.js";
+import {Brushes} from "../def/Brushes.js";
 import {ProcessorContext} from "./ProcessorContext.js";
 
 /**
@@ -17,13 +17,13 @@ export class ProcessorModuleFish {
     /** @type DeterministicRandom */
     #random;
 
-    /** @type Element */
-    #defaultElement;
+    /** @type ProcessorContext */
+    #processorContext;
 
-    constructor(elementArea, random, defaultElement) {
+    constructor(elementArea, random, processorContext) {
         this.#elementArea = elementArea;
         this.#random = random;
-        this.#defaultElement = defaultElement;
+        this.#processorContext = processorContext;
     }
 
     behaviourFish(elementHead, x, y) {

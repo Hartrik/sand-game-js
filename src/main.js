@@ -8,7 +8,7 @@ import { Analytics } from "./Analytics";
 import { DomBuilder } from "./gui/DomBuilder";
 import { Controller } from "./gui/Controller";
 import { MainComponent } from "./gui/MainComponent";
-import { Brushes } from "./core/Brushes";
+import { Brushes } from "./def/Brushes";
 import $ from "jquery";
 
 export const brushes = {};

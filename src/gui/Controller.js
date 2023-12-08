@@ -1,6 +1,6 @@
 import { ElementArea } from "../core/ElementArea";
 import { SandGame } from "../core/SandGame";
-import { Brushes } from "../core/Brushes";
+import { Brushes } from "../def/Brushes";
 import { Scenes } from "../def/Scenes";
 import { SceneImplTmpResize } from "../core/SceneImplResize";
 import { Tool } from "../core/Tool";
@@ -9,6 +9,7 @@ import { ServiceIO } from "./ServiceIO";
 import { RendererInitializer } from "../core/RendererInitializer";
 import { SceneImplSnapshot } from "../core/SceneImplSnapshot";
 import { DomBuilder } from "./DomBuilder";
+import {Defaults} from "../def/Defaults";
 
 /**
  *
@@ -111,10 +112,10 @@ export class Controller {
         }
 
         // init game
-        const defaultElement = Brushes.AIR.apply(0, 0, undefined);
+        const defaults = new Defaults();
         const context = this.#initializeContext();
-        this.#sandGame = scene.createSandGame(w, h, defaultElement, context, this.#rendererInitializer);
-        this.#sandGame.graphics().replace(ElementArea.TRANSPARENT_ELEMENT, defaultElement);
+        this.#sandGame = scene.createSandGame(w, h, defaults, context, this.#rendererInitializer);
+        this.#sandGame.graphics().replace(ElementArea.TRANSPARENT_ELEMENT, defaults.getDefaultElement());
 
         this.#onInitialized.forEach(f => f(this.#sandGame));
 

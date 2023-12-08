@@ -1,22 +1,22 @@
-import _ASSET_ROCK_ICON from './assets/rock-icon.png'
-import _ASSET_ROCK_1 from './assets/rock-1.png'
-import _ASSET_ROCK_2 from './assets/rock-2.png'
-import _ASSET_ROCK_3 from './assets/rock-3.png'
-import _ASSET_ROCK_4 from './assets/rock-4.png'
-import _ASSET_ROCK_5 from './assets/rock-5.png'
-import _ASSET_ROCK_6 from './assets/rock-6.png'
+import _ASSET_ROCK_ICON from './assets/templates/rock-icon.png'
+import _ASSET_ROCK_1 from './assets/templates/rock-1.png'
+import _ASSET_ROCK_2 from './assets/templates/rock-2.png'
+import _ASSET_ROCK_3 from './assets/templates/rock-3.png'
+import _ASSET_ROCK_4 from './assets/templates/rock-4.png'
+import _ASSET_ROCK_5 from './assets/templates/rock-5.png'
+import _ASSET_ROCK_6 from './assets/templates/rock-6.png'
 
-import _ASSET_ROCK_SM_ICON from './assets/rock-sm-icon.png'
-import _ASSET_ROCK_SM_1 from './assets/rock-sm-1.png'
-import _ASSET_ROCK_SM_2 from './assets/rock-sm-2.png'
-import _ASSET_ROCK_SM_3 from './assets/rock-sm-3.png'
+import _ASSET_ROCK_SM_ICON from './assets/templates/rock-sm-icon.png'
+import _ASSET_ROCK_SM_1 from './assets/templates/rock-sm-1.png'
+import _ASSET_ROCK_SM_2 from './assets/templates/rock-sm-2.png'
+import _ASSET_ROCK_SM_3 from './assets/templates/rock-sm-3.png'
 
-import _ASSET_ROCK_LG_ICON from './assets/rock-lg-icon.png'
-import _ASSET_ROCK_LG_1 from './assets/rock-lg-1.png'
-import _ASSET_ROCK_LG_2 from './assets/rock-lg-2.png'
+import _ASSET_ROCK_LG_ICON from './assets/templates/rock-lg-icon.png'
+import _ASSET_ROCK_LG_1 from './assets/templates/rock-lg-1.png'
+import _ASSET_ROCK_LG_2 from './assets/templates/rock-lg-2.png'
 
-import _ASSET_WOODEN_HOUSE_ICON from './assets/wooden-house-icon.png'
-import _ASSET_WOODEN_HOUSE from './assets/wooden-house.png'
+import _ASSET_WOODEN_HOUSE_ICON from './assets/templates/wooden-house-icon.png'
+import _ASSET_WOODEN_HOUSE from './assets/templates/wooden-house.png'
 
 /**
  *

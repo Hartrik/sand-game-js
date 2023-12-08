@@ -3,7 +3,7 @@ import { Element } from "./Element.js";
 import { ElementArea } from "./ElementArea.js";
 import { CursorDefinition } from "./CursorDefinition.js";
 import { CursorDefinitionElementArea } from "./CursorDefinitionElementArea.js";
-import { Brushes } from "./Brushes.js";
+import { Brushes } from "../def/Brushes.js";
 import { DeterministicRandom } from "./DeterministicRandom";
 
 /**

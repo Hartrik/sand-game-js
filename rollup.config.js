@@ -19,7 +19,8 @@ const PLUGINS_COMMON = [
     image({
         include: [
             "**/assets/**.png",
-            "**/assets/brushes/**.png"
+            "**/assets/brushes/**.png",
+            "**/assets/templates/**.png"
         ],
         exclude: []
     }),

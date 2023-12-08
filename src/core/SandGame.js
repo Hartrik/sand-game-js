@@ -63,16 +63,16 @@ export class SandGame {
      *
      * @param elementArea {ElementArea}
      * @param sceneMetadata {SceneMetadata|null}
-     * @param defaultElement {Element}
+     * @param processorDefaults {ProcessorDefaults}
      * @param context {CanvasRenderingContext2D|WebGLRenderingContext}
      * @param rendererInitializer {RendererInitializer}
      */
-    constructor(elementArea, sceneMetadata, defaultElement, context, rendererInitializer) {
+    constructor(elementArea, sceneMetadata, processorDefaults, context, rendererInitializer) {
         this.#elementArea = elementArea;
         this.#random = new DeterministicRandom((sceneMetadata) ? sceneMetadata.random : 0);
         this.#framesCounter = new Counter();
         this.#iterationsCounter = new Counter();
-        this.#processor = new Processor(this.#elementArea, 16, this.#random, defaultElement, sceneMetadata);
+        this.#processor = new Processor(this.#elementArea, 16, this.#random, processorDefaults, sceneMetadata);
         this.#renderer = rendererInitializer.initialize(this.#elementArea, 16, context);
         this.#width = elementArea.getWidth();
         this.#height = elementArea.getHeight();

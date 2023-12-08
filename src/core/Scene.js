@@ -17,12 +17,12 @@ export class Scene {
     /**
      * @param prefWidth {number}
      * @param prefHeight {number}
-     * @param defaultElement {Element}
+     * @param processorDefaults {ProcessorDefaults}
      * @param context {CanvasRenderingContext2D|WebGLRenderingContext}
      * @param rendererInitializer {RendererInitializer}
      * @returns SandGame
      */
-    createSandGame(prefWidth, prefHeight, defaultElement, context, rendererInitializer) {
+    createSandGame(prefWidth, prefHeight, processorDefaults, context, rendererInitializer) {
         throw 'Not implemented';
     }
 

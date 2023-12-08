@@ -1,4 +1,4 @@
-import { Brushes } from "../core/Brushes";
+import { Brushes } from "../def/Brushes";
 import { Brush } from "../core/Brush";
 
 

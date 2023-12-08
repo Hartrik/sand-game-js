@@ -1,6 +1,6 @@
 import {ElementHead} from "./ElementHead.js";
 import {Brush} from "./Brush.js";
-import {Brushes} from "./Brushes.js";
+import {Brushes} from "../def/Brushes.js";
 import {ProcessorContext} from "./ProcessorContext.js";
 import {DeterministicRandom} from "./DeterministicRandom.js";
 
@@ -302,7 +302,7 @@ export class ProcessorModuleTree {
                     const elementHeadAbove = this.#elementArea.getElementHead(targetX, targetY);
                     if (ElementHead.getTypeClass(elementHeadAbove) !== ElementHead.TYPE_STATIC
                             && ElementHead.getTypeClass(elementHeadAbove) >= ElementHead.TYPE_FLUID) {
-                        this.#elementArea.setElement(x, y, this.#processorContext.getDefaultElement());
+                        this.#elementArea.setElement(x, y, this.#processorContext.getDefaults().getDefaultElement());
                     }
                 }
             }

@@ -1,8 +1,8 @@
-import {Brush} from "./Brush.js";
-import {ElementHead} from "./ElementHead.js";
-import {ElementTail} from "./ElementTail.js";
-import {Element} from "./Element.js";
-import {VisualEffects} from "./VisualEffects.js";
+import {Brush} from "../core/Brush.js";
+import {ElementHead} from "../core/ElementHead.js";
+import {ElementTail} from "../core/ElementTail.js";
+import {Element} from "../core/Element.js";
+import {VisualEffects} from "../core/VisualEffects.js";
 
 import _ASSET_PALETTE_SAND from './assets/brushes/sand.palette.csv';
 import _ASSET_PALETTE_SOIL from './assets/brushes/soil.palette.csv';
@@ -16,7 +16,7 @@ import _ASSET_PALETTE_TREE_LEAF_DEAD from './assets/brushes/tree-leaf-dead.palet
 import _ASSET_TEXTURE_ROCK from './assets/brushes/rock.png';
 import _ASSET_TEXTURE_METAL from './assets/brushes/metal.png';
 
-// TODO: create some abstraction for brushes that are needed in core processing and move this into /def
+// TODO: direct access >> Defaults
 
 /**
  *
