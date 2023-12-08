@@ -6,22 +6,20 @@ import {VisualEffects} from "./VisualEffects.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-10
+ * @version 2023-12-08
  */
 export class ProcessorModuleMeteor {
 
-    // TODO: radius of heat
-    // TODO: leave some burning elements behind...
     // TODO: leave some metal behind...
     // TODO: when water hit?
-    // TODO: add randomness to destruction
-
-    static EXPLOSION_HEAT = 200;
 
     static DIRECTION_FROM_TOP = 0;
     static DIRECTION_FROM_LEFT = 1;
     static DIRECTION_FROM_RIGHT = 2;
 
+    static #EXPLOSION_MAX_HEAT_LVL_8 = 255;
+    static #EXPLOSION_MAX_HEAT_LVL_9 = 220;
+    static #EXPLOSION_MAX_HEAT_VARIANCE = 60;
 
     /** @type ElementArea */
     #elementArea;
@@ -116,8 +114,12 @@ export class ProcessorModuleMeteor {
                 } else {
                     // set temperature, apply visual changes, break solid elements
 
-                    // TODO
-                    // targetElementHead = ElementHead.setTemperature(targetElementHead, ProcessorModuleMeteor.EXPLOSION_HEAT);
+                    // set temperature
+                    const maxHeat = (level === 8)
+                            ? ProcessorModuleMeteor.#EXPLOSION_MAX_HEAT_LVL_8
+                            : ProcessorModuleMeteor.#EXPLOSION_MAX_HEAT_LVL_9;
+                    const heat = maxHeat - this.#random.nextInt(ProcessorModuleMeteor.#EXPLOSION_MAX_HEAT_VARIANCE);
+                    targetElementHead = ElementHead.setTemperature(targetElementHead, heat);
 
                     // visual burnt effect (color)
                     if (VisualEffects.isVisualBurnApplicable(targetElementHead)) {
