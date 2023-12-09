@@ -244,15 +244,27 @@ export class SandGame {
 
         const elementHead = this.#elementArea.getElementHead(x, y);
         const elementTail = this.#elementArea.getElementTail(x, y);
+
+        function toHex(n) {
+            let t = n.toString(16).padStart(8, '0');
+            return '0x' + t;
+        }
+        let hex = toHex(elementHead) + ' ' + toHex(elementTail);
+
         const json = {
             type: {
                 'class': ElementHead.getTypeClass(elementHead)
             },
-            behaviour: ElementHead.getBehaviour(elementHead),
-            special: ElementHead.getSpecial(elementHead),
-            flammableType: ElementHead.getFlammableType(elementHead),
-            flameHeatType: ElementHead.getFlameHeatType(elementHead),
-            burnableType: ElementHead.getBurnableType(elementHead),
+            behaviour: {
+                type: ElementHead.getBehaviour(elementHead),
+                special: ElementHead.getSpecial(elementHead)
+            },
+            modifiers: {
+                flammableType: ElementHead.getFlammableType(elementHead),
+                flameHeatType: ElementHead.getFlameHeatType(elementHead),
+                burnableType: ElementHead.getBurnableType(elementHead),
+                conductivityType: ElementHead.getConductivityType(elementHead),
+            },
             temperature: ElementHead.getTemperature(elementHead),
             color: [
                 ElementTail.getColorRed(elementTail),
@@ -260,13 +272,16 @@ export class SandGame {
                 ElementTail.getColorBlue(elementTail)
             ],
             blurType: ElementTail.getBlurType(elementTail),
-            burntLevel: ElementTail.getBurntLevel(elementTail)
+            burntLevel: ElementTail.getBurntLevel(elementTail),
+            heatEffect: ElementTail.getHeatEffect(elementTail)
         };
 
-        let result = JSON.stringify(json)
+        let structure = JSON.stringify(json)
                 .replaceAll('"', '')
                 .replaceAll(',', ', ')
                 .replaceAll(':', '=');
-        return result.substring(1, result.length - 1);  // remove {}
+        structure = structure.substring(1, structure.length - 1);  // remove {}
+
+        return hex + '\n' + structure;
     }
 }
