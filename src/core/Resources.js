@@ -2,11 +2,9 @@ import { Snapshot } from "./Snapshot";
 import { Scene } from "./Scene";
 import { SceneImplSnapshot } from "./SceneImplSnapshot";
 import { Tool } from "./Tool";
-import { unzipSync } from 'fflate';
+import { strFromU8, unzipSync } from 'fflate';
 import { ResourceSnapshot } from "./ResourceSnapshot";
 import { ResourceTool } from "./ResourceTool";
-
-// TODO: unify Snapshot resource with Tool resource etc.
 
 /**
  *
@@ -15,31 +13,63 @@ import { ResourceTool } from "./ResourceTool";
  */
 export class Resources {
 
+    static JSON_RESOURCE_TYPE_FIELD = 'resourceType';
+
     /**
      *
      * @param snapshot {Snapshot}
      * @returns Uint8Array
      */
     static createResourceFromSnapshot(snapshot) {
-        // TODO
         return ResourceSnapshot.createZip(snapshot);
     }
 
-    // TODO: other types of resources
     /**
      *
      * @param content {ArrayBuffer}
-     * @returns Promise<Scene>
+     * @returns Promise<Scene|Tool>
      */
     static async parseZipResource(content) {
         const zip = unzipSync(new Uint8Array(content));
 
-        if (zip['metadata.json']) {
-            // old snapshot format
-            let snapshot = ResourceSnapshot.parseZip(zip);
+        function parseJson(fileName) {
+            return JSON.parse(strFromU8(zip[fileName]));
+        }
+
+        if (zip[ResourceSnapshot.METADATA_JSON_NAME]) {
+            // snapshot
+            const metadataJson = parseJson(ResourceSnapshot.METADATA_JSON_NAME);
+            const snapshot = ResourceSnapshot.parse(metadataJson, zip);
             return new SceneImplSnapshot(snapshot);
         }
+        if (zip[ResourceSnapshot.LEGACY_METADATA_JSON_NAME]) {
+            // legacy snapshot
+            const metadataJson = parseJson(ResourceSnapshot.LEGACY_METADATA_JSON_NAME);
+            const snapshot = ResourceSnapshot.parse(metadataJson, zip);
+            return new SceneImplSnapshot(snapshot);
+        }
+        if (zip[ResourceTool.METADATA_JSON_NAME]) {
+            // legacy snapshot
+            const metadataJson = parseJson(ResourceTool.METADATA_JSON_NAME);
+            return await ResourceTool.parse(metadataJson, zip);
+        }
         throw 'Wrong format';
+    }
+
+    /**
+     *
+     * @param content {ArrayBuffer}
+     * @returns Promise<Tool>
+     */
+    static async parseJsonResource(content) {
+        const text = strFromU8(new Uint8Array(content));
+        const metadataJson = JSON.parse(text);
+
+        const type = metadataJson[Resources.JSON_RESOURCE_TYPE_FIELD];
+        if (type === 'tool') {
+            return await ResourceTool.parse(metadataJson, null);
+        }
+        throw 'Wrong json format';
     }
 
     /**
@@ -48,6 +78,6 @@ export class Resources {
      * @returns {Promise<Tool>}
      */
     static async parseToolDefinition(json) {
-        return ResourceTool.parseToolDefinition(json);
+        return ResourceTool.parse(json, null);
     }
 }

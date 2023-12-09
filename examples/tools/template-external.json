@@ -1,0 +1,16 @@
+{
+  "resourceType": "tool",
+  "name": "Logo",
+  "category": "template",
+  "type": "template",
+  "icon": {
+    "imageData": null
+  },
+  "action": {
+    "type": "image-template",
+    "imageData": "/favicon-32x32.png",
+    "brush": "sand",
+    "threshold": 50,
+    "randomFlipHorizontally": true
+  }
+}

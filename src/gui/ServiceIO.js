@@ -1,17 +1,18 @@
 import {DomBuilder} from "./DomBuilder.js";
-import {Assets} from "../Assets.js";
 import {Brushes} from "../def/Brushes.js";
 import {ElementArea} from "../core/ElementArea.js";
 import {Resources} from "../core/Resources.js";
 import {ResourceUtils} from "../core/ResourceUtils";
 import {Analytics} from "../Analytics.js";
+import {Scene} from "../core/Scene";
+import {Tool} from "../core/Tool";
 
 // TODO: refactor
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-19
+ * @version 2023-12-09
  */
 export class ServiceIO {
 
@@ -76,9 +77,13 @@ export class ServiceIO {
             let imageTypeOrNull = ResourceUtils.getImageTypeOrNull(filename);
             if (imageTypeOrNull !== null) {
                 this.#loadImageTemplate(content, imageTypeOrNull);
+            } else if (filename.endsWith(".json")) {
+                Resources.parseJsonResource(content)
+                        .then(resource => this.#importResource(resource))
+                        .catch(e => this.#handleError(e));
             } else {
                 Resources.parseZipResource(content)
-                        .then(scene => this.#importScene(scene))
+                        .then(resource => this.#importResource(resource))
                         .catch(e => this.#handleError(e));
             }
         } catch (e) {
@@ -88,10 +93,17 @@ export class ServiceIO {
 
     #loadImageTemplate(content, imageType) {
         const handleImageTemplate = (brush, threshold, maxWidth, maxHeight) => {
-            const objectUrl = Assets.asObjectUrl(content, imageType);
+            const objectUrl = ResourceUtils.asObjectUrl(content, imageType);
             const defaultElement = ElementArea.TRANSPARENT_ELEMENT;
-            ResourceUtils.createSceneFromImageTemplate(objectUrl, brush, defaultElement, threshold, maxWidth, maxHeight)
-                .then(scene => this.#importImageTemplate(scene))
+            ResourceUtils.loadImageData(objectUrl, maxWidth, maxHeight)
+                .then(imageData => {
+                    try {
+                        const scene = ResourceUtils.createSceneFromImageTemplate(imageData, brush, defaultElement, threshold);
+                        this.#importImageTemplate(scene);
+                    } catch (e) {
+                        this.#handleError(e);
+                    }
+                })
                 .catch(e => this.#handleError(e));
         };
 
@@ -112,6 +124,26 @@ export class ServiceIO {
     #importImageTemplate(scene) {
         this.#controller.pasteScene(scene);
         Analytics.triggerFeatureUsed(Analytics.FEATURE_IO_IMAGE_TEMPLATE);
+    }
+
+    #importResource(resource) {
+        if (resource instanceof Scene) {
+            this.#importScene(resource);
+
+        } else if (resource instanceof Tool) {
+            const tool = resource;
+            const toolManager = this.#controller.getToolManager();
+            if (tool.getCategory() === 'template') {
+                const revert = toolManager.createRevertAction();
+                toolManager.setPrimaryTool(tool);
+                toolManager.setSecondaryTool(Tool.actionTool(null, null, null, revert));
+            } else {
+                toolManager.setPrimaryTool(tool);
+            }
+
+        } else {
+            this.#handleError('Unknown resource type');
+        }
     }
 
     #importScene(scene) {
@@ -141,7 +173,7 @@ export class ServiceIO {
         dialog.setHeaderContent('Error');
         dialog.setBodyContent([
             DomBuilder.par(null, "Error while loading resource:"),
-            DomBuilder.element('code', null, e)
+            DomBuilder.element('code', null, '' + e)
         ]);
         dialog.addCloseButton('Close');
         dialog.show(this.#controller.getDialogAnchor());

@@ -7,20 +7,23 @@ import { ResourceUtils } from "./ResourceUtils";
 /**
  *
  * @author Patrik Harag
- * @version 2023-07-23
+ * @version 2023-12-09
  */
 export class ResourceTool {
 
+    static METADATA_JSON_NAME = 'tool.json';
+
     /**
      *
-     * @param json
+     * @param metadataJson {any}
+     * @param zip {{[path: string]: Uint8Array}|null}
      * @returns {Promise<Tool>}
      */
-    static async parseToolDefinition(json) {
-        const type = json.type;
-        const name = json.name;
-        const category = json.category;
-        const action = json.action;
+    static async parse(metadataJson, zip) {
+        const type = metadataJson.type;
+        const name = metadataJson.name;
+        const category = metadataJson.category;
+        const action = metadataJson.action;
 
         if (type === undefined) {
             throw 'Tool definition: type not set';
@@ -36,7 +39,7 @@ export class ResourceTool {
         }
 
         if (type === 'template') {
-            const scenes = await ResourceTool.#parseTemplateAction(action);
+            const scenes = await ResourceTool.#parseTemplateAction(action, zip);
             return Tool.insertElementAreaTool(category, null, name, scenes, undefined);
 
         } else {
@@ -47,34 +50,32 @@ export class ResourceTool {
     /**
      *
      * @param json
+     * @param zip {{[path: string]: Uint8Array}|null}
      * @returns {Promise<Scene[]>}
      */
-    static async #parseTemplateAction(json) {
+    static async #parseTemplateAction(json, zip) {
         const type = json.type;
 
         if (type === 'image-template') {
-            const imageData = json.imageData;
-            if (imageData === undefined) {
-                throw 'Image template: imageData not set';
-            }
+            let imageData = await this.#parseImageData(json, zip);
 
-            const threshold = json.threshold;
-            if (threshold === undefined) {
+            const thresholdPar = json.threshold;
+            if (thresholdPar === undefined) {
                 throw 'Image template: threshold not set';
             }
-            const parsedThreshold = parseInt(threshold);
+            const threshold = parseInt(thresholdPar);
 
-            const brush = json.brush;
-            if (brush === undefined) {
+            const brushPar = json.brush;
+            if (brushPar === undefined) {
                 throw 'Image template: brush not set';
             }
-            const parsedBrush = Brushes.byCodeName(json.brush);
-            if (parsedBrush === null) {
-                throw 'Image template: brush not found: ' + brush;
+            const brush = Brushes.byCodeName(json.brush);
+            if (brush === null) {
+                throw 'Image template: brush not found: ' + brushPar;
             }
 
-            const scene = await ResourceUtils.createSceneFromImageTemplate(imageData, parsedBrush,
-                    ElementArea.TRANSPARENT_ELEMENT, parsedThreshold, undefined, undefined);
+            const scene = ResourceUtils.createSceneFromImageTemplate(imageData, brush,
+                    ElementArea.TRANSPARENT_ELEMENT, threshold);
             const scenes = [scene];
 
             const randomFlipHorizontally = json.randomFlipHorizontally;
@@ -99,7 +100,7 @@ export class ResourceTool {
 
             let scenes = [];
             for (let i = 0; i < actions.length; i++) {
-                let parsedScenes = await ResourceTool.#parseTemplateAction(actions[i]);
+                let parsedScenes = await ResourceTool.#parseTemplateAction(actions[i], zip);
                 for (let s of parsedScenes) {
                     scenes.push(s);
                 }
@@ -109,5 +110,22 @@ export class ResourceTool {
         } else {
             throw 'Scene type not supported: ' + type;
         }
+    }
+
+    static async #parseImageData(json, zip) {
+        const imageDataPar = json.imageData;
+        if (imageDataPar !== undefined) {
+            return await ResourceUtils.loadImageData(imageDataPar, undefined, undefined);
+        }
+
+        const imageFilePar = json.imageFile;
+        if (imageFilePar !== undefined && zip !== null && zip[imageFilePar]) {
+            const imageType = ResourceUtils.getImageTypeOrNull(imageFilePar);
+            if (imageType !== null) {
+                const objectUrl = ResourceUtils.asObjectUrl(zip[imageFilePar].buffer);
+                return ResourceUtils.loadImageData(objectUrl, undefined, undefined);
+            }
+        }
+        throw 'Image template: imageData/imageFile not set';
     }
 }

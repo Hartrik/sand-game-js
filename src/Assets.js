@@ -2,7 +2,7 @@
 /**
  *
  * @author Patrik Harag
- * @version 2023-07-23
+ * @version 2023-12-09
  */
 export class Assets {
 
@@ -48,23 +48,13 @@ export class Assets {
                     let imageData = context.getImageData(0, 0, canvas.width, canvas.height);
                     resolve(imageData);
                 };
+                image.onerror = () => {
+                    reject('Cannot load image');
+                };
                 image.src = base64;
             } catch (e) {
                 reject(e);
             }
         });
-    }
-
-    /**
-     *
-     * @param data {ArrayBuffer} ArrayBuffer
-     * @param type {string} type
-     */
-    static asObjectUrl(data, type='image/png') {
-        // https://gist.github.com/candycode/f18ae1767b2b0aba568e
-        const arrayBufferView = new Uint8Array(data);
-        const blob = new Blob([ arrayBufferView ], { type: type });
-        const urlCreator = window.URL || window.webkitURL;
-        return urlCreator.createObjectURL(blob);
     }
 }

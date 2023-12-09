@@ -1,4 +1,4 @@
-import { strFromU8, strToU8, zipSync } from "fflate";
+import { strToU8, zipSync } from "fflate";
 import { Snapshot } from "./Snapshot";
 import { SceneMetadata } from "./SceneMetadata";
 import { ElementArea } from "./ElementArea";
@@ -11,6 +11,9 @@ import { ElementHead } from "./ElementHead";
  */
 export class ResourceSnapshot {
 
+    static METADATA_JSON_NAME = 'snapshot.json';
+    static LEGACY_METADATA_JSON_NAME = 'metadata.json';
+
     /**
      *
      * @param snapshot {Snapshot}
@@ -20,7 +23,7 @@ export class ResourceSnapshot {
         const metadata = strToU8(JSON.stringify(snapshot.metadata, null, 2));
 
         let zipData = {
-            'metadata.json': metadata,
+            'snapshot.json': metadata,
             'data-heads.bin': new Uint8Array(snapshot.dataHeads),
             'data-tails.bin': new Uint8Array(snapshot.dataTails)
         };
@@ -29,17 +32,14 @@ export class ResourceSnapshot {
 
     /**
      *
+     * @param metadataJson {any}
      * @param zip {{[path: string]: Uint8Array}}
      * @returns Snapshot
      */
-    static parseZip(zip) {
+    static parse(metadataJson, zip) {
         let snapshot = new Snapshot();
+        snapshot.metadata = Object.assign(new SceneMetadata(), metadataJson);
 
-        let metadataRaw = zip['metadata.json'];
-        if (!metadataRaw) {
-            throw 'metadata.json not found';
-        }
-        snapshot.metadata = Object.assign(new SceneMetadata(), JSON.parse(strFromU8(metadataRaw)));
         if (typeof snapshot.metadata.width !== "number") {
             throw 'Metadata property wrong format: width';
         }

@@ -15,19 +15,39 @@ export class ResourceUtils {
 
     /**
      *
-     * @param objectUrl {string}
+     * @param objectUrl
+     * @param maxWidth
+     * @param maxHeight
+     * @returns {Promise<ImageData>}
+     */
+    static loadImageData(objectUrl, maxWidth, maxHeight) {
+        // TODO: security - it will also fetch an external image
+        return Assets.asImageData(objectUrl, maxWidth, maxHeight);
+    }
+
+    /**
+     *
+     * @param data {ArrayBuffer} ArrayBuffer
+     * @param type {string} type
+     * @returns {string}
+     */
+    static asObjectUrl(data, type='image/png') {
+        // https://gist.github.com/candycode/f18ae1767b2b0aba568e
+        const arrayBufferView = new Uint8Array(data);
+        const blob = new Blob([ arrayBufferView ], { type: type });
+        const urlCreator = window.URL || window.webkitURL;
+        return urlCreator.createObjectURL(blob);
+    }
+
+    /**
+     *
+     * @param imageData {ImageData}
      * @param brush {Brush}
      * @param defaultElement {Element}
      * @param threshold {number} 0-255
-     * @param maxWidth {number|undefined}
-     * @param maxHeight {number|undefined}
-     * @returns Promise<Scene>
+     * @returns Scene
      */
-    static async createSceneFromImageTemplate(objectUrl, brush, defaultElement, threshold,
-            maxWidth, maxHeight) {
-
-        const imageData = await Assets.asImageData(objectUrl, maxWidth, maxHeight);
-
+    static createSceneFromImageTemplate(imageData, brush, defaultElement, threshold) {
         const width = imageData.width;
         const height = imageData.height;
 
