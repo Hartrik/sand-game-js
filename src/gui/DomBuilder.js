@@ -394,7 +394,7 @@ DomBuilder.BootstrapDialog = class {
 
 /**
  *
- * @version 2023-11-03
+ * @version 2023-12-09
  * @author Patrik Harag
  */
 DomBuilder.BootstrapToast = class {
@@ -405,7 +405,7 @@ DomBuilder.BootstrapToast = class {
     #toast = null;
     #toastBootstrap = null;
 
-    #dataDelay = 20000;  // ms
+    #dataDelay = 1000 * 60 * 60;  // ms
 
     setHeaderContent(headerNode) {
         if (typeof headerNode === 'string') {

@@ -19,7 +19,7 @@ import {TemplateLayeredPainter} from "./TemplateLayeredPainter.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-27
+ * @version 2023-12-09
  */
 export class SandGame {
 
@@ -55,6 +55,8 @@ export class SandGame {
 
     /** @type function[] */
     #onRendered = [];
+    /** @type function[] */
+    #onRenderingFailed = [];
 
     /** @type function[] */
     #onProcessed = [];
@@ -126,7 +128,15 @@ export class SandGame {
 
     doRendering() {
         const changedChunks = this.#processor.getChangedChunks();
-        this.#renderer.render(changedChunks);
+        try {
+            this.#renderer.render(changedChunks);
+        } catch (e) {
+            this.stopRendering();
+            for (let func of this.#onRenderingFailed) {
+                func(e);
+            }
+            return;
+        }
         const t = Date.now();
         this.#framesCounter.tick(t);
         for (let func of this.#onRendered) {
@@ -171,6 +181,10 @@ export class SandGame {
 
     addOnRendered(handler) {
         this.#onRendered.push(handler);
+    }
+
+    addOnRenderingFailed(handler) {
+        this.#onRenderingFailed.push(handler);
     }
 
     getFramesPerSecond() {

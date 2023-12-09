@@ -26,20 +26,30 @@
       var brushes = null;
 
       document.addEventListener('DOMContentLoaded', () => {
-          const root = document.getElementById('sand-game-root');
+          if (window.SandGameJS !== undefined) {
+              const root = document.getElementById('sand-game-root');
 
-          const config = { version: 'dev', debug: true };
-          const controller = SandGameJS.init(root, config);
-          sandGame = controller.getSandGame();
-          controller.addOnInitialized(s => {
-              sandGame = s;
-          });
-          brushes = SandGameJS.brushes;
-          console.log('Globals:');
-          console.log('  sandGame, brushes');
-          console.log('Examples:');
-          console.log('  sandGame.graphics().drawLine(10, 10, 300, 150, 2, brushes.sand);');
-          console.log('  sandGame.graphics().draw(100, 20, brushes.meteor);');
+              const config = { version: 'dev', debug: true };
+              const controller = window.SandGameJS.init(root, config);
+              sandGame = controller.getSandGame();
+              controller.addOnInitialized(s => {
+                  sandGame = s;
+              });
+              brushes = window.SandGameJS.brushes;
+              console.log('Globals:');
+              console.log('  sandGame, brushes');
+              console.log('Examples:');
+              console.log('  sandGame.graphics().drawLine(10, 10, 300, 150, 2, brushes.sand);');
+              console.log('  sandGame.graphics().draw(100, 20, brushes.meteor);');
+          } else {
+              const placeholder = document.getElementById('sand-game-placeholder-content');
+              placeholder.innerHTML = '<span style="color: red; font-weight: bold;">' +
+                  'Failed to load the game. Possible reasons:<br>' +
+                  '&bull; Your browser may not support modern JavaScript<br>' +
+                  '&bull; Internet connection<br>' +
+                  '&bull; A server side problem' +
+                  '</span>';
+          }
       });
   </script>
 </head>
@@ -53,7 +63,7 @@
         <button disabled class="btn" type="button" style="min-width: 4em; line-height: 2; padding: 0 0.4em 0 0.4em; font-size: 75%; border: none; background-color: rgb(230, 230, 230); color: black;">&nbsp;</button>
       </div>
       <div style="height: 70vh; display: flex; align-items: center; justify-content: center; margin-top: 4pt; padding: 2em; outline: 1px solid #b7b7b7;">
-        <div>
+        <div id="sand-game-placeholder-content">
           Loading...
         </div>
       </div>

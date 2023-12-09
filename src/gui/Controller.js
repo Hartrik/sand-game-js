@@ -14,7 +14,7 @@ import {Defaults} from "../def/Defaults";
 /**
  *
  * @author Patrik Harag
- * @version 2023-11-20
+ * @version 2023-12-09
  */
 export class Controller {
 
@@ -114,12 +114,22 @@ export class Controller {
         // init game
         const defaults = new Defaults();
         const context = this.#initializeContext();
-        this.#sandGame = scene.createSandGame(w, h, defaults, context, this.#rendererInitializer);
+        try {
+            this.#sandGame = scene.createSandGame(w, h, defaults, context, this.#rendererInitializer);
+        } catch (e) {
+            this.#sandGame = null;
+            this.#reportSeriousFailure('Initialization failed: ' + e);
+            return;
+        }
+
         this.#sandGame.graphics().replace(ElementArea.TRANSPARENT_ELEMENT, defaults.getDefaultElement());
 
         this.#onInitialized.forEach(f => f(this.#sandGame));
 
         // start rendering
+        this.#sandGame.addOnRenderingFailed((e) => {
+            this.#reportSeriousFailure('Rendering failure: ' + e);
+        });
         this.#sandGame.startRendering();
 
         // start processing - if enabled
@@ -297,6 +307,15 @@ export class Controller {
         toast.setHeaderContent(DomBuilder.element('strong', { style: 'color: orange;' }, 'Warning'));
         toast.setBodyContent(DomBuilder.par(null, message));
         toast.setDelay(20000);
+        toast.show(this.#dialogAnchor);
+    }
+
+    #reportSeriousFailure(message) {
+        console.error(message);
+
+        let toast = new DomBuilder.BootstrapToast();
+        toast.setHeaderContent(DomBuilder.element('strong', { style: 'color: red;' }, 'Error'));
+        toast.setBodyContent(DomBuilder.par(null, message));
         toast.show(this.#dialogAnchor);
     }
 
