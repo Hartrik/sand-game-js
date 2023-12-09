@@ -2,7 +2,8 @@ import {DomBuilder} from "./DomBuilder.js";
 import {Assets} from "../Assets.js";
 import {Brushes} from "../def/Brushes.js";
 import {ElementArea} from "../core/ElementArea.js";
-import {ResourceIO} from "../core/ResourceIO.js";
+import {Resources} from "../core/Resources.js";
+import {ResourceUtils} from "../core/ResourceUtils";
 import {Analytics} from "../Analytics.js";
 
 // TODO: refactor
@@ -72,11 +73,11 @@ export class ServiceIO {
      */
     loadFromArrayBuffer(content, filename) {
         try {
-            let imageTypeOrNull = Assets.getImageTypeOrNull(filename);
+            let imageTypeOrNull = ResourceUtils.getImageTypeOrNull(filename);
             if (imageTypeOrNull !== null) {
                 this.#loadImageTemplate(content, imageTypeOrNull);
             } else {
-                ResourceIO.parseResource(content)
+                Resources.parseZipResource(content)
                         .then(scene => this.#importScene(scene))
                         .catch(e => this.#handleError(e));
             }
@@ -88,7 +89,8 @@ export class ServiceIO {
     #loadImageTemplate(content, imageType) {
         const handleImageTemplate = (brush, threshold, maxWidth, maxHeight) => {
             const objectUrl = Assets.asObjectUrl(content, imageType);
-            ResourceIO.fromImage(objectUrl, brush, ElementArea.TRANSPARENT_ELEMENT, threshold, maxWidth, maxHeight)
+            const defaultElement = ElementArea.TRANSPARENT_ELEMENT;
+            ResourceUtils.createSceneFromImageTemplate(objectUrl, brush, defaultElement, threshold, maxWidth, maxHeight)
                 .then(scene => this.#importImageTemplate(scene))
                 .catch(e => this.#handleError(e));
         };

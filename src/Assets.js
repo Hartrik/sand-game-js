@@ -67,21 +67,4 @@ export class Assets {
         const urlCreator = window.URL || window.webkitURL;
         return urlCreator.createObjectURL(blob);
     }
-
-    static getImageTypeOrNull(filename) {
-        filename = filename.toLowerCase();
-        if (filename.endsWith('.png')) {
-            return 'image/png'
-        }
-        if (filename.endsWith('.jpg') || filename.endsWith('.jpeg')) {
-            return 'image/jpg'
-        }
-        if (filename.endsWith('.bmp')) {
-            return 'image/bmp'
-        }
-        if (filename.endsWith('.gif')) {
-            return 'image/gif'
-        }
-        return null;
-    }
 }

@@ -1,6 +1,6 @@
 import { DomBuilder } from "./DomBuilder";
 import { Templates } from "../def/Templates";
-import { ResourceIO } from "../core/ResourceIO";
+import { Resources } from "../core/Resources";
 import { Tool } from "../core/Tool";
 import { Component } from "./Component";
 
@@ -35,7 +35,7 @@ export class ComponentViewTemplateSelection extends Component {
 
             buttons.push(button);
 
-            ResourceIO.parseToolDefinition(toolDefinition).then(tool => {
+            Resources.parseToolDefinition(toolDefinition).then(tool => {
                 loadedTool = tool;
             }).catch(e => {
                 console.warn('Template loading failed: ' + e);
