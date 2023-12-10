@@ -11,7 +11,7 @@ import {ProcessorModuleTree} from "./ProcessorModuleTree.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-08
+ * @version 2023-12-10
  */
 export class Processor extends ProcessorContext {
 
@@ -525,26 +525,28 @@ export class Processor extends ProcessorContext {
      * @param x {number}
      * @param y {number}
      * @param temp {number}
-     * @returns {boolean}
      */
     #temperature(elementHead, x, y, temp) {
+        // conduct temperature
+
         let tx = x, ty = y;
         switch (this.#random.nextInt(4)) {
-            case 0: ty--; break;  // Move Up
-            case 1: tx++; break;  // Move Right
-            case 2: ty++; break;  // Move Down
-            case 3: tx--; break;  // Move Left
+            case 0: ty--; break;  // Up
+            case 1: tx++; break;  // Right
+            case 2: ty++; break;  // Down
+            case 3: tx--; break;  // Left
         }
 
         const conductivityType = ElementHead.getConductivityType(elementHead);
         const heatLoss = (this.#random.nextInt(10000) < Processor.#asHeatLossChanceTo10000(conductivityType));
+        let newTemp;
 
         if (this.#elementArea.isValidPosition(tx, ty)) {
             const targetElementHead = this.#elementArea.getElementHead(tx, ty);
             const targetTemp = ElementHead.getTemperature(targetElementHead);
 
             const conductiveIndex = Processor.#asConductiveIndex(conductivityType);
-            let newTemp = Math.trunc((conductiveIndex * targetTemp) + (1 - conductiveIndex) * temp);
+            newTemp = Math.trunc((conductiveIndex * targetTemp) + (1 - conductiveIndex) * temp);
             if (heatLoss) {
                 newTemp = Math.max(newTemp - 1, 0);
             }
@@ -562,8 +564,24 @@ export class Processor extends ProcessorContext {
             }
         } else {
             if (heatLoss) {
-                const newTemp = Math.max(temp - 1, 0);
+                newTemp = Math.max(temp - 1, 0);
                 this.#elementArea.setElementHead(x, y, ElementHead.setTemperature(elementHead, newTemp));
+            }
+        }
+
+        // self-ignition
+        if (newTemp > 100) {
+            const flammableType = ElementHead.getFlammableType(elementHead);
+            if (flammableType === 0) {
+                // not flammable
+                return;
+            }
+            if (ElementHead.getBehaviour(elementHead) === ElementHead.BEHAVIOUR_FIRE_SOURCE) {
+                // already in fire
+                return;
+            }
+            if (this.#random.nextInt(10000) < Processor.#asSelfIgnitionChanceTo10000(flammableType)) {
+                this.#moduleFire.ignite(elementHead, x, y);
             }
         }
     }
@@ -574,6 +592,10 @@ export class Processor extends ProcessorContext {
 
     static #asConductiveIndex(conductivityType) {
         return [0.2, 0.25, 0.3, 0.45][conductivityType];  // small .. big
+    }
+
+    static #asSelfIgnitionChanceTo10000(flammableType) {
+        return [0, 2, 3, 5][flammableType];  // never .. quickly
     }
 
     /**

@@ -5,7 +5,7 @@ import {VisualEffects} from "./VisualEffects.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-19
+ * @version 2023-12-10
  */
 export class ProcessorModuleFire {
 
@@ -179,13 +179,7 @@ export class ProcessorModuleFire {
             const random = this.#random.nextInt(10000);
             if (random < ProcessorModuleFire.#asFlammableChanceTo10000(flammableType)) {
                 // ignite
-                let modifiedElementHead = ElementHead.setBehaviour(elementHead, ElementHead.BEHAVIOUR_FIRE_SOURCE);
-                modifiedElementHead = ElementHead.setTemperature(modifiedElementHead,
-                        ProcessorModuleFire.#asFlameHeat(ElementHead.getFlameHeatType(elementHead)));
-                this.#elementArea.setElementHead(x, y, modifiedElementHead);
-                // change visual
-                const elementTail = this.#elementArea.getElementTail(x, y);
-                this.#elementArea.setElementTail(x, y, VisualEffects.visualBurn(elementTail, 2));
+                this.ignite(elementHead, x, y);
                 return;
             }
         }
@@ -284,5 +278,17 @@ export class ProcessorModuleFire {
         }
 
         return false;
+    }
+
+    // UTILS
+
+    ignite(elementHead, x, y) {
+        let modifiedElementHead = ElementHead.setBehaviour(elementHead, ElementHead.BEHAVIOUR_FIRE_SOURCE);
+        modifiedElementHead = ElementHead.setTemperature(modifiedElementHead,
+            ProcessorModuleFire.#asFlameHeat(ElementHead.getFlameHeatType(elementHead)));
+        this.#elementArea.setElementHead(x, y, modifiedElementHead);
+        // change visual
+        const elementTail = this.#elementArea.getElementTail(x, y);
+        this.#elementArea.setElementTail(x, y, VisualEffects.visualBurn(elementTail, 2));
     }
 }
