@@ -4,7 +4,7 @@ import {Brushes} from "./Brushes";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-08
+ * @version 2023-12-10
  */
 export class Defaults extends ProcessorDefaults {
 
@@ -20,5 +20,25 @@ export class Defaults extends ProcessorDefaults {
 
     getBrushTree() {
         return Brushes.TREE;
+    }
+
+    getBrushFishHead() {
+        return Brushes.FISH_HEAD;
+    }
+
+    getBrushFishBody() {
+        return Brushes.FISH_BODY;
+    }
+
+    getBrushFishCorpse() {
+        return Brushes.FISH_CORPSE;
+    }
+
+    getBrushFire() {
+        return Brushes.FIRE;
+    }
+
+    getBrushAsh() {
+        return Brushes.ASH;
     }
 }

@@ -1,11 +1,10 @@
 import {ElementHead} from "./ElementHead.js";
-import {Brushes} from "../def/Brushes.js";
 import {ProcessorContext} from "./ProcessorContext.js";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-08
+ * @version 2023-12-10
  */
 export class ProcessorModuleFish {
 
@@ -31,15 +30,15 @@ export class ProcessorModuleFish {
         if (x === this.#elementArea.getWidth() - 1
                 || ElementHead.getBehaviour(this.#elementArea.getElementHead(x + 1, y)) !== ElementHead.BEHAVIOUR_FISH_BODY) {
             // => turn into corpse
-            this.#elementArea.setElement(x, y, Brushes.FISH_CORPSE.apply(x, y, this.#random));
+            this.#toCorpse(x, y);
             return;
         }
 
         // check temperature
         if (ElementHead.getTemperature(elementHead) > ProcessorModuleFish.#MAX_TEMPERATURE) {
             // => turn into corpse
-            this.#elementArea.setElement(x, y, Brushes.FISH_CORPSE.apply(x, y, this.#random));
-            this.#elementArea.setElement(x + 1, y, Brushes.FISH_CORPSE.apply(x + 1, y, this.#random));
+            this.#toCorpse(x, y);
+            this.#toCorpse(x + 1, y);
             return;
         }
 
@@ -80,7 +79,7 @@ export class ProcessorModuleFish {
                 dried++;
                 if (dried > 5) {
                     // turn into corpse
-                    this.#elementArea.setElement(x, y, Brushes.FISH_CORPSE.apply(x, y, this.#random));
+                    this.#toCorpse(x, y);
                 } else {
                     this.#elementArea.setElementHead(x, y, ElementHead.setSpecial(elementHead, dried));
                 }
@@ -103,8 +102,13 @@ export class ProcessorModuleFish {
         if (x === 0 || ElementHead.getBehaviour(this.#elementArea.getElementHead(x - 1, y)) !== ElementHead.BEHAVIOUR_FISH) {
             // the fish lost it's head :(
             // => turn into corpse
-            this.#elementArea.setElement(x, y, Brushes.FISH_CORPSE.apply(x, y, this.#random));
+            this.#toCorpse(x, y);
         }
+    }
+
+    #toCorpse(x, y) {
+        const brush = this.#processorContext.getDefaults().getBrushFishCorpse();
+        this.#elementArea.setElement(x, y, brush.apply(x, y, this.#random));
     }
 
     #isWater(x, y) {

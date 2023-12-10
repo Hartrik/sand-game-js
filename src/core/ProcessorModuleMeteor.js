@@ -1,5 +1,4 @@
 import {ElementHead} from "./ElementHead.js";
-import {Brushes} from "../def/Brushes.js";
 import {CircleIterator} from "./CircleIterator.js";
 import {VisualEffects} from "./VisualEffects.js";
 
@@ -91,7 +90,8 @@ export class ProcessorModuleMeteor {
             if (this.#elementArea.isValidPosition(tx, ty)) {
                 let targetElementHead = this.#elementArea.getElementHead(tx, ty);
                 if (ElementHead.getTypeClass(targetElementHead) <= ElementHead.TYPE_EFFECT) {
-                    this.#elementArea.setElement(tx, ty, Brushes.FIRE.apply(tx, ty, this.#random));
+                    const brush = this.#processorContext.getDefaults().getBrushFire();
+                    this.#elementArea.setElement(tx, ty, brush.apply(tx, ty, this.#random));
                 }
             }
         });
@@ -110,7 +110,8 @@ export class ProcessorModuleMeteor {
 
                 if (level <= 7) {
                     // destroy elements & spawn fire
-                    this.#elementArea.setElement(tx, ty, Brushes.FIRE.apply(tx, ty, this.#random));
+                    const brush = this.#processorContext.getDefaults().getBrushFire();
+                    this.#elementArea.setElement(tx, ty, brush.apply(tx, ty, this.#random));
                 } else {
                     // set temperature, apply visual changes, break solid elements
 

@@ -1,6 +1,5 @@
 import {ElementHead} from "./ElementHead.js";
 import {ElementTail} from "./ElementTail.js";
-import {Brushes} from "../def/Brushes.js";
 import {VisualEffects} from "./VisualEffects.js";
 
 /**
@@ -220,7 +219,7 @@ export class ProcessorModuleFire {
             if (this.#random.nextInt(100) < 8) {
                 // turn into ash
                 const oldTemperature = ElementHead.getTemperature(elementHead);
-                const ashElement = Brushes.ASH.apply(x, y, this.#random);
+                const ashElement = this.#processorContext.getDefaults().getBrushAsh().apply(x, y, this.#random);
                 const modifiedAshElementHead = ElementHead.setTemperature(ashElement.elementHead, oldTemperature);
                 const modifiedAshElementTail = ashElement.elementTail;
                 this.#elementArea.setElementHeadAndTail(x, y, modifiedAshElementHead, modifiedAshElementTail);

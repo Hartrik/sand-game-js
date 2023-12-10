@@ -16,8 +16,6 @@ import _ASSET_PALETTE_TREE_LEAF_DEAD from './assets/brushes/tree-leaf-dead.palet
 import _ASSET_TEXTURE_ROCK from './assets/brushes/rock.png';
 import _ASSET_TEXTURE_METAL from './assets/brushes/metal.png';
 
-// TODO: direct access >> Defaults
-
 /**
  *
  * @author Patrik Harag
@@ -162,7 +160,7 @@ export class Brushes {
             ElementTail.of(72, 130, 70, ElementTail.BLUR_TYPE_1, ElementTail.HEAT_EFFECT_1))
     ]);
 
-    static FISH = Brush.random([
+    static FISH_HEAD = Brush.random([
         new Element(
             ElementHead.of(
                 ElementHead.type8(ElementHead.TYPE_STATIC),
@@ -305,33 +303,37 @@ export class Brushes {
 
     // --- SEARCH
 
-    static LIST = [
-        { codeName: 'air', brush: Brushes.AIR },
-        { codeName: 'ash', brush: Brushes.ASH },
-        { codeName: 'sand', brush: Brushes.SAND },
-        { codeName: 'soil', brush: Brushes.SOIL },
-        { codeName: 'gravel', brush: Brushes.GRAVEL },
-        { codeName: 'wall', brush: Brushes.WALL },
-        { codeName: 'rock', brush: Brushes.ROCK },
-        { codeName: 'metal', brush: Brushes.METAL },
-        { codeName: 'wood', brush: Brushes.TREE_WOOD },
-        { codeName: 'water', brush: Brushes.WATER },
-        { codeName: 'fire', brush: Brushes.FIRE },
-        { codeName: 'meteor', brush: Brushes.METEOR },
-        { codeName: 'meteor_l', brush: Brushes.METEOR_FROM_LEFT },
-        { codeName: 'meteor_r', brush: Brushes.METEOR_FROM_RIGHT },
-        { codeName: 'effect_burnt', brush: Brushes.EFFECT_BURNT },
-        { codeName: 'effect_temp_0', brush: Brushes.EFFECT_TEMP_0 },
-        { codeName: 'effect_temp_127', brush: Brushes.EFFECT_TEMP_127 },
-        { codeName: 'effect_temp_200', brush: Brushes.EFFECT_TEMP_200 },
-        { codeName: 'effect_temp_255', brush: Brushes.EFFECT_TEMP_255 },
-    ]
+    static _LIST = {
+        air: Brushes.AIR,
+        ash: Brushes.ASH,
+        sand: Brushes.SAND,
+        soil: Brushes.SOIL,
+        gravel: Brushes.GRAVEL,
+        wall: Brushes.WALL,
+        rock: Brushes.ROCK,
+        metal: Brushes.METAL,
+        wood: Brushes.TREE_WOOD,
+        water: Brushes.WATER,
+        fire: Brushes.FIRE,
+        meteor: Brushes.METEOR,
+        meteor_l: Brushes.METEOR_FROM_LEFT,
+        meteor_r: Brushes.METEOR_FROM_RIGHT,
+        effect_burnt: Brushes.EFFECT_BURNT,
+        effect_temp_0: Brushes.EFFECT_TEMP_0,
+        effect_temp_127: Brushes.EFFECT_TEMP_127,
+        effect_temp_200: Brushes.EFFECT_TEMP_200,
+        effect_temp_255: Brushes.EFFECT_TEMP_255,
+    }
 
+    /**
+     *
+     * @param codeName {string}
+     * @returns {Brush|null}
+     */
     static byCodeName(codeName) {
-        for (let brushEntry of Brushes.LIST) {
-            if (brushEntry.codeName === codeName) {
-                return brushEntry.brush;
-            }
+        const brush = Brushes._LIST[codeName];
+        if (brush !== undefined) {
+            return brush;
         }
         return null;
     }

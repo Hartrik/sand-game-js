@@ -11,10 +11,7 @@ import { MainComponent } from "./gui/MainComponent";
 import { Brushes } from "./def/Brushes";
 import $ from "jquery";
 
-export const brushes = {};
-for (let brush of Brushes.LIST) {
-    brushes[brush.codeName] = brush.brush;
-}
+export const brushes = Brushes._LIST;
 
 function determineSize(root) {
     let parentWidth;

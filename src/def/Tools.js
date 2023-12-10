@@ -30,7 +30,7 @@ export class Tools {
     static TEST_TOOLS = [
         Tool.pointBrushTool(Tools.CATEGORY_BRUSH, 'grass', 'Grass', Brushes.GRASS),
         Tool.pointBrushTool(Tools.CATEGORY_BRUSH, 'tree', 'Tree', Brushes.TREE),
-        Tool.point2BrushTool(Tools.CATEGORY_BRUSH, 'fish', 'Fish', Brushes.FISH, Brushes.FISH_BODY),
+        Tool.point2BrushTool(Tools.CATEGORY_BRUSH, 'fish', 'Fish', Brushes.FISH_HEAD, Brushes.FISH_BODY),
         Tool.rectangleBrushTool(Tools.CATEGORY_BRUSH, 'effect_burnt', 'Burnt', Brushes.EFFECT_BURNT, Tools.DEFAULT_SIZE),
         Tool.rectangleBrushTool(Tools.CATEGORY_BRUSH, 'effect_temp_0', 'Temp 0', Brushes.EFFECT_TEMP_0, Tools.DEFAULT_SIZE),
         Tool.rectangleBrushTool(Tools.CATEGORY_BRUSH, 'effect_temp_127', 'Temp 127', Brushes.EFFECT_TEMP_127, Tools.DEFAULT_SIZE),

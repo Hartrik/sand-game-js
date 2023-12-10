@@ -4,6 +4,8 @@ import {Brushes} from "../def/Brushes.js";
 import {ProcessorContext} from "./ProcessorContext.js";
 import {DeterministicRandom} from "./DeterministicRandom.js";
 
+// TODO: direct Brushes access >> Defaults
+
 /**
  *
  * @author Patrik Harag

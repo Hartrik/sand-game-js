@@ -1,10 +1,9 @@
 import {ElementHead} from "./ElementHead.js";
-import {Brushes} from "../def/Brushes.js";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-08
+ * @version 2023-12-10
  */
 export class SpawningExtensionFish {
 
@@ -14,8 +13,6 @@ export class SpawningExtensionFish {
     #random;
     /** @type ProcessorContext */
     #processorContext;
-    #brushHead = Brushes.FISH;
-    #brushBody = Brushes.FISH_BODY;
 
     #counterStartValue = 2;
     #counter = 2;
@@ -34,9 +31,10 @@ export class SpawningExtensionFish {
             const y = this.#random.nextInt(this.#elementArea.getHeight() - 2) + 1;
 
             if (this.#couldSpawnHere(this.#elementArea, x, y)) {
-                this.#elementArea.setElement(x, y, this.#brushHead.apply(x, y, this.#random));
+                const defaults = this.#processorContext.getDefaults();
+                this.#elementArea.setElement(x, y, defaults.getBrushFishHead().apply(x, y, this.#random));
                 this.#processorContext.trigger(x, y);
-                this.#elementArea.setElement(x + 1, y, this.#brushBody.apply(x + 1, y, this.#random));
+                this.#elementArea.setElement(x + 1, y, defaults.getBrushFishBody().apply(x + 1, y, this.#random));
                 this.#processorContext.trigger(x + 1, y);
 
                 // increase difficulty of spawning fish again

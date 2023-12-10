@@ -251,6 +251,7 @@ class Point2BrushTool extends Tool {
     }
 }
 
+// TODO: direct Brushes access >> Defaults
 /**
  *
  * @author Patrik Harag
