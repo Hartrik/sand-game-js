@@ -8,7 +8,7 @@ import {DeterministicRandom} from "./DeterministicRandom";
  * @interface
  *
  * @author Patrik Harag
- * @version 2023-12-04
+ * @version 2023-12-10
  */
 export class Brush {
 
@@ -93,6 +93,31 @@ export class Brush {
         });
     }
 
+    /**
+     * Brush will paint only over other physical elements.
+     *
+     * @param brush {Brush}
+     */
+    static physical(brush) {
+        return Brush.custom((x, y, random, oldElement) => {
+            if (oldElement === null) {
+                return null;
+            }
+
+            const typeClass = ElementHead.getTypeClass(oldElement.elementHead);
+            switch (typeClass) {
+                case ElementHead.TYPE_FLUID:
+                case ElementHead.TYPE_POWDER:
+                case ElementHead.TYPE_POWDER_WET:
+                case ElementHead.TYPE_POWDER_FLOATING:
+                case ElementHead.TYPE_STATIC:
+                    return brush.apply(x, y, random, oldElement);
+                default:
+                    return null;
+            }
+        });
+    }
+
     static temperature(value) {
         return Brush.custom((x, y, random, oldElement) => {
             if (oldElement === null) {
@@ -100,6 +125,40 @@ export class Brush {
             }
             const newElementHead = ElementHead.setTemperature(oldElement.elementHead, value & 0xFF);
             return new Element(newElementHead, oldElement.elementTail);
+        });
+    }
+
+    static temperatureOrBrush(value, brush) {
+        return Brush.custom((x, y, random, oldElement) => {
+            if (oldElement === null) {
+                return brush.apply(x, y, random, null);
+            }
+
+            const typeClass = ElementHead.getTypeClass(oldElement.elementHead);
+            switch (typeClass) {
+                case ElementHead.TYPE_AIR:
+                case ElementHead.TYPE_EFFECT:
+                    return brush.apply(x, y, random, oldElement);
+
+                case ElementHead.TYPE_FLUID:
+                case ElementHead.TYPE_POWDER:
+                case ElementHead.TYPE_POWDER_WET:
+                case ElementHead.TYPE_POWDER_FLOATING:
+                case ElementHead.TYPE_STATIC:
+                    const newElementHead = ElementHead.setTemperature(oldElement.elementHead, value & 0xFF);
+                    return new Element(newElementHead, oldElement.elementTail);
+
+                default:
+                    return brush.apply(x, y, random, null);
+            }
+        });
+    }
+
+    static concat(first, second) {
+        return Brush.custom((x, y, random, oldElement) => {
+            const firstResult = first.apply(x, y, random, oldElement);
+            const secondResult = second.apply(x, y, random, firstResult);
+            return (secondResult !== null) ? secondResult : firstResult;
         });
     }
 }
