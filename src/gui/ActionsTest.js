@@ -5,7 +5,7 @@ import { Brush } from "../core/Brush";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-05
+ * @version 2023-12-10
  */
 export class ActionsTest {
 
@@ -27,7 +27,7 @@ export class ActionsTest {
             'water'
         ];
 
-        const segment = sandGame.getWidth() / brushes.length;
+        let segment = Math.ceil(sandGame.getWidth() / brushes.length);
         for (let i = 0; i < brushes.length; i++) {
             const brush = Brushes.byCodeName(brushes[i]);
             sandGame.graphics().drawRectangle(i * segment, 0, (i + 1) * segment, -1, brush, true);

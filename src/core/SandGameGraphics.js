@@ -7,7 +7,7 @@ import {CircleIterator} from "./CircleIterator.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-07-23
+ * @version 2023-12-10
  */
 export class SandGameGraphics {
 
@@ -34,6 +34,11 @@ export class SandGameGraphics {
      * @param bY {number}
      */
     swap(aX, aY, bX, bY) {
+        aX = Math.trunc(aX);
+        aY = Math.trunc(aY);
+        bX = Math.trunc(bX);
+        bY = Math.trunc(bY);
+
         if (this.#elementArea.isValidPosition(aX, aY) && this.#elementArea.isValidPosition(bX, bY)) {
             this.#elementArea.swap(aX, aY, bX, bY);
         }
@@ -46,6 +51,9 @@ export class SandGameGraphics {
      * @param brushOrElement {Brush|Element}
      */
     draw(x, y, brushOrElement) {
+        x = Math.trunc(x);
+        y = Math.trunc(y);
+
         if (this.#elementArea.isValidPosition(x, y)) {
             if (brushOrElement instanceof Element) {
                 this.#elementArea.setElement(x, y, brushOrElement);
@@ -62,6 +70,15 @@ export class SandGameGraphics {
     }
 
     drawRectangle(x1, y1, x2, y2, brush, supportNegativeCoordinates = false) {
+        if (!(brush instanceof Brush)) {
+            throw 'Brush expected';
+        }
+
+        x1 = Math.trunc(x1);
+        y1 = Math.trunc(y1);
+        x2 = Math.trunc(x2);
+        y2 = Math.trunc(y2);
+
         if (supportNegativeCoordinates) {
             x1 = (x1 >= 0) ? x1 : this.getWidth() + x1 + 1;
             x2 = (x2 >= 0) ? x2 : this.getWidth() + x2 + 1;
@@ -82,6 +99,15 @@ export class SandGameGraphics {
     }
 
     drawLine(x1, y1, x2, y2, size, brush, round=false) {
+        if (!(brush instanceof Brush)) {
+            throw 'Brush expected';
+        }
+
+        x1 = Math.trunc(x1);
+        y1 = Math.trunc(y1);
+        x2 = Math.trunc(x2);
+        y2 = Math.trunc(y2);
+
         const d = Math.ceil(size / 2);
 
         let consumer;
@@ -132,6 +158,9 @@ export class SandGameGraphics {
     }
 
     floodFill(x, y, brush, neighbourhood) {
+        x = Math.trunc(x);
+        y = Math.trunc(y);
+
         let floodFillPainter = new FloodFillPainter(this.#elementArea, neighbourhood, this);
         floodFillPainter.paint(x, y, brush);
     }
