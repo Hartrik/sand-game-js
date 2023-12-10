@@ -11,7 +11,7 @@ import _ASSET_PALETTE_TEMPERATURE_COLORS from './assets/temperature.palette.csv'
  * WebGL renderer.
  *
  * @author Patrik Harag
- * @version 2023-12-05
+ * @version 2023-12-10
  */
 export class RendererWebGL extends Renderer {
 
@@ -39,13 +39,16 @@ export class RendererWebGL extends Renderer {
 
         // --- build programs
 
+        const temperaturePaletteData = this.#parsePalette(_ASSET_PALETTE_TEMPERATURE_COLORS);
+        const temperaturePaletteSize = temperaturePaletteData.byteLength / 4;
+
         const function_applyTemperature = `
-            int countTemperaturePaletteIndex(float c) {
+            float countTemperaturePaletteIndex(float c) {
                 float k = c + 273.0;  // 0 C = 273 K
                 if (k < 1000.0) {
-                    return 0;
+                    return 0.0;
                 } else {
-                    return int(floor(k / 100.0 - 10.0)) * 3;
+                    return floor(k / 100.0 - 10.0);
                 }
             }
             
@@ -61,10 +64,11 @@ export class RendererWebGL extends Renderer {
                 }
                 
                 float sTemp = (temperature * 255.0 * 10.0) * tFactor;
-                int i = countTemperaturePaletteIndex(sTemp);
-                float cr = u_temperature_palette[i];
-                float cg = u_temperature_palette[i+1];
-                float cb = u_temperature_palette[i+2];
+                float i = countTemperaturePaletteIndex(sTemp);
+                vec4 color = texture(u_temperature_palette, vec2((i + 0.5) / ${temperaturePaletteSize}.0, 0.5));
+                float cr = color[0];
+                float cg = color[1];
+                float cb = color[2];
                 
                 float alpha = 1.0 - sTemp * aFactor;
                 
@@ -95,7 +99,7 @@ export class RendererWebGL extends Renderer {
             uniform sampler2D u_element_heads;
             uniform sampler2D u_element_tails;
             uniform sampler2D u_blur;
-            uniform float u_temperature_palette[91*3];
+            uniform sampler2D u_temperature_palette;
             
             ${function_applyTemperature}
 
@@ -194,7 +198,7 @@ export class RendererWebGL extends Renderer {
             uniform sampler2D u_element_heads;
             uniform sampler2D u_element_tails;
             uniform sampler2D u_blur;
-            uniform float u_temperature_palette[91*3];
+            uniform sampler2D u_temperature_palette;
             
             ${function_applyTemperature}
             
@@ -297,7 +301,13 @@ export class RendererWebGL extends Renderer {
 
         // --- prepare temperature colors
 
-        const temperaturePaletteData = this.#parsePalette(_ASSET_PALETTE_TEMPERATURE_COLORS);
+        const temperaturePaletteTexture = gl.createTexture();
+        gl.activeTexture(gl.TEXTURE4);
+        gl.bindTexture(gl.TEXTURE_2D, temperaturePaletteTexture);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 
         // ---
 
@@ -314,6 +324,10 @@ export class RendererWebGL extends Renderer {
             gl.bindTexture(gl.TEXTURE_2D, elementTailsTexture);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.#width, this.#height, 0, gl.RGBA, gl.UNSIGNED_BYTE, elementTails);
 
+            // update color palette texture
+            gl.bindTexture(gl.TEXTURE_2D, temperaturePaletteTexture);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, temperaturePaletteSize, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, temperaturePaletteData);
+
             // render blurrable elements and blur into a texture
             // - reduce blur from previous iterations (fading out) and render blurrable elements over
             gl.bindFramebuffer(gl.FRAMEBUFFER, blurTextureIndex === 2 ? motionBlurFrameBuffer1 : motionBlurFrameBuffer2);
@@ -322,7 +336,7 @@ export class RendererWebGL extends Renderer {
             gl.uniform1i(blurProgramLocationElementHeads, 0);  // texture 0
             gl.uniform1i(blurProgramLocationElementTails, 1);  // texture 1
             gl.uniform1i(blurProgramLocationBlur, (blurTextureIndex === 2) ? 3 : 2);  // texture 3 or 2
-            gl.uniform1fv(blurProgramLocationTemperaturePalette, temperaturePaletteData);
+            gl.uniform1i(blurProgramLocationTemperaturePalette, 4);  // texture 4
 
             gl.drawArrays(gl.TRIANGLES, 0, positions.length / 2);
 
@@ -334,7 +348,7 @@ export class RendererWebGL extends Renderer {
             gl.uniform1i(mergeProgramLocationElementHeads, 0);  // texture 0
             gl.uniform1i(mergeProgramLocationElementTails, 1);  // texture 1
             gl.uniform1i(mergeProgramLocationBlur, blurTextureIndex);  // texture 2 or 3
-            gl.uniform1fv(mergeProgramLocationTemperaturePalette, temperaturePaletteData);
+            gl.uniform1i(mergeProgramLocationTemperaturePalette, 4);  // texture 4
 
             gl.drawArrays(gl.TRIANGLES, 0, positions.length / 2);
 
@@ -414,6 +428,14 @@ export class RendererWebGL extends Renderer {
     }
 
     #parsePalette(palette) {
-        return palette.split(/[,\n]/).map(t => Number(t) / 255.0);
+        const colors = palette.split('\n').map(line => line.split(',').map(Number));
+        const array = new Uint8Array(colors.length * 4);
+        for (let i = 0; i < colors.length; i++) {
+            const color = colors[i];
+            array[i * 4] = color[0];  // r
+            array[i * 4 + 1] = color[1];  // g
+            array[i * 4 + 2] = color[2];  // b
+        }
+        return array;
     }
 }
