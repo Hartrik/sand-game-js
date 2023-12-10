@@ -9,6 +9,7 @@ import _ASSET_PALETTE_SOIL from './assets/brushes/soil.palette.csv';
 import _ASSET_PALETTE_GRAVEL from './assets/brushes/gravel.palette.csv';
 import _ASSET_PALETTE_ASH from './assets/brushes/ash.palette.csv';
 import _ASSET_PALETTE_WATER from './assets/brushes/water.palette.csv';
+import _ASSET_PALETTE_STEAM from './assets/brushes/steam.palette.csv';
 import _ASSET_PALETTE_WALL from './assets/brushes/wall.palette.csv';
 import _ASSET_PALETTE_TREE_WOOD from './assets/brushes/tree-wood.palette.csv';
 import _ASSET_PALETTE_TREE_LEAF_DEAD from './assets/brushes/tree-leaf-dead.palette.csv';
@@ -19,7 +20,7 @@ import _ASSET_TEXTURE_METAL from './assets/brushes/metal.png';
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-04
+ * @version 2023-12-10
  */
 export class Brushes {
 
@@ -134,7 +135,16 @@ export class Brushes {
         new Element(
             ElementHead.of(
                 ElementHead.type8Fluid(ElementHead.TYPE_FLUID),
-                ElementHead.behaviour8(),
+                ElementHead.behaviour8(ElementHead.BEHAVIOUR_WATER),
+                ElementHead.modifiers8(0, 0, 0, 3)),
+            ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_1, ElementTail.HEAT_EFFECT_NONE))
+    ]));
+
+    static STEAM = Brush.paletteBrush(_ASSET_PALETTE_STEAM, Brush.random([
+        new Element(
+            ElementHead.of(
+                ElementHead.type8Fluid(ElementHead.TYPE_GAS),
+                ElementHead.behaviour8(ElementHead.BEHAVIOUR_WATER),
                 ElementHead.modifiers8(0, 0, 0, 3)),
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_1, ElementTail.HEAT_EFFECT_NONE))
     ]));
@@ -314,6 +324,7 @@ export class Brushes {
         metal: Brushes.METAL,
         wood: Brushes.TREE_WOOD,
         water: Brushes.WATER,
+        steam: Brushes.STEAM,
         fire: Brushes.FIRE,
         meteor: Brushes.METEOR,
         meteor_l: Brushes.METEOR_FROM_LEFT,

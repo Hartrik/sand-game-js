@@ -5,7 +5,7 @@ import {VisualEffects} from "./VisualEffects.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-08
+ * @version 2023-12-10
  */
 export class ProcessorModuleMeteor {
 
@@ -68,7 +68,7 @@ export class ProcessorModuleMeteor {
 
         if (this.#elementArea.isValidPosition(tx, ty)) {
             let targetElementHead = this.#elementArea.getElementHead(tx, ty);
-            if (ElementHead.getTypeClass(targetElementHead) <= ElementHead.TYPE_EFFECT) {
+            if (ElementHead.getTypeClass(targetElementHead) <= ElementHead.TYPE_GAS) {
                 // move
                 this.#elementArea.swap(x, y, tx, ty);
             } else {

@@ -19,6 +19,20 @@ export class ProcessorDefaults {
     /**
      * @return Brush
      */
+    getBrushWater() {
+        throw 'Not implemented';
+    }
+
+    /**
+     * @return Brush
+     */
+    getBrushSteam() {
+        throw 'Not implemented';
+    }
+
+    /**
+     * @return Brush
+     */
     getBrushGrass() {
         throw 'Not implemented';
     }

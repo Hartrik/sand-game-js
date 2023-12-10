@@ -16,18 +16,18 @@
  * </pre>
  *
  * @author Patrik Harag
- * @version 2023-12-05
+ * @version 2023-12-10
  */
 export class ElementHead {
 
     static FIELD_TYPE_CLASS_SIZE = 3;  // bits
     static TYPE_AIR = 0x0;
     static TYPE_EFFECT = 0x1;
-    static TYPE_POWDER_FLOATING = 0x2;   // floating, not wet, can turn into wet
-    static TYPE_FLUID = 0x3;
-    static TYPE_POWDER = 0x4;  // not wet, can turn into wet
-    static TYPE_POWDER_WET = 0x5;  // wet
-    // reserved: 0x6 TYPE_STRUCTURE?
+    static TYPE_GAS = 0x2;
+    static TYPE_POWDER_FLOATING = 0x3;   // floating, not wet, can turn into wet
+    static TYPE_FLUID = 0x4;
+    static TYPE_POWDER = 0x5;  // not wet, can turn into wet
+    static TYPE_POWDER_WET = 0x6;  // wet
     static TYPE_STATIC = 0x7;
 
     static FIELD_TYPE_MODIFIERS_SIZE = 5;  // bits
@@ -45,6 +45,7 @@ export class ElementHead {
     static BEHAVIOUR_FIRE = 0x9;
     static BEHAVIOUR_FIRE_SOURCE = 0xA;
     static BEHAVIOUR_METEOR = 0xB;
+    static BEHAVIOUR_WATER = 0xC;
 
     static FIELD_SPECIAL_SIZE = 4;  // bits
 

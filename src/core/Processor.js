@@ -7,6 +7,7 @@ import {ProcessorModuleMeteor} from "./ProcessorModuleMeteor.js";
 import {ProcessorModuleGrass} from "./ProcessorModuleGrass.js";
 import {ProcessorModuleFish} from "./ProcessorModuleFish.js";
 import {ProcessorModuleTree} from "./ProcessorModuleTree.js";
+import {ProcessorModuleWater} from "./ProcessorModuleWater";
 
 /**
  *
@@ -60,6 +61,8 @@ export class Processor extends ProcessorContext {
     /** @type Uint32Array[] */
     #rndChunkXOrder = [];
 
+    /** @type ProcessorModuleWater */
+    #moduleWater;
     /** @type ProcessorModuleFire */
     #moduleFire;
     /** @type ProcessorModuleMeteor */
@@ -98,6 +101,7 @@ export class Processor extends ProcessorContext {
         this.#random = random;
         this.#processorDefaults = processorDefaults;
 
+        this.#moduleWater = new ProcessorModuleWater(elementArea, random, this);
         this.#moduleFire = new ProcessorModuleFire(elementArea, random, this);
         this.#moduleMeteor = new ProcessorModuleMeteor(elementArea, random, this);
         this.#moduleGrass = new ProcessorModuleGrass(elementArea, random, this);
@@ -417,6 +421,12 @@ export class Processor extends ProcessorContext {
                 return this.#testMove(elementHead, x, y, x, y + 1)
                         || this.#testMove(elementHead, x, y, x + 1, y)
                         || this.#testMove(elementHead, x, y, x - 1, y);
+
+            case ElementHead.TYPE_GAS:
+                return this.#testMove(elementHead, x, y, x, y - 1)
+                    || this.#testMove(elementHead, x, y, x + 1, y)
+                    || this.#testMove(elementHead, x, y, x - 1, y);
+
             default:
                 return true;
         }
@@ -461,6 +471,9 @@ export class Processor extends ProcessorContext {
         switch (behaviour) {
             case ElementHead.BEHAVIOUR_NONE:
             case ElementHead.BEHAVIOUR_SOIL:
+                break;
+            case ElementHead.BEHAVIOUR_WATER:
+                this.#moduleWater.behaviourWater(elementHead, x, y);
                 break;
             case ElementHead.BEHAVIOUR_FIRE:
                 this.#moduleFire.behaviourFire(elementHead, x, y);
@@ -708,6 +721,31 @@ export class Processor extends ProcessorContext {
                     }
                 }
                 return true;
+
+            case ElementHead.TYPE_GAS:
+                let rnd = this.#random.nextInt(8);
+                if (rnd === 0 || rnd === 2) {
+                    if (this.#move(elementHead, x, y, x, y - 1)) {
+                        // moved up
+                        this.trigger(x, y - 1);
+                        return true;
+                    }
+                }
+                if (rnd === 3) {
+                    if (this.#move(elementHead, x, y, x + 1, y)) {
+                        // moved right
+                        this.trigger(x + 1, y);
+                        return true;
+                    }
+                }
+                if (rnd === 4) {
+                    if (this.#move(elementHead, x, y, x - 1, y)) {
+                        // moved left
+                        this.trigger(x - 1, y);
+                        return true;
+                    }
+                }
+                return false;
 
             case ElementHead.TYPE_STATIC:
             case ElementHead.TYPE_EFFECT:

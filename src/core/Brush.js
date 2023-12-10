@@ -106,10 +106,11 @@ export class Brush {
 
             const typeClass = ElementHead.getTypeClass(oldElement.elementHead);
             switch (typeClass) {
-                case ElementHead.TYPE_FLUID:
                 case ElementHead.TYPE_POWDER:
                 case ElementHead.TYPE_POWDER_WET:
                 case ElementHead.TYPE_POWDER_FLOATING:
+                case ElementHead.TYPE_FLUID:
+                case ElementHead.TYPE_GAS:
                 case ElementHead.TYPE_STATIC:
                     return brush.apply(x, y, random, oldElement);
                 default:
@@ -140,10 +141,11 @@ export class Brush {
                 case ElementHead.TYPE_EFFECT:
                     return brush.apply(x, y, random, oldElement);
 
-                case ElementHead.TYPE_FLUID:
                 case ElementHead.TYPE_POWDER:
                 case ElementHead.TYPE_POWDER_WET:
                 case ElementHead.TYPE_POWDER_FLOATING:
+                case ElementHead.TYPE_FLUID:
+                case ElementHead.TYPE_GAS:
                 case ElementHead.TYPE_STATIC:
                     const newElementHead = ElementHead.setTemperature(oldElement.elementHead, value & 0xFF);
                     return new Element(newElementHead, oldElement.elementTail);

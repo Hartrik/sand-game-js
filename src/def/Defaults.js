@@ -14,6 +14,14 @@ export class Defaults extends ProcessorDefaults {
         return Defaults.#DEFAULT_ELEMENT;
     }
 
+    getBrushWater() {
+        return Brushes.WATER;
+    }
+
+    getBrushSteam() {
+        return Brushes.STEAM;
+    }
+
     getBrushGrass() {
         return Brushes.GRASS;
     }

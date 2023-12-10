@@ -7,7 +7,7 @@ import { ElementHead } from "./ElementHead";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-09
+ * @version 2023-12-10
  */
 export class ResourceSnapshot {
 
@@ -96,7 +96,7 @@ export class ResourceSnapshot {
             snapshot.metadata.formatVersion = 3;
         }
         if (snapshot.metadata.formatVersion === 3) {
-            // temperature conducting
+            // temperature conducting, element type class changes
             ResourceSnapshot.#convertToV4(snapshot);
             snapshot.metadata.formatVersion = 4;
         }
@@ -143,25 +143,40 @@ export class ResourceSnapshot {
     }
 
     static #convertToV4(snapshot) {
-        // set at least some conductivity type and heat effect type
-
         const elementArea = ElementArea.from(
             snapshot.metadata.width, snapshot.metadata.height,
             snapshot.dataHeads, snapshot.dataTails);
 
         for (let y = 0; y < snapshot.metadata.height; y++) {
             for (let x = 0; x < snapshot.metadata.width; x++) {
-                const elementHead = elementArea.getElementHead(x, y);
-                const typeClass = elementHead & 0b111;
+                let elementHead = elementArea.getElementHead(x, y);
+                let elementTail = elementArea.getElementTail(x, y);
+
+                let typeClass = elementHead & 0b111;
+
+                // element type class changes
+                if (typeClass > 0x1 && typeClass < 0x7) {
+                    typeClass++;
+                    elementHead = (elementHead & 0xFFFFFFF8) | typeClass;
+                }
+
+                // set at least some conductivity type and heat effect type
                 switch (typeClass) {
-                    case 0x04: // powder element
-                    case 0x05: // powder element wet
-                    case 0x07: // static
-                        const elementTail = elementArea.getElementTail(x, y);
-                        elementArea.setElementHead(x, y, elementHead | 0x00400000);
-                        elementArea.setElementTail(x, y, elementTail | 0x10000000);
+                    case 0x5: // powder element
+                    case 0x6: // powder element wet
+                    case 0x7: // static
+                        elementHead = elementHead | 0x00400000;
+                        elementTail = elementTail | 0x10000000;
                         break;
                 }
+
+                // set water behaviour
+                if (typeClass === 0x4) {
+                    elementHead = (elementHead & 0xFFFFF0FF) | (0xC << 8)
+                }
+
+                elementArea.setElementHead(x, y, elementHead);
+                elementArea.setElementTail(x, y, elementTail);
             }
         }
 
