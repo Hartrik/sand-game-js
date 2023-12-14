@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Tree template builder</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    #canvas-container {
+      margin-top: 20px;
+    }
+
+    #myCanvas {
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Tree template builder</h1>
+  <div class="row">
+    <div class="col-md-6">
+      <label for="imageInput" class="form-label">Load image template</label>
+      <input type="file" class="form-control" id="imageInput">
+    </div>
+    <div class="col-md-6">
+      <label for="lengthSlider" class="form-label">Iteration</label>
+      <input type="range" class="form-range" id="lengthSlider" min="0" max="1000" value="1000">
+    </div>
+  </div>
+  <div class="row" id="canvas-container">
+    <canvas id="myCanvas" width="500" height="500"></canvas>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="index.js"></script>
+
+</body>
+</html>
