@@ -5,7 +5,7 @@ import { Brush } from "../core/Brush";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-10
+ * @version 2023-12-14
  */
 export class Tools {
 
@@ -32,6 +32,9 @@ export class Tools {
         Tool.pointBrushTool(Tools.CATEGORY_BRUSH, 'tree', 'Tree', Brushes.TREE),
         Tool.point2BrushTool(Tools.CATEGORY_BRUSH, 'fish', 'Fish', Brushes.FISH_HEAD, Brushes.FISH_BODY),
         Tool.rectangleBrushTool(Tools.CATEGORY_BRUSH, 'effect_burnt', 'Burnt', Brushes.EFFECT_BURNT, Tools.DEFAULT_SIZE),
+        Tool.rectangleBrushTool(Tools.CATEGORY_BRUSH, 'effect_noise_sm', 'Noise SM', Brushes.EFFECT_NOISE_SM, Tools.DEFAULT_SIZE),
+        Tool.rectangleBrushTool(Tools.CATEGORY_BRUSH, 'effect_noise_md', 'Noise MD', Brushes.EFFECT_NOISE_MD, Tools.DEFAULT_SIZE),
+        Tool.rectangleBrushTool(Tools.CATEGORY_BRUSH, 'effect_noise_lg', 'Noise LG', Brushes.EFFECT_NOISE_LG, Tools.DEFAULT_SIZE),
         Tool.rectangleBrushTool(Tools.CATEGORY_BRUSH, 'effect_temp_0', 'Temp 0', Brushes.EFFECT_TEMP_0, Tools.DEFAULT_SIZE),
         Tool.rectangleBrushTool(Tools.CATEGORY_BRUSH, 'effect_temp_127', 'Temp 127', Brushes.EFFECT_TEMP_127, Tools.DEFAULT_SIZE),
         Tool.rectangleBrushTool(Tools.CATEGORY_BRUSH, 'effect_temp_200', 'Temp 200', Brushes.EFFECT_TEMP_200, Tools.DEFAULT_SIZE),

@@ -3,12 +3,13 @@ import {Element} from "./Element.js";
 import {ElementTail} from "./ElementTail.js";
 import {ElementHead} from "./ElementHead.js";
 import {DeterministicRandom} from "./DeterministicRandom";
+import {createNoise2D} from "simplex-noise";
 
 /**
  * @interface
  *
  * @author Patrik Harag
- * @version 2023-12-10
+ * @version 2023-12-14
  */
 export class Brush {
 
@@ -161,6 +162,43 @@ export class Brush {
             const firstResult = first.apply(x, y, random, oldElement);
             const secondResult = second.apply(x, y, random, firstResult);
             return (secondResult !== null) ? secondResult : firstResult;
+        });
+    }
+
+    static noise(rndInit = 0, factor = 40, threshold = 0.5, force = 0.1,
+            nr = 0x00, ng = 0x00, nb = 0x00) {
+
+        const random = new DeterministicRandom(rndInit);
+        const noise2D = createNoise2D(() => random.next());
+
+        return Brush.custom((x, y, random, oldElement) => {
+            if (oldElement === null) {
+                return null;
+            }
+
+            let value = (noise2D(x / factor, y / factor) + 1) / 2;  // 0..1
+
+            // apply threshold
+
+            if (value < threshold) {
+                return oldElement;
+            }
+            value = (value - threshold) * (1 / (1 - threshold));  // normalized 0..1
+
+            // alpha blending
+
+            const alpha = 1 - (value * force);
+
+            let r = ElementTail.getColorRed(oldElement.elementTail);
+            let g = ElementTail.getColorGreen(oldElement.elementTail);
+            let b = ElementTail.getColorBlue(oldElement.elementTail);
+
+            r = Math.trunc(r * alpha) + (nr * (1 - alpha));
+            g = Math.trunc(g * alpha) + (ng * (1 - alpha));
+            b = Math.trunc(b * alpha) + (nb * (1 - alpha));
+
+            const newElementTail = ElementTail.setColor(oldElement.elementTail, r, g, b);
+            return new Element(oldElement.elementHead, newElementTail);
         });
     }
 }

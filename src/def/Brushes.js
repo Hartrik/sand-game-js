@@ -20,7 +20,7 @@ import _ASSET_TEXTURE_METAL from './assets/brushes/metal.png';
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-10
+ * @version 2023-12-14
  */
 export class Brushes {
 
@@ -305,6 +305,10 @@ export class Brushes {
         }
         return null;
     });
+
+    static EFFECT_NOISE_LG = Brush.noise(0, 40, 0.5, 0.25);
+    static EFFECT_NOISE_MD = Brush.noise(0, 10, 0.5, 0.25);
+    static EFFECT_NOISE_SM = Brush.noise(0, 4, 0.5, 0.25);
 
     static EFFECT_TEMP_0 = Brush.temperature(0);
     static EFFECT_TEMP_127 = Brush.temperature(127);

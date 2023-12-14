@@ -6,7 +6,8 @@
     "cubic-spline": "^3.0.3",
     "fflate": "^0.7.4",
     "file-saver": "^2.0.5",
-    "jquery": "^3.7.1"
+    "jquery": "^3.7.1",
+    "simplex-noise": "^4.0.1"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^24.0.1",
