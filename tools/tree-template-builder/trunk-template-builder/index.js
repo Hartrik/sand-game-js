@@ -29,7 +29,9 @@ function loadImage(file, callback) {
 }
 
 let TYPE_TRUNK = 1;
-let TYPE_BRANCH_POS = 2;
+let TYPE_BRANCH = 2;
+let TYPE_LEAF = 3;
+let TYPE_ROOT = 4;
 
 function parseTemplate(imageData) {
     let entries = [];
@@ -61,7 +63,7 @@ function parseTemplate(imageData) {
     const [offsetX, offsetY] = findRoot([237, 28, 36]); // find root red
     let entriesCount = 0;
 
-    let walk = (buffer, t, sx, sy, visited) => {
+    let walk = (buffer, t, sx, sy, visited, first) => {
         let root = false;
         if (sx === undefined) {
             root = true;
@@ -76,8 +78,12 @@ function parseTemplate(imageData) {
             let i = (sy * imageData.width + sx);
             visited.add(i);
 
-            buffer.push([offsetX - sx, offsetY - sy, TYPE_TRUNK]);
+            buffer.push([offsetX - sx, offsetY - sy - 1, TYPE_ROOT]);
             entriesCount++;
+            if (!first) {
+                buffer.push([offsetX - sx, offsetY - sy, TYPE_TRUNK]);
+                entriesCount++;
+            }
         }
 
         const [tr, tg, tb] = t;
@@ -107,7 +113,7 @@ function parseTemplate(imageData) {
                 entriesCount++;
             } else if (r === br && g === bg && b === bb) {
                 // branch
-                buffer.push([offsetX - tx, offsetY - ty, TYPE_BRANCH_POS]);
+                buffer.push([offsetX - tx, offsetY - ty, TYPE_BRANCH]);
                 entriesCount++;
             }
         }
@@ -136,10 +142,10 @@ function parseTemplate(imageData) {
         }
     };
 
-    walk(entries, [237, 28, 36]);  // walk red
+    walk(entries, [237, 28, 36], undefined, undefined, undefined, true);  // walk red
     walk(entries, [255, 127, 39]);  // walk orange
-    walk(entries, [0, 162, 232]);  // walk blue
     walk(entries, [163, 73, 164]);  // walk purple
+    walk(entries, [0, 162, 232]);  // walk blue
 
     // build result
     return {
@@ -203,7 +209,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 if (x === 0 && y === 0) {
                     ctx.fillStyle = '#FF0000';
-                } else if (type === TYPE_BRANCH_POS) {
+                } else if (type === TYPE_BRANCH) {
                     ctx.fillStyle = '#42dc1a';
                 } else {
                     ctx.fillStyle = '#000000';

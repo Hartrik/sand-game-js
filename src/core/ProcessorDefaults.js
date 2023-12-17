@@ -5,7 +5,7 @@ import {Brush} from "./Brush.js";
  * @interface
  *
  * @author Patrik Harag
- * @version 2023-12-10
+ * @version 2023-12-17
  */
 export class ProcessorDefaults {
 
@@ -15,6 +15,8 @@ export class ProcessorDefaults {
     getDefaultElement() {
         throw 'Not implemented';
     }
+
+    // brushes
 
     /**
      * @return Brush
@@ -76,6 +78,22 @@ export class ProcessorDefaults {
      * @return Brush
      */
     getBrushAsh() {
+        throw 'Not implemented';
+    }
+
+    // structures
+
+    /**
+     * @return []
+     */
+    getTreeTrunkTemplates() {
+        throw 'Not implemented';
+    }
+
+    /**
+     * @return []
+     */
+    getTreeLeafClusterTemplates() {
         throw 'Not implemented';
     }
 }

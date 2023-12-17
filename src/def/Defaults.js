@@ -1,10 +1,11 @@
 import {ProcessorDefaults} from "../core/ProcessorDefaults";
 import {Brushes} from "./Brushes";
+import {Structures} from "./Structures";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-10
+ * @version 2023-12-17
  */
 export class Defaults extends ProcessorDefaults {
 
@@ -13,6 +14,8 @@ export class Defaults extends ProcessorDefaults {
     getDefaultElement() {
         return Defaults.#DEFAULT_ELEMENT;
     }
+
+    // brushes
 
     getBrushWater() {
         return Brushes.WATER;
@@ -48,5 +51,15 @@ export class Defaults extends ProcessorDefaults {
 
     getBrushAsh() {
         return Brushes.ASH;
+    }
+
+    // structures
+
+    getTreeTrunkTemplates() {
+        return Structures.TREE_TRUNK_TEMPLATES;
+    }
+
+    getTreeLeafClusterTemplates() {
+        return Structures.TREE_CLUSTER_TEMPLATES;
     }
 }

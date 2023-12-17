@@ -64,12 +64,12 @@ export class Scenes {
                 .layer(35, false, Brushes.WATER)
                 .layer(36, false, Brush.withIntensity(0.33, Brushes.WATER))
                 .grass()
-                .tree(16, 4)
-                .tree(28, 6)
-                .tree(45, 3)
-                .tree(309, 1)
-                .tree(336, 5)
-                .tree(361, 7);
+                .tree(16, 0)
+                .tree(28, 0)
+                .tree(45, 0)
+                .tree(309, 0)
+                .tree(336, 0)
+                .tree(361, 0);
         }
     });
 

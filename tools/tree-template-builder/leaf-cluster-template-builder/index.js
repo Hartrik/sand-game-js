@@ -28,7 +28,10 @@ function loadImage(file, callback) {
     }
 }
 
+let TYPE_TRUNK = 1;
+let TYPE_BRANCH = 2;
 let TYPE_LEAF = 3;
+let TYPE_ROOT = 4;
 
 function color(x, y, imageData) {
     let index = (y * imageData.width + x) * 4;

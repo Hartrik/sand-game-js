@@ -5,6 +5,7 @@
 let TYPE_TRUNK = 1;
 let TYPE_BRANCH_POS = 2;
 let TYPE_LEAF = 3;
+let TYPE_ROOT = 4;
 
 document.addEventListener("DOMContentLoaded", function () {
     const canvas = document.getElementById("myCanvas");
@@ -102,7 +103,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     totalI++;
                 } else if (type === TYPE_LEAF) {
                     randomColor(branch.texture);
-                } else if (type === TYPE_TRUNK) {
+                } else if (type === TYPE_TRUNK || type === TYPE_ROOT) {
                     randomColor(TRUNK_TEXTURE);
                     totalI++;
                 } else {

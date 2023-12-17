@@ -7,7 +7,7 @@ import { ElementHead } from "./ElementHead";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-10
+ * @version 2023-12-17
  */
 export class ResourceSnapshot {
 
@@ -100,6 +100,11 @@ export class ResourceSnapshot {
             ResourceSnapshot.#convertToV4(snapshot);
             snapshot.metadata.formatVersion = 4;
         }
+        if (snapshot.metadata.formatVersion === 4) {
+            // new trees
+            ResourceSnapshot.#convertToV5(snapshot);
+            snapshot.metadata.formatVersion = 5;
+        }
 
         return snapshot;
     }
@@ -177,6 +182,29 @@ export class ResourceSnapshot {
 
                 elementArea.setElementHead(x, y, elementHead);
                 elementArea.setElementTail(x, y, elementTail);
+            }
+        }
+
+        snapshot.dataHeads = elementArea.getDataHeads();
+        snapshot.dataTails = elementArea.getDataTails();
+    }
+
+    static #convertToV5(snapshot) {
+        const elementArea = ElementArea.from(
+            snapshot.metadata.width, snapshot.metadata.height,
+            snapshot.dataHeads, snapshot.dataTails);
+
+        for (let y = 0; y < snapshot.metadata.height; y++) {
+            for (let x = 0; x < snapshot.metadata.width; x++) {
+                let elementHead = elementArea.getElementHead(x, y);
+
+                // unset tree and leaf behaviour
+                let behaviour = (elementHead >> 8) & 0x0000000F;
+                if (behaviour === 0x5 || behaviour === 0x8) {
+                    elementHead = (elementHead & 0xFFFF00FF);
+                }
+
+                elementArea.setElementHead(x, y, elementHead);
             }
         }
 

@@ -3,6 +3,7 @@ import {ElementHead} from "../core/ElementHead.js";
 import {ElementTail} from "../core/ElementTail.js";
 import {Element} from "../core/Element.js";
 import {VisualEffects} from "../core/VisualEffects.js";
+import {Structures} from "./Structures";
 
 import _ASSET_PALETTE_SAND from './assets/brushes/sand.palette.csv';
 import _ASSET_PALETTE_SOIL from './assets/brushes/soil.palette.csv';
@@ -12,6 +13,8 @@ import _ASSET_PALETTE_WATER from './assets/brushes/water.palette.csv';
 import _ASSET_PALETTE_STEAM from './assets/brushes/steam.palette.csv';
 import _ASSET_PALETTE_WALL from './assets/brushes/wall.palette.csv';
 import _ASSET_PALETTE_TREE_WOOD from './assets/brushes/tree-wood.palette.csv';
+import _ASSET_PALETTE_TREE_LEAF_LIGHT from './assets/brushes/tree-leaf-light.palette.csv';
+import _ASSET_PALETTE_TREE_LEAF_DARK from './assets/brushes/tree-leaf-dark.palette.csv';
 import _ASSET_PALETTE_TREE_LEAF_DEAD from './assets/brushes/tree-leaf-dead.palette.csv';
 
 import _ASSET_TEXTURE_ROCK from './assets/brushes/rock.png';
@@ -20,7 +23,7 @@ import _ASSET_TEXTURE_METAL from './assets/brushes/metal.png';
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-14
+ * @version 2023-12-17
  */
 export class Brushes {
 
@@ -192,30 +195,30 @@ export class Brushes {
             ElementTail.of(61, 68, 74, ElementTail.BLUR_TYPE_1, ElementTail.HEAT_EFFECT_1)),
     ]);
 
-    static TREE = Brush.custom((x, y, random) => {
-        let treeType = random.nextInt(17);
+    static TREE = Brush.paletteBrush(_ASSET_PALETTE_TREE_WOOD, Brush.custom((x, y, random) => {
+        let treeType = random.nextInt(Structures.TREE_TRUNK_TEMPLATES.length);
         return new Element(
             ElementHead.of(
                 ElementHead.type8(ElementHead.TYPE_STATIC),
                 ElementHead.behaviour8(ElementHead.BEHAVIOUR_TREE, treeType),
                 ElementHead.modifiers8(ElementHead.FLAMMABLE_TYPE_SLOW, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_SLOW)),
-            ElementTail.of(77, 41, 13, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_1));
-    });
+            ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_1));
+    }));
 
-    static TREE_ROOT = Brush.random([
+    static TREE_ROOT = Brush.paletteBrush(_ASSET_PALETTE_TREE_WOOD, Brush.random([
         new Element(
             ElementHead.of(
                 ElementHead.type8(ElementHead.TYPE_STATIC),
                 ElementHead.behaviour8(ElementHead.BEHAVIOUR_TREE_ROOT, 8),
                 ElementHead.modifiers8(ElementHead.FLAMMABLE_TYPE_SLOW, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_SLOW)),
-            ElementTail.of(96, 50, 14, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_1)),
+            ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_1)),
         new Element(
             ElementHead.of(
                 ElementHead.type8(ElementHead.TYPE_STATIC),
                 ElementHead.behaviour8(ElementHead.BEHAVIOUR_TREE_ROOT, 5),
                 ElementHead.modifiers8(ElementHead.FLAMMABLE_TYPE_SLOW, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_SLOW)),
-            ElementTail.of(77, 41, 13, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_1))
-    ]);
+            ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_1))
+    ]));
 
     static TREE_WOOD = Brush.paletteBrush(_ASSET_PALETTE_TREE_WOOD, Brush.random([
         new Element(
@@ -226,23 +229,23 @@ export class Brushes {
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_1))
     ]));
 
-    static TREE_LEAF_LIGHTER = Brush.random([
+    static TREE_LEAF_LIGHTER = Brush.paletteBrush(_ASSET_PALETTE_TREE_LEAF_LIGHT, Brush.random([
         new Element(
             ElementHead.of(
                 ElementHead.type8(ElementHead.TYPE_STATIC),
                 ElementHead.behaviour8(ElementHead.BEHAVIOUR_TREE_LEAF, 0),
                 ElementHead.modifiers8(ElementHead.FLAMMABLE_TYPE_MEDIUM, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_MEDIUM)),
-            ElementTail.of(0, 129, 73, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_1))
-    ]);
+            ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_1))
+    ]));
 
-    static TREE_LEAF_DARKER = Brush.random([
+    static TREE_LEAF_DARKER = Brush.paletteBrush(_ASSET_PALETTE_TREE_LEAF_DARK, Brush.random([
         new Element(
             ElementHead.of(
                 ElementHead.type8(ElementHead.TYPE_STATIC),
                 ElementHead.behaviour8(ElementHead.BEHAVIOUR_TREE_LEAF, 0),
                 ElementHead.modifiers8(ElementHead.FLAMMABLE_TYPE_MEDIUM, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_MEDIUM)),
-            ElementTail.of(0, 76, 72, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_1))
-    ]);
+            ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_1))
+    ]));
 
     static TREE_LEAF_DEAD = Brush.paletteBrush(_ASSET_PALETTE_TREE_LEAF_DEAD, Brush.random([
         new Element(

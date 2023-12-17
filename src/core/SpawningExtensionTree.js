@@ -3,7 +3,7 @@ import {ElementHead} from "./ElementHead.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-08
+ * @version 2023-12-17
  */
 export class SpawningExtensionTree {
     static STARTING_COUNTER_VALUE = 1000;
@@ -69,7 +69,7 @@ export class SpawningExtensionTree {
         }
 
         // check trees around
-        for (let dx = -8; dx < 8; dx++) {
+        for (let dx = -15; dx < 15; dx++) {
             if (SpawningExtensionTree.#isOtherThreeThere(elementArea, x + dx, y - 4)) {
                 return false;
             }

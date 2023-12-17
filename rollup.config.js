@@ -2,6 +2,7 @@ import copy from 'rollup-plugin-copy'
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import image from '@rollup/plugin-image';
+import json from '@rollup/plugin-json';
 import { string } from "rollup-plugin-string";
 import terser from '@rollup/plugin-terser';
 import pkg from './package.json';
@@ -29,6 +30,13 @@ const PLUGINS_COMMON = [
             "**/assets/*.svg",
             "**/assets/*.csv",
             "**/assets/brushes/*.csv",
+        ],
+        exclude: []
+    }),
+    json({
+        compact: true,
+        include: [
+            "**/assets/structures/*.json",
         ],
         exclude: []
     })

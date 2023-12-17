@@ -1,5 +1,4 @@
 import {ElementHead} from "./ElementHead.js";
-import {Brush} from "./Brush.js";
 import {Brushes} from "../def/Brushes.js";
 import {ProcessorContext} from "./ProcessorContext.js";
 import {DeterministicRandom} from "./DeterministicRandom.js";
@@ -9,9 +8,14 @@ import {DeterministicRandom} from "./DeterministicRandom.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-08
+ * @version 2023-12-17
  */
 export class ProcessorModuleTree {
+
+    static TYPE_TRUNK = 1;
+    static TYPE_BRANCH = 2;
+    static TYPE_LEAF = 3;
+    static TYPE_ROOT = 4;
 
     static #MAX_TREE_TEMPERATURE = 100;
     static #MAX_WOOD_TEMPERATURE = 50;
@@ -25,9 +29,12 @@ export class ProcessorModuleTree {
         elementArea.setElement(x, y, element);
 
         // tree fast grow
-        const template = TreeTemplates.getTemplate(type);
+        const template = processorContext.getDefaults().getTreeTrunkTemplates()[type];
+        if (template === undefined) {
+            throw 'Tree template not found: ' + type;
+        }
         const treeModule = new ProcessorModuleTree(elementArea, random, processorContext);
-        treeModule.#treeGrow(element.elementHead, x, y, template, true);
+        treeModule.#treeGrow(element.elementHead, x, y, template, -1);
 
         // roots fast grow
         for (let i = 1; i < 10; i++) {
@@ -63,10 +70,16 @@ export class ProcessorModuleTree {
     /** @type ProcessorContext */
     #processorContext;
 
+    #trunkTreeTemplates;
+    #leafClusterTemplates;
+
     constructor(elementArea, random, processorContext) {
         this.#elementArea = elementArea;
         this.#random = random;
         this.#processorContext = processorContext;
+
+        this.#trunkTreeTemplates = this.#processorContext.getDefaults().getTreeTrunkTemplates()
+        this.#leafClusterTemplates = this.#processorContext.getDefaults().getTreeLeafClusterTemplates()
     }
 
     behaviourTree(elementHead, x, y) {
@@ -80,85 +93,197 @@ export class ProcessorModuleTree {
         const random = this.#random.nextInt(ProcessorContext.OPT_CYCLES_PER_SECOND);
         if (random === 0) {
             // check status
-            const template = TreeTemplates.getTemplate(ElementHead.getSpecial(elementHead));
-            const level = this.#treeGrow(elementHead, x, y, template, false);
+            const trunkTemplateId = ElementHead.getSpecial(elementHead);
+            const template = this.#trunkTreeTemplates[trunkTemplateId];
+            if (template === undefined) {
+                throw 'Tree template not found: ' + trunkTemplateId;
+            }
+            const level = this.#treeGrow(elementHead, x, y, template, 1);
             this.#treeCheckStatus(x, y, level, template);
         }
     }
 
-    #treeGrow(elementHead, x, y, template, fullGrow) {
+    #treeGrow(elementHead, x, y, template, levelsToGrow = 1) {
+        let seed = this.#treeCreateOrGetSeed(x, y - 2);
+        let treeRandom = new DeterministicRandom(seed);
+
         let level = 0;
-        let stack = [];
-        for (let child of template.root.children) {
-            stack.push(child);
+        let levelGrown = 0;
+
+        let parallelBranches = [{
+            entries: template.entries,
+            index: 0,
+            x: 0,
+            y: 0,
+            brush: null
+        }];
+
+        let grow = (nx, ny, brush, increment) => {
+            this.#elementArea.setElement(nx, ny, brush.apply(nx, ny, this.#random));
+            this.#processorContext.trigger(nx, ny);
+            if (increment) {
+                level++;
+                levelGrown++;
+            }
         }
 
-        while (stack.length > 0) {
-            let node = stack.pop();
+        while (parallelBranches.length > 0) {
+            const length = parallelBranches.length;
+            let cleanupBranches = false;
 
-            let nx = x + node.x;
-            let ny = y + node.y;
-            if (this.#elementArea.isValidPosition(nx, ny)) {
-                let isHereAlready = false;
-                let canGrowHere = false;
+            for (let i = 0; i < length; i++) {
+                const branch = parallelBranches[i];
 
-                const currentElementHead = this.#elementArea.getElementHead(nx, ny);
-                const currentElementBehaviour = ElementHead.getBehaviour(currentElementHead);
+                if (branch.index >= branch.entries.length) {
+                    // end of branch
+                    cleanupBranches = true;
+                    continue;
+                }
 
-                switch (node.type) {
-                    case TreeTemplateNode.TYPE_TRUNK:
-                    case TreeTemplateNode.TYPE_ROOT:
-                        if (currentElementBehaviour === ElementHead.BEHAVIOUR_TREE_TRUNK) {
-                            isHereAlready = true;
-                        } else if (currentElementBehaviour === ElementHead.BEHAVIOUR_TREE_LEAF) {
-                            canGrowHere = true;
-                        } else if (ElementHead.getTypeClass(currentElementHead) === ElementHead.TYPE_AIR) {
-                            canGrowHere = true;
-                        } else if (currentElementBehaviour === ElementHead.BEHAVIOUR_SOIL) {
-                            canGrowHere = true;
-                        } else if (currentElementBehaviour === ElementHead.BEHAVIOUR_GRASS) {
-                            canGrowHere = true;
-                        } else if (node.y > Math.min(-4, -7 + Math.abs(node.x))) {
-                            // roots & bottom trunk only...
-                            if (ElementHead.getTypeClass(currentElementHead) !== ElementHead.TYPE_STATIC) {
-                                canGrowHere = true;
+                const node = branch.entries[branch.index++];
+                const [nodeX, nodeY, nodeType] = node;
+                const nx = x + nodeX + branch.x;
+                const ny = y - nodeY - branch.y;
+
+                if (this.#elementArea.isValidPosition(nx, ny)) {
+                    const currentElementHead = this.#elementArea.getElementHead(nx, ny);
+                    const currentElementBehaviour = ElementHead.getBehaviour(currentElementHead);
+
+                    switch (nodeType) {
+                        case ProcessorModuleTree.TYPE_LEAF:
+                            if (currentElementBehaviour === ElementHead.BEHAVIOUR_TREE_LEAF) {
+                                // is already here
+                                // update leaf vitality (if not dead already)
+                                if (ElementHead.getSpecial(currentElementHead) < 15) {
+                                    this.#elementArea.setElementHead(nx, ny, ElementHead.setSpecial(currentElementHead, 0));
+                                }
+                            } else if (currentElementBehaviour === ElementHead.BEHAVIOUR_TREE_TRUNK) {
+                                // replace trunk
+                                grow(nx, ny, branch.brush, false);
+                            } else if (ElementHead.getTypeClass(currentElementHead) === ElementHead.TYPE_AIR) {
+                                grow(nx, ny, branch.brush, false);
                             }
-                        }
-                        break;
-                    case TreeTemplateNode.TYPE_LEAF:
-                        if (currentElementBehaviour === ElementHead.BEHAVIOUR_TREE_LEAF) {
-                            isHereAlready = true;
-                            // update leaf vitality (if not dead already)
-                            if (ElementHead.getSpecial(currentElementHead) < 15) {
-                                this.#elementArea.setElementHead(nx, ny, ElementHead.setSpecial(currentElementHead, 0));
+                            break;
+
+                        case ProcessorModuleTree.TYPE_TRUNK:
+                            if (currentElementBehaviour === ElementHead.BEHAVIOUR_TREE_TRUNK) {
+                                level++;  // trunk is already here
+                            } else if (currentElementBehaviour === ElementHead.BEHAVIOUR_TREE_LEAF) {
+                                level++;  // leaf is already here
                             }
-                        } else if (currentElementBehaviour === ElementHead.BEHAVIOUR_TREE_TRUNK) {
-                            isHereAlready = true;
-                        } else if (ElementHead.getTypeClass(currentElementHead) === ElementHead.TYPE_AIR) {
-                            canGrowHere = true;
-                        }
-                        break;
-                    default:
-                        throw 'Unknown type: ' + node.type;
+                            let trunkGrow = false;
+                            if (ElementHead.getTypeClass(currentElementHead) === ElementHead.TYPE_AIR) {
+                                trunkGrow = true;
+                            } else if (currentElementBehaviour === ElementHead.BEHAVIOUR_SOIL) {
+                                trunkGrow = true;
+                            } else if (currentElementBehaviour === ElementHead.BEHAVIOUR_GRASS) {
+                                trunkGrow = true;
+                            } else if (nodeY < 5) {
+                                // bottom trunk only...
+                                if (ElementHead.getTypeClass(currentElementHead) !== ElementHead.TYPE_STATIC) {
+                                    trunkGrow = true;
+                                }
+                            }
+                            if (trunkGrow) {
+                                grow(nx, ny, Brushes.TREE_WOOD, true);
+                                if (nodeY === 2 && nodeX === 0) {
+                                    // set seed
+                                    this.#treeSetSeed(nx, ny, seed);
+                                }
+                            }
+                            break;
+
+                        case ProcessorModuleTree.TYPE_BRANCH:
+                            let branchGrow = false;
+                            if (currentElementBehaviour === ElementHead.BEHAVIOUR_TREE_LEAF) {
+                                level++;  // is already here
+                                // update leaf vitality (if not dead already)
+                                if (ElementHead.getSpecial(currentElementHead) < 15) {
+                                    this.#elementArea.setElementHead(nx, ny, ElementHead.setSpecial(currentElementHead, 0));
+                                }
+                            } else if (currentElementBehaviour === ElementHead.BEHAVIOUR_TREE_TRUNK) {
+                                level++;  // is already here
+                            } else if (ElementHead.getTypeClass(currentElementHead) === ElementHead.TYPE_AIR) {
+                                branchGrow = true;
+                            } else {
+                                break;  // an obstacle...
+                            }
+
+                            let rnd = treeRandom.next();
+                            let leafClusterId = Math.trunc(rnd * this.#leafClusterTemplates.length);
+                            let leafCluster = this.#leafClusterTemplates[leafClusterId];
+                            let leafBrush = (Math.trunc(rnd * 1024) % 2 === 0)
+                                    ? Brushes.TREE_LEAF_LIGHTER
+                                    : Brushes.TREE_LEAF_DARKER;
+                            parallelBranches.push({
+                                entries: leafCluster.entries,
+                                index: 0,
+                                x: nodeX,
+                                y: nodeY,
+                                brush: leafBrush
+                            });
+                            if (branchGrow) {
+                                grow(nx, ny, leafBrush, true);
+                            }
+                            break;
+
+                        case ProcessorModuleTree.TYPE_ROOT:
+                            if (currentElementBehaviour === ElementHead.BEHAVIOUR_TREE_ROOT) {
+                                level++;  // is already here
+                            } else {
+                                grow(nx, ny, Brushes.TREE_ROOT, true);
+                            }
+                            break;
+
+                        default:
+                            throw 'Unknown type: ' + nodeType;
+                    }
                 }
 
-                if (canGrowHere || isHereAlready) {
-                    level++;
+                let newParallelEntries = (node.length > 3) ? node[3] : undefined;
+                if (newParallelEntries !== undefined) {
+                    parallelBranches.push({
+                        entries: newParallelEntries,
+                        index: 0,
+                        x: branch.x,
+                        y: branch.y,
+                        brush: branch.brush
+                    });
                 }
+            }
 
-                if (canGrowHere) {
-                    this.#elementArea.setElement(nx, ny, node.brush.apply(nx, ny, this.#random));
-                    this.#processorContext.trigger(nx, ny);
-                }
+            if (levelsToGrow !== -1 && levelGrown >= levelsToGrow) {
+                break;  // terminate
+            }
 
-                if (fullGrow || isHereAlready) {
-                    for (let child of node.children) {
-                        stack.push(child);
+            if (cleanupBranches) {
+                for (let i = parallelBranches.length - 1; i >= 0; i--) {
+                    let branch = parallelBranches[i];
+                    if (branch.index >= branch.entries.length) {
+                        parallelBranches.splice(i, 1);
                     }
                 }
             }
         }
         return level;
+    }
+
+    #treeCreateOrGetSeed(x, y) {
+        if (this.#elementArea.isValidPosition(x, y)) {
+            let elementHead = this.#elementArea.getElementHead(x, y);
+            if (ElementHead.getBehaviour(elementHead) === ElementHead.BEHAVIOUR_TREE_TRUNK) {
+                return ElementHead.getSpecial(elementHead);
+            }
+        }
+        return this.#random.nextInt(1 << ElementHead.FIELD_SPECIAL_SIZE);
+    }
+
+    #treeSetSeed(x, y, seed) {
+        // assume point exists
+        // assume tree trunk
+        let elementHead = this.#elementArea.getElementHead(x, y);
+        elementHead = ElementHead.setSpecial(elementHead, seed);
+        this.#elementArea.setElementHead(x, y, elementHead)
     }
 
     #treeCheckStatus(x, y, level, template) {
@@ -169,7 +294,7 @@ export class ProcessorModuleTree {
             if (ElementHead.getBehaviour(carrierElementHead) === ElementHead.BEHAVIOUR_TREE_TRUNK) {
                 const maxStage = 15;
                 let lastStage = ElementHead.getSpecial(carrierElementHead);
-                let currentStage = Math.trunc(level / template.nodes * maxStage);
+                let currentStage = Math.trunc(level / template.entriesCount * maxStage);
                 if (lastStage - currentStage > 5) {
                     // too big damage taken => kill tree
                     this.#elementArea.setElementHead(x, y - 1, ElementHead.setSpecial(carrierElementHead, 0));
@@ -313,221 +438,5 @@ export class ProcessorModuleTree {
                 // TODO
             }
         }
-    }
-}
-
-/**
- *
- * @author Patrik Harag
- * @version 2023-05-04
- */
-class TreeTemplates {
-    static TEMPLATES = [];
-
-    /**
-     *
-     * @param id {number} template id
-     * @returns {TreeTemplate} template
-     */
-    static getTemplate(id) {
-        let template = TreeTemplates.TEMPLATES[id];
-        if (!template) {
-            let root = TreeTemplates.#generate(id);
-            let count = TreeTemplates.#countNodes(root);
-            template = new TreeTemplate(root, count);
-            TreeTemplates.TEMPLATES[id] = template;
-        }
-        return template;
-    }
-
-    static #generate(id) {
-        let random = new DeterministicRandom(id);
-        let root = new TreeTemplateNode(0, 0, TreeTemplateNode.TYPE_TRUNK, Brushes.TREE_WOOD);
-        root.children.push(new TreeTemplateNode(0, 1, TreeTemplateNode.TYPE_ROOT, Brushes.TREE_ROOT));
-
-        let size = [20, 37, 35, 42][(id & 0b1100) >> 2];
-        let firstSplit = ((id & 0b0010) !== 0) ? 1 : -1;
-        let firstIncrement = ((id & 0b0001) !== 0) ? 1 : -1;
-
-        let splits = [15, 19, 22, 25, 29, 32, 35];
-        if (size < 25) {
-            splits.unshift(12);  // small trees
-        }
-        let splitDirection = firstSplit;
-
-        let incrementWidth = [12, 20, 28, 32];
-        let incrementX = [1, -1, 2, -2, 3, -3].map(v => v * firstIncrement);
-        let incrementNext = 0;
-
-        let centerTrunkNodes = [root];
-
-        for (let i = 1; i <= size; i++) {
-            const remainingSize = size - i;
-
-            // increment trunk size
-            if (incrementWidth.includes(i)) {
-                let nx = incrementX[incrementNext++];
-                let node = new TreeTemplateNode(nx, 0, TreeTemplateNode.TYPE_TRUNK, Brushes.TREE_WOOD);
-                node.children.push(new TreeTemplateNode(nx, 1, TreeTemplateNode.TYPE_ROOT, Brushes.TREE_ROOT));
-
-                centerTrunkNodes[0].children.push(node);
-                centerTrunkNodes.push(node);
-            }
-
-            // add split
-            if (splits.includes(i)) {
-                let branchLength = 12;
-                if (remainingSize < 10) {
-                    branchLength = 8;
-                }
-                if (remainingSize < 6) {
-                    branchLength = 5;
-                }
-
-                let branchRoot = this.#generateBranch(branchLength, splitDirection, i, remainingSize, random);
-                centerTrunkNodes[0].children.push(branchRoot);
-
-                splitDirection = splitDirection * -1;
-            }
-
-            // add next trunk level
-            for (let j = 0; j < centerTrunkNodes.length; j++) {
-                let last = centerTrunkNodes[j];
-
-                let node = (j !== 0 || remainingSize > 3)
-                    ? new TreeTemplateNode(last.x, last.y - 1, TreeTemplateNode.TYPE_TRUNK, Brushes.TREE_WOOD)
-                    : new TreeTemplateNode(last.x, last.y - 1, TreeTemplateNode.TYPE_LEAF, Brushes.TREE_LEAF_DARKER);
-
-                last.children.push(node);
-                centerTrunkNodes[j] = node;
-            }
-
-            // add trunk leaves
-            if (i > 20) {
-                let brush = (remainingSize > 3) ? Brushes.TREE_LEAF_DARKER : Brushes.TREE_LEAF_LIGHTER;
-
-                let leafR = new TreeTemplateNode(1, -i, TreeTemplateNode.TYPE_LEAF, brush);
-                centerTrunkNodes[0].children.push(leafR);
-                let leafL = new TreeTemplateNode(-1, -i, TreeTemplateNode.TYPE_LEAF, brush);
-                centerTrunkNodes[0].children.push(leafL);
-
-                if (remainingSize > 1) {
-                    leafR.children.push(new TreeTemplateNode(2, -i, TreeTemplateNode.TYPE_LEAF, Brushes.TREE_LEAF_LIGHTER));
-                    leafL.children.push(new TreeTemplateNode(-2, -i, TreeTemplateNode.TYPE_LEAF, Brushes.TREE_LEAF_LIGHTER));
-                }
-            }
-        }
-        return root;
-    }
-
-    static #generateBranch(branchLength, splitDirection, i, remainingSize, random) {
-        let shift = 0;
-        let branchRoot = null;
-        let branchLast = null;
-
-        for (let j = 1; j <= branchLength; j++) {
-            const remainingBranchSize = branchLength - j;
-
-            if (j > 3 && random.next() < 0.2) {
-                shift++;
-            }
-            let nx = splitDirection * j;
-            let ny = -i - shift;
-
-            let next = (remainingSize > 3 && remainingBranchSize > 1)
-                ? new TreeTemplateNode(nx, ny, TreeTemplateNode.TYPE_TRUNK, Brushes.TREE_WOOD)
-                : new TreeTemplateNode(nx, ny, TreeTemplateNode.TYPE_LEAF, Brushes.TREE_LEAF_LIGHTER);
-
-            if (branchRoot === null) {
-                branchRoot = next;
-            }
-
-            if (branchLast !== null) {
-                branchLast.children.push(next);
-            }
-            branchLast = next;
-
-            // generate branch leaves
-
-            let leafAbove = new TreeTemplateNode(nx, ny - 1, TreeTemplateNode.TYPE_LEAF, Brushes.TREE_LEAF_LIGHTER);
-            let leafBelow = new TreeTemplateNode(nx, ny + 1, TreeTemplateNode.TYPE_LEAF,
-                (remainingBranchSize > 3) ? Brushes.TREE_LEAF_DARKER : Brushes.TREE_LEAF_LIGHTER);
-
-            if (remainingBranchSize > 3) {
-                leafAbove.children.push(new TreeTemplateNode(nx, ny - 2, TreeTemplateNode.TYPE_LEAF, Brushes.TREE_LEAF_LIGHTER));
-                leafBelow.children.push(new TreeTemplateNode(nx, ny + 2, TreeTemplateNode.TYPE_LEAF, Brushes.TREE_LEAF_LIGHTER));
-            }
-
-            next.children.push(leafAbove);
-            next.children.push(leafBelow);
-        }
-        return branchRoot;
-    }
-
-    static #countNodes(root) {
-        let count = 0;
-
-        let stack = [root];
-        while (stack.length > 0) {
-            let node = stack.pop();
-            count++;
-            for (let child of node.children) {
-                stack.push(child);
-            }
-        }
-        return count;
-    }
-}
-
-/**
- *
- * @author Patrik Harag
- * @version 2022-10-01
- */
-class TreeTemplate {
-
-    /** @type TreeTemplateNode */
-    root;
-
-    /** @type number */
-    nodes;
-
-    constructor(root, nodes) {
-        this.root = root;
-        this.nodes = nodes;
-    }
-}
-
-/**
- *
- * @author Patrik Harag
- * @version 2022-09-29
- */
-class TreeTemplateNode {
-    static TYPE_TRUNK = 1;
-    static TYPE_LEAF = 2;
-    static TYPE_ROOT = 3;
-
-
-    /** @type number */
-    x;
-
-    /** @type number */
-    y;
-
-    /** @type number */
-    type;
-
-    /** @type Brush */
-    brush;
-
-    /** @type TreeTemplateNode[] */
-    children = [];
-
-    constructor(x, y, type, brush) {
-        this.x = x;
-        this.y = y;
-        this.type = type;
-        this.brush = brush;
     }
 }
