@@ -5,7 +5,7 @@ import {VisualEffects} from "./VisualEffects.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-10
+ * @version 2023-12-18
  */
 export class ProcessorModuleFire {
 
@@ -82,8 +82,14 @@ export class ProcessorModuleFire {
             return;
         }
 
-        // spread or update
         const elementHeadAbove = this.#elementArea.getElementHeadOrNull(x, y - 1);
+        // check is above water
+        if (ElementHead.getBehaviour(elementHeadAbove) === ElementHead.BEHAVIOUR_WATER) {
+            this.#elementArea.setElement(x, y, this.#processorContext.getDefaults().getDefaultElement());
+            return;
+        }
+
+        // spread or update
         if (elementHeadAbove !== null && this.#couldBeReplacedByFire(elementHeadAbove)) {
             this.#elementArea.setElementHead(x, y - 1, ProcessorModuleFire.createFireElementHead(newTemperature));
             this.#elementArea.setElementTail(x, y - 1, ProcessorModuleFire.createFireElementTail(newTemperature));
@@ -226,12 +232,12 @@ export class ProcessorModuleFire {
         }
 
         // affect others
-        const airFound = this.#fireSourceEffect(x, y + 1, flameHeat)
-                | this.#fireSourceEffect(x, y - 1, flameHeat)
+        const flags = this.#fireSourceEffect(x, y - 1, flameHeat)
+                | this.#fireSourceEffect(x, y + 1, flameHeat)
                 | this.#fireSourceEffect(x - 1, y, flameHeat)
                 | this.#fireSourceEffect(x + 1, y, flameHeat);
 
-        if (!airFound) {
+        if (flags === 0b00 || (flags & 0b10) !== 0) {  // no air || some water
             // extinguish
             this.#elementArea.setElementHead(x, y, ElementHead.setBehaviour(elementHead, ElementHead.BEHAVIOUR_NONE));
             return;
@@ -252,21 +258,24 @@ export class ProcessorModuleFire {
 
     #fireSourceEffect(x, y, temperature) {
         const elementHead = this.#elementArea.getElementHeadOrNull(x, y);
-        if (elementHead == null) {
-            return false;
+        if (elementHead === null) {
+            return 0b00;
+        }
+
+        // water => extinguish
+        if (ElementHead.getBehaviour(elementHead) === ElementHead.BEHAVIOUR_WATER) {
+            return 0b10;
         }
 
         // air => spawn fire
         if (ElementHead.getTypeClass(elementHead) <= ElementHead.TYPE_EFFECT) {
             // air found
             const actualTemperature = this.#random.nextInt(temperature);
-            if (actualTemperature < ProcessorModuleFire.#FIRE_MIN_TEMPERATURE) {
-                return true;
+            if (actualTemperature >= ProcessorModuleFire.#FIRE_MIN_TEMPERATURE) {
+                this.#elementArea.setElementHead(x, y, ProcessorModuleFire.createFireElementHead(actualTemperature));
+                this.#elementArea.setElementTail(x, y, ProcessorModuleFire.createFireElementTail(actualTemperature));
             }
-
-            this.#elementArea.setElementHead(x, y, ProcessorModuleFire.createFireElementHead(actualTemperature));
-            this.#elementArea.setElementTail(x, y, ProcessorModuleFire.createFireElementTail(actualTemperature));
-            return true;
+            return 0b01;
         }
 
         // visual change
@@ -277,7 +286,7 @@ export class ProcessorModuleFire {
             }
         }
 
-        return false;
+        return 0b00;
     }
 
     // UTILS
