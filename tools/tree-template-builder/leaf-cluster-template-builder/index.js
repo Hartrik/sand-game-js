@@ -111,8 +111,8 @@ function parseTemplate(imageData, cx, cy) {
 
     // build result
     return {
-        entries: entries,
         entriesCount: entriesCount,
+        entries: entries,
     };
 }
 

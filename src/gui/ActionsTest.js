@@ -1,11 +1,11 @@
-import { Brushes } from "../def/Brushes";
-import { Brush } from "../core/Brush";
+import {Brushes} from "../def/Brushes";
+import {Structures} from "../def/Structures";
 
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-10
+ * @version 2023-12-18
  */
 export class ActionsTest {
 
@@ -40,14 +40,16 @@ export class ActionsTest {
             return;
         }
 
-        sandGame.graphics().fill(Brushes.AIR);
-        sandGame.graphics().drawRectangle(0, -10, -1, -1, Brushes.SOIL, true);
-        sandGame.graphics().drawRectangle(0, -11, -1, -11, Brushes.GRASS, true);
+        sandGame.layeredTemplate()
+                .layer(Math.trunc(sandGame.getHeight() / 2), false, Brushes.AIR)
+                .layer(1, true, Brushes.WALL)
+                .layer(10, true, Brushes.SOIL)
+                .grass();
 
-        let c = Math.trunc(sandGame.getHeight() / 2);
-        sandGame.graphics().drawRectangle(0, c, -1, c, Brushes.WALL, true);
-        sandGame.graphics().drawRectangle(0, c-10, -1, c-1, Brushes.SOIL, true);
-        sandGame.graphics().drawRectangle(0, c-11, -1, c-11, Brushes.GRASS, true);
+        sandGame.layeredTemplate()
+                .layer(1, true, Brushes.WALL)
+                .layer(10, true, Brushes.SOIL)
+                .grass();
     }
 
     static TREE_GROW_TEST = function (controller) {
@@ -56,15 +58,24 @@ export class ActionsTest {
             return;
         }
 
-        let treeBrush = Brush.withIntensity(0.05, Brushes.TREE);
+        let count = Structures.TREE_TRUNK_TEMPLATES.length;
+        let segment = Math.trunc(sandGame.getWidth() / 8);
 
-        sandGame.graphics().fill(Brushes.AIR);
-        sandGame.graphics().drawRectangle(0, -10, -1, -1, Brushes.SOIL, true);
-        sandGame.graphics().drawRectangle(0, -11, -1, -11, treeBrush, true);
+        const template1 = sandGame.layeredTemplate();
+        template1.layer(Math.trunc(sandGame.getHeight() / 2), false, Brushes.AIR);
+        template1.layer(1, true, Brushes.WALL);
+        template1.layer(10, true, Brushes.SOIL);
+        for (let i = 0; i < 8; i++) {
+            template1.tree(Math.trunc((i + 0.5) * segment), i % count);
+        }
+        template1.grass();
 
-        let c = Math.trunc(sandGame.getHeight() / 2);
-        sandGame.graphics().drawRectangle(0, c, -1, c, Brushes.WALL, true);
-        sandGame.graphics().drawRectangle(0, c-10, -1, c-1, Brushes.SOIL, true);
-        sandGame.graphics().drawRectangle(0, c-11, -1, c-11, treeBrush, true);
+        const template2 = sandGame.layeredTemplate();
+        template2.layer(1, true, Brushes.WALL);
+        template2.layer(10, true, Brushes.SOIL);
+        for (let i = 0; i < 8; i++) {
+            template2.tree(Math.trunc((i + 0.5) * segment), (i + 8) % count);
+        }
+        template2.grass();
     }
 }
