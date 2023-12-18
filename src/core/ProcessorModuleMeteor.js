@@ -5,7 +5,7 @@ import {VisualEffects} from "./VisualEffects.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-10
+ * @version 2023-12-18
  */
 export class ProcessorModuleMeteor {
 
@@ -15,6 +15,8 @@ export class ProcessorModuleMeteor {
     static DIRECTION_FROM_TOP = 0;
     static DIRECTION_FROM_LEFT = 1;
     static DIRECTION_FROM_RIGHT = 2;
+
+    static #HEAT = 100;
 
     static #EXPLOSION_MAX_HEAT_LVL_8 = 255;
     static #EXPLOSION_MAX_HEAT_LVL_9 = 220;
@@ -67,8 +69,7 @@ export class ProcessorModuleMeteor {
         }
 
         if (this.#elementArea.isValidPosition(tx, ty)) {
-            let targetElementHead = this.#elementArea.getElementHead(tx, ty);
-            if (ElementHead.getTypeClass(targetElementHead) <= ElementHead.TYPE_GAS) {
+            if (this.#canMove(tx, ty)) {
                 // move
                 this.#elementArea.swap(x, y, tx, ty);
             } else {
@@ -77,6 +78,22 @@ export class ProcessorModuleMeteor {
         } else {
             this.#explode(elementHead, x, y);
         }
+    }
+
+    #canMove(x, y) {
+        const targetElementHead = this.#elementArea.getElementHead(x, y);
+        const typeClass = ElementHead.getTypeClass(targetElementHead);
+        if (typeClass <= ElementHead.TYPE_GAS || typeClass === ElementHead.TYPE_FLUID) {
+            return true;
+        }
+        const behaviour = ElementHead.getBehaviour(targetElementHead);
+        if (behaviour === ElementHead.BEHAVIOUR_TREE_LEAF) {
+            return true;
+        }
+        if (behaviour === ElementHead.BEHAVIOUR_GRASS) {
+            return true;
+        }
+        return false;
     }
 
     #spawnFire(elementHead, x, y) {
@@ -92,6 +109,9 @@ export class ProcessorModuleMeteor {
                 if (ElementHead.getTypeClass(targetElementHead) <= ElementHead.TYPE_EFFECT) {
                     const brush = this.#processorContext.getDefaults().getBrushFire();
                     this.#elementArea.setElement(tx, ty, brush.apply(tx, ty, this.#random));
+                } else {
+                    const modifiedElementHead = ElementHead.setTemperature(targetElementHead, ProcessorModuleMeteor.#HEAT);
+                    this.#elementArea.setElementHead(tx, ty, modifiedElementHead);
                 }
             }
         });
