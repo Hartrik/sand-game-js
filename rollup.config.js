@@ -42,37 +42,48 @@ const PLUGINS_COMMON = [
     })
 ];
 
-const PLUGINS_MIN = [
-    terser({
-        sourceMap: true,
-        format: {
-            preamble: pkg.copyright,
-            comments: false
-        }
-    })
-];
+
+let OUTPUTS = [
+    {
+        // browser-friendly UMD build
+        name: 'SandGameJS',
+        file: 'dist/sand-game-js.umd.js',
+        banner: pkg.copyright,
+        format: 'umd',
+        sourcemap: true,
+    }
+]
+
+const devBuild = process.env.npm_lifecycle_script.endsWith('-w');
+if (devBuild) {
+    console.log('DEV build');
+} else {
+    console.log('PROD build');
+
+    const PLUGINS_MIN = [
+        terser({
+            sourceMap: true,
+            format: {
+                preamble: pkg.copyright,
+                comments: false
+            }
+        })
+    ];
+
+    OUTPUTS.push({
+            // browser-friendly UMD build, MINIMIZED
+            name: 'SandGameJS',
+            file: 'dist/sand-game-js.umd.min.js',
+            format: 'umd',
+            sourcemap: true,
+            plugins: PLUGINS_MIN
+    });
+}
 
 export default [
     {
         input: 'src/main.js',
         plugins: PLUGINS_COMMON,
-        output: [
-            {
-                // browser-friendly UMD build
-                name: 'SandGameJS',
-                file: 'dist/sand-game-js.umd.js',
-                banner: pkg.copyright,
-                format: 'umd',
-                sourcemap: true,
-            },
-            {
-                // browser-friendly UMD build, MINIMIZED
-                name: 'SandGameJS',
-                file: 'dist/sand-game-js.umd.min.js',
-                format: 'umd',
-                sourcemap: true,
-                plugins: PLUGINS_MIN,
-            },
-        ]
+        output: OUTPUTS
     },
 ];
