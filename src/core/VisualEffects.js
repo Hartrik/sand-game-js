@@ -1,10 +1,12 @@
-import { ElementTail } from "./ElementTail.js";
-import { ElementHead } from "./ElementHead.js";
+import {ElementTail} from "./ElementTail.js";
+import {ElementHead} from "./ElementHead.js";
+import {createNoise2D} from "simplex-noise";
+import {DeterministicRandom} from "./DeterministicRandom";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-18
+ * @version 2023-12-19
  */
 export class VisualEffects {
 
@@ -49,5 +51,45 @@ export class VisualEffects {
         }
 
         return newTail;
+    }
+
+    static visualNoiseProvider(seed) {
+        return new PerlinNoiseVisualEffect(seed);
+    }
+}
+
+class PerlinNoiseVisualEffect {
+    #noise2D;
+
+    constructor(seed) {
+        const random = new DeterministicRandom(seed);
+        this.#noise2D = createNoise2D(() => random.next());
+    }
+
+    visualNoise(elementTail, x, y, factor = 1, threshold = 0.5, force = 0.1,
+                nr = 0x00, ng = 0x00, nb = 0x00) {
+
+        let value = (this.#noise2D(x / factor, y / factor) + 1) / 2;  // 0..1
+
+        // apply threshold
+
+        if (value < threshold) {
+            return elementTail;
+        }
+        value = (value - threshold) * (1 / (1 - threshold));  // normalized 0..1
+
+        // alpha blending
+
+        const alpha = 1 - (value * force);
+
+        let r = ElementTail.getColorRed(elementTail);
+        let g = ElementTail.getColorGreen(elementTail);
+        let b = ElementTail.getColorBlue(elementTail);
+
+        r = Math.trunc(r * alpha) + (nr * (1 - alpha));
+        g = Math.trunc(g * alpha) + (ng * (1 - alpha));
+        b = Math.trunc(b * alpha) + (nb * (1 - alpha));
+
+        return ElementTail.setColor(elementTail, r, g, b);
     }
 }

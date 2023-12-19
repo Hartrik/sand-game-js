@@ -112,7 +112,7 @@ export class TemplateLayeredPainter {
         return this;
     }
 
-    tree(x, type = 0) {
+    tree(x, type = 0, levelsToGrow = undefined) {
         if (x <= 5 || x >= this.#elementArea.getWidth() - 5) {
             return this;  // out of bounds
         }
@@ -121,7 +121,7 @@ export class TemplateLayeredPainter {
         const y = this.#elementArea.getHeight() - 1 - lastLevel;
 
         const brush = this.#processorContext.getDefaults().getBrushTree();
-        ProcessorModuleTree.spawnHere(this.#elementArea, x, y, type, brush, this.#random, this.#processorContext);
+        ProcessorModuleTree.spawnHere(this.#elementArea, x, y, type, brush, this.#random, this.#processorContext, levelsToGrow);
         return this;
     }
 }

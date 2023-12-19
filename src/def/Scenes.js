@@ -65,7 +65,7 @@ export class Scenes {
                 .layer(36, false, Brush.withIntensity(0.33, Brushes.WATER))
                 .grass()
                 .tree(16, 6)
-                .tree(28, 3)
+                .tree(28, 3, 70)
                 .tree(45, 5)
                 .tree(309, 1)
                 .tree(336, 4)

@@ -12,7 +12,7 @@ import { ActionFill } from "./ActionFill";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-05
+ * @version 2023-12-19
  */
 export class ComponentViewTestTools extends Component {
 
@@ -24,7 +24,8 @@ export class ComponentViewTestTools extends Component {
     static COMPONENTS = [
         new ComponentButton("All materials", ComponentViewTestTools.#BTN_SCENE, ActionsTest.ALL_MATERIALS),
         new ComponentButton("Tree spawn", ComponentViewTestTools.#BTN_SCENE, ActionsTest.TREE_SPAWN_TEST),
-        new ComponentButton("Tree grow", ComponentViewTestTools.#BTN_SCENE, ActionsTest.TREE_GROW_TEST),
+        new ComponentButton("Tree grow", ComponentViewTestTools.#BTN_SCENE, ActionsTest.treeGrowTest(0)),
+        new ComponentButton("Tree grown", ComponentViewTestTools.#BTN_SCENE, ActionsTest.treeGrowTest(-1)),
 
         new ComponentButton("Benchmark", ComponentViewTestTools.#BTN_TOOL, new ActionBenchmark()),
         new ComponentButton("Screenshot", ComponentViewTestTools.#BTN_TOOL, new ActionScreenshot()),

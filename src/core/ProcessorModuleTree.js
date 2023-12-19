@@ -2,13 +2,14 @@ import {ElementHead} from "./ElementHead.js";
 import {Brushes} from "../def/Brushes.js";
 import {ProcessorContext} from "./ProcessorContext.js";
 import {DeterministicRandom} from "./DeterministicRandom.js";
+import {VisualEffects} from "./VisualEffects";
 
 // TODO: direct Brushes access >> Defaults
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-17
+ * @version 2023-12-19
  */
 export class ProcessorModuleTree {
 
@@ -21,7 +22,17 @@ export class ProcessorModuleTree {
     static #MAX_WOOD_TEMPERATURE = 50;
     static #MAX_LEAF_TEMPERATURE = 40;
 
-    static spawnHere(elementArea, x, y, type, brush, random, processorContext) {
+    static #NOISE = VisualEffects.visualNoiseProvider(7616891641);
+
+    static #LEAF_NOISE = (elementTail, x, y) => {
+        return ProcessorModuleTree.#NOISE.visualNoise(elementTail, x, y, 10, 0.5, 1, 68, 77, 40);
+    };
+
+    static #TRUNK_NOISE = (elementTail, x, y) => {
+        return ProcessorModuleTree.#NOISE.visualNoise(elementTail, x, y, 4, 0.5, 0.9, 87, 61, 39);
+    };
+
+    static spawnHere(elementArea, x, y, type, brush, random, processorContext, levelsToGrow = -1) {
         type = type % (1 << ElementHead.FIELD_SPECIAL_SIZE);
 
         const element = brush.apply(x, y, random);
@@ -34,7 +45,7 @@ export class ProcessorModuleTree {
             throw 'Tree template not found: ' + type;
         }
         const treeModule = new ProcessorModuleTree(elementArea, random, processorContext);
-        treeModule.#treeGrow(element.elementHead, x, y, template, -1);
+        treeModule.#treeGrow(element.elementHead, x, y, template, levelsToGrow);
 
         // roots fast grow
         for (let i = 1; i < 10; i++) {
@@ -118,8 +129,16 @@ export class ProcessorModuleTree {
             brush: null
         }];
 
-        let grow = (nx, ny, brush, increment) => {
-            this.#elementArea.setElement(nx, ny, brush.apply(nx, ny, this.#random));
+        let grow = (nx, ny, brush, noise, increment) => {
+            let element = brush.apply(nx, ny, this.#random);
+            if (noise === null) {
+                this.#elementArea.setElement(nx, ny, element);
+            } else {
+                const tx = (x - nx) + (10 * x);  // unique pattern for each tree
+                const ty = (y - ny) + (10 * y);
+                const modifiedTail = noise(element.elementTail, tx, ty);
+                this.#elementArea.setElementHeadAndTail(nx, ny, element.elementHead, modifiedTail);
+            }
             this.#processorContext.trigger(nx, ny);
             if (increment) {
                 level++;
@@ -159,9 +178,9 @@ export class ProcessorModuleTree {
                                 }
                             } else if (currentElementBehaviour === ElementHead.BEHAVIOUR_TREE_TRUNK) {
                                 // replace trunk
-                                grow(nx, ny, branch.brush, false);
+                                grow(nx, ny, branch.brush, ProcessorModuleTree.#LEAF_NOISE, false);
                             } else if (ElementHead.getTypeClass(currentElementHead) === ElementHead.TYPE_AIR) {
-                                grow(nx, ny, branch.brush, false);
+                                grow(nx, ny, branch.brush, ProcessorModuleTree.#LEAF_NOISE, false);
                             }
                             break;
 
@@ -185,7 +204,8 @@ export class ProcessorModuleTree {
                                 }
                             }
                             if (trunkGrow) {
-                                grow(nx, ny, Brushes.TREE_WOOD, true);
+                                const treeBrush = (nodeY > 0) ? Brushes.TREE_WOOD : Brushes.TREE_WOOD_DARK;
+                                grow(nx, ny, treeBrush, ProcessorModuleTree.#TRUNK_NOISE, true);
                                 if (nodeY === 2 && nodeX === 0) {
                                     // set seed
                                     this.#treeSetSeed(nx, ny, seed);
@@ -223,7 +243,7 @@ export class ProcessorModuleTree {
                                 brush: leafBrush
                             });
                             if (branchGrow) {
-                                grow(nx, ny, leafBrush, true);
+                                grow(nx, ny, leafBrush, ProcessorModuleTree.#LEAF_NOISE, true);
                             }
                             break;
 
@@ -231,7 +251,7 @@ export class ProcessorModuleTree {
                             if (currentElementBehaviour === ElementHead.BEHAVIOUR_TREE_ROOT) {
                                 level++;  // is already here
                             } else {
-                                grow(nx, ny, Brushes.TREE_ROOT, true);
+                                grow(nx, ny, Brushes.TREE_ROOT, null, true);
                             }
                             break;
 
