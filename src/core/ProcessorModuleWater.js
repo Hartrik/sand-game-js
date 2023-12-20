@@ -3,7 +3,7 @@ import {ElementHead} from "./ElementHead.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-10
+ * @version 2023-12-20
  */
 export class ProcessorModuleWater {
 
@@ -30,17 +30,20 @@ export class ProcessorModuleWater {
             if (temperature > 20) {
                 const brush = this.#processorContext.getDefaults().getBrushSteam();
                 const element = brush.apply(x, y, this.#random);
-                const newElementTail = ElementHead.setTemperature(element.elementHead, temperature);
-                this.#elementArea.setElementHeadAndTail(x, y, newElementTail, element.elementTail);
+                const newElementHead = ElementHead.setTemperature(element.elementHead, temperature);
+                this.#elementArea.setElementHeadAndTail(x, y, newElementHead, element.elementTail);
+                return true;
             }
 
         } else if (typeClass === ElementHead.TYPE_GAS) {
             if (temperature < 10) {
                 const brush = this.#processorContext.getDefaults().getBrushWater();
                 const element = brush.apply(x, y, this.#random);
-                const newElementTail = ElementHead.setTemperature(element.elementHead, temperature);
-                this.#elementArea.setElementHeadAndTail(x, y, newElementTail, element.elementTail);
+                const newElementHead = ElementHead.setTemperature(element.elementHead, temperature);
+                this.#elementArea.setElementHeadAndTail(x, y, newElementHead, element.elementTail);
+                return true;
             }
         }
+        return false;
     }
 }

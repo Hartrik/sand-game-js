@@ -12,7 +12,7 @@ import {ProcessorModuleWater} from "./ProcessorModuleWater";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-10
+ * @version 2023-12-20
  */
 export class Processor extends ProcessorContext {
 
@@ -473,7 +473,9 @@ export class Processor extends ProcessorContext {
             case ElementHead.BEHAVIOUR_SOIL:
                 break;
             case ElementHead.BEHAVIOUR_WATER:
-                this.#moduleWater.behaviourWater(elementHead, x, y);
+                if (this.#moduleWater.behaviourWater(elementHead, x, y)) {
+                    processTemperature = false;
+                }
                 break;
             case ElementHead.BEHAVIOUR_FIRE:
                 this.#moduleFire.behaviourFire(elementHead, x, y);
