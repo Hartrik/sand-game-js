@@ -9,7 +9,7 @@ import {VisualEffects} from "./VisualEffects";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-19
+ * @version 2023-12-20
  */
 export class ProcessorModuleTree {
 
@@ -115,8 +115,7 @@ export class ProcessorModuleTree {
     }
 
     #treeGrow(elementHead, x, y, template, levelsToGrow = 1) {
-        let seed = this.#treeCreateOrGetSeed(x, y - 2);
-        let treeRandom = new DeterministicRandom(seed);
+        let leafClusterIdRndSalt = this.#treeCreateOrGetSeed(x, y - 2);
 
         let level = 0;
         let levelGrown = 0;
@@ -160,9 +159,9 @@ export class ProcessorModuleTree {
                 }
 
                 const node = branch.entries[branch.index++];
-                const [nodeX, nodeY, nodeType] = node;
-                const nx = x + nodeX + branch.x;
-                const ny = y - nodeY - branch.y;
+                const [templateX, templateY, nodeType] = node;
+                const nx = x + templateX + branch.x;
+                const ny = y - templateY - branch.y;
 
                 if (this.#elementArea.isValidPosition(nx, ny)) {
                     const currentElementHead = this.#elementArea.getElementHead(nx, ny);
@@ -197,18 +196,18 @@ export class ProcessorModuleTree {
                                 trunkGrow = true;
                             } else if (currentElementBehaviour === ElementHead.BEHAVIOUR_GRASS) {
                                 trunkGrow = true;
-                            } else if (nodeY < 5) {
+                            } else if (templateY < 5) {
                                 // bottom trunk only...
                                 if (ElementHead.getTypeClass(currentElementHead) !== ElementHead.TYPE_STATIC) {
                                     trunkGrow = true;
                                 }
                             }
                             if (trunkGrow) {
-                                const treeBrush = (nodeY > 0) ? Brushes.TREE_WOOD : Brushes.TREE_WOOD_DARK;
+                                const treeBrush = (templateY > 0) ? Brushes.TREE_WOOD : Brushes.TREE_WOOD_DARK;
                                 grow(nx, ny, treeBrush, ProcessorModuleTree.#TRUNK_NOISE, true);
-                                if (nodeY === 2 && nodeX === 0) {
+                                if (templateY === 2 && templateX === 0) {
                                     // set seed
-                                    this.#treeSetSeed(nx, ny, seed);
+                                    this.#treeSetSeed(nx, ny, leafClusterIdRndSalt);
                                 }
                             }
                             break;
@@ -229,7 +228,7 @@ export class ProcessorModuleTree {
                                 break;  // an obstacle...
                             }
 
-                            let rnd = treeRandom.next();
+                            let rnd = DeterministicRandom.next(leafClusterIdRndSalt + templateX + templateY);
                             let leafClusterId = Math.trunc(rnd * this.#leafClusterTemplates.length);
                             let leafCluster = this.#leafClusterTemplates[leafClusterId];
                             let leafBrush = (Math.trunc(rnd * 1024) % 2 === 0)
@@ -238,8 +237,8 @@ export class ProcessorModuleTree {
                             parallelBranches.push({
                                 entries: leafCluster.entries,
                                 index: 0,
-                                x: nodeX,
-                                y: nodeY,
+                                x: templateX,
+                                y: templateY,
                                 brush: leafBrush
                             });
                             if (branchGrow) {
