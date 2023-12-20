@@ -1,6 +1,5 @@
 import { ElementArea } from "../core/ElementArea";
 import { SandGame } from "../core/SandGame";
-import { Brushes } from "../def/Brushes";
 import { Scenes } from "../def/Scenes";
 import { SceneImplTmpResize } from "../core/SceneImplResize";
 import { Tool } from "../core/Tool";
@@ -14,7 +13,7 @@ import {Defaults} from "../def/Defaults";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-09
+ * @version 2023-12-20
  */
 export class Controller {
 
@@ -114,28 +113,35 @@ export class Controller {
         // init game
         const defaults = new Defaults();
         const context = this.#initializeContext();
+        this.#sandGame = null;
+        let promise;
         try {
-            this.#sandGame = scene.createSandGame(w, h, defaults, context, this.#rendererInitializer);
+            promise = scene.createSandGame(w, h, defaults, context, this.#rendererInitializer);
         } catch (e) {
-            this.#sandGame = null;
             this.#reportSeriousFailure('Initialization failed: ' + e);
             return;
         }
 
-        this.#sandGame.graphics().replace(ElementArea.TRANSPARENT_ELEMENT, defaults.getDefaultElement());
+        promise.then(sandGame => {
+            this.#sandGame = sandGame;
+            this.#sandGame.graphics().replace(ElementArea.TRANSPARENT_ELEMENT, defaults.getDefaultElement());
 
-        this.#onInitialized.forEach(f => f(this.#sandGame));
+            this.#onInitialized.forEach(f => f(this.#sandGame));
 
-        // start rendering
-        this.#sandGame.addOnRenderingFailed((e) => {
-            this.#reportSeriousFailure('Rendering failure: ' + e);
+            // start rendering
+            this.#sandGame.addOnRenderingFailed((e) => {
+                this.#reportSeriousFailure('Rendering failure: ' + e);
+            });
+            this.#sandGame.startRendering();
+
+            // start processing - if enabled
+            if (this.#simulationEnabled) {
+                this.#sandGame.startProcessing();
+                this.#onStarted.forEach(f => f());
+            }
+        }).catch(e => {
+            this.#reportSeriousFailure('Initialization failed: ' + e);
         });
-        this.#sandGame.startRendering();
-
-        // start processing - if enabled
-        if (this.#simulationEnabled) {
-            this.#sandGame.startProcessing();
-        }
     }
 
     #initializeContext() {
@@ -320,9 +326,9 @@ export class Controller {
     }
 
     start() {
+        this.#simulationEnabled = true;
         if (this.#sandGame !== null) {
             if (!this.#simulationEnabled) {
-                this.#simulationEnabled = true;
                 this.#sandGame.startProcessing();
                 this.#onStarted.forEach(f => f());
             }
@@ -330,15 +336,15 @@ export class Controller {
     }
 
     switchStartStop() {
+        this.#simulationEnabled = !this.#simulationEnabled;
         if (this.#sandGame !== null) {
             if (this.#simulationEnabled) {
-                this.#simulationEnabled = false;
-                this.#sandGame.stopProcessing();
-                this.#onStopped.forEach(f => f());
-            } else {
                 this.#simulationEnabled = true;
                 this.#sandGame.startProcessing();
                 this.#onStarted.forEach(f => f());
+            } else {
+                this.#sandGame.stopProcessing();
+                this.#onStopped.forEach(f => f());
             }
         }
     }

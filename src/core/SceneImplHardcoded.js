@@ -5,13 +5,14 @@ import {ElementArea} from "./ElementArea.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-04-29
+ * @version 2023-12-20
  */
 export class SceneImplHardcoded extends Scene {
 
     name;
     description;
 
+    /** @type function(SandGame):Promise<any>|any */
     #apply;
 
     constructor({name, description, apply}) {
@@ -25,10 +26,10 @@ export class SceneImplHardcoded extends Scene {
         return [prefWidth, prefHeight];
     }
 
-    createSandGame(prefWidth, prefHeight, defaults, context, rendererInitializer) {
+    async createSandGame(prefWidth, prefHeight, defaults, context, rendererInitializer) {
         let elementArea = this.createElementArea(prefWidth, prefHeight, defaults.getDefaultElement());
         let sandGame = new SandGame(elementArea, null, defaults, context, rendererInitializer);
-        this.#apply(sandGame);
+        await this.#apply(sandGame);
         return sandGame;
     }
 

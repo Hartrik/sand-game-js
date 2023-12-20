@@ -5,7 +5,7 @@ import {ElementArea} from "./ElementArea.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-04-29
+ * @version 2023-12-20
  */
 export class SceneImplTmpResize extends Scene {
 
@@ -23,7 +23,7 @@ export class SceneImplTmpResize extends Scene {
         return [prefWidth, prefHeight];
     }
 
-    createSandGame(prefWidth, prefHeight, defaults, context, rendererInitializer) {
+    async createSandGame(prefWidth, prefHeight, defaults, context, rendererInitializer) {
         let elementArea = this.createElementArea(prefWidth, prefHeight, defaults.getDefaultElement());
         let sandGame = new SandGame(elementArea, null, defaults, context, rendererInitializer);
         this.#sandGame.copyStateTo(sandGame);

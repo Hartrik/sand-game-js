@@ -1,11 +1,13 @@
 import {Brushes} from "./Brushes.js";
 import {Brush} from "../core/Brush.js";
 import {SceneImplHardcoded} from "../core/SceneImplHardcoded.js";
+import {Resources} from "../core/Resources";
+import {Templates} from "./Templates";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-20
+ * @version 2023-12-20
  */
 export class Scenes {
 
@@ -23,26 +25,35 @@ export class Scenes {
     static SCENE_LANDSCAPE_1 = new SceneImplHardcoded({
         name: 'Landscape 1',
         description: 'Boxed mode',
-        apply: function (sandGame) {
+        apply: async function (sandGame) {
             sandGame.setBoxedMode();
+            sandGame.layeredTemplate()
+                .layer([[0, 30], [40, 33], [60, 50], [80, 40], [200, 20], [400, 20], [1000, 20]],
+                    true, Brush.concat(Brushes.SOIL, Brushes.EFFECT_NOISE_LG))
+                .layer([[0, 0], [90, 0], [110, 10], [150, 10], [250, 0]],
+                        true, Brushes.SAND, 2)
+                .tool(120, 5, await Resources.parseToolDefinition(Templates.SAND_CASTLE))
+                .tree(60, 1, 200)
+                .tree(30, 5)
+                .grass(20, 40)
+                .grass(50, 70);
+
             sandGame.blockTemplate()
                 .withMaxHeight(120)
                 .withBlueprint([
                     '          ',
-                    '     ww   ',
+                    '        ww',
                     '          ',
-                    '   11     ',
-                    ' 2 11111 2',
-                    ' 222    22',
-                    '222    222',
-                    '2222222222',
+                    '       1  ',
+                    '     111111',
+                    '          ',
+                    '          ',
+                    '          ',
                     '          ',
                 ])
                 .withBrushes({
-                    w: Brush.withIntensity(0.95, Brushes.WATER),
-                    1: Brushes.SAND,
-                    2: Brushes.SOIL,
-                    3: Brushes.GRAVEL
+                    w: Brush.withIntensity(0.5, Brushes.WATER),
+                    1: Brushes.SAND
                 })
                 .paint();
         }
@@ -55,14 +66,15 @@ export class Scenes {
             sandGame.setBoxedMode();
             sandGame.layeredTemplate()
                 .layer([[0, 20], [50, 15], [100, 10], [150, 10], [200, 10], [250, 10], [1250, 10]],
-                    true, Brushes.GRAVEL)
+                    true, Brush.concat(Brushes.GRAVEL, Brushes.EFFECT_NOISE_LG))
                 .layer([[0, 30], [25, 31], [50, 27], [100, 15], [150, 0], [200, 5], [220, 15], [300, 35], [330, 37],
                         [370, 50], [400, 45], [500, 40], [1250, 40]],
-                    true, Brushes.SOIL, 30)
+                    true, Brush.concat(Brushes.SOIL, Brushes.EFFECT_NOISE_LG), 30)
                 .layer([[0, 0], [50, 0], [100, 10], [150, 10], [200, 9], [275, 0], [1250, 0]],
                     true, Brushes.SAND, 5)
                 .layer(35, false, Brushes.WATER)
                 .layer(36, false, Brush.withIntensity(0.33, Brushes.WATER))
+                .fish(150, -8)
                 .grass()
                 .tree(16, 6)
                 .tree(28, 3, 70)

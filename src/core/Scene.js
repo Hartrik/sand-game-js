@@ -3,7 +3,7 @@
  * @interface
  *
  * @author Patrik Harag
- * @version 2023-08-27
+ * @version 2023-12-20
  */
 export class Scene {
 
@@ -20,7 +20,7 @@ export class Scene {
      * @param processorDefaults {ProcessorDefaults}
      * @param context {CanvasRenderingContext2D|WebGLRenderingContext}
      * @param rendererInitializer {RendererInitializer}
-     * @returns SandGame
+     * @returns Promise<SandGame>
      */
     createSandGame(prefWidth, prefHeight, processorDefaults, context, rendererInitializer) {
         throw 'Not implemented';

@@ -5,7 +5,7 @@ import {SandGame} from "./SandGame.js";
  * Create flipped scene using object composition.
  *
  * @author Patrik Harag
- * @version 2023-07-23
+ * @version 2023-12-20
  */
 export class SceneImplModFlip extends Scene {
 
@@ -28,7 +28,7 @@ export class SceneImplModFlip extends Scene {
         this.#original.countSize(prefWidth, prefHeight);
     }
 
-    createSandGame(prefWidth, prefHeight, defaults, context, rendererInitializer) {
+    async createSandGame(prefWidth, prefHeight, defaults, context, rendererInitializer) {
         let elementArea = this.createElementArea(prefWidth, prefHeight, defaults.getDefaultElement());
         return new SandGame(elementArea, null, defaults, context, rendererInitializer);
         // TODO: sceneMetadata not set

@@ -1,11 +1,12 @@
 import Spline from "cubic-spline";
 import { ProcessorModuleGrass } from "./ProcessorModuleGrass.js";
 import { ProcessorModuleTree } from "./ProcessorModuleTree.js";
+import { Brushes } from "../def/Brushes";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-08
+ * @version 2023-12-20
  */
 export class TemplateLayeredPainter {
 
@@ -99,8 +100,11 @@ export class TemplateLayeredPainter {
         return this;
     }
 
-    grass() {
-        for (let x = 0; x < this.#elementArea.getWidth(); x++) {
+    grass(from = 0, to = -1) {
+        if (to === -1) {
+            to = this.#elementArea.getWidth();
+        }
+        for (let x = from; x < to; x++) {
             const lastLevel = this.#lastLevel[x];
             const y = this.#elementArea.getHeight() - 1 - lastLevel;
 
@@ -109,6 +113,8 @@ export class TemplateLayeredPainter {
                 ProcessorModuleGrass.spawnHere(this.#elementArea, x, y, brush, this.#random);
             }
         }
+
+        // TODO: update lastLevel
         return this;
     }
 
@@ -122,6 +128,43 @@ export class TemplateLayeredPainter {
 
         const brush = this.#processorContext.getDefaults().getBrushTree();
         ProcessorModuleTree.spawnHere(this.#elementArea, x, y, type, brush, this.#random, this.#processorContext, levelsToGrow);
+
+        // TODO: update lastLevel
+        return this;
+    }
+
+    fish(x, relativeY = 0) {
+        if (x < 0 || x >= this.#elementArea.getWidth() - 1) {
+            return this;  // out of bounds
+        }
+
+        const lastLevelHead = this.#lastLevel[x];
+
+        const y = this.#elementArea.getHeight() - relativeY - lastLevelHead;
+        if (y < 0 || y >= this.#elementArea.getHeight()) {
+            return this;  // out of bounds
+        }
+        this.#elementArea.setElement(x, y, Brushes.FISH_HEAD.apply(0, 0, this.#random, null));
+        this.#elementArea.setElement(x + 1, y, Brushes.FISH_BODY.apply(0, 0, this.#random, null));
+
+        // TODO: update lastLevel
+        return this;
+    }
+
+    tool(x, relativeY, tool) {
+        if (x < 0 || x >= this.#elementArea.getWidth()) {
+            return this;  // out of bounds
+        }
+
+        const lastLevel = this.#lastLevel[x];
+        const y = this.#elementArea.getHeight() - relativeY - lastLevel;
+        if (y < 0 || y >= this.#elementArea.getHeight()) {
+            return this;  // out of bounds
+        }
+
+        tool.applyPoint(x, y, this.#graphics, false);
+
+        // TODO: update lastLevel
         return this;
     }
 }
