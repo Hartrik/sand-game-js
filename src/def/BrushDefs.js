@@ -259,15 +259,6 @@ export class BrushDefs {
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_1))
     ]));
 
-    static TREE_LEAF_DEAD = Brushes.paletteBrush(_ASSET_PALETTE_TREE_LEAF_DEAD, Brushes.random([
-        new Element(
-            ElementHead.of(
-                ElementHead.type8(ElementHead.TYPE_STATIC),
-                ElementHead.behaviour8(ElementHead.BEHAVIOUR_TREE_LEAF, 15),
-                ElementHead.modifiers8(ElementHead.FLAMMABLE_TYPE_FAST, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_MEDIUM)),
-            ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_1))
-    ]));
-
     static #FIRE_ELEMENT_HEAD = ElementHead.of(
             ElementHead.type8(ElementHead.TYPE_EFFECT),
             ElementHead.behaviour8(ElementHead.BEHAVIOUR_FIRE, 0));

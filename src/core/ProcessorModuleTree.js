@@ -1,4 +1,5 @@
 import {ElementHead} from "./ElementHead.js";
+import {ElementTail} from "./ElementTail";
 import {BrushDefs} from "../def/BrushDefs.js";
 import {ProcessorContext} from "./ProcessorContext.js";
 import {DeterministicRandom} from "./DeterministicRandom.js";
@@ -404,25 +405,22 @@ export class ProcessorModuleTree {
     }
 
     behaviourTreeLeaf(elementHead, x, y) {
-        // check temperature
-        const temperature = ElementHead.getTemperature(elementHead);
-        if (temperature > ProcessorModuleTree.#MAX_LEAF_TEMPERATURE) {
-            // => destroy instantly, keep temperature
-            const newElement = BrushDefs.TREE_LEAF_DEAD.apply(x, y, this.#random);
-            const newElementHead = ElementHead.setTemperature(newElement.elementHead, temperature);
-            const newElementTail = newElement.elementTail;
-            this.#elementArea.setElementHeadAndTail(x, y, newElementHead, newElementTail);
-            return;
-        }
-
-        // decrement vitality (if not dead already)
         let vitality = ElementHead.getSpecial(elementHead);
         if (vitality < 15) {
+            // check temperature
+            const temperature = ElementHead.getTemperature(elementHead);
+            if (temperature > ProcessorModuleTree.#MAX_LEAF_TEMPERATURE) {
+                // => destroy instantly, keep temperature
+                this.#dryLeaf(elementHead, x, y);
+                return;
+            }
+
+            // decrement vitality (if not dead already)
             if (this.#processorContext.getIteration() % 32 === 0) {
                 if (this.#random.nextInt(10) === 0) {
                     vitality++;
                     if (vitality >= 15) {
-                        this.#elementArea.setElement(x, y, BrushDefs.TREE_LEAF_DEAD.apply(x, y, this.#random));
+                        this.#dryLeaf(elementHead, x, y);
                         return;
                     } else {
                         elementHead = ElementHead.setSpecial(elementHead, vitality);
@@ -457,5 +455,21 @@ export class ProcessorModuleTree {
                 // TODO
             }
         }
+    }
+
+    #dryLeaf(elementHead, x, y) {
+        const elementTail = this.#elementArea.getElementTail(x, y);
+
+        // multiplication and alpha blending (for lighter color)
+        const alpha = 0.85;
+        const whiteBackground = 255 * (1.0 - alpha);
+        let newElementTail = ElementTail.setColor(
+            Math.trunc(ElementTail.getColorRed(elementTail) * 1.4 * alpha + whiteBackground) & 0xFF,
+            Math.trunc(ElementTail.getColorGreen(elementTail) * 0.9 * alpha + whiteBackground) & 0xFF,
+            Math.trunc(ElementTail.getColorBlue(elementTail) * 0.8 * alpha + whiteBackground) & 0xFF
+        )
+
+        const newElementHead = ElementHead.setSpecial(elementHead, 15);
+        this.#elementArea.setElementHeadAndTail(x, y, newElementHead, newElementTail);
     }
 }
