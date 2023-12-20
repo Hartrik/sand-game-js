@@ -1,19 +1,15 @@
-import copy from 'rollup-plugin-copy'
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import image from '@rollup/plugin-image';
 import json from '@rollup/plugin-json';
 import { string } from "rollup-plugin-string";
 import terser from '@rollup/plugin-terser';
+import postcss from 'rollup-plugin-postcss';
+import header from "postcss-header";
+import cssnano from "cssnano";
 import pkg from './package.json';
 
 const PLUGINS_COMMON = [
-    copy({
-        targets: [
-            { src: 'src/style.css', dest: 'dist', rename: 'sand-game-js.css' }
-        ]
-    }),
-
     resolve(), // so Rollup can find libraries
     commonjs(), // so Rollup can convert libraries to an ES modules
 
@@ -79,11 +75,35 @@ if (devBuild) {
             plugins: PLUGINS_MIN
     });
 }
-
 export default [
     {
         input: 'src/main.js',
         plugins: PLUGINS_COMMON,
         output: OUTPUTS
+    },
+    {
+        input: 'src/style.css',
+        plugins: [
+            postcss({
+                extract: true,
+                modules: false,
+                sourceMap: true,
+                plugins: [
+                    cssnano({
+                        preset: 'default',
+                    }),
+                    header({
+                        header: pkg.copyright,
+                    })
+                ],
+            }),
+        ],
+        output: {
+            file: 'dist/sand-game-js.css',
+        },
+        onwarn(warning, warn) {
+            if (warning.code === 'FILE_NAME_CONFLICT') return;
+            warn(warning);
+        }
     },
 ];
