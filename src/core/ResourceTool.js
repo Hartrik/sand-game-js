@@ -1,4 +1,5 @@
 import { Tool } from "./Tool";
+import { Tools } from "./Tools";
 import { BrushDefs } from "../def/BrushDefs";
 import { ElementArea } from "./ElementArea";
 import { SceneImplModFlip } from "./SceneImplModFlip";
@@ -40,7 +41,7 @@ export class ResourceTool {
 
         if (type === 'template') {
             const scenes = await ResourceTool.#parseTemplateAction(action, zip);
-            return Tool.insertElementAreaTool(category, null, name, scenes, undefined);
+            return Tools.insertElementAreaTool(category, null, name, scenes, undefined);
 
         } else {
             throw 'Tool type not supported: ' + type;

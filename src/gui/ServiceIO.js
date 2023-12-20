@@ -6,6 +6,7 @@ import {ResourceUtils} from "../core/ResourceUtils";
 import {Analytics} from "../Analytics.js";
 import {Scene} from "../core/Scene";
 import {Tool} from "../core/Tool";
+import {Tools} from "../core/Tools";
 
 // TODO: refactor
 
@@ -136,7 +137,7 @@ export class ServiceIO {
             if (tool.getCategory() === 'template') {
                 const revert = toolManager.createRevertAction();
                 toolManager.setPrimaryTool(tool);
-                toolManager.setSecondaryTool(Tool.actionTool(null, null, null, revert));
+                toolManager.setSecondaryTool(Tools.actionTool(null, null, null, revert));
             } else {
                 toolManager.setPrimaryTool(tool);
             }

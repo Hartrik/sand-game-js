@@ -1,7 +1,7 @@
 import { DomBuilder } from "./DomBuilder";
 import { TemplateDefs } from "../def/TemplateDefs";
 import { Resources } from "../core/Resources";
-import { Tool } from "../core/Tool";
+import { Tools } from "../core/Tools";
 import { Component } from "./Component";
 
 /**
@@ -32,7 +32,7 @@ export class ComponentViewTemplateSelection extends Component {
                     const revert = toolManager.createRevertAction();
 
                     toolManager.setPrimaryTool(loadedTool);
-                    toolManager.setSecondaryTool(Tool.actionTool(null, null, null, revert));
+                    toolManager.setSecondaryTool(Tools.actionTool(null, null, null, revert));
 
                 } else {
                     // this should not happen

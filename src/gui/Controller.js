@@ -2,13 +2,13 @@ import { ElementArea } from "../core/ElementArea";
 import { SandGame } from "../core/SandGame";
 import { SceneDefs } from "../def/SceneDefs";
 import { SceneImplTmpResize } from "../core/SceneImplResize";
-import { Tool } from "../core/Tool";
 import { ServiceToolManager } from "./ServiceToolManager";
 import { ServiceIO } from "./ServiceIO";
 import { RendererInitializer } from "../core/RendererInitializer";
 import { SceneImplSnapshot } from "../core/SceneImplSnapshot";
 import { DomBuilder } from "./DomBuilder";
-import {Defaults} from "../def/Defaults";
+import { Defaults } from "../def/Defaults";
+import { Tools } from "../core/Tools";
 
 /**
  *
@@ -374,8 +374,8 @@ export class Controller {
         const toolManager = this.getToolManager();
         const revert = toolManager.createRevertAction();
 
-        toolManager.setPrimaryTool(Tool.insertElementAreaTool(null, null, null, [ scene ], revert));
-        toolManager.setSecondaryTool(Tool.actionTool(null, null, null, revert));
+        toolManager.setPrimaryTool(Tools.insertElementAreaTool(null, null, null, [ scene ], revert));
+        toolManager.setSecondaryTool(Tools.actionTool(null, null, null, revert));
     }
 
     // controller / canvas size
