@@ -1,5 +1,5 @@
+import {Brushes} from "../core/Brushes";
 import {BrushDefs} from "./BrushDefs.js";
-import {Brush} from "../core/Brush.js";
 import {SceneImplHardcoded} from "../core/SceneImplHardcoded.js";
 import {Resources} from "../core/Resources";
 import {TemplateDefs} from "./TemplateDefs";
@@ -29,7 +29,7 @@ export class SceneDefs {
             sandGame.setBoxedMode();
             sandGame.layeredTemplate()
                 .layer([[0, 30], [40, 33], [60, 50], [80, 40], [200, 20], [400, 20], [1000, 20]],
-                    true, Brush.concat(BrushDefs.SOIL, BrushDefs.EFFECT_NOISE_LG))
+                    true, Brushes.concat(BrushDefs.SOIL, BrushDefs.EFFECT_NOISE_LG))
                 .layer([[0, 0], [90, 0], [110, 10], [150, 10], [250, 0]],
                         true, BrushDefs.SAND, 2)
                 .tool(120, 5, await Resources.parseToolDefinition(TemplateDefs.SAND_CASTLE))
@@ -52,7 +52,7 @@ export class SceneDefs {
                     '          ',
                 ])
                 .withBrushes({
-                    w: Brush.withIntensity(0.5, BrushDefs.WATER),
+                    w: Brushes.withIntensity(0.5, BrushDefs.WATER),
                     1: BrushDefs.SAND
                 })
                 .paint();
@@ -66,14 +66,14 @@ export class SceneDefs {
             sandGame.setBoxedMode();
             sandGame.layeredTemplate()
                 .layer([[0, 20], [50, 15], [100, 10], [150, 10], [200, 10], [250, 10], [1250, 10]],
-                    true, Brush.concat(BrushDefs.GRAVEL, BrushDefs.EFFECT_NOISE_LG))
+                    true, Brushes.concat(BrushDefs.GRAVEL, BrushDefs.EFFECT_NOISE_LG))
                 .layer([[0, 30], [25, 31], [50, 27], [100, 15], [150, 0], [200, 5], [220, 15], [300, 35], [330, 37],
                         [370, 50], [400, 45], [500, 40], [1250, 40]],
-                    true, Brush.concat(BrushDefs.SOIL, BrushDefs.EFFECT_NOISE_LG), 30)
+                    true, Brushes.concat(BrushDefs.SOIL, BrushDefs.EFFECT_NOISE_LG), 30)
                 .layer([[0, 0], [50, 0], [100, 10], [150, 10], [200, 9], [275, 0], [1250, 0]],
                     true, BrushDefs.SAND, 5)
                 .layer(35, false, BrushDefs.WATER)
-                .layer(36, false, Brush.withIntensity(0.33, BrushDefs.WATER))
+                .layer(36, false, Brushes.withIntensity(0.33, BrushDefs.WATER))
                 .fish(150, -8)
                 .grass()
                 .tree(16, 6)

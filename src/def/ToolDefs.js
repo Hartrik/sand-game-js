@@ -1,7 +1,7 @@
+import { Brushes } from "../core/Brushes";
 import { Tool } from "../core/Tool.js";
 import { Tools } from "../core/Tools";
 import { BrushDefs } from "./BrushDefs";
-import { Brush } from "../core/Brush";
 
 /**
  *
@@ -23,7 +23,7 @@ export class ToolDefs {
         Tools.rectangleBrushTool(ToolDefs.CATEGORY_BRUSH, 'gravel', 'Gravel', BrushDefs.GRAVEL,ToolDefs.DEFAULT_SIZE),
         Tools.rectangleBrushTool(ToolDefs.CATEGORY_BRUSH, 'wall', 'Rock', BrushDefs.ROCK, ToolDefs.DEFAULT_SIZE),
         Tools.rectangleBrushTool(ToolDefs.CATEGORY_BRUSH, 'water', 'Water', BrushDefs.WATER, ToolDefs.DEFAULT_SIZE),
-        Tools.rectangleBrushTool(ToolDefs.CATEGORY_BRUSH, 'fire', 'Fire', Brush.temperatureOrBrush(50, BrushDefs.FIRE), ToolDefs.DEFAULT_SIZE),
+        Tools.rectangleBrushTool(ToolDefs.CATEGORY_BRUSH, 'fire', 'Fire', Brushes.temperatureOrBrush(50, BrushDefs.FIRE), ToolDefs.DEFAULT_SIZE),
         Tools.meteorTool(ToolDefs.CATEGORY_BRUSH, 'meteor', 'Meteor'),
     ];
 

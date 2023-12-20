@@ -1,6 +1,7 @@
 import {CursorDefinition} from "./CursorDefinition.js";
 
 /**
+ * @interface
  *
  * @author Patrik Harag
  * @version 2023-12-20

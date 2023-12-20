@@ -1,5 +1,6 @@
 import {Brush} from "../Brush";
 import {Tool} from "../Tool";
+import {Brushes} from "../Brushes";
 
 /**
  *
@@ -20,7 +21,7 @@ export class RectangleBrushTool extends Tool {
     constructor(category, codeName, displayName, brush, size) {
         super(category, codeName, displayName);
         this.#brush = brush;
-        this.#altBrush = Brush.gentle(brush);
+        this.#altBrush = Brushes.gentle(brush);
         this.#size = size;
     }
 

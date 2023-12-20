@@ -1,5 +1,5 @@
 import {ElementArea} from "../ElementArea";
-import {Brush} from "../Brush";
+import {Brushes} from "../Brushes";
 import {CursorDefinitionElementArea} from "../CursorDefinitionElementArea";
 import {Tool} from "../Tool";
 
@@ -32,7 +32,7 @@ export class InsertSceneTool extends Tool {
         const offsetX = x - Math.trunc(elementArea.getWidth() / 2);
         const offsetY = y - Math.trunc(elementArea.getHeight() / 2);
 
-        let brush = Brush.custom((tx, ty) => {
+        let brush = Brushes.custom((tx, ty) => {
             const element = elementArea.getElement(tx - offsetX, ty - offsetY);
             if (element.elementHead !== ElementArea.TRANSPARENT_ELEMENT.elementHead
                 && element.elementTail !== ElementArea.TRANSPARENT_ELEMENT.elementTail) {
@@ -42,7 +42,7 @@ export class InsertSceneTool extends Tool {
             return null;
         });
         if (aldModifier) {
-            brush = Brush.gentle(brush);
+            brush = Brushes.gentle(brush);
         }
 
         for (let i = 0; i < elementArea.getWidth() && offsetX + i < graphics.getWidth(); i++) {
