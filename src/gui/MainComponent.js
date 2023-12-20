@@ -1,5 +1,5 @@
 import { DomBuilder } from "./DomBuilder";
-import { Tools } from "../def/Tools";
+import { ToolDefs } from "../def/ToolDefs";
 import { Component } from "./Component";
 import { ComponentViewTools } from "./ComponentViewTools";
 import { ComponentViewOptions } from "./ComponentViewOptions";
@@ -30,7 +30,7 @@ export class MainComponent extends Component {
     createNode(controller) {
         let componentNode = DomBuilder.div({ class: 'sand-game-component' });
 
-        componentNode.append(new ComponentViewTools(Tools.DEFAULT_TOOLS, true).createNode(controller));
+        componentNode.append(new ComponentViewTools(ToolDefs.DEFAULT_TOOLS, true).createNode(controller));
         componentNode.append(new ComponentViewCanvas().createNode(controller));
         componentNode.append(new ComponentViewOptions().createNode(controller));
         componentNode.append(DomBuilder.div({ class: 'sand-game-views' }, [

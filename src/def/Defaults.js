@@ -1,6 +1,6 @@
 import {ProcessorDefaults} from "../core/ProcessorDefaults";
-import {Brushes} from "./Brushes";
-import {Structures} from "./Structures";
+import {BrushDefs} from "./BrushDefs";
+import {StructureDefs} from "./StructureDefs";
 
 /**
  *
@@ -9,7 +9,7 @@ import {Structures} from "./Structures";
  */
 export class Defaults extends ProcessorDefaults {
 
-    static #DEFAULT_ELEMENT = Brushes.AIR.apply(0, 0, undefined);
+    static #DEFAULT_ELEMENT = BrushDefs.AIR.apply(0, 0, undefined);
 
     getDefaultElement() {
         return Defaults.#DEFAULT_ELEMENT;
@@ -18,48 +18,48 @@ export class Defaults extends ProcessorDefaults {
     // brushes
 
     getBrushWater() {
-        return Brushes.WATER;
+        return BrushDefs.WATER;
     }
 
     getBrushSteam() {
-        return Brushes.STEAM;
+        return BrushDefs.STEAM;
     }
 
     getBrushGrass() {
-        return Brushes.GRASS;
+        return BrushDefs.GRASS;
     }
 
     getBrushTree() {
-        return Brushes.TREE;
+        return BrushDefs.TREE;
     }
 
     getBrushFishHead() {
-        return Brushes.FISH_HEAD;
+        return BrushDefs.FISH_HEAD;
     }
 
     getBrushFishBody() {
-        return Brushes.FISH_BODY;
+        return BrushDefs.FISH_BODY;
     }
 
     getBrushFishCorpse() {
-        return Brushes.FISH_CORPSE;
+        return BrushDefs.FISH_CORPSE;
     }
 
     getBrushFire() {
-        return Brushes.FIRE;
+        return BrushDefs.FIRE;
     }
 
     getBrushAsh() {
-        return Brushes.ASH;
+        return BrushDefs.ASH;
     }
 
     // structures
 
     getTreeTrunkTemplates() {
-        return Structures.TREE_TRUNK_TEMPLATES;
+        return StructureDefs.TREE_TRUNK_TEMPLATES;
     }
 
     getTreeLeafClusterTemplates() {
-        return Structures.TREE_CLUSTER_TEMPLATES;
+        return StructureDefs.TREE_CLUSTER_TEMPLATES;
     }
 }

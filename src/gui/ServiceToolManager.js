@@ -1,5 +1,5 @@
 import {Tool} from "../core/Tool.js";
-import {Tools} from "../def/Tools.js";
+import {ToolDefs} from "../def/ToolDefs.js";
 
 /**
  *
@@ -8,9 +8,9 @@ import {Tools} from "../def/Tools.js";
  */
 export class ServiceToolManager {
 
-    #primaryTool = Tools.byCodeName('sand');
-    #secondaryTool = Tools.byCodeName('air');
-    #tertiaryTool = Tools.byCodeName('meteor');
+    #primaryTool = ToolDefs.byCodeName('sand');
+    #secondaryTool = ToolDefs.byCodeName('air');
+    #tertiaryTool = ToolDefs.byCodeName('meteor');
 
     /** @type function(Tool)[] */
     #onPrimaryToolChanged = [];

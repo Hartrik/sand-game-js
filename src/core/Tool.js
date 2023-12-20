@@ -3,7 +3,7 @@ import { Element } from "./Element.js";
 import { ElementArea } from "./ElementArea.js";
 import { CursorDefinition } from "./CursorDefinition.js";
 import { CursorDefinitionElementArea } from "./CursorDefinitionElementArea.js";
-import { Brushes } from "../def/Brushes.js";
+import { BrushDefs } from "../def/BrushDefs.js";
 import { DeterministicRandom } from "./DeterministicRandom";
 
 /**
@@ -251,7 +251,7 @@ class Point2BrushTool extends Tool {
     }
 }
 
-// TODO: direct Brushes access >> Defaults
+// TODO: direct BrushDefs access >> Defaults
 /**
  *
  * @author Patrik Harag
@@ -267,26 +267,26 @@ class MeteorTool extends Tool {
         const diffSlope4 = Math.trunc(y / 4);
         if (x < diffSlope4 + 10) {
             // right only
-            graphics.draw(x + diffSlope4, 0, Brushes.METEOR_FROM_RIGHT);
+            graphics.draw(x + diffSlope4, 0, BrushDefs.METEOR_FROM_RIGHT);
             return;
         }
         if (x > graphics.getWidth() - diffSlope4 - 10) {
             // left only
-            graphics.draw(x - diffSlope4, 0, Brushes.METEOR_FROM_LEFT);
+            graphics.draw(x - diffSlope4, 0, BrushDefs.METEOR_FROM_LEFT);
             return;
         }
 
         if (x < graphics.getWidth() / 2) {
             if (DeterministicRandom.DEFAULT.next() < 0.8) {
-                graphics.draw(x + diffSlope4, 0, Brushes.METEOR_FROM_RIGHT);
+                graphics.draw(x + diffSlope4, 0, BrushDefs.METEOR_FROM_RIGHT);
             } else {
-                graphics.draw(x, 0, Brushes.METEOR);
+                graphics.draw(x, 0, BrushDefs.METEOR);
             }
         } else {
             if (DeterministicRandom.DEFAULT.next() < 0.8) {
-                graphics.draw(x - diffSlope4, 0, Brushes.METEOR_FROM_LEFT);
+                graphics.draw(x - diffSlope4, 0, BrushDefs.METEOR_FROM_LEFT);
             } else {
-                graphics.draw(x, 0, Brushes.METEOR);
+                graphics.draw(x, 0, BrushDefs.METEOR);
             }
         }
     }

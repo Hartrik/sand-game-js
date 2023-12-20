@@ -1,6 +1,6 @@
 import { DomBuilder } from "./DomBuilder";
 import { Component } from "./Component";
-import { Scenes } from "../def/Scenes";
+import { SceneDefs } from "../def/SceneDefs";
 import { Analytics } from "../Analytics";
 import { SceneImplSnapshot } from "../core/SceneImplSnapshot";
 
@@ -55,7 +55,7 @@ export class ComponentViewSceneSelection extends Component {
     createNode(controller) {
         let content = DomBuilder.div({ class: 'scenes' }, []);
         for (let id of ComponentViewSceneSelection.SCENES) {
-            let scene = Scenes.SCENES[id];
+            let scene = SceneDefs.SCENES[id];
 
             let label = DomBuilder.element('span', { class: 'scene-title' }, scene.name);
             // scene.description ? scene.description : '\u00A0'

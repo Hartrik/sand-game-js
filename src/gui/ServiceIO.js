@@ -1,5 +1,5 @@
 import {DomBuilder} from "./DomBuilder.js";
-import {Brushes} from "../def/Brushes.js";
+import {BrushDefs} from "../def/BrushDefs.js";
 import {ElementArea} from "../core/ElementArea.js";
 import {Resources} from "../core/Resources.js";
 import {ResourceUtils} from "../core/ResourceUtils";
@@ -192,17 +192,17 @@ class TemplateForm {
     #maxWidth = 300;
     #maxHeight = 200;
     #materialValue = 'sand';
-    #materialBrush = Brushes.SAND;
+    #materialBrush = BrushDefs.SAND;
 
     create() {
         return DomBuilder.element('form', null, [
             DomBuilder.element('fieldset', { class: 'mb-3 row' }, [
                 DomBuilder.element('legend', { class: 'col-form-label col-sm-3 float-sm-left pt-0' }, 'Material'),
                 DomBuilder.div({ class: 'col-sm-9' }, [
-                    this.#creatMaterialFormGroup('sand', Brushes.SAND, 'Sand'),
-                    this.#creatMaterialFormGroup('soil', Brushes.SOIL, 'Soil'),
-                    this.#creatMaterialFormGroup('wall', Brushes.WALL, 'Solid'),
-                    this.#creatMaterialFormGroup('wood', Brushes.TREE_WOOD, 'Wood')
+                    this.#creatMaterialFormGroup('sand', BrushDefs.SAND, 'Sand'),
+                    this.#creatMaterialFormGroup('soil', BrushDefs.SOIL, 'Soil'),
+                    this.#creatMaterialFormGroup('wall', BrushDefs.WALL, 'Solid'),
+                    this.#creatMaterialFormGroup('wood', BrushDefs.TREE_WOOD, 'Wood')
                 ])
             ]),
             DomBuilder.element('fieldset', { class: 'mb-3 row' }, [

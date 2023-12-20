@@ -3,7 +3,7 @@ import {ElementHead} from "../core/ElementHead.js";
 import {ElementTail} from "../core/ElementTail.js";
 import {Element} from "../core/Element.js";
 import {VisualEffects} from "../core/VisualEffects.js";
-import {Structures} from "./Structures";
+import {StructureDefs} from "./StructureDefs";
 
 import _ASSET_PALETTE_SAND from './assets/brushes/sand.palette.csv';
 import _ASSET_PALETTE_SOIL from './assets/brushes/soil.palette.csv';
@@ -27,7 +27,7 @@ import _ASSET_TEXTURE_METAL from './assets/brushes/metal.png';
  * @author Patrik Harag
  * @version 2023-12-19
  */
-export class Brushes {
+export class BrushDefs {
 
     // TEST brushes
     // bright color for testing purposes
@@ -198,7 +198,7 @@ export class Brushes {
     ]);
 
     static TREE = Brush.paletteBrush(_ASSET_PALETTE_TREE_WOOD_DARK, Brush.custom((x, y, random) => {
-        let treeType = random.nextInt(Structures.TREE_TRUNK_TEMPLATES.length);
+        let treeType = random.nextInt(StructureDefs.TREE_TRUNK_TEMPLATES.length);
         return new Element(
             ElementHead.of(
                 ElementHead.type8(ElementHead.TYPE_STATIC),
@@ -271,9 +271,9 @@ export class Brushes {
             ElementHead.type8(ElementHead.TYPE_EFFECT),
             ElementHead.behaviour8(ElementHead.BEHAVIOUR_FIRE, 0));
     static FIRE = Brush.random([
-        new Element(ElementHead.setTemperature(Brushes.#FIRE_ELEMENT_HEAD, 255), ElementTail.of(249, 219, 30)),
-        new Element(ElementHead.setTemperature(Brushes.#FIRE_ELEMENT_HEAD, 255), ElementTail.of(249, 219, 30)),
-        new Element(ElementHead.setTemperature(Brushes.#FIRE_ELEMENT_HEAD, 120), ElementTail.of(249, 219, 30))
+        new Element(ElementHead.setTemperature(BrushDefs.#FIRE_ELEMENT_HEAD, 255), ElementTail.of(249, 219, 30)),
+        new Element(ElementHead.setTemperature(BrushDefs.#FIRE_ELEMENT_HEAD, 255), ElementTail.of(249, 219, 30)),
+        new Element(ElementHead.setTemperature(BrushDefs.#FIRE_ELEMENT_HEAD, 120), ElementTail.of(249, 219, 30))
     ]);
 
     static ASH = Brush.paletteBrush(_ASSET_PALETTE_ASH, Brush.custom((x, y, random) => {
@@ -332,26 +332,26 @@ export class Brushes {
     // --- SEARCH
 
     static _LIST = {
-        air: Brushes.AIR,
-        ash: Brushes.ASH,
-        sand: Brushes.SAND,
-        soil: Brushes.SOIL,
-        gravel: Brushes.GRAVEL,
-        wall: Brushes.WALL,
-        rock: Brushes.ROCK,
-        metal: Brushes.METAL,
-        wood: Brushes.TREE_WOOD,
-        water: Brushes.WATER,
-        steam: Brushes.STEAM,
-        fire: Brushes.FIRE,
-        meteor: Brushes.METEOR,
-        meteor_l: Brushes.METEOR_FROM_LEFT,
-        meteor_r: Brushes.METEOR_FROM_RIGHT,
-        effect_burnt: Brushes.EFFECT_BURNT,
-        effect_temp_0: Brushes.EFFECT_TEMP_0,
-        effect_temp_127: Brushes.EFFECT_TEMP_127,
-        effect_temp_200: Brushes.EFFECT_TEMP_200,
-        effect_temp_255: Brushes.EFFECT_TEMP_255,
+        air: BrushDefs.AIR,
+        ash: BrushDefs.ASH,
+        sand: BrushDefs.SAND,
+        soil: BrushDefs.SOIL,
+        gravel: BrushDefs.GRAVEL,
+        wall: BrushDefs.WALL,
+        rock: BrushDefs.ROCK,
+        metal: BrushDefs.METAL,
+        wood: BrushDefs.TREE_WOOD,
+        water: BrushDefs.WATER,
+        steam: BrushDefs.STEAM,
+        fire: BrushDefs.FIRE,
+        meteor: BrushDefs.METEOR,
+        meteor_l: BrushDefs.METEOR_FROM_LEFT,
+        meteor_r: BrushDefs.METEOR_FROM_RIGHT,
+        effect_burnt: BrushDefs.EFFECT_BURNT,
+        effect_temp_0: BrushDefs.EFFECT_TEMP_0,
+        effect_temp_127: BrushDefs.EFFECT_TEMP_127,
+        effect_temp_200: BrushDefs.EFFECT_TEMP_200,
+        effect_temp_255: BrushDefs.EFFECT_TEMP_255,
     }
 
     /**
@@ -360,7 +360,7 @@ export class Brushes {
      * @returns {Brush|null}
      */
     static byCodeName(codeName) {
-        const brush = Brushes._LIST[codeName];
+        const brush = BrushDefs._LIST[codeName];
         if (brush !== undefined) {
             return brush;
         }

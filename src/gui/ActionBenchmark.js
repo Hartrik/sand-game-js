@@ -1,5 +1,5 @@
 import { Controller } from "./Controller";
-import { Brushes } from "../def/Brushes";
+import { BrushDefs } from "../def/BrushDefs";
 import { SceneImplHardcoded } from "../core/SceneImplHardcoded";
 import { Action } from "./Action";
 import { DomBuilder } from "./DomBuilder";
@@ -120,7 +120,7 @@ export class BenchmarkProvider {
                 ipsMin = Number.MAX_SAFE_INTEGER;
                 waiting = BenchmarkProvider.WAITING_GAP;
 
-                sandGame.graphics().fill(Brushes.AIR);
+                sandGame.graphics().fill(BrushDefs.AIR);
 
                 if (benchmarkQueue.length === 0) {
                     this.#onFinish(this.#finalizeResults(sandGame, benchmarkResults));
@@ -160,54 +160,54 @@ export class BenchmarkProvider {
 
     static BENCHMARKS = [
         BenchmarkProvider.#createBenchmark('sand-fall-q', 500, function (sandGame, j) {
-            sandGame.graphics().drawRectangle(0, 0, -1, 0, Brushes.SAND, true);
+            sandGame.graphics().drawRectangle(0, 0, -1, 0, BrushDefs.SAND, true);
         }),
         BenchmarkProvider.#createBenchmark('sand-fall-s', 2000, function (sandGame, j) {
             if (j % 10 === 0) {
-                sandGame.graphics().drawRectangle(0, 0, -1, 0, Brushes.SAND, true);
+                sandGame.graphics().drawRectangle(0, 0, -1, 0, BrushDefs.SAND, true);
             }
         }),
         BenchmarkProvider.#createBenchmark('sand-fill', 1000, function (sandGame, j) {
             if (j === 0) {
-                sandGame.graphics().drawRectangle(0, 0, -1, -1, Brushes.SAND, true);
+                sandGame.graphics().drawRectangle(0, 0, -1, -1, BrushDefs.SAND, true);
             }
         }),
         BenchmarkProvider.#createBenchmark('soil-fall-q', 500, function (sandGame, j) {
-            sandGame.graphics().drawRectangle(0, 0, -1, 0, Brushes.SOIL, true);
+            sandGame.graphics().drawRectangle(0, 0, -1, 0, BrushDefs.SOIL, true);
         }),
         BenchmarkProvider.#createBenchmark('soil-fall-s', 2000, function (sandGame, j) {
             if (j % 10 === 0) {
-                sandGame.graphics().drawRectangle(0, 0, -1, 0, Brushes.SOIL, true);
+                sandGame.graphics().drawRectangle(0, 0, -1, 0, BrushDefs.SOIL, true);
             }
         }),
         BenchmarkProvider.#createBenchmark('soil-fill', 1000, function (sandGame, j) {
             if (j === 0) {
-                sandGame.graphics().drawRectangle(0, 0, -1, -1, Brushes.SOIL, true);
+                sandGame.graphics().drawRectangle(0, 0, -1, -1, BrushDefs.SOIL, true);
             }
         }),
         BenchmarkProvider.#createBenchmark('water-fall-q', 500, function (sandGame, j) {
-            sandGame.graphics().drawRectangle(0, 0, -1, 0, Brushes.WATER, true);
+            sandGame.graphics().drawRectangle(0, 0, -1, 0, BrushDefs.WATER, true);
         }),
         BenchmarkProvider.#createBenchmark('water-fall-s', 2000, function (sandGame, j) {
             if (j % 10 === 0) {
-                sandGame.graphics().drawRectangle(0, 0, -1, 0, Brushes.WATER, true);
+                sandGame.graphics().drawRectangle(0, 0, -1, 0, BrushDefs.WATER, true);
             }
         }),
         BenchmarkProvider.#createBenchmark('water-fill', 1000, function (sandGame, j) {
             if (j === 0) {
-                sandGame.graphics().drawRectangle(0, 0, -1, -1, Brushes.WATER, true);
+                sandGame.graphics().drawRectangle(0, 0, -1, -1, BrushDefs.WATER, true);
             }
         }),
         BenchmarkProvider.#createBenchmark('sand-into-water', 1000, function (sandGame, j) {
             if (j === 0) {
-                sandGame.graphics().drawRectangle(0, 0, -1, 30, Brushes.SAND, true);
-                sandGame.graphics().drawRectangle(0, 60, -1, -1, Brushes.WATER, true);
+                sandGame.graphics().drawRectangle(0, 0, -1, 30, BrushDefs.SAND, true);
+                sandGame.graphics().drawRectangle(0, 60, -1, -1, BrushDefs.WATER, true);
             }
         }),
         BenchmarkProvider.#createBenchmark('soil-into-water', 1000, function (sandGame, j) {
             if (j === 0) {
-                sandGame.graphics().drawRectangle(0, 0, -1, 30, Brushes.SOIL, true);
-                sandGame.graphics().drawRectangle(0, 60, -1, -1, Brushes.WATER, true);
+                sandGame.graphics().drawRectangle(0, 0, -1, 30, BrushDefs.SOIL, true);
+                sandGame.graphics().drawRectangle(0, 60, -1, -1, BrushDefs.WATER, true);
             }
         }),
     ];

@@ -25,7 +25,7 @@ import _ASSET_SAND_CASTLE from './assets/templates/sand-castle.png'
  * @author Patrik Harag
  * @version 2023-12-20
  */
-export class Templates {
+export class TemplateDefs {
 
     static ROCK_SM = {
         name: "Rock SM",

@@ -1,5 +1,5 @@
 import { Tool } from "./Tool";
-import { Brushes } from "../def/Brushes";
+import { BrushDefs } from "../def/BrushDefs";
 import { ElementArea } from "./ElementArea";
 import { SceneImplModFlip } from "./SceneImplModFlip";
 import { ResourceUtils } from "./ResourceUtils";
@@ -69,7 +69,7 @@ export class ResourceTool {
             if (brushPar === undefined) {
                 throw 'Image template: brush not set';
             }
-            const brush = Brushes.byCodeName(json.brush);
+            const brush = BrushDefs.byCodeName(json.brush);
             if (brush === null) {
                 throw 'Image template: brush not found: ' + brushPar;
             }

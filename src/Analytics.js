@@ -1,4 +1,4 @@
-import { Tools } from "./def/Tools.js";
+import { ToolDefs } from "./def/ToolDefs.js";
 
 /**
  *
@@ -36,10 +36,10 @@ export class Analytics {
 
     static triggerToolUsed(tool) {
         const category = tool.getCategory();
-        if (category === Tools.CATEGORY_BRUSH) {
+        if (category === ToolDefs.CATEGORY_BRUSH) {
             const feature = 'brush_' + tool.getCodeName();
             Analytics.triggerFeatureUsed(feature);
-        } else if (category === Tools.CATEGORY_TEMPLATE) {
+        } else if (category === ToolDefs.CATEGORY_TEMPLATE) {
             Analytics.triggerFeatureUsed('brush_template');
         }
     }

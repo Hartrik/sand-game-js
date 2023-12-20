@@ -1,10 +1,10 @@
 import {ElementHead} from "./ElementHead.js";
-import {Brushes} from "../def/Brushes.js";
+import {BrushDefs} from "../def/BrushDefs.js";
 import {ProcessorContext} from "./ProcessorContext.js";
 import {DeterministicRandom} from "./DeterministicRandom.js";
 import {VisualEffects} from "./VisualEffects";
 
-// TODO: direct Brushes access >> Defaults
+// TODO: direct BrushDefs access >> Defaults
 
 /**
  *
@@ -203,7 +203,7 @@ export class ProcessorModuleTree {
                                 }
                             }
                             if (trunkGrow) {
-                                const treeBrush = (templateY > 0) ? Brushes.TREE_WOOD : Brushes.TREE_WOOD_DARK;
+                                const treeBrush = (templateY > 0) ? BrushDefs.TREE_WOOD : BrushDefs.TREE_WOOD_DARK;
                                 grow(nx, ny, treeBrush, ProcessorModuleTree.#TRUNK_NOISE, true);
                                 if (templateY === 2 && templateX === 0) {
                                     // set seed
@@ -232,8 +232,8 @@ export class ProcessorModuleTree {
                             let leafClusterId = Math.trunc(rnd * this.#leafClusterTemplates.length);
                             let leafCluster = this.#leafClusterTemplates[leafClusterId];
                             let leafBrush = (Math.trunc(rnd * 1024) % 2 === 0)
-                                    ? Brushes.TREE_LEAF_LIGHTER
-                                    : Brushes.TREE_LEAF_DARKER;
+                                    ? BrushDefs.TREE_LEAF_LIGHTER
+                                    : BrushDefs.TREE_LEAF_DARKER;
                             parallelBranches.push({
                                 entries: leafCluster.entries,
                                 index: 0,
@@ -250,7 +250,7 @@ export class ProcessorModuleTree {
                             if (currentElementBehaviour === ElementHead.BEHAVIOUR_TREE_ROOT) {
                                 level++;  // is already here
                             } else {
-                                grow(nx, ny, Brushes.TREE_ROOT, null, true);
+                                grow(nx, ny, BrushDefs.TREE_ROOT, null, true);
                             }
                             break;
 
@@ -317,7 +317,7 @@ export class ProcessorModuleTree {
                 if (lastStage - currentStage > 5) {
                     // too big damage taken => kill tree
                     this.#elementArea.setElementHead(x, y - 1, ElementHead.setSpecial(carrierElementHead, 0));
-                    this.#elementArea.setElement(x, y, Brushes.TREE_WOOD.apply(x, y, this.#random));
+                    this.#elementArea.setElement(x, y, BrushDefs.TREE_WOOD.apply(x, y, this.#random));
                 } else {
                     // update stage
                     this.#elementArea.setElementHead(x, y - 1, ElementHead.setSpecial(carrierElementHead, currentStage));
@@ -367,7 +367,7 @@ export class ProcessorModuleTree {
         let doGrow = (nx, ny) => {
             this.#elementArea.setElementHead(x, y, ElementHead.setSpecial(elementHead, 0));
 
-            let element = Brushes.TREE_ROOT.apply(nx, ny, this.#random);
+            let element = BrushDefs.TREE_ROOT.apply(nx, ny, this.#random);
             let modifiedHead = ElementHead.setSpecial(element.elementHead, growIndex - 1);
             this.#elementArea.setElementHead(nx, ny, modifiedHead);
             this.#elementArea.setElementTail(nx, ny, element.elementTail);
@@ -408,7 +408,7 @@ export class ProcessorModuleTree {
         const temperature = ElementHead.getTemperature(elementHead);
         if (temperature > ProcessorModuleTree.#MAX_LEAF_TEMPERATURE) {
             // => destroy instantly, keep temperature
-            const newElement = Brushes.TREE_LEAF_DEAD.apply(x, y, this.#random);
+            const newElement = BrushDefs.TREE_LEAF_DEAD.apply(x, y, this.#random);
             const newElementHead = ElementHead.setTemperature(newElement.elementHead, temperature);
             const newElementTail = newElement.elementTail;
             this.#elementArea.setElementHeadAndTail(x, y, newElementHead, newElementTail);
@@ -422,7 +422,7 @@ export class ProcessorModuleTree {
                 if (this.#random.nextInt(10) === 0) {
                     vitality++;
                     if (vitality >= 15) {
-                        this.#elementArea.setElement(x, y, Brushes.TREE_LEAF_DEAD.apply(x, y, this.#random));
+                        this.#elementArea.setElement(x, y, BrushDefs.TREE_LEAF_DEAD.apply(x, y, this.#random));
                         return;
                     } else {
                         elementHead = ElementHead.setSpecial(elementHead, vitality);

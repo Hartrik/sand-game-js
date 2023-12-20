@@ -1,6 +1,6 @@
 import { ElementArea } from "../core/ElementArea";
 import { SandGame } from "../core/SandGame";
-import { Scenes } from "../def/Scenes";
+import { SceneDefs } from "../def/SceneDefs";
 import { SceneImplTmpResize } from "../core/SceneImplResize";
 import { Tool } from "../core/Tool";
 import { ServiceToolManager } from "./ServiceToolManager";
@@ -88,7 +88,7 @@ export class Controller {
     }
 
     setup() {
-        this.#initialize(Scenes.SCENES[this.#init.scene]);
+        this.#initialize(SceneDefs.SCENES[this.#init.scene]);
     }
 
     /**

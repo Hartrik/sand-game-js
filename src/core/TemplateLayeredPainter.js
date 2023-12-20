@@ -1,7 +1,7 @@
 import Spline from "cubic-spline";
 import { ProcessorModuleGrass } from "./ProcessorModuleGrass.js";
 import { ProcessorModuleTree } from "./ProcessorModuleTree.js";
-import { Brushes } from "../def/Brushes";
+import { BrushDefs } from "../def/BrushDefs";
 
 /**
  *
@@ -144,8 +144,8 @@ export class TemplateLayeredPainter {
         if (y < 0 || y >= this.#elementArea.getHeight()) {
             return this;  // out of bounds
         }
-        this.#elementArea.setElement(x, y, Brushes.FISH_HEAD.apply(0, 0, this.#random, null));
-        this.#elementArea.setElement(x + 1, y, Brushes.FISH_BODY.apply(0, 0, this.#random, null));
+        this.#elementArea.setElement(x, y, BrushDefs.FISH_HEAD.apply(0, 0, this.#random, null));
+        this.#elementArea.setElement(x + 1, y, BrushDefs.FISH_BODY.apply(0, 0, this.#random, null));
 
         // TODO: update lastLevel
         return this;

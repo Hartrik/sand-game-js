@@ -1,7 +1,7 @@
 import { DomBuilder } from "./DomBuilder";
 import { Component } from "./Component";
 import { ActionDialogTemplateSelection } from "./ActionDialogTemplateSelection";
-import { Tools } from "../def/Tools";
+import { ToolDefs } from "../def/ToolDefs";
 
 /**
  *
@@ -34,7 +34,7 @@ export class ComponentViewTools extends Component {
             let displayName = tool.getDisplayName();
             let button = DomBuilder.button(displayName, { class: 'btn btn-secondary btn-sand-game-tool ' + cssName }, () => {
                 controller.getToolManager().setPrimaryTool(tool);
-                controller.getToolManager().setSecondaryTool(Tools.byCodeName('air'));
+                controller.getToolManager().setSecondaryTool(ToolDefs.byCodeName('air'));
             });
 
             controller.getToolManager().addOnPrimaryToolChanged(newTool => {

@@ -1,5 +1,5 @@
 import { DomBuilder } from "./DomBuilder";
-import { Templates } from "../def/Templates";
+import { TemplateDefs } from "../def/TemplateDefs";
 import { Resources } from "../core/Resources";
 import { Tool } from "../core/Tool";
 import { Component } from "./Component";
@@ -15,10 +15,10 @@ export class ComponentViewTemplateSelection extends Component {
         let buttons = [];
 
         let templateDefinitions = [
-            Templates.ROCK_SM,
-            Templates.ROCK_MD,
-            Templates.ROCK_LG,
-            Templates.CABIN,
+            TemplateDefs.ROCK_SM,
+            TemplateDefs.ROCK_MD,
+            TemplateDefs.ROCK_LG,
+            TemplateDefs.CABIN,
         ];
 
         for (const toolDefinition of templateDefinitions) {
