@@ -27,8 +27,8 @@ export class SceneDefs {
         description: 'Boxed mode',
         apply: async function (sandGame) {
             sandGame.setBoxedMode();
-            sandGame.layeredTemplate()
-                .layer([[0, 30], [40, 33], [60, 50], [80, 40], [200, 20], [400, 20], [1000, 20]],
+            let layeredPainter = sandGame.layeredTemplate()
+                .layer([[0, 35], [40, 40], [60, 50], [80, 40], [200, 20], [400, 20], [1000, 20]],
                     true, Brushes.concat(BrushDefs.SOIL, BrushDefs.EFFECT_NOISE_LG))
                 .layer([[0, 0], [90, 0], [110, 10], [150, 10], [250, 0]],
                         true, BrushDefs.SAND, 2)
@@ -38,24 +38,31 @@ export class SceneDefs {
                 .grass(20, 40)
                 .grass(50, 70);
 
-            sandGame.blockTemplate()
-                .withMaxHeight(120)
-                .withBlueprint([
-                    '          ',
-                    '        ww',
-                    '          ',
-                    '       1  ',
-                    '     111111',
-                    '          ',
-                    '          ',
-                    '          ',
-                    '          ',
-                ])
-                .withBrushes({
-                    w: Brushes.withIntensity(0.5, BrushDefs.WATER),
-                    1: BrushDefs.SAND
-                })
-                .paint();
+            if (sandGame.getWidth() / sandGame.getHeight() > 1.5) {
+                // wide screens only
+                sandGame.blockTemplate()
+                    .withMaxHeight(120)
+                    .withBlueprint([
+                        '          ',
+                        '        ww',
+                        '          ',
+                        '       1  ',
+                        '     111111',
+                        '          ',
+                        '          ',
+                        '          ',
+                        '          ',
+                    ])
+                    .withBrushes({
+                        w: Brushes.withIntensity(0.5, BrushDefs.WATER),
+                        1: BrushDefs.SAND
+                    })
+                    .paint();
+            } else {
+                layeredPainter
+                    .layer(26, false, BrushDefs.WATER)
+                    .layer(27, false, Brushes.withIntensity(0.33, BrushDefs.WATER));
+            }
         }
     });
 
