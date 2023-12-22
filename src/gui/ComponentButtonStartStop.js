@@ -9,7 +9,7 @@ import _ASSET_SVG_PLAY from "./assets/icon-play.svg";
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-20
+ * @version 2023-12-22
  */
 export class ComponentButtonStartStop extends ComponentButton {
 
@@ -23,8 +23,12 @@ export class ComponentButtonStartStop extends ComponentButton {
     createNode(controller) {
         const btn = super.createNode(controller);
 
-        controller.addOnStarted(() => btn.html([DomBuilder.create(_ASSET_SVG_PAUSE), 'Pause']));
-        controller.addOnStopped(() => btn.html([DomBuilder.create(_ASSET_SVG_PLAY), 'Start']));
+        controller.addOnStarted(() => {
+            DomBuilder.setContent(btn, [DomBuilder.create(_ASSET_SVG_PAUSE), 'Pause']);
+        });
+        controller.addOnStopped(() => {
+            DomBuilder.setContent(btn, [DomBuilder.create(_ASSET_SVG_PLAY), 'Start']);
+        });
 
         return btn;
     }

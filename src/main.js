@@ -1,7 +1,7 @@
 /**
  *
  * @author Patrik Harag
- * @version 2023-11-04
+ * @version 2023-12-21
  */
 
 import { Analytics } from "./Analytics";
@@ -9,7 +9,6 @@ import { DomBuilder } from "./gui/DomBuilder";
 import { Controller } from "./gui/Controller";
 import { MainComponent } from "./gui/MainComponent";
 import { BrushDefs } from "./def/BrushDefs";
-import $ from "jquery";
 
 export const brushes = BrushDefs._LIST;
 
@@ -18,7 +17,7 @@ function determineSize(root) {
     if (window.innerWidth <= 575) {
         parentWidth = window.innerWidth;  // no margins
     } else {
-        parentWidth = root.width();
+        parentWidth = root.clientWidth;  // including padding
     }
 
     let width = Math.min(1400, parentWidth);
@@ -62,7 +61,6 @@ function determineOptimalScale(width, height, maxPoints) {
  * @returns {Controller}
  */
 export function init(root, config) {
-    root = $(root);  // convert into jQuery node
     if (config === undefined) {
         config = {};
     }
@@ -95,7 +93,7 @@ export function init(root, config) {
     }
 
     const dialogAnchorNode = DomBuilder.div({ class: 'sand-game-dialog-anchor sand-game-component' });
-    document.body.prepend(dialogAnchorNode[0]);
+    document.body.prepend(dialogAnchorNode);
 
     const controller = new Controller(init, dialogAnchorNode);
     const mainComponent = new MainComponent(init);
@@ -103,7 +101,7 @@ export function init(root, config) {
         mainComponent.enableTestTools();
     }
     const node = mainComponent.createNode(controller);
-    root.empty();
+    root.innerHTML = '';
     root.append(node);
 
     controller.setup();

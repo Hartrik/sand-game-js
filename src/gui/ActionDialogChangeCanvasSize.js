@@ -10,12 +10,12 @@ import { Analytics } from "../Analytics";
 export class ActionDialogChangeCanvasSize extends Action {
 
     performAction(controller) {
-        let formBuilder = new DomBuilder.BootstrapSimpleForm();
+        let formBuilder = DomBuilder.bootstrapSimpleFormBuilder();
         formBuilder.addInput('Width', 'width', '' + controller.getCurrentWidthPoints());
         formBuilder.addInput('Height', 'height', '' + controller.getCurrentHeightPoints());
         formBuilder.addInput('Scale', 'scale', '' + controller.getCurrentScale());
 
-        let dialog = new DomBuilder.BootstrapDialog();
+        let dialog = DomBuilder.bootstrapDialogBuilder();
         dialog.setHeaderContent('Change canvas size manually');
         dialog.setBodyContent(formBuilder.createNode());
         dialog.addSubmitButton('Submit', () => {

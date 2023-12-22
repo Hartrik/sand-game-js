@@ -3,14 +3,14 @@
  * @interface
  *
  * @author Patrik Harag
- * @version 2023-08-19
+ * @version 2023-12-22
  */
 export class Component {
 
     /**
      *
      * @param controller {Controller}
-     * @return {jQuery<HTMLElement>}
+     * @return {HTMLElement}
      */
     createNode(controller) {
         throw 'Not implemented';

@@ -12,7 +12,7 @@ export class ActionDialogTemplateSelection extends Action {
     performAction(controller) {
         let templatesComponent = new ComponentViewTemplateSelection();
 
-        let dialog = new DomBuilder.BootstrapDialog();
+        let dialog = DomBuilder.bootstrapDialogBuilder();
         dialog.setHeaderContent('Templates');
         dialog.setBodyContent(DomBuilder.div({ class: 'sand-game-component' }, [
             DomBuilder.par(null, "Select a template"),

@@ -10,7 +10,7 @@ import _ASSET_IMG_ELEMENT_SIZE_4 from './assets/element-size-4.png'
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-19
+ * @version 2023-12-22
  */
 export class ComponentViewElementSizeSelection extends Component {
 
@@ -38,7 +38,7 @@ export class ComponentViewElementSizeSelection extends Component {
                 this.#mark(node, sizeDef.scale);
             }
 
-            node.on('click', e => {
+            node.addEventListener('click', e => {
                 this.#select(node, sizeDef.scale, controller);
             })
 
@@ -64,7 +64,7 @@ export class ComponentViewElementSizeSelection extends Component {
 
         // mark selected
         if (this.#selected) {
-            this.#selected.removeClass(ComponentViewElementSizeSelection.CLASS_SELECTED);
+            this.#selected.classList.remove(ComponentViewElementSizeSelection.CLASS_SELECTED);
         }
         this.#mark(node, newScale);
 
@@ -77,7 +77,7 @@ export class ComponentViewElementSizeSelection extends Component {
     }
 
     #mark(node, scale) {
-        node.addClass(ComponentViewElementSizeSelection.CLASS_SELECTED);
+        node.classList.add(ComponentViewElementSizeSelection.CLASS_SELECTED);
         this.#selected = node;
         this.#selectedScale = scale;
     }

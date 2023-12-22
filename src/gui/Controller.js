@@ -48,7 +48,7 @@ export class Controller {
     /** @type ServiceIO */
     #serviceIO = new ServiceIO(this);
 
-    /** @type jQuery<HTMLElement> */
+    /** @type HTMLElement */
     #dialogAnchor;
     /** @type function():HTMLElement|null */
     #canvasInitializer = null;
@@ -309,7 +309,7 @@ export class Controller {
     #reportRenderingFailure(message) {
         console.warn(message);
 
-        let toast = new DomBuilder.BootstrapToast();
+        let toast = DomBuilder.bootstrapToastBuilder();
         toast.setHeaderContent(DomBuilder.element('strong', { style: 'color: orange;' }, 'Warning'));
         toast.setBodyContent(DomBuilder.par(null, message));
         toast.setDelay(20000);
@@ -319,7 +319,7 @@ export class Controller {
     #reportSeriousFailure(message) {
         console.error(message);
 
-        let toast = new DomBuilder.BootstrapToast();
+        let toast = DomBuilder.bootstrapToastBuilder();
         toast.setHeaderContent(DomBuilder.element('strong', { style: 'color: red;' }, 'Error'));
         toast.setBodyContent(DomBuilder.par(null, message));
         toast.show(this.#dialogAnchor);
@@ -519,7 +519,7 @@ export class Controller {
 
     /**
      *
-     * @returns {jQuery<HTMLElement>}
+     * @returns {HTMLElement}
      */
     getDialogAnchor() {
         return this.#dialogAnchor;

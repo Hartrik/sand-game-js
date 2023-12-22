@@ -1,9 +1,9 @@
-import { DomBuilder } from "./DomBuilder";
-import { Controller } from "./Controller";
-import { CursorDefinitionElementArea } from "../core/CursorDefinitionElementArea";
-import { Renderer2D } from "../core/Renderer2D";
-import { Analytics } from "../Analytics";
-import { Component } from "./Component";
+import {DomBuilder} from "./DomBuilder";
+import {Controller} from "./Controller";
+import {CursorDefinitionElementArea} from "../core/CursorDefinitionElementArea";
+import {Renderer2D} from "../core/Renderer2D";
+import {Analytics} from "../Analytics";
+import {Component} from "./Component";
 
 /**
  *
@@ -17,17 +17,17 @@ export class ComponentViewCanvas extends Component {
 
     createNode(controller) {
         controller.registerCanvasNodeInitializer(() => {
-            this.#canvasHolderNode.empty();
+            this.#canvasHolderNode.innerHTML = '';
 
             const canvasComponent = new ComponentViewInnerCanvas(controller);
             this.#canvasHolderNode.append(canvasComponent.createNode(controller));
             this.#currentCanvas = canvasComponent;
-            return canvasComponent.getCanvasNode()[0];
+            return canvasComponent.getCanvasNode();
         });
 
         controller.registerCanvasNodeProvider(() => {
             if (this.#currentCanvas !== null) {
-                return this.#currentCanvas.getCanvasNode()[0];
+                return this.#currentCanvas.getCanvasNode();
             }
             return null;
         });
@@ -54,7 +54,7 @@ export class ComponentViewCanvas extends Component {
 
         controller.addOnBeforeClosed(() => {
             this.#currentCanvas = null;
-            this.#canvasHolderNode.empty();
+            this.#canvasHolderNode.innerHTML = '';
         })
 
         return this.#canvasHolderNode;
@@ -65,7 +65,7 @@ export class ComponentViewCanvas extends Component {
  *
  *
  * @author Patrik Harag
- * @version 2023-11-20
+ * @version 2023-12-22
  */
 class ComponentViewInnerCanvas extends Component {
 
@@ -113,8 +113,7 @@ class ComponentViewInnerCanvas extends Component {
         });
 
         // rendering style
-        let domCanvasNode = canvas[0];
-        domCanvasNode.style.imageRendering = this.#controller.getCanvasImageRenderingStyle();
+        canvas.style.imageRendering = this.#controller.getCanvasImageRenderingStyle();
 
         return canvas;
     }
@@ -131,7 +130,7 @@ class ComponentViewInnerCanvas extends Component {
     }
 
     initMouseHandling(sandGame) {
-        let domNode = this.#nodeCursorOverlay[0];
+        let domNode = this.#nodeCursorOverlay;
         const scale = this.#controller.getCurrentScale();
 
         let getActualMousePosition = (e) => {
@@ -146,7 +145,12 @@ class ComponentViewInnerCanvas extends Component {
         let ctrlPressed = false;
         let shiftPressed = false;
 
-        this.#nodeCursorOverlay.bind('contextmenu', e => false);
+        // disable context menu
+        this.#nodeCursorOverlay.addEventListener('contextmenu', e => {
+            e.preventDefault();
+            return false;
+        });
+
         domNode.addEventListener('mousedown', (e) => {
             const [x, y] = getActualMousePosition(e);
             lastX = x;
@@ -321,8 +325,7 @@ class ComponentViewInnerCanvas extends Component {
     }
 
     setImageRenderingStyle(style) {
-        let domCanvasNode = this.#nodeCanvas[0];
-        domCanvasNode.style.imageRendering = style;
+        this.#nodeCanvas.style.imageRendering = style;
     }
 
     highlightChunks(changedChunks) {
@@ -333,7 +336,7 @@ class ComponentViewInnerCanvas extends Component {
 /**
  *
  * @author Patrik Harag
- * @version 2023-05-09
+ * @version 2023-12-22
  */
 class SandGameCanvasCursorOverlayComponent {
 
@@ -349,7 +352,13 @@ class SandGameCanvasCursorOverlayComponent {
         const wPx = w / scale;
         const hPx = h / scale;
         this.#nodeOverlay = DomBuilder.div({
-            style: `position: absolute; left: 0; top: 0; width: ${wPx}px; height: ${hPx}px;`,
+            style: {
+                position: 'absolute',
+                left: '0',
+                top: '0',
+                width: `${wPx}px`,
+                height: `${hPx}px`
+            },
             class: 'sand-game-canvas-overlay',
             width: w + 'px',
             height: h + 'px',
@@ -362,33 +371,34 @@ class SandGameCanvasCursorOverlayComponent {
     }
 
     hideCursors() {
-        this.#nodeOverlay.empty();
+        this.#nodeOverlay.innerHTML = '';
         this.#cursor = null;
     }
 
     repaintRectangleSelection(lastX, lastY, x, y, scale) {
-        this.#nodeOverlay.empty();
+        this.#nodeOverlay.innerHTML = '';
 
         let xPx = Math.min(lastX, x) / scale;
         let yPx = Math.min(lastY, y) / scale;
         let wPx = Math.abs(x - lastX) / scale;
         let hPx = Math.abs(y - lastY) / scale;
 
-        const selection = DomBuilder.div();
-        selection.css({
-            left: xPx + 'px',
-            top: yPx + 'px',
-            width: wPx + 'px',
-            height: hPx + 'px',
-            position: 'absolute',
-            outline: 'black 1px solid',
-            'pointer-events': 'none'
+        const selection = DomBuilder.div({
+            style: {
+                left: xPx + 'px',
+                top: yPx + 'px',
+                width: wPx + 'px',
+                height: hPx + 'px',
+                position: 'absolute',
+                outline: 'black 1px solid',
+                pointerEvents: 'none'
+            }
         });
         this.#nodeOverlay.append(selection);
     }
 
     repaintLineSelection(lastX, lastY, x, y, scale) {
-        this.#nodeOverlay.empty();
+        this.#nodeOverlay.innerHTML = '';
 
         const w = this.#controller.getCurrentWidthPoints();
         const h = this.#controller.getCurrentHeightPoints();
@@ -396,11 +406,9 @@ class SandGameCanvasCursorOverlayComponent {
         const line = DomBuilder.create(`
             <svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
               <line x1="${lastX}" y1="${lastY}" x2="${x}" y2="${y}" stroke="black" />
-            </svg>`
-        );
-        line.css({
-            'pointer-events': 'none'
-        });
+            </svg>
+        `);
+        line.style.pointerEvents = 'none';
         this.#nodeOverlay.append(line);
     }
 
@@ -412,13 +420,16 @@ class SandGameCanvasCursorOverlayComponent {
             const node = DomBuilder.element('canvas', {
                 width: cursorDefinition.getWidth() + 'px',
                 height: cursorDefinition.getHeight() + 'px',
-                style: `width: ${wPx}px; height: ${hPx}px; outline: black 1px solid;`,
+                style: {
+                    width: `${wPx}px`,
+                    height: `${hPx}px`,
+                    outline: 'black 1px solid'
+                }
             });
 
             // render preview
-            let domCanvasNode = node[0];
-            domCanvasNode.style.imageRendering = 'pixelated';
-            Renderer2D.renderPreview(cursorDefinition.getElementArea(), domCanvasNode.getContext('2d'), 0xBB);
+            node.style.imageRendering = 'pixelated';
+            Renderer2D.renderPreview(cursorDefinition.getElementArea(), node.getContext('2d'), 0xBB);
 
             this.#cursor = {
                 width: wPx,
@@ -429,10 +440,8 @@ class SandGameCanvasCursorOverlayComponent {
             return;
         }
 
-        this.#cursor.node.css({
-            position: 'absolute',
-            'pointer-events': 'none',
-        });
+        this.#cursor.node.style.position = 'absolute';
+        this.#cursor.node.style.pointerEvents = 'none';
 
         this.moveCursor(x, y, scale);
     }
@@ -456,13 +465,11 @@ class SandGameCanvasCursorOverlayComponent {
         const pxClipBottom = pxTop + cursor.height >= pxH ? pxTop + cursor.height - pxH : UNSET;
         const pxClipLeft = pxLeft < 0 ? -pxLeft : UNSET;
 
-        cursor.node.css({
-            top: pxTop + 'px',
-            left: pxLeft + 'px',
-            'clip-path': `inset(${pxClipTop}px ${pxClipRight}px ${pxClipBottom}px ${pxClipLeft}px)`
-        });
+        cursor.node.style.top = pxTop + 'px';
+        cursor.node.style.left = pxLeft + 'px';
+        cursor.node.style.clipPath = `inset(${pxClipTop}px ${pxClipRight}px ${pxClipBottom}px ${pxClipLeft}px)`;
 
-        this.#nodeOverlay.empty();
+        this.#nodeOverlay.innerHTML = '';
         this.#nodeOverlay.append(cursor.node);
     }
 }
@@ -470,7 +477,7 @@ class SandGameCanvasCursorOverlayComponent {
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-04
+ * @version 2023-12-22
  */
 class SandGameCanvasDebugOverlayComponent {
 
@@ -493,7 +500,13 @@ class SandGameCanvasDebugOverlayComponent {
         const wPx = w / scale;
         const hPx = h / scale;
         this.#nodeOverlay = DomBuilder.div({
-            style: `position: absolute; left: 0; top: 0; width: ${wPx}px; height: ${hPx}px;`,
+            style: {
+                position: 'absolute',
+                left: '0',
+                top: '0',
+                width: `${wPx}px`,
+                height: `${hPx}px`
+            },
             class: 'sand-game-canvas-overlay',
             width: w + 'px',
             height: h + 'px',
@@ -509,7 +522,7 @@ class SandGameCanvasDebugOverlayComponent {
         if (changedChunks === null) {
             if (this.#nodeRectangles !== null) {
                 // hide
-                this.#nodeOverlay.hide();
+                this.#nodeOverlay.style.display = 'none';
             }
             return;
         }
@@ -517,7 +530,7 @@ class SandGameCanvasDebugOverlayComponent {
         if (this.#nodeRectangles === null) {
             this.#init();
         }
-        this.#nodeOverlay.show();
+        this.#nodeOverlay.style.display = 'unset';
         this.#update(changedChunks);
     }
 
@@ -534,9 +547,9 @@ class SandGameCanvasDebugOverlayComponent {
                 const rect = this.#nodeRectangles[chunkIndex];
                 if (changedChunks[chunkIndex]) {
                     highlighted++;
-                    rect.show();
+                    rect.style.display = 'unset';
                 } else {
-                    rect.hide();
+                    rect.style.display = 'none';
                 }
             }
         }
@@ -544,7 +557,7 @@ class SandGameCanvasDebugOverlayComponent {
         // show stats
         const total = horChunkCount * verChunkCount;
         const highlightedPercent = Math.trunc(highlighted / total * 100);
-        this.#nodeLabel.text(`${highlighted}/${total} (${highlightedPercent}%)`);
+        this.#nodeLabel.textContent = `${highlighted}/${total} (${highlightedPercent}%)`;
     }
 
     #init() {
@@ -562,23 +575,23 @@ class SandGameCanvasDebugOverlayComponent {
         }
 
         this.#nodeRectangles = rects;
-        this.#nodeOverlay.append(rects);
+        this.#nodeOverlay.append(...rects);
 
         this.#nodeLabel = this.#createLabel(0, 0);
         this.#nodeOverlay.append(this.#nodeLabel);
     }
 
     #createLabel(x, y) {
-        const label = DomBuilder.span('');
         const xPx = x / this.#scale;
         const yPx = y / this.#scale;
-        label.css({
-            left: xPx + 'px',
-            top: yPx + 'px',
-            position: 'absolute',
-            color: 'rgb(0, 255, 0)'
+        return DomBuilder.span('', {
+            style: {
+                left: xPx + 'px',
+                top: yPx + 'px',
+                position: 'absolute',
+                color: 'rgb(0, 255, 0)'
+            }
         });
-        return label;
     }
 
     #createRectangle(cx, cy, chunkSize) {
@@ -589,14 +602,15 @@ class SandGameCanvasDebugOverlayComponent {
         const cwPx = chunkSize / this.#scale;
         const chPx = chunkSize / this.#scale;
 
-        const rectangle = DomBuilder.div();
-        rectangle.css({
-            left: xPx + 'px',
-            top: yPx + 'px',
-            width: cwPx + 'px',
-            height: chPx + 'px',
-            position: 'absolute',
-            outline: 'rgb(0, 255, 0) 1px solid'
+        const rectangle = DomBuilder.div({
+            style: {
+                left: xPx + 'px',
+                top: yPx + 'px',
+                width: cwPx + 'px',
+                height: chPx + 'px',
+                position: 'absolute',
+                outline: 'rgb(0, 255, 0) 1px solid'
+            }
         });
 
         if (xPx + cwPx >= wPx || yPx + chPx >= hPx) {
@@ -608,9 +622,7 @@ class SandGameCanvasDebugOverlayComponent {
             const pxClipBottom = yPx + chunkSize >= hPx ? yPx + chPx - hPx : UNSET;
             const pxClipLeft = UNSET;
 
-            rectangle.css({
-                'clip-path': `inset(${pxClipTop}px ${pxClipRight}px ${pxClipBottom}px ${pxClipLeft}px)`
-            });
+            rectangle.style.clipPath = `inset(${pxClipTop}px ${pxClipRight}px ${pxClipBottom}px ${pxClipLeft}px)`;
         }
 
         return rectangle;

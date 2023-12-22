@@ -13,7 +13,7 @@ import {Tools} from "../core/Tools";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-09
+ * @version 2023-12-22
  */
 export class ServiceIO {
 
@@ -28,9 +28,7 @@ export class ServiceIO {
         this.#templateForm = new TemplateForm();
     }
 
-    initFileDragAndDrop(node) {
-        const domNode = node[0];
-
+    initFileDragAndDrop(domNode) {
         ['dragenter', 'dragover'].forEach(eventName => {
             domNode.addEventListener(eventName, e => {
                 e.preventDefault()
@@ -108,7 +106,7 @@ export class ServiceIO {
                 .catch(e => this.#handleError(e));
         };
 
-        let dialog = new DomBuilder.BootstrapDialog();
+        let dialog = DomBuilder.bootstrapDialogBuilder();
         dialog.setHeaderContent('Image template');
         dialog.setBodyContent(this.#templateForm.create());
         dialog.addSubmitButton('Place', () => {
@@ -149,7 +147,7 @@ export class ServiceIO {
 
     #importScene(scene) {
         try {
-            let dialog = new DomBuilder.BootstrapDialog();
+            let dialog = DomBuilder.bootstrapDialogBuilder();
             dialog.setHeaderContent('Import scene');
             dialog.setBodyContent([
                 DomBuilder.par(null, "The imported scene can be opened or placed on the current scene.")
@@ -170,7 +168,7 @@ export class ServiceIO {
     }
 
     #handleError(e) {
-        let dialog = new DomBuilder.BootstrapDialog();
+        let dialog = DomBuilder.bootstrapDialogBuilder();
         dialog.setHeaderContent('Error');
         dialog.setBodyContent([
             DomBuilder.par(null, "Error while loading resource:"),
@@ -233,9 +231,9 @@ class TemplateForm {
             type: 'range',
             min: 0, max: 255, value: this.#thresholdValue
         });
-        slider.on('change', (e) => {
+        slider.addEventListener('input', (e) => {
             this.#thresholdValue = e.target.value;
-            label.text('Value: ' + this.#thresholdValue);
+            label.textContent = 'Value: ' + this.#thresholdValue;
         });
 
         return DomBuilder.div({ class: 'mb-3' }, [
@@ -255,9 +253,9 @@ class TemplateForm {
             type: 'range',
             min: 25, max: 800, value: this.#maxWidth
         });
-        slider.on('change', (e) => {
+        slider.addEventListener('input', (e) => {
             this.#maxWidth = e.target.value;
-            label.text('Width: ' + this.#maxWidth);
+            label.textContent = 'Width: ' + this.#maxWidth;
         });
 
         return DomBuilder.div({ class: 'mb-3' }, [
@@ -277,9 +275,9 @@ class TemplateForm {
             type: 'range',
             min: 25, max: 800, value: this.#maxHeight
         });
-        slider.on('change', (e) => {
+        slider.addEventListener('input', (e) => {
             this.#maxHeight = e.target.value;
-            label.text('Height: ' + this.#maxHeight);
+            label.textContent = 'Height: ' + this.#maxHeight;
         });
 
         return DomBuilder.div({ class: 'mb-3' }, [
@@ -300,7 +298,7 @@ class TemplateForm {
             value: value,
             checked: checked
         });
-        input.on('click', () => {
+        input.addEventListener('click', () => {
             this.#materialBrush = brush;
             this.#materialValue = value;
         });

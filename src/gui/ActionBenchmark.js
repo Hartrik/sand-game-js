@@ -14,7 +14,7 @@ export class ActionBenchmark extends Action {
 
     performAction(controller) {
         let benchmarkProvider = new BenchmarkProvider(controller, results => {
-            let dialog = new DomBuilder.BootstrapDialog();
+            let dialog = DomBuilder.bootstrapDialogBuilder();
             dialog.setHeaderContent('Benchmark results');
             dialog.setBodyContent([
                 DomBuilder.par(null, 'IPS AVG: ' + results.ipsAvg.toFixed(2)),

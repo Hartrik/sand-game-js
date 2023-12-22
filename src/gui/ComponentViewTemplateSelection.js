@@ -38,7 +38,7 @@ export class ComponentViewTemplateSelection extends Component {
                     // this should not happen
                 }
             });
-            button.css('background-image', `url(${ toolDefinition.icon.imageData })`);
+            button.style.backgroundImage = `url(${ toolDefinition.icon.imageData })`;
 
             buttons.push(button);
 

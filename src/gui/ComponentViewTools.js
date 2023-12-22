@@ -39,15 +39,15 @@ export class ComponentViewTools extends Component {
 
             controller.getToolManager().addOnPrimaryToolChanged(newTool => {
                 if (newTool === tool) {
-                    button.addClass('selected');
+                    button.classList.add('selected');
                 } else {
-                    button.removeClass('selected');
+                    button.classList.remove('selected');
                 }
             });
 
             // initial select
             if (tool === controller.getToolManager().getPrimaryTool()) {
-                button.addClass('selected');
+                button.classList.add('selected');
             }
 
             buttons.push(button);

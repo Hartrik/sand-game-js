@@ -7,7 +7,7 @@ import { SceneImplSnapshot } from "../core/SceneImplSnapshot";
 /**
  *
  * @author Patrik Harag
- * @version 2023-06-05
+ * @version 2023-12-22
  */
 export class ComponentViewSceneSelection extends Component {
 
@@ -67,8 +67,8 @@ export class ComponentViewSceneSelection extends Component {
             if (id === this.#initialScene) {
                 this.#selected = node;
                 this.#selectedSceneId = id;
-                node.addClass(ComponentViewSceneSelection.CLASS_SELECTED);
-                node.addClass(ComponentViewSceneSelection.CLASS_VISITED);
+                node.classList.add(ComponentViewSceneSelection.CLASS_SELECTED);
+                node.classList.add(ComponentViewSceneSelection.CLASS_VISITED);
             }
 
             content.append(node);
@@ -99,7 +99,7 @@ export class ComponentViewSceneSelection extends Component {
     }
 
     #rebuildConfirm(onConfirm) {
-        let dialog = new DomBuilder.BootstrapDialog();
+        let dialog = DomBuilder.bootstrapDialogBuilder();
         dialog.setHeaderContent('Restart scene');
         dialog.setBodyContent([
             DomBuilder.par(null, "Do you want to restart the scene?")
@@ -114,8 +114,8 @@ export class ComponentViewSceneSelection extends Component {
 
         this.#selected = node;
         this.#selectedSceneId = id;
-        node.addClass(ComponentViewSceneSelection.CLASS_SELECTED);
-        node.addClass(ComponentViewSceneSelection.CLASS_VISITED);
+        node.classList.add(ComponentViewSceneSelection.CLASS_SELECTED);
+        node.classList.add(ComponentViewSceneSelection.CLASS_VISITED);
 
         // restore or build scene
         let snapshot = this.#closedScenes.get(id);
@@ -134,7 +134,7 @@ export class ComponentViewSceneSelection extends Component {
 
     #unselect() {
         if (this.#selected) {
-            this.#selected.removeClass(ComponentViewSceneSelection.CLASS_SELECTED);
+            this.#selected.classList.remove(ComponentViewSceneSelection.CLASS_SELECTED);
         }
         this.#selected = null;
         this.#selectedSceneId = null;

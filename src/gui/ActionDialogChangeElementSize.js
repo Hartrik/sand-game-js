@@ -13,7 +13,7 @@ export class ActionDialogChangeElementSize extends Action {
     performAction(controller) {
         let elementSizeComponent = new ComponentViewElementSizeSelection();
 
-        let dialog = new DomBuilder.BootstrapDialog();
+        let dialog = DomBuilder.bootstrapDialogBuilder();
         dialog.setHeaderContent('Adjust Scale');
         dialog.setBodyContent(DomBuilder.div({ class: 'sand-game-component' }, [
             elementSizeComponent.createNode(controller)

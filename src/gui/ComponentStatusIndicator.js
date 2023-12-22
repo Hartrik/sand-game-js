@@ -6,7 +6,7 @@ import { Component } from "./Component";
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-19
+ * @version 2023-12-22
  */
 export class ComponentStatusIndicator extends Component {
 
@@ -28,15 +28,15 @@ export class ComponentStatusIndicator extends Component {
             }, nodeLabel),
             DomBuilder.element('form', { class: 'dropdown-menu p-2' }, this.#createStatusContent(controller))
         ]);
-        node.on('show.bs.dropdown', function () {
+        node.addEventListener('show.bs.dropdown', function () {
             Analytics.triggerFeatureUsed(Analytics.FEATURE_STATUS_DISPLAYED);
         });
 
         let updateStatus = (node, status) => {
             if (status !== currenStatus) {
-                nodeStatusLabel.text(status.toUpperCase());
-                nodeStatusLabel.removeClass('status-' + currenStatus);
-                nodeStatusLabel.addClass('status-' + status);
+                nodeStatusLabel.textContent = (status.toUpperCase());
+                nodeStatusLabel.classList.remove('status-' + currenStatus);
+                nodeStatusLabel.classList.add('status-' + status);
                 currenStatus = status;
             }
         }
@@ -80,8 +80,8 @@ export class ComponentStatusIndicator extends Component {
             sandGame.addOnRendered(() => {
                 const fps = controller.getSandGame().getFramesPerSecond();
                 const ips = controller.getSandGame().getIterationsPerSecond();
-                labelFPS.text('= ' + fps);
-                labelCPS.text('= ' + ips);
+                labelFPS.textContent = '= ' + fps;
+                labelCPS.textContent = '= ' + ips;
             });
         });
 
@@ -89,7 +89,7 @@ export class ComponentStatusIndicator extends Component {
         const updateCanvasSize = () => {
             const w = controller.getCurrentWidthPoints();
             const h = controller.getCurrentHeightPoints();
-            labelCanvasSize.text(`= ${w.toLocaleString()}\u00D7${h.toLocaleString()} = ${(w * h).toLocaleString()}`);
+            labelCanvasSize.textContent = `= ${w.toLocaleString()}\u00D7${h.toLocaleString()} = ${(w * h).toLocaleString()}`;
         }
         controller.addOnInitialized(() => {
             updateCanvasSize();
