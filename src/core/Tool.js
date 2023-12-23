@@ -4,7 +4,7 @@ import {CursorDefinition} from "./CursorDefinition.js";
  * @interface
  *
  * @author Patrik Harag
- * @version 2023-12-20
+ * @version 2023-12-23
  */
 export class Tool {
 
@@ -52,6 +52,10 @@ export class Tool {
     }
 
     isSelectionEnabled() {
+        return false;
+    }
+
+    isRepeatingEnabled() {
         return false;
     }
 

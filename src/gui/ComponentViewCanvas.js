@@ -65,7 +65,7 @@ export class ComponentViewCanvas extends Component {
  *
  *
  * @author Patrik Harag
- * @version 2023-12-22
+ * @version 2023-12-23
  */
 class ComponentViewInnerCanvas extends Component {
 
@@ -145,6 +145,21 @@ class ComponentViewInnerCanvas extends Component {
         let ctrlPressed = false;
         let shiftPressed = false;
 
+        let repeatingInterval = null;
+        const startRepeatingIfEnabled = (x, y, altKey) => {
+            if (lastTool.isRepeatingEnabled()) {
+                repeatingInterval = setInterval(() => {
+                    lastTool.applyPoint(x, y, sandGame.graphics(), altKey);
+                }, 80);
+            }
+        }
+        const cancelRepeatingIfNeeded = () => {
+            if (repeatingInterval !== null) {
+                clearInterval(repeatingInterval);
+                repeatingInterval = null;
+            }
+        };
+
         // disable context menu
         this.#nodeCursorOverlay.addEventListener('contextmenu', e => {
             e.preventDefault();
@@ -159,7 +174,15 @@ class ComponentViewInnerCanvas extends Component {
             ctrlPressed = false;
             shiftPressed = false;
 
-            if (e.buttons === 4) {
+            if (e.buttons === 1) {
+                // primary button
+                lastTool = this.#controller.getToolManager().getPrimaryTool();
+                Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_PRIMARY);
+            } else if (e.buttons === 2) {
+                // secondary button
+                lastTool = this.#controller.getToolManager().getSecondaryTool();
+                Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_SECONDARY);
+            } else if (e.buttons === 4) {
                 // middle button
                 e.preventDefault();
 
@@ -172,27 +195,23 @@ class ComponentViewInnerCanvas extends Component {
                     console.log('' + x + 'x' + y + ': ' + sandGame.debugElementAt(x, y));
                 }
                 return;
-            }
-
-            if (e.buttons === 1) {
-                lastTool = this.#controller.getToolManager().getPrimaryTool();
-                Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_PRIMARY);
             } else {
-                lastTool = this.#controller.getToolManager().getSecondaryTool();
-                Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_SECONDARY);
-            }
-
-            if (e.ctrlKey && e.shiftKey) {
-                lastTool.applySpecial(x, y, sandGame.graphics(), e.altKey);
-                Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_FLOOD);
-                Analytics.triggerToolUsed(lastTool);
-                lastTool = null;
+                // mouse wheel, other combinations, etc.
                 return;
             }
 
             if (!e.ctrlKey && !e.shiftKey) {
-                lastTool.applyPoint(x, y, sandGame.graphics(), e.altKey)
+                lastTool.applyPoint(x, y, sandGame.graphics(), e.altKey);
                 Analytics.triggerToolUsed(lastTool);
+
+                // repeating when holding mouse down on a position
+                startRepeatingIfEnabled(x, y, e.altKey);
+
+            } else if (e.ctrlKey && e.shiftKey) {
+                lastTool.applySpecial(x, y, sandGame.graphics(), e.altKey);
+                Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_FLOOD);
+                Analytics.triggerToolUsed(lastTool);
+                lastTool = null;
             } else {
                 if (e.ctrlKey && lastTool.isSelectionEnabled()) {
                     ctrlPressed = e.ctrlKey;
@@ -201,12 +220,13 @@ class ComponentViewInnerCanvas extends Component {
                     shiftPressed = e.shiftKey;
                 }
             }
-            // if (!lastTool.isStrokeEnabled()) {
-            //     lastTool = null;
-            // }
         });
         domNode.addEventListener('mousemove', (e) => {
+            // cancel repeating
+            cancelRepeatingIfNeeded();
+
             if (!ctrlPressed && !shiftPressed) {
+                // drawing while dragging...
 
                 // show / move cursor
                 if (this.#cursorOverlayComponent.hasCursor()) {
@@ -230,6 +250,10 @@ class ComponentViewInnerCanvas extends Component {
                 Analytics.triggerToolUsed(lastTool);
                 lastX = x;
                 lastY = y;
+
+                // repeating when holding mouse down on a position
+                startRepeatingIfEnabled(x, y, e.altKey);
+
                 return;
             }
 
@@ -251,28 +275,38 @@ class ComponentViewInnerCanvas extends Component {
             }
         });
         domNode.addEventListener('mouseup', (e) => {
-            if (lastTool === null) {
-                return;
+            // cancel repeating
+            cancelRepeatingIfNeeded();
+
+            // rectangle or line
+            if (lastTool !== null) {
+                if (ctrlPressed) {
+                    const [x, y] = getActualMousePosition(e);
+                    let minX = Math.min(lastX, x);
+                    let minY = Math.min(lastY, y);
+                    let maxX = Math.max(lastX, x);
+                    let maxY = Math.max(lastY, y);
+                    lastTool.applyArea(minX, minY, maxX, maxY, sandGame.graphics(), e.altKey);
+                    Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_RECT);
+                    Analytics.triggerToolUsed(lastTool);
+                } else if (shiftPressed) {
+                    const [x, y] = getActualMousePosition(e);
+                    lastTool.applyStroke(lastX, lastY, x, y, sandGame.graphics(), e.altKey);
+                    Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_LINE);
+                    Analytics.triggerToolUsed(lastTool);
+                }
+                lastTool = null;
+                this.#cursorOverlayComponent.hideCursors();
             }
-            if (ctrlPressed) {
-                const [x, y] = getActualMousePosition(e);
-                let minX = Math.min(lastX, x);
-                let minY = Math.min(lastY, y);
-                let maxX = Math.max(lastX, x);
-                let maxY = Math.max(lastY, y);
-                lastTool.applyArea(minX, minY, maxX, maxY, sandGame.graphics(), e.altKey);
-                Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_RECT);
-                Analytics.triggerToolUsed(lastTool);
-            } else if (shiftPressed) {
-                const [x, y] = getActualMousePosition(e);
-                lastTool.applyStroke(lastX, lastY, x, y, sandGame.graphics(), e.altKey);
-                Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_LINE);
-                Analytics.triggerToolUsed(lastTool);
-            }
-            lastTool = null;
-            this.#cursorOverlayComponent.hideCursors();
         });
         domNode.addEventListener('mouseout', (e) => {
+            // disable drag
+            // lastTool = null;
+
+            // cancel repeating
+            cancelRepeatingIfNeeded();
+
+            // hide cursors
             this.#cursorOverlayComponent.hideCursors();
         });
         domNode.addEventListener('mouseenter', (e) => {

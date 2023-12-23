@@ -5,7 +5,7 @@ import {Brushes} from "../Brushes";
 /**
  *
  * @author Patrik Harag
- * @version 2023-07-23
+ * @version 2023-12-23
  */
 export class RectangleBrushTool extends Tool {
 
@@ -34,6 +34,10 @@ export class RectangleBrushTool extends Tool {
     }
 
     isSelectionEnabled() {
+        return true;
+    }
+
+    isRepeatingEnabled() {
         return true;
     }
 
