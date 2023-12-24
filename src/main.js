@@ -1,7 +1,7 @@
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-21
+ * @version 2023-12-24
  */
 
 import { Analytics } from "./Analytics";
@@ -93,7 +93,6 @@ export function init(root, config) {
     }
 
     const dialogAnchorNode = DomBuilder.div({ class: 'sand-game-dialog-anchor sand-game-component' });
-    document.body.prepend(dialogAnchorNode);
 
     const controller = new Controller(init, dialogAnchorNode);
     const mainComponent = new MainComponent(init);
@@ -103,6 +102,7 @@ export function init(root, config) {
     const node = mainComponent.createNode(controller);
     root.innerHTML = '';
     root.append(node);
+    root.append(dialogAnchorNode);
 
     controller.setup();
     controller.getIOManager().initFileDragAndDrop(node);

@@ -16,6 +16,21 @@
               max-width: 1140px;
           }
       }
+
+      /* fullscreen mode */
+      #sand-game-root:fullscreen {
+          padding: 10pt 20pt;
+          background: white;
+      }
+      #sand-game-root:fullscreen .sand-game-component {
+          margin-left: auto;
+          margin-right: auto;
+          position: relative;
+          width: 80%;
+      }
+      #sand-game-root::backdrop {
+          background: white;
+      }
   </style>
 
   <script defer src="dist/sand-game-js.umd.js"></script>
@@ -51,11 +66,20 @@
                   '</span>';
           }
       });
+
+      function toFullscreen() {
+          if (document.fullscreenEnabled) {
+              const root = document.getElementById('sand-game-root');
+              root.requestFullscreen();
+          }
+      }
   </script>
 </head>
 <body>
 <main role="main" class="container">
-  <h1>Sand Game JS</h1>
+  <h1 style="display: inline-block;">Sand Game JS</h1>
+  <a href="javascript:void(0)" onclick="toFullscreen()">[fullscreen]</a>
+
   <div id="sand-game-root">
     <!-- Sand Game JS placeholder -->
     <div style="user-select: none;">
