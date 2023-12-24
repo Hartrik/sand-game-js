@@ -361,7 +361,7 @@ class BootstrapTable {
 
 /**
  *
- * @version 2023-12-21
+ * @version 2023-12-24
  * @author Patrik Harag
  */
 class BootstrapDialog {
@@ -428,7 +428,7 @@ class BootstrapDialog {
             this.#dialog = DomBuilder.div({ class: 'modal fade', tabindex: '-1', role: 'dialog', 'aria-hidden': 'true' }, [
                 DomBuilder.div({ class: `modal-dialog modal-dialog-centered ${this.#additionalStyle}` }, [
                     DomBuilder.div({ class: 'modal-content' }, [
-                        DomBuilder.div({ class: 'modal-header' }, this.#bodyNode),
+                        DomBuilder.div({ class: 'modal-header' }, this.#headerNode),
                         DomBuilder.div({ class: 'modal-body' }, this.#bodyNode),
                         DomBuilder.div({ class: 'modal-footer' }, this.#footerNodeChildren)
                     ])
