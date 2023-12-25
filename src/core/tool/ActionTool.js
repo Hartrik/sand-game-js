@@ -3,15 +3,15 @@ import {Tool} from "../Tool";
 /**
  *
  * @author Patrik Harag
- * @version 2023-04-29
+ * @version 2023-12-25
  */
 export class ActionTool extends Tool {
 
     /** @type function */
     #handler;
 
-    constructor(category, codeName, displayName, handler) {
-        super(category, codeName, displayName);
+    constructor(info, handler) {
+        super(info);
         this.#handler = handler;
     }
 

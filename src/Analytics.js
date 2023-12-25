@@ -35,9 +35,9 @@ export class Analytics {
 
 
     static triggerToolUsed(tool) {
-        const category = tool.getCategory();
+        const category = tool.getInfo().getCategory();
         if (category === ToolDefs.CATEGORY_BRUSH) {
-            const feature = 'brush_' + tool.getCodeName();
+            const feature = 'brush_' + tool.getInfo().getCodeName();
             Analytics.triggerFeatureUsed(feature);
         } else if (category === ToolDefs.CATEGORY_TEMPLATE) {
             Analytics.triggerFeatureUsed('brush_template');

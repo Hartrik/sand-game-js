@@ -5,9 +5,9 @@ import {Brushes} from "../Brushes";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-23
+ * @version 2023-12-25
  */
-export class RectangleBrushTool extends Tool {
+export class RoundBrushTool extends Tool {
 
     /** @type Brush */
     #brush;
@@ -18,8 +18,8 @@ export class RectangleBrushTool extends Tool {
     /** @type number */
     #size;
 
-    constructor(category, codeName, displayName, brush, size) {
-        super(category, codeName, displayName);
+    constructor(info, brush, size) {
+        super(info);
         this.#brush = brush;
         this.#altBrush = Brushes.gentle(brush);
         this.#size = size;

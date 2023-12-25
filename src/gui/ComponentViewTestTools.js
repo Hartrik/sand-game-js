@@ -54,7 +54,7 @@ export class ComponentViewTestTools extends Component {
         let components = [...ComponentViewTestTools.COMPONENTS];
         for (let tool of ToolDefs.TEST_TOOLS) {
             let action = Action.create(c => c.getToolManager().setPrimaryTool(tool));
-            components.push(new ComponentButton(tool.getDisplayName(), ComponentViewTestTools.#BTN_BRUSH, action));
+            components.push(new ComponentButton(tool.getInfo().getDisplayName(), ComponentViewTestTools.#BTN_BRUSH, action));
         }
 
         for (let component of components) {

@@ -23,19 +23,20 @@ import _ASSET_SAND_CASTLE from './assets/templates/sand-castle.png'
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-20
+ * @version 2023-12-25
  */
 export class TemplateDefs {
 
     static ROCK_SM = {
-        name: "Rock SM",
-        category: "template",
-        type: "template",
-        icon: {
-            imageData: _ASSET_ROCK_SM_ICON,
+        info: {
+            displayName: "Rock SM",
+            category: "template",
+            icon: {
+                imageData: _ASSET_ROCK_SM_ICON
+            }
         },
         action: {
-            type: "random",
+            type: "random-template",
             actions: [
                 {
                     type: "image-template",
@@ -64,14 +65,15 @@ export class TemplateDefs {
     };
 
     static ROCK_MD =  {
-        name: "Rock",
-        category: "template",
-        type: "template",
-        icon: {
-            imageData: _ASSET_ROCK_ICON,
+        info: {
+            displayName: "Rock",
+            category: "template",
+            icon: {
+                imageData: _ASSET_ROCK_ICON
+            }
         },
         action: {
-            type: "random",
+            type: "random-template",
             actions: [
                 {
                     type: "image-template",
@@ -124,14 +126,15 @@ export class TemplateDefs {
     };
 
     static ROCK_LG = {
-        name: "Rock LG",
-        category: "template",
-        type: "template",
-        icon: {
-            imageData: _ASSET_ROCK_LG_ICON,
+        info: {
+            displayName: "Rock LG",
+            category: "template",
+            icon: {
+                imageData: _ASSET_ROCK_LG_ICON
+            }
         },
         action: {
-            type: "random",
+            type: "random-template",
             actions: [
                 {
                     type: "image-template",
@@ -151,11 +154,12 @@ export class TemplateDefs {
     };
 
     static CABIN = {
-        name: "Cabin",
-        category: "template",
-        type: "template",
-        icon: {
-            imageData: _ASSET_WOODEN_HOUSE_ICON,
+        info: {
+            displayName: "Cabin",
+            category: "template",
+            icon: {
+                imageData: _ASSET_WOODEN_HOUSE_ICON
+            }
         },
         action: {
             type: "image-template",
@@ -167,9 +171,10 @@ export class TemplateDefs {
     };
 
     static SAND_CASTLE = {
-        name: "Sand Castle",
-        category: "template",
-        type: "template",
+        info: {
+            displayName: "Sand Castle",
+            category: "template"
+        },
         action: {
             type: "image-template",
             imageData: _ASSET_SAND_CASTLE,

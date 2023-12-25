@@ -5,7 +5,7 @@ import {Tool} from "../Tool";
 /**
  *
  * @author Patrik Harag
- * @version 2023-11-20
+ * @version 2023-12-25
  */
 export class InsertRandomSceneTool extends Tool {
 
@@ -17,8 +17,8 @@ export class InsertRandomSceneTool extends Tool {
     /** @type function */
     #onInsertHandler;
 
-    constructor(category, codeName, displayName, scenes, onInsertHandler) {
-        super(category, codeName, displayName);
+    constructor(info, scenes, onInsertHandler) {
+        super(info);
         this.#scenes = scenes;
         this.#onInsertHandler = onInsertHandler;
         this.#initRandomTool();
@@ -31,8 +31,7 @@ export class InsertRandomSceneTool extends Tool {
 
         const i = DeterministicRandom.DEFAULT.nextInt(this.#scenes.length);
         const scene = this.#scenes[i];
-        this.#currentTool = new InsertSceneTool(this.getCategory(), this.getCodeName(), this.getDisplayName(),
-            scene, this.#onInsertHandler);
+        this.#currentTool = new InsertSceneTool(this.getInfo(), scene, this.#onInsertHandler);
     }
 
     applyPoint(x, y, graphics, aldModifier) {

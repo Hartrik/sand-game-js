@@ -4,11 +4,12 @@ import { BrushDefs } from "../def/BrushDefs";
 import { ElementArea } from "./ElementArea";
 import { SceneImplModFlip } from "./SceneImplModFlip";
 import { ResourceUtils } from "./ResourceUtils";
+import { ToolInfo } from "./ToolInfo";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-09
+ * @version 2023-12-25
  */
 export class ResourceTool {
 
@@ -21,96 +22,99 @@ export class ResourceTool {
      * @returns {Promise<Tool>}
      */
     static async parse(metadataJson, zip) {
-        const type = metadataJson.type;
-        const name = metadataJson.name;
-        const category = metadataJson.category;
+        const info = metadataJson.info;
         const action = metadataJson.action;
 
-        if (type === undefined) {
-            throw 'Tool definition: type not set';
+        if (info === undefined) {
+            throw 'Tool definition: info not set';
         }
-        if (name === undefined) {
-            throw 'Tool definition: name not set';
-        }
-        if (category === undefined) {
-            throw 'Tool definition: category not set';
-        }
+        const parsedInfo = new ToolInfo(info.category, info.codeName, info.displayName);
+
         if (action === undefined) {
             throw 'Tool definition: action not set';
         }
 
-        if (type === 'template') {
-            const scenes = await ResourceTool.#parseTemplateAction(action, zip);
-            return Tools.insertElementAreaTool(category, null, name, scenes, undefined);
-
-        } else {
-            throw 'Tool type not supported: ' + type;
-        }
+        return ResourceTool.#parseAction(parsedInfo, action, zip);
     }
 
     /**
      *
+     * @param info {ToolInfo}
      * @param json
      * @param zip {{[path: string]: Uint8Array}|null}
-     * @returns {Promise<Scene[]>}
+     * @returns {Promise<Tool>}
      */
-    static async #parseTemplateAction(json, zip) {
+    static async #parseAction(info, json, zip) {
         const type = json.type;
 
         if (type === 'image-template') {
-            let imageData = await this.#parseImageData(json, zip);
+            const scenes = await this.parseImageTemplate(json, zip);
+            return Tools.insertElementAreaTool(info, scenes, undefined);
 
-            const thresholdPar = json.threshold;
-            if (thresholdPar === undefined) {
-                throw 'Image template: threshold not set';
-            }
-            const threshold = parseInt(thresholdPar);
-
-            const brushPar = json.brush;
-            if (brushPar === undefined) {
-                throw 'Image template: brush not set';
-            }
-            const brush = BrushDefs.byCodeName(json.brush);
-            if (brush === null) {
-                throw 'Image template: brush not found: ' + brushPar;
-            }
-
-            const scene = ResourceUtils.createSceneFromImageTemplate(imageData, brush,
-                    ElementArea.TRANSPARENT_ELEMENT, threshold);
-            const scenes = [scene];
-
-            const randomFlipHorizontally = json.randomFlipHorizontally;
-            if (randomFlipHorizontally) {
-                scenes.push(new SceneImplModFlip(scene, true, false));
-            }
-
-            const randomFlipVertically = json.randomFlipVertically;
-            if (randomFlipVertically) {
-                for (const s of [...scenes]) {
-                    scenes.push(new SceneImplModFlip(s, false, true));
-                }
-            }
-
-            return scenes;
-
-        } else if (type === 'random') {
-            const actions = json.actions;
-            if (actions === undefined || actions.length === undefined || actions.length === 0) {
-                throw 'Image template: actions not set';
-            }
-
-            let scenes = [];
-            for (let i = 0; i < actions.length; i++) {
-                let parsedScenes = await ResourceTool.#parseTemplateAction(actions[i], zip);
-                for (let s of parsedScenes) {
-                    scenes.push(s);
-                }
-            }
-            return scenes;
+        } else if (type === 'random-template') {
+            const scenes = await this.parseRandomTemplate(json, zip);
+            return Tools.insertElementAreaTool(info, scenes, undefined);
 
         } else {
-            throw 'Scene type not supported: ' + type;
+            throw 'Tool action not supported: ' + type;
         }
+    }
+
+    static async parseRandomTemplate(json, zip) {
+        const actions = json.actions;
+        if (actions === undefined || actions.length === undefined || actions.length === 0) {
+            throw 'Image template: actions not set';
+        }
+
+        let scenes = [];
+        for (let i = 0; i < actions.length; i++) {
+            const action = actions[i];
+            const type = action.type;
+            if (type === 'image-template') {
+                const items = await this.parseImageTemplate(action, zip);
+                scenes.push(...items);
+            } else {
+                throw 'Tool action not supported: ' + type;
+            }
+        }
+        return scenes;
+    }
+
+    static async parseImageTemplate(json, zip) {
+        let imageData = await this.#parseImageData(json, zip);
+
+        const thresholdPar = json.threshold;
+        if (thresholdPar === undefined) {
+            throw 'Image template: threshold not set';
+        }
+        const threshold = parseInt(thresholdPar);
+
+        const brushPar = json.brush;
+        if (brushPar === undefined) {
+            throw 'Image template: brush not set';
+        }
+        const brush = BrushDefs.byCodeName(json.brush);
+        if (brush === null) {
+            throw 'Image template: brush not found: ' + brushPar;
+        }
+
+        const defaultElement = ElementArea.TRANSPARENT_ELEMENT;
+        const scene = ResourceUtils.createSceneFromImageTemplate(imageData, brush, defaultElement, threshold);
+        const scenes = [scene];
+
+        const randomFlipHorizontally = json.randomFlipHorizontally;
+        if (randomFlipHorizontally) {
+            scenes.push(new SceneImplModFlip(scene, true, false));
+        }
+
+        const randomFlipVertically = json.randomFlipVertically;
+        if (randomFlipVertically) {
+            for (const s of [...scenes]) {
+                scenes.push(new SceneImplModFlip(s, false, true));
+            }
+        }
+
+        return scenes;
     }
 
     static async #parseImageData(json, zip) {

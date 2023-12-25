@@ -6,7 +6,7 @@ import {Tool} from "../Tool";
 /**
  *
  * @author Patrik Harag
- * @version 2023-05-16
+ * @version 2023-12-25
  */
 export class InsertSceneTool extends Tool {
 
@@ -18,8 +18,8 @@ export class InsertSceneTool extends Tool {
     /** @type function */
     #onInsertHandler;
 
-    constructor(category, codeName, displayName, scene, onInsertHandler) {
-        super(category, codeName, displayName);
+    constructor(info, scene, onInsertHandler) {
+        super(info);
 
         this.#elementArea = scene.createElementArea(
             InsertSceneTool.DEFAULT_W, InsertSceneTool.DEFAULT_H, ElementArea.TRANSPARENT_ELEMENT);

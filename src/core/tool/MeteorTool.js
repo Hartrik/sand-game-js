@@ -6,12 +6,12 @@ import {Tool} from "../Tool";
 /**
  *
  * @author Patrik Harag
- * @version 2023-11-20
+ * @version 2023-12-25
  */
 export class MeteorTool extends Tool {
 
-    constructor(category, codeName, displayName) {
-        super(category, codeName, displayName);
+    constructor(info) {
+        super(info);
     }
 
     applyPoint(x, y, graphics, aldModifier) {

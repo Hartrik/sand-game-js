@@ -1,10 +1,11 @@
 {
   "resourceType": "tool",
-  "name": "Rock",
-  "category": "template",
-  "type": "template",
-  "icon": {
-    "imageData": null
+  "info": {
+    "displayName": "Rock",
+    "category": "template",
+    "icon": {
+      "imageData": null
+    }
   },
   "action": {
     "type": "image-template",

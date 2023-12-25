@@ -1,4 +1,4 @@
-import {RectangleBrushTool} from "./tool/RectangleBrushTool";
+import {RoundBrushTool} from "./tool/RoundBrushTool";
 import {PointBrushTool} from "./tool/PointBrushTool";
 import {Point2BrushTool} from "./tool/Point2BrushTool";
 import {MeteorTool} from "./tool/MeteorTool";
@@ -9,35 +9,35 @@ import {ActionTool} from "./tool/ActionTool";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-20
+ * @version 2023-12-25
  */
 export class Tools {
 
-    static rectangleBrushTool(category, codeName, displayName, brush, size) {
-        return new RectangleBrushTool(category, codeName, displayName, brush, size);
+    static roundBrushTool(info, brush, size) {
+        return new RoundBrushTool(info, brush, size);
     }
 
-    static pointBrushTool(category, codeName, displayName, brush) {
-        return new PointBrushTool(category, codeName, displayName, brush);
+    static pointBrushTool(info, brush) {
+        return new PointBrushTool(info, brush);
     }
 
-    static point2BrushTool(category, codeName, displayName, brush1, brush2) {
-        return new Point2BrushTool(category, codeName, displayName, brush1, brush2);
+    static point2BrushTool(info, brush1, brush2) {
+        return new Point2BrushTool(info, brush1, brush2);
     }
 
-    static meteorTool(category, codeName, displayName) {
-        return new MeteorTool(category, codeName, displayName);
+    static meteorTool(info) {
+        return new MeteorTool(info);
     }
 
-    static insertElementAreaTool(category, codeName, displayName, scenes, handler) {
+    static insertElementAreaTool(info, scenes, handler) {
         if (scenes.length === 1) {
-            return new InsertSceneTool(category, codeName, displayName, scenes[0], handler);
+            return new InsertSceneTool(info, scenes[0], handler);
         } else {
-            return new InsertRandomSceneTool(category, codeName, displayName, scenes, handler);
+            return new InsertRandomSceneTool(info, scenes, handler);
         }
     }
 
-    static actionTool(category, codeName, displayName, handler) {
-        return new ActionTool(category, codeName, displayName, handler);
+    static actionTool(info, handler) {
+        return new ActionTool(info, handler);
     }
 }

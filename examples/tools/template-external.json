@@ -1,10 +1,11 @@
 {
   "resourceType": "tool",
-  "name": "Logo",
-  "category": "template",
-  "type": "template",
-  "icon": {
-    "imageData": null
+  "info": {
+    "displayName": "Logo",
+    "category": "template",
+    "icon": {
+      "imageData": null
+    }
   },
   "action": {
     "type": "image-template",

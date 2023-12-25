@@ -3,15 +3,15 @@ import {Tool} from "../Tool";
 /**
  *
  * @author Patrik Harag
- * @version 2023-04-15
+ * @version 2023-12-25
  */
 export class PointBrushTool extends Tool {
 
     /** @type Brush */
     #brush;
 
-    constructor(category, codeName, displayName, brush) {
-        super(category, codeName, displayName);
+    constructor(info, brush) {
+        super(info);
         this.#brush = brush;
     }
 

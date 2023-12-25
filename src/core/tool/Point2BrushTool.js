@@ -3,7 +3,7 @@ import {Tool} from "../Tool";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-05
+ * @version 2023-12-25
  */
 export class Point2BrushTool extends Tool {
 
@@ -12,8 +12,8 @@ export class Point2BrushTool extends Tool {
     /** @type Brush */
     #brush2;
 
-    constructor(category, codeName, displayName, brush1, brush2) {
-        super(category, codeName, displayName);
+    constructor(info, brush1, brush2) {
+        super(info);
         this.#brush1 = brush1;
         this.#brush2 = brush2;
     }

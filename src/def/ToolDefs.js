@@ -2,11 +2,12 @@ import { Brushes } from "../core/Brushes";
 import { Tool } from "../core/Tool.js";
 import { Tools } from "../core/Tools";
 import { BrushDefs } from "./BrushDefs";
+import { ToolInfo } from "../core/ToolInfo";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-14
+ * @version 2023-12-25
  */
 export class ToolDefs {
 
@@ -15,40 +16,50 @@ export class ToolDefs {
     static CATEGORY_BRUSH = 'brush';
     static CATEGORY_TEMPLATE = 'template';
 
+    static #info(codeName, displayName, category = ToolDefs.CATEGORY_BRUSH) {
+        return new ToolInfo(category, codeName, displayName);
+    }
+
     /** @type Tool[] */
     static DEFAULT_TOOLS = [
-        Tools.rectangleBrushTool(ToolDefs.CATEGORY_BRUSH, 'air', 'Erase', BrushDefs.AIR, ToolDefs.DEFAULT_SIZE),
-        Tools.rectangleBrushTool(ToolDefs.CATEGORY_BRUSH, 'sand', 'Sand', BrushDefs.SAND, ToolDefs.DEFAULT_SIZE),
-        Tools.rectangleBrushTool(ToolDefs.CATEGORY_BRUSH, 'soil', 'Soil', BrushDefs.SOIL, ToolDefs.DEFAULT_SIZE),
-        Tools.rectangleBrushTool(ToolDefs.CATEGORY_BRUSH, 'gravel', 'Gravel', BrushDefs.GRAVEL,ToolDefs.DEFAULT_SIZE),
-        Tools.rectangleBrushTool(ToolDefs.CATEGORY_BRUSH, 'wall', 'Rock', BrushDefs.ROCK, ToolDefs.DEFAULT_SIZE),
-        Tools.rectangleBrushTool(ToolDefs.CATEGORY_BRUSH, 'water', 'Water', BrushDefs.WATER, ToolDefs.DEFAULT_SIZE),
-        Tools.rectangleBrushTool(ToolDefs.CATEGORY_BRUSH, 'fire', 'Fire', Brushes.temperatureOrBrush(50, BrushDefs.FIRE), ToolDefs.DEFAULT_SIZE),
-        Tools.meteorTool(ToolDefs.CATEGORY_BRUSH, 'meteor', 'Meteor'),
+        Tools.roundBrushTool(ToolDefs.#info('air', 'Erase'), BrushDefs.AIR, ToolDefs.DEFAULT_SIZE),
+        Tools.roundBrushTool(ToolDefs.#info('sand', 'Sand'), BrushDefs.SAND, ToolDefs.DEFAULT_SIZE),
+        Tools.roundBrushTool(ToolDefs.#info('soil', 'Soil'), BrushDefs.SOIL, ToolDefs.DEFAULT_SIZE),
+        Tools.roundBrushTool(ToolDefs.#info('gravel', 'Gravel'), BrushDefs.GRAVEL,ToolDefs.DEFAULT_SIZE),
+        Tools.roundBrushTool(ToolDefs.#info('wall', 'Rock'), BrushDefs.ROCK, ToolDefs.DEFAULT_SIZE),
+        Tools.roundBrushTool(ToolDefs.#info('water', 'Water'), BrushDefs.WATER, ToolDefs.DEFAULT_SIZE),
+        Tools.roundBrushTool(ToolDefs.#info('fire', 'Fire'), Brushes.temperatureOrBrush(50, BrushDefs.FIRE), ToolDefs.DEFAULT_SIZE),
+        Tools.meteorTool(ToolDefs.#info('meteor', 'Meteor')),
     ];
 
     /** @type Tool[] */
     static TEST_TOOLS = [
-        Tools.pointBrushTool(ToolDefs.CATEGORY_BRUSH, 'grass', 'Grass', BrushDefs.GRASS),
-        Tools.pointBrushTool(ToolDefs.CATEGORY_BRUSH, 'tree', 'Tree', BrushDefs.TREE),
-        Tools.point2BrushTool(ToolDefs.CATEGORY_BRUSH, 'fish', 'Fish', BrushDefs.FISH_HEAD, BrushDefs.FISH_BODY),
-        Tools.rectangleBrushTool(ToolDefs.CATEGORY_BRUSH, 'effect_burnt', 'Burnt', BrushDefs.EFFECT_BURNT, ToolDefs.DEFAULT_SIZE),
-        Tools.rectangleBrushTool(ToolDefs.CATEGORY_BRUSH, 'effect_noise_sm', 'Noise SM', BrushDefs.EFFECT_NOISE_SM, ToolDefs.DEFAULT_SIZE),
-        Tools.rectangleBrushTool(ToolDefs.CATEGORY_BRUSH, 'effect_noise_md', 'Noise MD', BrushDefs.EFFECT_NOISE_MD, ToolDefs.DEFAULT_SIZE),
-        Tools.rectangleBrushTool(ToolDefs.CATEGORY_BRUSH, 'effect_noise_lg', 'Noise LG', BrushDefs.EFFECT_NOISE_LG, ToolDefs.DEFAULT_SIZE),
-        Tools.rectangleBrushTool(ToolDefs.CATEGORY_BRUSH, 'effect_temp_0', 'Temp 0', BrushDefs.EFFECT_TEMP_0, ToolDefs.DEFAULT_SIZE),
-        Tools.rectangleBrushTool(ToolDefs.CATEGORY_BRUSH, 'effect_temp_127', 'Temp 127', BrushDefs.EFFECT_TEMP_127, ToolDefs.DEFAULT_SIZE),
-        Tools.rectangleBrushTool(ToolDefs.CATEGORY_BRUSH, 'effect_temp_200', 'Temp 200', BrushDefs.EFFECT_TEMP_200, ToolDefs.DEFAULT_SIZE),
-        Tools.rectangleBrushTool(ToolDefs.CATEGORY_BRUSH, 'effect_temp_255', 'Temp 255', BrushDefs.EFFECT_TEMP_255, ToolDefs.DEFAULT_SIZE),
-        Tools.rectangleBrushTool(ToolDefs.CATEGORY_BRUSH, 'ash', 'Ash', BrushDefs.ASH, ToolDefs.DEFAULT_SIZE),
-        Tools.rectangleBrushTool(ToolDefs.CATEGORY_BRUSH, 'metal', 'Metal', BrushDefs.METAL, ToolDefs.DEFAULT_SIZE),
+        Tools.pointBrushTool(ToolDefs.#info( 'grass', 'Grass'), BrushDefs.GRASS),
+        Tools.pointBrushTool(ToolDefs.#info( 'tree', 'Tree'), BrushDefs.TREE),
+        Tools.point2BrushTool(ToolDefs.#info( 'fish', 'Fish'), BrushDefs.FISH_HEAD, BrushDefs.FISH_BODY),
+        Tools.roundBrushTool(ToolDefs.#info( 'effect_burnt', 'Burnt'), BrushDefs.EFFECT_BURNT, ToolDefs.DEFAULT_SIZE),
+        Tools.roundBrushTool(ToolDefs.#info( 'effect_noise_sm', 'Noise SM'), BrushDefs.EFFECT_NOISE_SM, ToolDefs.DEFAULT_SIZE),
+        Tools.roundBrushTool(ToolDefs.#info( 'effect_noise_md', 'Noise MD'), BrushDefs.EFFECT_NOISE_MD, ToolDefs.DEFAULT_SIZE),
+        Tools.roundBrushTool(ToolDefs.#info( 'effect_noise_lg', 'Noise LG'), BrushDefs.EFFECT_NOISE_LG, ToolDefs.DEFAULT_SIZE),
+        Tools.roundBrushTool(ToolDefs.#info( 'effect_temp_0', 'Temp 0'), BrushDefs.EFFECT_TEMP_0, ToolDefs.DEFAULT_SIZE),
+        Tools.roundBrushTool(ToolDefs.#info( 'effect_temp_127', 'Temp 127'), BrushDefs.EFFECT_TEMP_127, ToolDefs.DEFAULT_SIZE),
+        Tools.roundBrushTool(ToolDefs.#info( 'effect_temp_200', 'Temp 200'), BrushDefs.EFFECT_TEMP_200, ToolDefs.DEFAULT_SIZE),
+        Tools.roundBrushTool(ToolDefs.#info( 'effect_temp_255', 'Temp 255'), BrushDefs.EFFECT_TEMP_255, ToolDefs.DEFAULT_SIZE),
+        Tools.roundBrushTool(ToolDefs.#info( 'ash', 'Ash'), BrushDefs.ASH, ToolDefs.DEFAULT_SIZE),
+        Tools.roundBrushTool(ToolDefs.#info( 'metal', 'Metal'), BrushDefs.METAL, ToolDefs.DEFAULT_SIZE),
     ];
 
+    static _LIST = {};
+    static {
+        for (const tool of [...ToolDefs.DEFAULT_TOOLS, ...ToolDefs.TEST_TOOLS]) {
+            ToolDefs._LIST[tool.getInfo().getCodeName()] = tool;
+        }
+    }
+
     static byCodeName(codeName) {
-        for (let tool of this.DEFAULT_TOOLS) {
-            if (tool.getCodeName() === codeName) {
-                return tool;
-            }
+        const tool = ToolDefs._LIST[codeName];
+        if (tool !== undefined) {
+            return tool;
         }
         return null;
     }

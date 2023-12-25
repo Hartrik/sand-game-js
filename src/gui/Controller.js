@@ -9,6 +9,7 @@ import { SceneImplSnapshot } from "../core/SceneImplSnapshot";
 import { DomBuilder } from "./DomBuilder";
 import { Defaults } from "../def/Defaults";
 import { Tools } from "../core/Tools";
+import { ToolInfo } from "../core/ToolInfo";
 
 /**
  *
@@ -374,8 +375,8 @@ export class Controller {
         const toolManager = this.getToolManager();
         const revert = toolManager.createRevertAction();
 
-        toolManager.setPrimaryTool(Tools.insertElementAreaTool(null, null, null, [ scene ], revert));
-        toolManager.setSecondaryTool(Tools.actionTool(null, null, null, revert));
+        toolManager.setPrimaryTool(Tools.insertElementAreaTool(new ToolInfo(), [ scene ], revert));
+        toolManager.setSecondaryTool(Tools.actionTool(new ToolInfo(), revert));
     }
 
     // controller / canvas size

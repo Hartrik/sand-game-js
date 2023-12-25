@@ -8,43 +8,19 @@ import {CursorDefinition} from "./CursorDefinition.js";
  */
 export class Tool {
 
-    /** @type string */
-    #category;
+    /** @type ToolInfo */
+    #info;
 
-    /** @type string */
-    #codeName;
-
-    /** @type string */
-    #displayName;
-
-    constructor(category, codeName, displayName) {
-        this.#category = category;
-        this.#codeName = codeName;
-        this.#displayName = displayName;
+    constructor(info) {
+        this.#info = info;
     }
 
     /**
      *
-     * @return {string}
+     * @returns {ToolInfo}
      */
-    getCategory() {
-        return this.#category;
-    }
-
-    /**
-     *
-     * @return {string}
-     */
-    getDisplayName() {
-        return this.#displayName;
-    }
-
-    /**
-     *
-     * @return {string}
-     */
-    getCodeName() {
-        return this.#codeName;
+    getInfo() {
+        return this.#info;
     }
 
     isStrokeEnabled() {

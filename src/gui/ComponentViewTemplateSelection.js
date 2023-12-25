@@ -3,11 +3,12 @@ import { TemplateDefs } from "../def/TemplateDefs";
 import { Resources } from "../core/Resources";
 import { Tools } from "../core/Tools";
 import { Component } from "./Component";
+import { ToolInfo } from "../core/ToolInfo";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-20
+ * @version 2023-12-25
  */
 export class ComponentViewTemplateSelection extends Component {
 
@@ -22,7 +23,7 @@ export class ComponentViewTemplateSelection extends Component {
         ];
 
         for (const toolDefinition of templateDefinitions) {
-            const name = toolDefinition.name;
+            const name = toolDefinition.info.displayName;
             let loadedTool = null;
 
             let button = DomBuilder.button(name, { class: 'btn btn-light template-button', 'data-bs-dismiss': 'modal'}, () => {
@@ -32,13 +33,13 @@ export class ComponentViewTemplateSelection extends Component {
                     const revert = toolManager.createRevertAction();
 
                     toolManager.setPrimaryTool(loadedTool);
-                    toolManager.setSecondaryTool(Tools.actionTool(null, null, null, revert));
+                    toolManager.setSecondaryTool(Tools.actionTool(new ToolInfo(), revert));
 
                 } else {
                     // this should not happen
                 }
             });
-            button.style.backgroundImage = `url(${ toolDefinition.icon.imageData })`;
+            button.style.backgroundImage = `url(${ toolDefinition.info.icon.imageData })`;
 
             buttons.push(button);
 

@@ -6,14 +6,17 @@ import {ResourceUtils} from "../core/ResourceUtils";
 import {Analytics} from "../Analytics.js";
 import {Scene} from "../core/Scene";
 import {Tool} from "../core/Tool";
+import {ToolInfo} from "../core/ToolInfo";
 import {Tools} from "../core/Tools";
+import {InsertSceneTool} from "../core/tool/InsertSceneTool";
+import {InsertRandomSceneTool} from "../core/tool/InsertRandomSceneTool";
 
 // TODO: refactor
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-22
+ * @version 2023-12-25
  */
 export class ServiceIO {
 
@@ -132,10 +135,10 @@ export class ServiceIO {
         } else if (resource instanceof Tool) {
             const tool = resource;
             const toolManager = this.#controller.getToolManager();
-            if (tool.getCategory() === 'template') {
+            if (tool instanceof InsertSceneTool || tool instanceof InsertRandomSceneTool) {
                 const revert = toolManager.createRevertAction();
                 toolManager.setPrimaryTool(tool);
-                toolManager.setSecondaryTool(Tools.actionTool(null, null, null, revert));
+                toolManager.setSecondaryTool(Tools.actionTool(new ToolInfo(), revert));
             } else {
                 toolManager.setPrimaryTool(tool);
             }
