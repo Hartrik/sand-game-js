@@ -299,7 +299,7 @@ class TemplateForm {
             name: 'template-material',
             id: id,
             value: value,
-            checked: checked
+            checked: (checked) ? checked : null
         });
         input.addEventListener('click', () => {
             this.#materialBrush = brush;
