@@ -35,7 +35,6 @@
 .sand-game-component .sand-game-tools {
     display: inline-block;
     user-select: none;
-    margin-bottom: 4pt;
 }
 
 .sand-game-component .btn-sand-game-tool {
@@ -45,9 +44,15 @@
     padding: 0 0.4em 0 0.4em;
     font-size: 75%;
     border: none;
+    margin-bottom: 4pt
 }
 
 .sand-game-component .btn.air {
+    background-color: rgb(230, 230, 230);
+    color: black;
+}
+
+.sand-game-component .btn.move {
     background-color: rgb(230, 230, 230);
     color: black;
     margin-right: 0.8em;

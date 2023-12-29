@@ -375,7 +375,7 @@ export class Controller {
         const toolManager = this.getToolManager();
         const revert = toolManager.createRevertAction();
 
-        toolManager.setPrimaryTool(Tools.insertElementAreaTool(new ToolInfo(), [ scene ], revert));
+        toolManager.setPrimaryTool(Tools.insertScenesTool(new ToolInfo(), [ scene ], revert));
         toolManager.setSecondaryTool(Tools.actionTool(new ToolInfo(), revert));
     }
 

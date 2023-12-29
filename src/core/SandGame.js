@@ -146,7 +146,8 @@ export class SandGame {
     }
 
     graphics() {
-        return new SandGameGraphics(this.#elementArea, this.#random, (x, y) => {
+        const defaults = this.#processor.getDefaults();
+        return new SandGameGraphics(this.#elementArea, this.#random, defaults, (x, y) => {
             this.#processor.trigger(x, y);
             this.#renderer.trigger(x, y);
         });

@@ -13,7 +13,7 @@ export class ActionFill extends Action {
             return;
         }
         const primaryTool = controller.getToolManager().getPrimaryTool();
-        if (!primaryTool.isSelectionEnabled()) {
+        if (!primaryTool.isAreaModeEnabled()) {
             return;
         }
         primaryTool.applyArea(0, 0, sandGame.getWidth(), sandGame.getHeight(), sandGame.graphics(), false);

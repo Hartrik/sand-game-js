@@ -4,7 +4,7 @@ import {CursorDefinition} from "./CursorDefinition.js";
  * @interface
  *
  * @author Patrik Harag
- * @version 2023-12-23
+ * @version 2023-12-28
  */
 export class Tool {
 
@@ -23,15 +23,7 @@ export class Tool {
         return this.#info;
     }
 
-    isStrokeEnabled() {
-        return false;
-    }
-
-    isSelectionEnabled() {
-        return false;
-    }
-
-    isRepeatingEnabled() {
+    hasCursor() {
         return false;
     }
 
@@ -43,6 +35,10 @@ export class Tool {
         return null;
     }
 
+    isRepeatingEnabled() {
+        return false;
+    }
+
     /**
      *
      * @param x {number}
@@ -52,7 +48,19 @@ export class Tool {
      * @return {void}
      */
     applyPoint(x, y, graphics, altModifier) {
-        throw 'Not implemented';
+        // no action by default
+    }
+
+    isLineModeEnabled() {
+        return false;
+    }
+
+    onDragStart(x, y, graphics, altModifier) {
+        // no action by default
+    }
+
+    onDragEnd(x, y, graphics, altModifier) {
+        // no action by default
     }
 
     /**
@@ -67,6 +75,10 @@ export class Tool {
      */
     applyStroke(x1, y1, x2, y2, graphics, altModifier) {
         // no action by default
+    }
+
+    isAreaModeEnabled() {
+        return false;
     }
 
     /**
@@ -92,6 +104,22 @@ export class Tool {
      * @return {void}
      */
     applySpecial(x, y, graphics, altModifier) {
+        // no action by default
+    }
+
+    isSecondaryActionEnabled() {
+        return false;
+    }
+
+    /**
+     *
+     * @param x {number}
+     * @param y {number}
+     * @param graphics {SandGameGraphics}
+     * @param altModifier {boolean}
+     * @return {void}
+     */
+    applySecondaryAction(x, y, graphics, altModifier) {
         // no action by default
     }
 }

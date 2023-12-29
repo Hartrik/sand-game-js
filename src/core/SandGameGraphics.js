@@ -7,7 +7,7 @@ import {CircleIterator} from "./CircleIterator.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-10
+ * @version 2023-12-28
  */
 export class SandGameGraphics {
 
@@ -17,45 +17,34 @@ export class SandGameGraphics {
     /** @type DeterministicRandom */
     #random;
 
-    /** @type function(number, number) */
+    /** @type ProcessorDefaults */
+    #defaults;
+
+    /** @type {function(number,number)} */
     #triggerFunction;
 
-    constructor(elementArea, random, triggerFunction) {
+    constructor(elementArea, random, defaults, triggerFunction) {
         this.#elementArea = elementArea;
         this.#random = random;
+        this.#defaults = defaults;
         this.#triggerFunction = triggerFunction;
-    }
-
-    /**
-     *
-     * @param aX {number}
-     * @param aY {number}
-     * @param bX {number}
-     * @param bY {number}
-     */
-    swap(aX, aY, bX, bY) {
-        aX = Math.trunc(aX);
-        aY = Math.trunc(aY);
-        bX = Math.trunc(bX);
-        bY = Math.trunc(bY);
-
-        if (this.#elementArea.isValidPosition(aX, aY) && this.#elementArea.isValidPosition(bX, bY)) {
-            this.#elementArea.swap(aX, aY, bX, bY);
-        }
     }
 
     /**
      *
      * @param x {number}
      * @param y {number}
-     * @param brushOrElement {Brush|Element}
+     * @param brushOrElement {Brush|Element|null}
      */
     draw(x, y, brushOrElement) {
         x = Math.trunc(x);
         y = Math.trunc(y);
 
         if (this.#elementArea.isValidPosition(x, y)) {
-            if (brushOrElement instanceof Element) {
+            if (brushOrElement === null) {
+                this.#elementArea.setElement(x, y, this.#defaults.getDefaultElement());
+                this.#triggerFunction(x, y);
+            } else if (brushOrElement instanceof Element) {
                 this.#elementArea.setElement(x, y, brushOrElement);
                 this.#triggerFunction(x, y);
             } else if (brushOrElement instanceof Brush) {
@@ -108,16 +97,28 @@ export class SandGameGraphics {
         x2 = Math.trunc(x2);
         y2 = Math.trunc(y2);
 
-        const d = Math.ceil(size / 2);
-
         let consumer;
         if (round) {
+            let maxLevel = Math.trunc(size / 2);
+
+            let blueprint;
+            if (maxLevel <= 3) {
+                blueprint = CircleIterator.BLUEPRINT_3;
+            } else if (maxLevel === 4) {
+                blueprint = CircleIterator.BLUEPRINT_4;
+            } else {
+                blueprint = CircleIterator.BLUEPRINT_9;
+            }
+
             consumer = (x, y) => {
-                CircleIterator.iterate(CircleIterator.BLUEPRINT_3, (dx, dy, level) => {
-                    this.draw(x + dx, y + dy, brush);
+                CircleIterator.iterate(blueprint, (dx, dy, level) => {
+                    if (level <= maxLevel) {
+                        this.draw(x + dx, y + dy, brush);
+                    }
                 });
             };
         } else {
+            const d = Math.ceil(size / 2);
             consumer = (x, y) => {
                 this.drawRectangle(x - d, y - d, x + d, y + d, brush);
             };
@@ -184,5 +185,9 @@ export class SandGameGraphics {
 
     getHeight() {
         return this.#elementArea.getHeight();
+    }
+
+    getDefaults() {
+        return this.#defaults;
     }
 }

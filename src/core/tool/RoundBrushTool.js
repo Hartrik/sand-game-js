@@ -29,11 +29,11 @@ export class RoundBrushTool extends Tool {
         return this.#brush;
     }
 
-    isStrokeEnabled() {
+    isLineModeEnabled() {
         return true;
     }
 
-    isSelectionEnabled() {
+    isAreaModeEnabled() {
         return true;
     }
 

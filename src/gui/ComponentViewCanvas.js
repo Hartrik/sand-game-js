@@ -65,7 +65,7 @@ export class ComponentViewCanvas extends Component {
  *
  *
  * @author Patrik Harag
- * @version 2023-12-23
+ * @version 2023-12-29
  */
 class ComponentViewInnerCanvas extends Component {
 
@@ -142,6 +142,7 @@ class ComponentViewInnerCanvas extends Component {
 
         let lastX, lastY;
         let lastTool = null;  // drawing is not active if null
+        let drag = false;
         let ctrlPressed = false;
         let shiftPressed = false;
 
@@ -171,6 +172,7 @@ class ComponentViewInnerCanvas extends Component {
             lastX = x;
             lastY = y;
             lastTool = null;
+            drag = false;
             ctrlPressed = false;
             shiftPressed = false;
 
@@ -178,10 +180,25 @@ class ComponentViewInnerCanvas extends Component {
                 // primary button
                 lastTool = this.#controller.getToolManager().getPrimaryTool();
                 Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_PRIMARY);
+
             } else if (e.buttons === 2) {
                 // secondary button
-                lastTool = this.#controller.getToolManager().getSecondaryTool();
-                Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_SECONDARY);
+                let primaryTool = this.#controller.getToolManager().getPrimaryTool();
+                if (primaryTool.isSecondaryActionEnabled()) {
+                    // special secondary action
+
+                    primaryTool.applySecondaryAction(x, y, sandGame.graphics(), e.altKey);
+
+                    // hide cursors
+                    this.#cursorOverlayComponent.hideCursors();
+
+                    cancelRepeatingIfNeeded();
+
+                    return;
+                } else {
+                    lastTool = this.#controller.getToolManager().getSecondaryTool();
+                    Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_SECONDARY);
+                }
             } else if (e.buttons === 4) {
                 // middle button
                 e.preventDefault();
@@ -207,16 +224,23 @@ class ComponentViewInnerCanvas extends Component {
                 // repeating when holding mouse down on a position
                 startRepeatingIfEnabled(x, y, e.altKey);
 
+                // show/recreate cursor
+                this.#cursorOverlayComponent.hideCursors();
+                const cursorDefinition = this.#controller.getToolManager().getPrimaryTool().createCursor();
+                if (cursorDefinition !== null) {
+                    this.#cursorOverlayComponent.showCursor(x, y, scale, cursorDefinition);
+                }
+
             } else if (e.ctrlKey && e.shiftKey) {
                 lastTool.applySpecial(x, y, sandGame.graphics(), e.altKey);
                 Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_FLOOD);
                 Analytics.triggerToolUsed(lastTool);
                 lastTool = null;
             } else {
-                if (e.ctrlKey && lastTool.isSelectionEnabled()) {
+                if (e.ctrlKey && lastTool.isAreaModeEnabled()) {
                     ctrlPressed = e.ctrlKey;
                 }
-                if (e.shiftKey && lastTool.isStrokeEnabled()) {
+                if (e.shiftKey && lastTool.isLineModeEnabled()) {
                     shiftPressed = e.shiftKey;
                 }
             }
@@ -244,15 +268,23 @@ class ComponentViewInnerCanvas extends Component {
                     return;
                 }
 
-                // drawing
                 const [x, y] = getActualMousePosition(e);
+
+                // drag action
+                if (!drag) {
+                    lastTool.onDragStart(lastX, lastY, sandGame.graphics(), e.altKey);
+                    drag = true;
+                }
+
+                // stroke action
                 lastTool.applyStroke(lastX, lastY, x, y, sandGame.graphics(), e.altKey);
                 Analytics.triggerToolUsed(lastTool);
-                lastX = x;
-                lastY = y;
 
                 // repeating when holding mouse down on a position
                 startRepeatingIfEnabled(x, y, e.altKey);
+
+                lastX = x;
+                lastY = y;
 
                 return;
             }
@@ -278,25 +310,40 @@ class ComponentViewInnerCanvas extends Component {
             // cancel repeating
             cancelRepeatingIfNeeded();
 
-            // rectangle or line
             if (lastTool !== null) {
-                if (ctrlPressed) {
+                // click, dragging, rectangle or line
+                if (drag) {
+                    lastTool.onDragEnd(lastX, lastY, sandGame.graphics(), e.altKey);
+                    drag = false;
+                    if (!lastTool.hasCursor()) {
+                        this.#cursorOverlayComponent.hideCursors();
+                    }
+
+                } else if (ctrlPressed) {
+                    // rectangle
                     const [x, y] = getActualMousePosition(e);
                     let minX = Math.min(lastX, x);
                     let minY = Math.min(lastY, y);
                     let maxX = Math.max(lastX, x);
                     let maxY = Math.max(lastY, y);
                     lastTool.applyArea(minX, minY, maxX, maxY, sandGame.graphics(), e.altKey);
+                    this.#cursorOverlayComponent.hideCursors();
+
                     Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_RECT);
                     Analytics.triggerToolUsed(lastTool);
+
                 } else if (shiftPressed) {
+                    // line
                     const [x, y] = getActualMousePosition(e);
                     lastTool.applyStroke(lastX, lastY, x, y, sandGame.graphics(), e.altKey);
+                    this.#cursorOverlayComponent.hideCursors();
+
                     Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_LINE);
                     Analytics.triggerToolUsed(lastTool);
                 }
                 lastTool = null;
-                this.#cursorOverlayComponent.hideCursors();
+                ctrlPressed = false;
+                shiftPressed = false;
             }
         });
         domNode.addEventListener('mouseout', (e) => {

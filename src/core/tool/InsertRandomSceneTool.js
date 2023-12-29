@@ -1,11 +1,11 @@
 import {DeterministicRandom} from "../DeterministicRandom";
-import {InsertSceneTool} from "./InsertSceneTool";
+import {InsertElementAreaTool} from "./InsertElementAreaTool";
 import {Tool} from "../Tool";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-25
+ * @version 2023-12-29
  */
 export class InsertRandomSceneTool extends Tool {
 
@@ -31,12 +31,17 @@ export class InsertRandomSceneTool extends Tool {
 
         const i = DeterministicRandom.DEFAULT.nextInt(this.#scenes.length);
         const scene = this.#scenes[i];
-        this.#currentTool = new InsertSceneTool(this.getInfo(), scene, this.#onInsertHandler);
+        const elementArea = InsertElementAreaTool.asElementArea(scene);
+        this.#currentTool = new InsertElementAreaTool(this.getInfo(), elementArea, this.#onInsertHandler);
     }
 
     applyPoint(x, y, graphics, aldModifier) {
         this.#currentTool.applyPoint(x, y, graphics, aldModifier);
         this.#initRandomTool();
+    }
+
+    hasCursor() {
+        return true;
     }
 
     createCursor() {

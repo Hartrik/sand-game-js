@@ -8,7 +8,7 @@ import {Scene} from "../core/Scene";
 import {Tool} from "../core/Tool";
 import {ToolInfo} from "../core/ToolInfo";
 import {Tools} from "../core/Tools";
-import {InsertSceneTool} from "../core/tool/InsertSceneTool";
+import {InsertElementAreaTool} from "../core/tool/InsertElementAreaTool";
 import {InsertRandomSceneTool} from "../core/tool/InsertRandomSceneTool";
 
 // TODO: refactor
@@ -135,7 +135,7 @@ export class ServiceIO {
         } else if (resource instanceof Tool) {
             const tool = resource;
             const toolManager = this.#controller.getToolManager();
-            if (tool instanceof InsertSceneTool || tool instanceof InsertRandomSceneTool) {
+            if (tool instanceof InsertElementAreaTool || tool instanceof InsertRandomSceneTool) {
                 const revert = toolManager.createRevertAction();
                 toolManager.setPrimaryTool(tool);
                 toolManager.setSecondaryTool(Tools.actionTool(new ToolInfo(), revert));

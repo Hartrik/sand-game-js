@@ -11,7 +11,7 @@ import { ToolInfo } from "../core/ToolInfo";
  */
 export class ToolDefs {
 
-    static DEFAULT_SIZE = 5;
+    static DEFAULT_SIZE = 6;
 
     static CATEGORY_BRUSH = 'brush';
     static CATEGORY_TEMPLATE = 'template';
@@ -23,6 +23,7 @@ export class ToolDefs {
     /** @type Tool[] */
     static DEFAULT_TOOLS = [
         Tools.roundBrushTool(ToolDefs.#info('air', 'Erase'), BrushDefs.AIR, ToolDefs.DEFAULT_SIZE),
+        Tools.moveTool(ToolDefs.#info('move', 'Move'), 13),
         Tools.roundBrushTool(ToolDefs.#info('sand', 'Sand'), BrushDefs.SAND, ToolDefs.DEFAULT_SIZE),
         Tools.roundBrushTool(ToolDefs.#info('soil', 'Soil'), BrushDefs.SOIL, ToolDefs.DEFAULT_SIZE),
         Tools.roundBrushTool(ToolDefs.#info('gravel', 'Gravel'), BrushDefs.GRAVEL,ToolDefs.DEFAULT_SIZE),

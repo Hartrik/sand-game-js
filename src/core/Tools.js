@@ -2,14 +2,15 @@ import {RoundBrushTool} from "./tool/RoundBrushTool";
 import {PointBrushTool} from "./tool/PointBrushTool";
 import {Point2BrushTool} from "./tool/Point2BrushTool";
 import {MeteorTool} from "./tool/MeteorTool";
-import {InsertSceneTool} from "./tool/InsertSceneTool";
+import {InsertElementAreaTool} from "./tool/InsertElementAreaTool";
 import {InsertRandomSceneTool} from "./tool/InsertRandomSceneTool";
 import {ActionTool} from "./tool/ActionTool";
+import {MoveTool} from "./tool/MoveTool";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-25
+ * @version 2023-12-28
  */
 export class Tools {
 
@@ -29,9 +30,10 @@ export class Tools {
         return new MeteorTool(info);
     }
 
-    static insertElementAreaTool(info, scenes, handler) {
+    static insertScenesTool(info, scenes, handler) {
         if (scenes.length === 1) {
-            return new InsertSceneTool(info, scenes[0], handler);
+            const elementArea = InsertElementAreaTool.asElementArea(scenes[0]);
+            return new InsertElementAreaTool(info, elementArea, handler);
         } else {
             return new InsertRandomSceneTool(info, scenes, handler);
         }
@@ -39,5 +41,9 @@ export class Tools {
 
     static actionTool(info, handler) {
         return new ActionTool(info, handler);
+    }
+
+    static moveTool(info, size) {
+        return new MoveTool(info, size);
     }
 }

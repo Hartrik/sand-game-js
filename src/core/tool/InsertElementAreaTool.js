@@ -6,9 +6,15 @@ import {Tool} from "../Tool";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-25
+ * @version 2023-12-28
  */
-export class InsertSceneTool extends Tool {
+export class InsertElementAreaTool extends Tool {
+
+    static asElementArea(scene) {
+        return scene.createElementArea(InsertElementAreaTool.DEFAULT_W, InsertElementAreaTool.DEFAULT_H,
+                ElementArea.TRANSPARENT_ELEMENT);
+    }
+
 
     static DEFAULT_W = 30;
     static DEFAULT_H = 30;
@@ -18,12 +24,9 @@ export class InsertSceneTool extends Tool {
     /** @type function */
     #onInsertHandler;
 
-    constructor(info, scene, onInsertHandler) {
+    constructor(info, elementArea, onInsertHandler) {
         super(info);
-
-        this.#elementArea = scene.createElementArea(
-            InsertSceneTool.DEFAULT_W, InsertSceneTool.DEFAULT_H, ElementArea.TRANSPARENT_ELEMENT);
-
+        this.#elementArea = elementArea;
         this.#onInsertHandler = onInsertHandler;
     }
 
@@ -64,6 +67,10 @@ export class InsertSceneTool extends Tool {
         if (this.#onInsertHandler !== undefined) {
             this.#onInsertHandler();
         }
+    }
+
+    hasCursor() {
+        return true;
     }
 
     createCursor() {

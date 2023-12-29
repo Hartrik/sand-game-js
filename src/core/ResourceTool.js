@@ -49,11 +49,11 @@ export class ResourceTool {
 
         if (type === 'image-template') {
             const scenes = await this.parseImageTemplate(json, zip);
-            return Tools.insertElementAreaTool(info, scenes, undefined);
+            return Tools.insertScenesTool(info, scenes, undefined);
 
         } else if (type === 'random-template') {
             const scenes = await this.parseRandomTemplate(json, zip);
-            return Tools.insertElementAreaTool(info, scenes, undefined);
+            return Tools.insertScenesTool(info, scenes, undefined);
 
         } else {
             throw 'Tool action not supported: ' + type;
