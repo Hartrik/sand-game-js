@@ -1,21 +1,23 @@
 import { DomBuilder } from "./DomBuilder";
+import { Component } from "./Component";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-19
+ * @version 2024-01-04
  */
-export class ComponentContainer {
+export class ComponentContainer extends Component {
 
     #cssClass;
     #components;
 
     /**
      *
-     * @param cssClass {string}
+     * @param cssClass {string|null}
      * @param components {Component[]}
      */
     constructor(cssClass, components) {
+        super();
         this.#cssClass = cssClass;
         this.#components = components;
     }
@@ -23,7 +25,9 @@ export class ComponentContainer {
     createNode(controller) {
         const content = DomBuilder.div({ class: this.#cssClass }, []);
         for (let component of this.#components) {
-            content.append(component.createNode(controller));
+            if (component !== null) {
+                content.append(component.createNode(controller));
+            }
         }
         return content;
     }

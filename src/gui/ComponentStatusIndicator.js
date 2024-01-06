@@ -6,9 +6,16 @@ import { Component } from "./Component";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-22
+ * @version 2024-01-06
  */
 export class ComponentStatusIndicator extends Component {
+
+    #additionalInfo;
+
+    constructor(additionalInfo = null) {
+        super();
+        this.#additionalInfo = additionalInfo;
+    }
 
     createNode(controller) {
         let currenStatus = '';
@@ -114,9 +121,7 @@ export class ComponentStatusIndicator extends Component {
             DomBuilder.span(' (target: ' + Processor.OPT_FRAMES_PER_SECOND + ')', { style: 'color: lightgray;' }),
             DomBuilder.element('br'),
 
-            DomBuilder.element('br'),
-
-            DomBuilder.span('Tip: adjust scale if needed'),
+            this.#additionalInfo
         ];
     }
 }

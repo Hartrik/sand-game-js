@@ -1,3 +1,4 @@
+import { Component } from "./Component";
 import { DomBuilder } from "./DomBuilder";
 import { Action } from "./Action";
 
@@ -6,7 +7,7 @@ import { Action } from "./Action";
  * @author Patrik Harag
  * @version 2023-12-05
  */
-export class ComponentButton {
+export class ComponentButton extends Component {
 
     static CLASS_PRIMARY = 'btn-primary';
     static CLASS_SECONDARY = 'btn-secondary';
@@ -34,6 +35,7 @@ export class ComponentButton {
      * @param action {Action|function}
      */
     constructor(label, cssClass, action) {
+        super();
         this.#label = label;
         this.#action = (typeof action === "function" ? Action.create(action) : action);
         this.#cssClass = (cssClass == null ? ComponentButton.CLASS_PRIMARY : cssClass);

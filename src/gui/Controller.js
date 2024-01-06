@@ -1,6 +1,5 @@
 import { ElementArea } from "../core/ElementArea";
 import { SandGame } from "../core/SandGame";
-import { SceneDefs } from "../def/SceneDefs";
 import { SceneImplTmpResize } from "../core/SceneImplResize";
 import { ServiceToolManager } from "./ServiceToolManager";
 import { ServiceIO } from "./ServiceIO";
@@ -14,7 +13,7 @@ import { ToolInfo } from "../core/ToolInfo";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-20
+ * @version 2024-01-06
  */
 export class Controller {
 
@@ -45,7 +44,7 @@ export class Controller {
     #rendererInitializer = RendererInitializer.canvasWebGL();
 
     /** @type ServiceToolManager */
-    #serviceToolManager = new ServiceToolManager();
+    #serviceToolManager;
     /** @type ServiceIO */
     #serviceIO = new ServiceIO(this);
 
@@ -59,13 +58,16 @@ export class Controller {
     /**
      *
      * @param init
+     * @param dialogAnchor
+     * @param toolManager
      */
-    constructor(init, dialogAnchor) {
+    constructor(init, dialogAnchor, toolManager) {
         if (init) {
             this.#init = init;
         }
 
         this.#dialogAnchor = dialogAnchor;
+        this.#serviceToolManager = toolManager;
 
         this.#currentWidthPoints = Math.trunc(this.#init.canvasWidthPx * this.#init.scale);
         this.#currentHeightPoints = Math.trunc(this.#init.canvasHeightPx * this.#init.scale);
@@ -88,8 +90,12 @@ export class Controller {
         this.#canvasProvider = canvasProvider;
     }
 
-    setup() {
-        this.#initialize(SceneDefs.SCENES[this.#init.scene]);
+    /**
+     *
+     * @param scene {Scene}
+     */
+    setup(scene) {
+        this.#initialize(scene);
     }
 
     /**

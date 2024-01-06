@@ -1,63 +1,52 @@
-/**
+/*
  *
  * @author Patrik Harag
- * @version 2023-12-21
+ * @version 2024-01-06
  */
 
+import { SizeUtils } from "./gui/SizeUtils";
 import { Analytics } from "./Analytics";
 import { DomBuilder } from "./gui/DomBuilder";
 import { Controller } from "./gui/Controller";
-import { MainComponent } from "./gui/MainComponent";
 import { BrushDefs } from "./def/BrushDefs";
+import { SceneDefs } from "./def/SceneDefs";
+import { Tool } from "./core/Tool";
+import { ToolDefs} from "./def/ToolDefs";
+import { ComponentViewTools } from "./gui/ComponentViewTools";
+import { ComponentViewCanvas } from "./gui/ComponentViewCanvas";
+import { ComponentButtonAdjustScale } from "./gui/ComponentButtonAdjustScale";
+import { ComponentViewSceneSelection } from "./gui/ComponentViewSceneSelection";
+import { ComponentViewTestTools } from "./gui/ComponentViewTestTools";
+import { ComponentContainer } from "./gui/ComponentContainer";
+import { ComponentSimple } from "./gui/ComponentSimple";
+import { ComponentButton } from "./gui/ComponentButton";
+import { ComponentButtonStartStop } from "./gui/ComponentButtonStartStop";
+import { ComponentStatusIndicator } from "./gui/ComponentStatusIndicator";
+import { ActionIOImport } from "./gui/ActionIOImport";
+import { ActionIOExport } from "./gui/ActionIOExport";
+import { SceneImplHardcoded } from "./core/SceneImplHardcoded";
+import {ServiceToolManager} from "./gui/ServiceToolManager";
 
 export const brushes = BrushDefs._LIST;
-
-function determineSize(root) {
-    let parentWidth;
-    if (window.innerWidth <= 575) {
-        parentWidth = window.innerWidth;  // no margins
-    } else {
-        parentWidth = root.clientWidth;  // including padding
-    }
-
-    let width = Math.min(1400, parentWidth);
-    let height = Math.min(800, Math.trunc(window.innerHeight * 0.70));
-    if (width / height < 0.75) {
-        height = Math.trunc(width / 0.75);
-    }
-    return {width, height};
-}
-
-function determineMaxNumberOfPoints() {
-    const touchDevice = (navigator.maxTouchPoints || 'ontouchstart' in document.documentElement);
-    if (touchDevice) {
-        // probably a smartphone
-        return 75000;
-    } else {
-        return 125000;
-    }
-}
-
-function determineOptimalScale(width, height, maxPoints) {
-    function countPointsWithScale(scale) {
-        return Math.trunc(width * scale) * Math.trunc(height * scale);
-    }
-
-    if (countPointsWithScale(0.750) < maxPoints) {
-        return 0.750;
-    } else if (countPointsWithScale(0.5) < maxPoints) {
-        return 0.5;
-    } else if (countPointsWithScale(0.375) < maxPoints) {
-        return 0.375;
-    } else {
-        return 0.25;
-    }
-}
+export const tools = ToolDefs._LIST;
 
 /**
+ * Initialize Sand Game JS.
  *
  * @param root {HTMLElement}
- * @param config {{version: undefined|string, debug: undefined|boolean, scene: undefined|string}|undefined}
+ * @param config {{
+ *     version: undefined|string,
+ *     debug: undefined|boolean,
+ *     scene: undefined|string|{sceneDefinition:(function(SandGame):Promise<any>|any)},
+ *     tools: undefined|(string|Tool)[],
+ *     primaryTool: undefined|string|Tool,
+ *     secondaryTool: undefined|string|Tool,
+ *     tertiaryTool: undefined|string|Tool,
+ *     disableImport: undefined|boolean,
+ *     disableExport: undefined|boolean,
+ *     disableSizeChange: undefined|boolean,
+ *     disableSceneSelection: undefined|boolean,
+ * }}
  * @returns {Controller}
  */
 export function init(root, config) {
@@ -65,47 +54,139 @@ export function init(root, config) {
         config = {};
     }
 
-    const {width, height} = determineSize(root);
-    const scale = determineOptimalScale(width, height, determineMaxNumberOfPoints());
+    const {width, height, scale} = SizeUtils.determineOptimalSizes(root);
 
     const init = {
         scale: scale,
         canvasWidthPx: width,
-        canvasHeightPx: height
+        canvasHeightPx: height,
+        version: config.version
     };
 
-    if (config.scene !== undefined) {
-        init.scene = config.scene;
+    const enableDebug = config.debug === true;
+    const enableImport = !(config.disableImport === true);
+    const enableExport = !(config.disableExport === true);
+    const enableSizeChange = !(config.disableSizeChange === true);
+    const enableSceneSelection = !(config.disableSceneSelection === true);
+
+    // resolve scene
+
+    let scene;
+    let sceneName;
+    if (typeof config.scene === 'string') {
+        // build-in scene
+        sceneName = config.scene;
+        scene = SceneDefs.SCENES[sceneName];
+    } else if (typeof config.scene === 'object') {
+        // custom scene
+        sceneName = 'n/a';
+        scene = new SceneImplHardcoded({
+            name: 'n/a',
+            description: 'n/a',
+            apply: (typeof config.scene.init === 'function') ? config.scene.init : () => {}
+        });
     } else {
         // default scene
-        if (config.debug) {
-            init.scene = 'landscape_1';  // always the same
+        if (enableDebug) {
+            sceneName = 'landscape_1';  // always the same
         } else {
-            init.scene = (Math.random() > 0.1) ? 'landscape_1' : 'landscape_2';
+            sceneName = (Math.random() > 0.1) ? 'landscape_1' : 'landscape_2';
+        }
+        scene = SceneDefs.SCENES[sceneName];
+    }
+
+    // resolve tools
+
+    function resolveTool(t, defaultTool = null) {
+        if (typeof t === 'string') {
+            let tool = ToolDefs.byCodeName(t);
+            if (tool !== null) {
+                return tool;
+            } else if (enableDebug) {
+                throw 'Tool not found: ' + t;
+            }
+            return defaultTool;
+        } else if (typeof t === 'object' && t instanceof Tool) {
+            return t;
+        } else {
+            if (enableDebug) {
+                throw 'Unexpected tool type';
+            }
+            return defaultTool;
         }
     }
 
-    if (config.version !== undefined) {
-        init.version = config.version;
+    let tools;
+    let enableDefaultTemplates;
+    if (Array.isArray(config.tools)) {
+        enableDefaultTemplates = false;
+        tools = [];
+        for (let t of config.tools) {
+            let tool = resolveTool(t, null);
+            if (tool !== null) {
+                tools.push(tool);
+            }
+        }
     } else {
-        // default version
-        init.version = undefined;
+        enableDefaultTemplates = true;
+        tools = ToolDefs.DEFAULT_TOOLS;
     }
 
-    const dialogAnchorNode = DomBuilder.div({ class: 'sand-game-dialog-anchor sand-game-component' });
+    let primaryTool;
+    if (config.primaryTool === undefined || (primaryTool = resolveTool(config.primaryTool)) === null) {
+        primaryTool = ToolDefs.byCodeName('sand');
+    }
+
+    let secondaryTool;
+    if (config.secondaryTool === undefined || (secondaryTool = resolveTool(config.secondaryTool)) === null) {
+        secondaryTool = ToolDefs.byCodeName('erase');
+    }
+
+    let tertiaryTool;
+    if (config.tertiaryTool === undefined || (tertiaryTool = resolveTool(config.tertiaryTool)) === null) {
+        tertiaryTool = ToolDefs.byCodeName('meteor');
+    }
+
+    // init controller
+
+    const dialogAnchorNode = DomBuilder.div({class: 'sand-game-dialog-anchor sand-game-component'});
     document.body.prepend(dialogAnchorNode);
+    const toolManager = new ServiceToolManager(primaryTool, secondaryTool, tertiaryTool);
+    const controller = new Controller(init, dialogAnchorNode, toolManager);
 
-    const controller = new Controller(init, dialogAnchorNode);
-    const mainComponent = new MainComponent(init);
-    if (config.debug) {
-        mainComponent.enableTestTools();
-    }
+    // init components
+
+    const mainComponent = new ComponentContainer('sand-game-component', [
+        new ComponentViewTools(tools, enableDefaultTemplates),
+        new ComponentViewCanvas(),
+        new ComponentContainer('sand-game-options', [
+            (enableImport) ? new ComponentButton('Import', ComponentButton.CLASS_LIGHT, new ActionIOImport()) : null,
+            (enableExport) ? new ComponentButton('Export', ComponentButton.CLASS_LIGHT, new ActionIOExport()) : null,
+            new ComponentButtonStartStop(ComponentButton.CLASS_LIGHT),
+            new ComponentStatusIndicator((enableSizeChange)
+                    ? DomBuilder.element('span', null, [DomBuilder.element('br'), 'Tip: adjust scale if needed'])
+                    : null),
+        ]),
+        new ComponentContainer('sand-game-views', [
+            (enableSizeChange || enableSceneSelection) ? new ComponentContainer(null, [
+                (enableSizeChange) ? new ComponentButtonAdjustScale() : null,
+                (enableSceneSelection) ? new ComponentSimple(DomBuilder.span('Scenes', { class: 'scenes-label' })) : null,
+                (enableSceneSelection) ? new ComponentViewSceneSelection(controller, SceneDefs.SCENES, sceneName) : null,
+            ]) : null,
+            (enableDebug) ? new ComponentViewTestTools() : null,
+        ])
+    ]);
+
+    // build HTML nodes and start
+
     const node = mainComponent.createNode(controller);
     root.innerHTML = '';
     root.append(node);
 
-    controller.setup();
-    controller.getIOManager().initFileDragAndDrop(node);
+    controller.setup(scene);
+    if (enableImport) {
+        controller.getIOManager().initFileDragAndDrop(node);
+    }
     controller.enableGlobalShortcuts();
     controller.start();
 

@@ -34,7 +34,7 @@ export class ComponentViewTools extends Component {
             let displayName = tool.getInfo().getDisplayName();
             let button = DomBuilder.button(displayName, { class: 'btn btn-secondary btn-sand-game-tool ' + cssName }, () => {
                 controller.getToolManager().setPrimaryTool(tool);
-                controller.getToolManager().setSecondaryTool(ToolDefs.byCodeName('air'));
+                controller.getToolManager().setSecondaryTool(ToolDefs.byCodeName('erase'));
             });
 
             controller.getToolManager().addOnPrimaryToolChanged(newTool => {

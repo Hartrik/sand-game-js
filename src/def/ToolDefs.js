@@ -22,7 +22,7 @@ export class ToolDefs {
 
     /** @type Tool[] */
     static DEFAULT_TOOLS = [
-        Tools.roundBrushTool(ToolDefs.#info('air', 'Erase'), BrushDefs.AIR, ToolDefs.DEFAULT_SIZE),
+        Tools.roundBrushTool(ToolDefs.#info('erase', 'Erase'), BrushDefs.AIR, ToolDefs.DEFAULT_SIZE),
         Tools.moveTool(ToolDefs.#info('move', 'Move'), 13),
         Tools.roundBrushTool(ToolDefs.#info('sand', 'Sand'), BrushDefs.SAND, ToolDefs.DEFAULT_SIZE),
         Tools.roundBrushTool(ToolDefs.#info('soil', 'Soil'), BrushDefs.SOIL, ToolDefs.DEFAULT_SIZE),

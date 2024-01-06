@@ -1,26 +1,17 @@
 import { DomBuilder } from "./DomBuilder";
 import { Component } from "./Component";
-import { SceneDefs } from "../def/SceneDefs";
 import { Analytics } from "../Analytics";
 import { SceneImplSnapshot } from "../core/SceneImplSnapshot";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-22
+ * @version 2024-01-04
  */
 export class ComponentViewSceneSelection extends Component {
 
     static CLASS_SELECTED = 'selected-scene';
     static CLASS_VISITED = 'visited-scene';
-
-    static SCENES = [
-        'empty',
-        'landscape_1',
-        'landscape_2',
-        'fallthrough',
-        'platform'
-    ];
 
 
     /** @type Controller */
@@ -28,7 +19,8 @@ export class ComponentViewSceneSelection extends Component {
 
     #ignoreOnBeforeNewSceneLoaded = false;
 
-    #initialScene;
+    #scenes;
+    #initialSceneId;
 
     #selected = null;
     #selectedSceneId = null;
@@ -37,12 +29,14 @@ export class ComponentViewSceneSelection extends Component {
 
     /**
      * @param controller {Controller}
-     * @param initialScene
+     * @param scenes
+     * @param initialSceneId
      */
-    constructor(controller, initialScene) {
+    constructor(controller, scenes, initialSceneId) {
         super();
         this.#controller = controller;
-        this.#initialScene = initialScene;
+        this.#scenes = scenes;
+        this.#initialSceneId = initialSceneId;
 
         this.#controller.addOnBeforeNewSceneLoaded(() => {
             if (!this.#ignoreOnBeforeNewSceneLoaded) {
@@ -54,17 +48,15 @@ export class ComponentViewSceneSelection extends Component {
 
     createNode(controller) {
         let content = DomBuilder.div({ class: 'scenes' }, []);
-        for (let id of ComponentViewSceneSelection.SCENES) {
-            let scene = SceneDefs.SCENES[id];
 
+        for (const [id, scene] of Object.entries(this.#scenes)) {
             let label = DomBuilder.element('span', { class: 'scene-title' }, scene.name);
-            // scene.description ? scene.description : '\u00A0'
             let node = DomBuilder.button(label, { class: 'btn btn-outline-secondary scene' }, () => {
                 this.#onSelect(id, node, scene);
             });
 
             // mark initial scene
-            if (id === this.#initialScene) {
+            if (id === this.#initialSceneId) {
                 this.#selected = node;
                 this.#selectedSceneId = id;
                 node.classList.add(ComponentViewSceneSelection.CLASS_SELECTED);

@@ -1,19 +1,24 @@
 import {Tool} from "../core/Tool.js";
-import {ToolDefs} from "../def/ToolDefs.js";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-07-23
+ * @version 2024-01-06
  */
 export class ServiceToolManager {
 
-    #primaryTool = ToolDefs.byCodeName('sand');
-    #secondaryTool = ToolDefs.byCodeName('air');
-    #tertiaryTool = ToolDefs.byCodeName('meteor');
+    #primaryTool;
+    #secondaryTool;
+    #tertiaryTool;
 
     /** @type function(Tool)[] */
     #onPrimaryToolChanged = [];
+
+    constructor(primaryTool, secondaryTool, tertiaryTool) {
+        this.#primaryTool = primaryTool;
+        this.#secondaryTool = secondaryTool;
+        this.#tertiaryTool = tertiaryTool;
+    }
 
     /**
      *
