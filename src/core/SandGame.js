@@ -1,19 +1,19 @@
 import {Counter} from "./Counter.js";
 import {DeterministicRandom} from "./DeterministicRandom.js";
-import {ElementArea} from "./ElementArea.js";
-import {Processor} from "./Processor.js";
 import {Element} from "./Element.js";
 import {ElementHead} from "./ElementHead.js";
 import {ElementTail} from "./ElementTail.js";
-import {Renderer} from "./Renderer.js";
-import {RendererInitializer} from "./RendererInitializer.js";
+import {ElementArea} from "./ElementArea.js";
+import {Processor} from "./processing/Processor.js";
+import {ProcessorExtensionSpawnFish} from "./processing/ProcessorExtensionSpawnFish.js";
+import {ProcessorExtensionSpawnGrass} from "./processing/ProcessorExtensionSpawnGrass.js";
+import {ProcessorExtensionSpawnTree} from "./processing/ProcessorExtensionSpawnTree.js";
+import {Renderer} from "./rendering/Renderer.js";
+import {RendererInitializer} from "./rendering/RendererInitializer.js";
 import {SandGameGraphics} from "./SandGameGraphics.js";
 import {SandGameOverlay} from "./SandGameOverlay";
 import {Snapshot} from "./Snapshot.js";
-import {SceneMetadata} from "./SceneMetadata.js";
-import {SpawningExtensionFish} from "./SpawningExtensionFish.js";
-import {SpawningExtensionGrass} from "./SpawningExtensionGrass.js";
-import {SpawningExtensionTree} from "./SpawningExtensionTree.js";
+import {SnapshotMetadata} from "./SnapshotMetadata.js";
 import {TemplateBlockPainter} from "./TemplateBlockPainter.js";
 import {TemplateLayeredPainter} from "./TemplateLayeredPainter.js";
 
@@ -68,7 +68,7 @@ export class SandGame {
     /**
      *
      * @param elementArea {ElementArea}
-     * @param sceneMetadata {SceneMetadata|null}
+     * @param sceneMetadata {SnapshotMetadata|null}
      * @param processorDefaults {ProcessorDefaults}
      * @param context {CanvasRenderingContext2D|WebGLRenderingContext}
      * @param rendererInitializer {RendererInitializer}
@@ -84,11 +84,11 @@ export class SandGame {
         this.#height = elementArea.getHeight();
         this.#overlay = new SandGameOverlay(elementArea);
 
-        let grassSpawningExt = new SpawningExtensionGrass(this.#elementArea, this.#random, this.#processor);
+        let grassSpawningExt = new ProcessorExtensionSpawnGrass(this.#elementArea, this.#random, this.#processor);
         this.#onProcessed.push(() => grassSpawningExt.run());
-        let treeSpawningExt = new SpawningExtensionTree(this.#elementArea, this.#random, this.#processor);
+        let treeSpawningExt = new ProcessorExtensionSpawnTree(this.#elementArea, this.#random, this.#processor);
         this.#onProcessed.push(() => treeSpawningExt.run());
-        let fishSpawningExt = new SpawningExtensionFish(this.#elementArea, this.#random, this.#processor);
+        let fishSpawningExt = new ProcessorExtensionSpawnFish(this.#elementArea, this.#random, this.#processor);
         this.#onProcessed.push(() => fishSpawningExt.run());
     }
 
@@ -260,8 +260,8 @@ export class SandGame {
      * @returns {Snapshot}
      */
     createSnapshot() {
-        let metadata = new SceneMetadata();
-        metadata.formatVersion = SceneMetadata.CURRENT_FORMAT_VERSION;
+        let metadata = new SnapshotMetadata();
+        metadata.formatVersion = SnapshotMetadata.CURRENT_FORMAT_VERSION;
         metadata.created = new Date().getTime();
         metadata.width = this.#width;
         metadata.height = this.#height;

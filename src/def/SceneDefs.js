@@ -1,7 +1,7 @@
-import {Brushes} from "../core/Brushes";
+import {Brushes} from "../core/brush/Brushes";
 import {BrushDefs} from "./BrushDefs.js";
-import {SceneImplHardcoded} from "../core/SceneImplHardcoded.js";
-import {Resources} from "../core/Resources";
+import {SceneImplHardcoded} from "../core/scene/SceneImplHardcoded.js";
+import {Resources} from "../io/Resources";
 import {TemplateDefs} from "./TemplateDefs";
 
 /**

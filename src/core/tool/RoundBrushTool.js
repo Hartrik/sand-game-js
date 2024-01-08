@@ -1,6 +1,6 @@
-import {Brush} from "../Brush";
-import {Tool} from "../Tool";
-import {Brushes} from "../Brushes";
+import {Brush} from "../brush/Brush";
+import {Tool} from "./Tool";
+import {Brushes} from "../brush/Brushes";
 
 /**
  *

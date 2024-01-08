@@ -10,22 +10,22 @@ import { DomBuilder } from "./gui/DomBuilder";
 import { Controller } from "./gui/Controller";
 import { BrushDefs } from "./def/BrushDefs";
 import { SceneDefs } from "./def/SceneDefs";
-import { Tool } from "./core/Tool";
+import { Tool } from "./core/tool/Tool";
 import { ToolDefs} from "./def/ToolDefs";
-import { ComponentViewTools } from "./gui/ComponentViewTools";
-import { ComponentViewCanvas } from "./gui/ComponentViewCanvas";
-import { ComponentButtonAdjustScale } from "./gui/ComponentButtonAdjustScale";
-import { ComponentViewSceneSelection } from "./gui/ComponentViewSceneSelection";
-import { ComponentViewTestTools } from "./gui/ComponentViewTestTools";
-import { ComponentContainer } from "./gui/ComponentContainer";
-import { ComponentSimple } from "./gui/ComponentSimple";
-import { ComponentButton } from "./gui/ComponentButton";
-import { ComponentButtonStartStop } from "./gui/ComponentButtonStartStop";
-import { ComponentStatusIndicator } from "./gui/ComponentStatusIndicator";
-import { ActionIOImport } from "./gui/ActionIOImport";
-import { ActionIOExport } from "./gui/ActionIOExport";
-import { SceneImplHardcoded } from "./core/SceneImplHardcoded";
-import {ServiceToolManager} from "./gui/ServiceToolManager";
+import { ComponentViewTools } from "./gui/component/ComponentViewTools";
+import { ComponentViewCanvas } from "./gui/component/ComponentViewCanvas";
+import { ComponentButtonAdjustScale } from "./gui/component/ComponentButtonAdjustScale";
+import { ComponentViewSceneSelection } from "./gui/component/ComponentViewSceneSelection";
+import { ComponentViewTestTools } from "./gui/component/ComponentViewTestTools";
+import { ComponentContainer } from "./gui/component/ComponentContainer";
+import { ComponentSimple } from "./gui/component/ComponentSimple";
+import { ComponentButton } from "./gui/component/ComponentButton";
+import { ComponentButtonStartStop } from "./gui/component/ComponentButtonStartStop";
+import { ComponentStatusIndicator } from "./gui/component/ComponentStatusIndicator";
+import { ActionIOImport } from "./gui/action/ActionIOImport";
+import { ActionIOExport } from "./gui/action/ActionIOExport";
+import { SceneImplHardcoded } from "./core/scene/SceneImplHardcoded";
+import { ServiceToolManager } from "./gui/ServiceToolManager";
 
 export const brushes = BrushDefs._LIST;
 export const tools = ToolDefs._LIST;
@@ -149,7 +149,7 @@ export function init(root, config) {
 
     // init controller
 
-    const dialogAnchorNode = DomBuilder.div({class: 'sand-game-dialog-anchor sand-game-component'});
+    const dialogAnchorNode = DomBuilder.div({ class: 'sand-game-dialog-anchor sand-game-component' });
     document.body.prepend(dialogAnchorNode);
     const toolManager = new ServiceToolManager(primaryTool, secondaryTool, tertiaryTool);
     const controller = new Controller(init, dialogAnchorNode, toolManager);

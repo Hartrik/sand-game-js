@@ -1,14 +1,14 @@
 import { ElementArea } from "../core/ElementArea";
 import { SandGame } from "../core/SandGame";
-import { SceneImplTmpResize } from "../core/SceneImplResize";
+import { SceneImplTmpResize } from "../core/scene/SceneImplResize";
 import { ServiceToolManager } from "./ServiceToolManager";
 import { ServiceIO } from "./ServiceIO";
-import { RendererInitializer } from "../core/RendererInitializer";
-import { SceneImplSnapshot } from "../core/SceneImplSnapshot";
+import { RendererInitializer } from "../core/rendering/RendererInitializer";
+import { SceneImplSnapshot } from "../core/scene/SceneImplSnapshot";
 import { DomBuilder } from "./DomBuilder";
 import { Defaults } from "../def/Defaults";
-import { Tools } from "../core/Tools";
-import { ToolInfo } from "../core/ToolInfo";
+import { Tools } from "../core/tool/Tools";
+import { ToolInfo } from "../core/tool/ToolInfo";
 
 /**
  *

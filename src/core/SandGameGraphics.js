@@ -1,7 +1,7 @@
 import {FloodFillPainter} from "./FloodFillPainter.js";
 import {Element} from "./Element.js";
 import {ElementArea} from "./ElementArea.js";
-import {Brush} from "./Brush.js";
+import {Brush} from "./brush/Brush.js";
 import {CircleIterator} from "./CircleIterator.js";
 
 /**

@@ -1,9 +1,9 @@
-import {Brush} from "../core/Brush.js";
-import {Brushes} from "../core/Brushes";
+import {Brush} from "../core/brush/Brush.js";
+import {Brushes} from "../core/brush/Brushes";
 import {ElementHead} from "../core/ElementHead.js";
 import {ElementTail} from "../core/ElementTail.js";
 import {Element} from "../core/Element.js";
-import {VisualEffects} from "../core/VisualEffects.js";
+import {VisualEffects} from "../core/processing/VisualEffects.js";
 import {StructureDefs} from "./StructureDefs";
 
 import _ASSET_PALETTE_SAND from './assets/brushes/sand.palette.csv';

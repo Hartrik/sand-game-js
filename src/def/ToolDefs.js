@@ -1,8 +1,8 @@
-import { Brushes } from "../core/Brushes";
-import { Tool } from "../core/Tool.js";
-import { Tools } from "../core/Tools";
+import { Brushes } from "../core/brush/Brushes";
+import { Tool } from "../core/tool/Tool.js";
+import { Tools } from "../core/tool/Tools";
 import { BrushDefs } from "./BrushDefs";
-import { ToolInfo } from "../core/ToolInfo";
+import { ToolInfo } from "../core/tool/ToolInfo";
 
 /**
  *

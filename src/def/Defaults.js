@@ -1,4 +1,4 @@
-import {ProcessorDefaults} from "../core/ProcessorDefaults";
+import {ProcessorDefaults} from "../core/processing/ProcessorDefaults";
 import {BrushDefs} from "./BrushDefs";
 import {StructureDefs} from "./StructureDefs";
 

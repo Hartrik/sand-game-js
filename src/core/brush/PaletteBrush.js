@@ -1,6 +1,6 @@
 import {DeterministicRandom} from "../DeterministicRandom";
 import {ElementTail} from "../ElementTail";
-import {Brush} from "../Brush";
+import {Brush} from "./Brush";
 
 /**
  *

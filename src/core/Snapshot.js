@@ -6,7 +6,7 @@
  */
 export class Snapshot {
 
-    /** @type SceneMetadata */
+    /** @type SnapshotMetadata */
     metadata;
 
     /** @type ArrayBuffer */

@@ -1,6 +1,6 @@
 import {BrushDefs} from "../../def/BrushDefs";
 import {DeterministicRandom} from "../DeterministicRandom";
-import {Tool} from "../Tool";
+import {Tool} from "./Tool";
 
 // TODO: direct BrushDefs access >> Defaults
 /**

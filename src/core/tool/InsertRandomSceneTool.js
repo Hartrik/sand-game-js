@@ -1,6 +1,6 @@
 import {DeterministicRandom} from "../DeterministicRandom";
 import {InsertElementAreaTool} from "./InsertElementAreaTool";
-import {Tool} from "../Tool";
+import {Tool} from "./Tool";
 
 /**
  *

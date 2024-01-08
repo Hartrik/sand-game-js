@@ -1,7 +1,7 @@
 import {ElementArea} from "../ElementArea";
-import {Brushes} from "../Brushes";
-import {CursorDefinitionElementArea} from "../CursorDefinitionElementArea";
-import {Tool} from "../Tool";
+import {Brushes} from "../brush/Brushes";
+import {CursorDefinitionElementArea} from "./CursorDefinitionElementArea";
+import {Tool} from "./Tool";
 
 /**
  *

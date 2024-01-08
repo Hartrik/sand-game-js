@@ -1,9 +1,9 @@
-import {Tool} from "../Tool";
-import {ToolInfo} from "../ToolInfo";
+import {Tool} from "./Tool";
+import {ToolInfo} from "./ToolInfo";
 import {ElementArea} from "../ElementArea";
 import {ElementHead} from "../ElementHead";
 import {InsertElementAreaTool} from "./InsertElementAreaTool";
-import {Brushes} from "../Brushes";
+import {Brushes} from "../brush/Brushes";
 
 /**
  * It can be used to move elements from one place to another.

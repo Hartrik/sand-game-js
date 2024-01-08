@@ -1,6 +1,6 @@
 import {Assets} from "../../Assets";
 import {ElementTail} from "../ElementTail";
-import {Brush} from "../Brush";
+import {Brush} from "./Brush";
 
 /**
  *
