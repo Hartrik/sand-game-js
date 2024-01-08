@@ -8,6 +8,7 @@ import {ElementTail} from "./ElementTail.js";
 import {Renderer} from "./Renderer.js";
 import {RendererInitializer} from "./RendererInitializer.js";
 import {SandGameGraphics} from "./SandGameGraphics.js";
+import {SandGameOverlay} from "./SandGameOverlay";
 import {Snapshot} from "./Snapshot.js";
 import {SceneMetadata} from "./SceneMetadata.js";
 import {SpawningExtensionFish} from "./SpawningExtensionFish.js";
@@ -19,7 +20,7 @@ import {TemplateLayeredPainter} from "./TemplateLayeredPainter.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-09
+ * @version 2024-01-08
  */
 export class SandGame {
 
@@ -61,6 +62,9 @@ export class SandGame {
     /** @type function[] */
     #onProcessed = [];
 
+    /** @type SandGameOverlay */
+    #overlay;
+
     /**
      *
      * @param elementArea {ElementArea}
@@ -78,6 +82,7 @@ export class SandGame {
         this.#renderer = rendererInitializer.initialize(this.#elementArea, 16, context);
         this.#width = elementArea.getWidth();
         this.#height = elementArea.getHeight();
+        this.#overlay = new SandGameOverlay(elementArea);
 
         let grassSpawningExt = new SpawningExtensionGrass(this.#elementArea, this.#random, this.#processor);
         this.#onProcessed.push(() => grassSpawningExt.run());
@@ -145,6 +150,10 @@ export class SandGame {
         this.#processor.cleanChangedChunks();
     }
 
+    /**
+     *
+     * @returns {SandGameGraphics}
+     */
     graphics() {
         const defaults = this.#processor.getDefaults();
         return new SandGameGraphics(this.#elementArea, this.#random, defaults, (x, y) => {
@@ -153,10 +162,26 @@ export class SandGame {
         });
     }
 
+    /**
+     *
+     * @returns {SandGameOverlay}
+     */
+    overlay() {
+        return this.#overlay;
+    }
+
+    /**
+     *
+     * @returns {TemplateBlockPainter}
+     */
     blockTemplate() {
         return new TemplateBlockPainter(this.graphics());
     }
 
+    /**
+     *
+     * @returns {TemplateLayeredPainter}
+     */
     layeredTemplate() {
         return new TemplateLayeredPainter(this.#elementArea, this.graphics(), this.#random, this.#processor);
     }

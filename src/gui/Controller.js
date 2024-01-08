@@ -13,7 +13,7 @@ import { ToolInfo } from "../core/ToolInfo";
 /**
  *
  * @author Patrik Harag
- * @version 2024-01-06
+ * @version 2024-01-08
  */
 export class Controller {
 
@@ -50,9 +50,13 @@ export class Controller {
 
     /** @type HTMLElement */
     #dialogAnchor;
-    /** @type function():HTMLElement|null */
-    #canvasInitializer = null;
-    /** @type function():HTMLElement|null */
+
+    /**
+     * @typedef {Object} CanvasProvider
+     * @property {function():HTMLElement} initialize
+     * @property {function():HTMLElement} getCanvasNode
+     */
+    /** @type CanvasProvider|null */
     #canvasProvider = null;
 
     /**
@@ -76,17 +80,9 @@ export class Controller {
 
     /**
      *
-     * @param canvasInitializer {function():HTMLElement}
+     * @param canvasProvider {CanvasProvider}
      */
-    registerCanvasNodeInitializer(canvasInitializer) {
-        this.#canvasInitializer = canvasInitializer;
-    }
-
-    /**
-     *
-     * @param canvasProvider {function():HTMLElement}
-     */
-    registerCanvasNodeProvider(canvasProvider) {
+    registerCanvasProvider(canvasProvider) {
         this.#canvasProvider = canvasProvider;
     }
 
@@ -103,8 +99,8 @@ export class Controller {
      * @param scene {Scene}
      */
     #initialize(scene) {
-        if (this.#canvasInitializer == null) {
-            throw 'Illegal state: canvas initializer not registered!';
+        if (this.#canvasProvider == null) {
+            throw 'Illegal state: canvas provider not registered!';
         }
         if (this.#dialogAnchor == null) {
             throw 'Illegal state: dialog anchor not registered!';
@@ -133,6 +129,7 @@ export class Controller {
             this.#sandGame = sandGame;
             this.#sandGame.graphics().replace(ElementArea.TRANSPARENT_ELEMENT, defaults.getDefaultElement());
 
+            // handlers
             this.#onInitialized.forEach(f => f(this.#sandGame));
 
             // start rendering
@@ -152,7 +149,7 @@ export class Controller {
     }
 
     #initializeContext() {
-        const canvas = this.#canvasInitializer();
+        const canvas = this.#canvasProvider.initialize();
         let contextType = this.#rendererInitializer.getContextType();
         let context = this.#initializeContextAs(canvas, contextType);
         if ((contextType === 'webgl2') && (context === null || context === undefined)) {
@@ -243,7 +240,7 @@ export class Controller {
      */
     getCanvas() {
         if (this.#canvasProvider !== null) {
-            return this.#canvasProvider();
+            return this.#canvasProvider.getCanvasNode();
         }
         return null;
     }
