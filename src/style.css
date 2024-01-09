@@ -32,6 +32,31 @@
     user-select: none;
 }
 
+.sand-game-component .sand-game-canvas-overlay .sand-game-splash {
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 1em;
+    cursor: initial;
+
+    /* position */
+    top: 20%;
+    position: relative;
+    margin: auto;
+
+    /* size */
+    width: 80%;
+    min-height: 100px;
+
+    flex-direction: column;
+    display: flex;
+}
+
+.sand-game-component .sand-game-canvas-overlay .sand-game-splash .sand-game-splash-content {
+    flex: 1 1 auto;
+}
+
+.sand-game-component .sand-game-canvas-overlay .sand-game-splash .sand-game-splash-footer {
+}
+
 .sand-game-component .sand-game-tools {
     display: inline-block;
     user-select: none;

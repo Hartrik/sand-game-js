@@ -2,6 +2,7 @@ import {Component} from "./Component";
 import {ComponentViewCanvasOverlayDebug} from "./ComponentViewCanvasOverlayDebug";
 import {ComponentViewCanvasOverlayMarker} from "./ComponentViewCanvasOverlayMarker";
 import {ComponentViewCanvasOverlayCursor} from "./ComponentViewCanvasOverlayCursor";
+import {ComponentViewCanvasOverlayScenario} from "./ComponentViewCanvasOverlayScenario";
 import {DomBuilder} from "../DomBuilder";
 import {Analytics} from "../../Analytics";
 
@@ -9,7 +10,7 @@ import {Analytics} from "../../Analytics";
  *
  *
  * @author Patrik Harag
- * @version 2024-01-08
+ * @version 2024-01-09
  */
 export class ComponentViewCanvasInner extends Component {
 
@@ -29,6 +30,10 @@ export class ComponentViewCanvasInner extends Component {
     /** @type ComponentViewCanvasOverlayCursor */
     #cursorOverlayComponent;
     #nodeCursorOverlay;
+
+    /** @type ComponentViewCanvasOverlayScenario */
+    #scenarioOverlayComponent;
+    #nodeScenarioOverlay;
 
     /**
      * @param controller {Controller}
@@ -50,6 +55,9 @@ export class ComponentViewCanvasInner extends Component {
 
         this.#cursorOverlayComponent = new ComponentViewCanvasOverlayCursor(w, h, scale, controller);
         this.#nodeCursorOverlay = this.#cursorOverlayComponent.createNode();
+
+        this.#scenarioOverlayComponent = new ComponentViewCanvasOverlayScenario(w, h, scale, controller);
+        this.#nodeScenarioOverlay = this.#scenarioOverlayComponent.createNode();
     }
 
     #createCanvas(w, h, scale) {
@@ -76,19 +84,32 @@ export class ComponentViewCanvasInner extends Component {
             this.#nodeCanvas,
             this.#nodeDebugOverlay,
             this.#nodeMarkerOverlay,
-            this.#nodeCursorOverlay
+            this.#nodeCursorOverlay,
+            this.#nodeScenarioOverlay,
         ]);
     }
 
     /**
      *
-     * @param overlay {SandGameOverlay}
+     * @param sandGame {SandGame}
      */
-    registerOverlay(overlay) {
-        this.#markerOverlayComponent.register(overlay);
+    register(sandGame) {
+        this.#markerOverlayComponent.register(sandGame.overlay());
+        this.#scenarioOverlayComponent.register(sandGame.scenario());
+
+        // chunk highlighting
+        sandGame.addOnRendered((changedChunks) => {
+            if (this.#controller.isShowActiveChunks()) {
+                this.#debugOverlayComponent.highlightChunks(changedChunks);
+            } else {
+                this.#debugOverlayComponent.highlightChunks(null);
+            }
+        });
+
+        this.#initMouseHandling(sandGame);
     }
 
-    initMouseHandling(sandGame) {
+    #initMouseHandling(sandGame) {
         let domNode = this.#nodeCursorOverlay;
         const scale = this.#controller.getCurrentScale();
 
@@ -366,9 +387,5 @@ export class ComponentViewCanvasInner extends Component {
 
     setImageRenderingStyle(style) {
         this.#nodeCanvas.style.imageRendering = style;
-    }
-
-    highlightChunks(changedChunks) {
-        this.#debugOverlayComponent.highlightChunks(changedChunks);
     }
 }

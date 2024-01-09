@@ -18,7 +18,6 @@ import _ASSET_PALETTE_TREE_WOOD_DARK from './assets/brushes/tree-wood-dark.palet
 import _ASSET_PALETTE_TREE_ROOT from './assets/brushes/tree-root.palette.csv';
 import _ASSET_PALETTE_TREE_LEAF_LIGHT from './assets/brushes/tree-leaf-light.palette.csv';
 import _ASSET_PALETTE_TREE_LEAF_DARK from './assets/brushes/tree-leaf-dark.palette.csv';
-import _ASSET_PALETTE_TREE_LEAF_DEAD from './assets/brushes/tree-leaf-dead.palette.csv';
 
 import _ASSET_TEXTURE_ROCK from './assets/brushes/rock.png';
 import _ASSET_TEXTURE_METAL from './assets/brushes/metal.png';
@@ -26,9 +25,11 @@ import _ASSET_TEXTURE_METAL from './assets/brushes/metal.png';
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-19
+ * @version 2024-01-08
  */
 export class BrushDefs {
+
+    static NONE = Brushes.custom(() => null);
 
     // TEST brushes
     // bright color for testing purposes
@@ -324,6 +325,7 @@ export class BrushDefs {
     // --- SEARCH
 
     static _LIST = {
+        none: BrushDefs.NONE,
         air: BrushDefs.AIR,
         ash: BrushDefs.ASH,
         sand: BrushDefs.SAND,

@@ -27,6 +27,9 @@ import { ActionIOExport } from "./gui/action/ActionIOExport";
 import { SceneImplHardcoded } from "./core/scene/SceneImplHardcoded";
 import { ServiceToolManager } from "./gui/ServiceToolManager";
 
+export { ToolDefs} from "./def/ToolDefs";
+export { BrushDefs } from "./def/BrushDefs";
+
 export const brushes = BrushDefs._LIST;
 export const tools = ToolDefs._LIST;
 
@@ -134,17 +137,17 @@ export function init(root, config) {
 
     let primaryTool;
     if (config.primaryTool === undefined || (primaryTool = resolveTool(config.primaryTool)) === null) {
-        primaryTool = ToolDefs.byCodeName('sand');
+        primaryTool = ToolDefs.SAND;
     }
 
     let secondaryTool;
     if (config.secondaryTool === undefined || (secondaryTool = resolveTool(config.secondaryTool)) === null) {
-        secondaryTool = ToolDefs.byCodeName('erase');
+        secondaryTool = ToolDefs.ERASE;
     }
 
     let tertiaryTool;
     if (config.tertiaryTool === undefined || (tertiaryTool = resolveTool(config.tertiaryTool)) === null) {
-        tertiaryTool = ToolDefs.byCodeName('meteor');
+        tertiaryTool = ToolDefs.METEOR;
     }
 
     // init controller

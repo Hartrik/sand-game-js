@@ -46,13 +46,18 @@ export class ComponentViewCanvasOverlayMarker extends Component {
      */
     register(overlay) {
         const markers = overlay.getMarkers();
-        for (const marker of markers) {
-            const node = this.#createMarkerNode(marker);
-            this.#nodeOverlay.append(node);
-        }
         if (markers.length > 0) {
-            this.#nodeOverlay.style.display = 'unset';
+            for (const marker of markers) {
+                this.#nodeOverlay.append(this.#createMarkerNode(marker));
+            }
+            this.#nodeOverlay.style.display = 'initial';
         }
+
+        // future markers
+        overlay.addOnMarkerAdded((marker) => {
+            this.#nodeOverlay.append(this.#createMarkerNode(marker));
+            this.#nodeOverlay.style.display = 'initial';
+        });
     }
 
     #createMarkerNode(marker) {

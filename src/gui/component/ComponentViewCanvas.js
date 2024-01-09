@@ -5,7 +5,7 @@ import {ComponentViewCanvasInner} from "./ComponentViewCanvasInner";
 /**
  *
  * @author Patrik Harag
- * @version 2024-01-08
+ * @version 2024-01-09
  */
 export class ComponentViewCanvas extends Component {
 
@@ -42,20 +42,8 @@ export class ComponentViewCanvas extends Component {
                 throw 'Illegal state: canvas is not initialized';
             }
 
-            // markers (overlay)
-            this.#currentCanvas.registerOverlay(sandGame.overlay());
-
-            // chunk highlighting
-            sandGame.addOnRendered((changedChunks) => {
-                if (controller.isShowActiveChunks()) {
-                    this.#currentCanvas.highlightChunks(changedChunks);
-                } else {
-                    this.#currentCanvas.highlightChunks(null);
-                }
-            });
-
-            // mouse handling
-            this.#currentCanvas.initMouseHandling(sandGame);
+            // register mouse handling and overlays
+            this.#currentCanvas.register(sandGame);
         })
 
         controller.addOnBeforeClosed(() => {

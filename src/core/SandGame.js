@@ -12,6 +12,7 @@ import {Renderer} from "./rendering/Renderer.js";
 import {RendererInitializer} from "./rendering/RendererInitializer.js";
 import {SandGameGraphics} from "./SandGameGraphics.js";
 import {SandGameOverlay} from "./SandGameOverlay";
+import {SandGameScenario} from "./SandGameScenario";
 import {Snapshot} from "./Snapshot.js";
 import {SnapshotMetadata} from "./SnapshotMetadata.js";
 import {TemplateBlockPainter} from "./TemplateBlockPainter.js";
@@ -65,6 +66,9 @@ export class SandGame {
     /** @type SandGameOverlay */
     #overlay;
 
+    /** @type SandGameScenario */
+    #scenario;
+
     /**
      *
      * @param elementArea {ElementArea}
@@ -82,7 +86,8 @@ export class SandGame {
         this.#renderer = rendererInitializer.initialize(this.#elementArea, 16, context);
         this.#width = elementArea.getWidth();
         this.#height = elementArea.getHeight();
-        this.#overlay = new SandGameOverlay(elementArea);
+        this.#overlay = new SandGameOverlay(elementArea.getWidth(), elementArea.getHeight());
+        this.#scenario = new SandGameScenario();
 
         let grassSpawningExt = new ProcessorExtensionSpawnGrass(this.#elementArea, this.#random, this.#processor);
         this.#onProcessed.push(() => grassSpawningExt.run());
@@ -168,6 +173,14 @@ export class SandGame {
      */
     overlay() {
         return this.#overlay;
+    }
+
+    /**
+     *
+     * @returns {SandGameScenario}
+     */
+    scenario() {
+        return this.#scenario;
     }
 
     /**

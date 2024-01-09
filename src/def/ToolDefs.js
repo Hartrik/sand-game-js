@@ -7,7 +7,7 @@ import { ToolInfo } from "../core/tool/ToolInfo";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-25
+ * @version 2024-01-08
  */
 export class ToolDefs {
 
@@ -20,17 +20,31 @@ export class ToolDefs {
         return new ToolInfo(category, codeName, displayName);
     }
 
+    static NONE = Tools.actionTool(ToolDefs.#info('none', 'None'), () => {});
+
+    static ERASE = Tools.roundBrushTool(ToolDefs.#info('erase', 'Erase'), BrushDefs.AIR, ToolDefs.DEFAULT_SIZE);
+    static MOVE = Tools.moveTool(ToolDefs.#info('move', 'Move'), 13);
+    static SAND = Tools.roundBrushTool(ToolDefs.#info('sand', 'Sand'), BrushDefs.SAND, ToolDefs.DEFAULT_SIZE);
+    static SOIL = Tools.roundBrushTool(ToolDefs.#info('soil', 'Soil'), BrushDefs.SOIL, ToolDefs.DEFAULT_SIZE);
+    static GRAVEL = Tools.roundBrushTool(ToolDefs.#info('gravel', 'Gravel'), BrushDefs.GRAVEL,ToolDefs.DEFAULT_SIZE);
+    static WALL = Tools.roundBrushTool(ToolDefs.#info('wall', 'Wall'), BrushDefs.WALL, ToolDefs.DEFAULT_SIZE);
+    static ROCK = Tools.roundBrushTool(ToolDefs.#info('rock', 'Rock'), BrushDefs.ROCK, ToolDefs.DEFAULT_SIZE);
+    static WATER = Tools.roundBrushTool(ToolDefs.#info('water', 'Water'), BrushDefs.WATER, ToolDefs.DEFAULT_SIZE);
+    static FIRE = Tools.roundBrushTool(ToolDefs.#info('fire', 'Fire'), Brushes.temperatureOrBrush(50, BrushDefs.FIRE), ToolDefs.DEFAULT_SIZE);
+    static METEOR = Tools.meteorTool(ToolDefs.#info('meteor', 'Meteor'));
+
     /** @type Tool[] */
     static DEFAULT_TOOLS = [
-        Tools.roundBrushTool(ToolDefs.#info('erase', 'Erase'), BrushDefs.AIR, ToolDefs.DEFAULT_SIZE),
-        Tools.moveTool(ToolDefs.#info('move', 'Move'), 13),
-        Tools.roundBrushTool(ToolDefs.#info('sand', 'Sand'), BrushDefs.SAND, ToolDefs.DEFAULT_SIZE),
-        Tools.roundBrushTool(ToolDefs.#info('soil', 'Soil'), BrushDefs.SOIL, ToolDefs.DEFAULT_SIZE),
-        Tools.roundBrushTool(ToolDefs.#info('gravel', 'Gravel'), BrushDefs.GRAVEL,ToolDefs.DEFAULT_SIZE),
-        Tools.roundBrushTool(ToolDefs.#info('wall', 'Rock'), BrushDefs.ROCK, ToolDefs.DEFAULT_SIZE),
-        Tools.roundBrushTool(ToolDefs.#info('water', 'Water'), BrushDefs.WATER, ToolDefs.DEFAULT_SIZE),
-        Tools.roundBrushTool(ToolDefs.#info('fire', 'Fire'), Brushes.temperatureOrBrush(50, BrushDefs.FIRE), ToolDefs.DEFAULT_SIZE),
-        Tools.meteorTool(ToolDefs.#info('meteor', 'Meteor')),
+        this.ERASE,
+        this.MOVE,
+        this.SAND,
+        this.SOIL,
+        this.GRAVEL,
+        this.WALL,
+        this.ROCK,
+        this.WATER,
+        this.FIRE,
+        this.METEOR,
     ];
 
     /** @type Tool[] */
@@ -52,7 +66,7 @@ export class ToolDefs {
 
     static _LIST = {};
     static {
-        for (const tool of [...ToolDefs.DEFAULT_TOOLS, ...ToolDefs.TEST_TOOLS]) {
+        for (const tool of [ToolDefs.NONE, ...ToolDefs.DEFAULT_TOOLS, ...ToolDefs.TEST_TOOLS]) {
             ToolDefs._LIST[tool.getInfo().getCodeName()] = tool;
         }
     }

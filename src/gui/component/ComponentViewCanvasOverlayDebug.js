@@ -76,7 +76,7 @@ export class ComponentViewCanvasOverlayDebug extends Component {
                 const rect = this.#nodeRectangles[chunkIndex];
                 if (changedChunks[chunkIndex]) {
                     highlighted++;
-                    rect.style.display = 'unset';
+                    rect.style.display = 'initial';
                 } else {
                     rect.style.display = 'none';
                 }
