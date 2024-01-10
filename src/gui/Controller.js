@@ -330,13 +330,13 @@ export class Controller {
     }
 
     start() {
-        this.#simulationEnabled = true;
         if (this.#sandGame !== null) {
             if (!this.#simulationEnabled) {
                 this.#sandGame.startProcessing();
                 this.#onStarted.forEach(f => f());
             }
         }
+        this.#simulationEnabled = true;
     }
 
     switchStartStop() {

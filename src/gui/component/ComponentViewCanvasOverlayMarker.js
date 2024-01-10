@@ -4,7 +4,7 @@ import {DomBuilder} from "../DomBuilder";
 /**
  *
  * @author Patrik Harag
- * @version 2024-01-08
+ * @version 2024-01-10
  */
 export class ComponentViewCanvasOverlayMarker extends Component {
 
@@ -66,6 +66,12 @@ export class ComponentViewCanvasOverlayMarker extends Component {
         for (const [key, value] of Object.entries(marker.getCssStyles())) {
             rectangle.style[key] = value;
         }
+        if (!marker.isVisible()) {
+            rectangle.style.display = 'none';
+        }
+        marker.addOnVisibleChanged((visible) => {
+            rectangle.style.display = visible ? 'initial' : 'none';
+        });
         return rectangle;
     }
 

@@ -6,13 +6,23 @@ import {RandomBrush} from "./RandomBrush";
 import {PaletteBrush} from "./PaletteBrush";
 import {TextureBrush} from "./TextureBrush";
 import {CustomBrush} from "./CustomBrush";
+import {CountingBrush} from "./CountingBrush";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-20
+ * @version 2024-01-10
  */
 export class Brushes {
+
+    /**
+     *
+     * @param predicate {(function(number:elementHead, number:elementTail):boolean)|undefined}
+     * @returns {CountingBrush}
+     */
+    static counting(predicate) {
+        return new CountingBrush(predicate);
+    }
 
     /**
      *
