@@ -1,8 +1,3 @@
-/*
- *
- * @author Patrik Harag
- * @version 2024-01-06
- */
 
 import { SizeUtils } from "./gui/SizeUtils";
 import { Analytics } from "./Analytics";
@@ -40,6 +35,7 @@ export const tools = ToolDefs._LIST;
  * @param config {{
  *     version: undefined|string,
  *     debug: undefined|boolean,
+ *     autoStart: undefined|boolean,
  *     scene: undefined|string|{sceneDefinition:(function(SandGame):Promise<any>|any)},
  *     tools: undefined|(string|Tool)[],
  *     primaryTool: undefined|string|Tool,
@@ -51,6 +47,9 @@ export const tools = ToolDefs._LIST;
  *     disableSceneSelection: undefined|boolean,
  * }}
  * @returns {Controller}
+ *
+ * @author Patrik Harag
+ * @version 2024-01-10
  */
 export function init(root, config) {
     if (config === undefined) {
@@ -67,6 +66,7 @@ export function init(root, config) {
     };
 
     const enableDebug = config.debug === true;
+    const enableAutoStart = config.autoStart === undefined || config.autoStart === true;
     const enableImport = !(config.disableImport === true);
     const enableExport = !(config.disableExport === true);
     const enableSizeChange = !(config.disableSizeChange === true);
@@ -191,7 +191,9 @@ export function init(root, config) {
         controller.getIOManager().initFileDragAndDrop(node);
     }
     controller.enableGlobalShortcuts();
-    controller.start();
+    if (enableAutoStart) {
+        controller.start();
+    }
 
     Analytics.triggerFeatureUsed(Analytics.FEATURE_APP_INITIALIZED);
 
