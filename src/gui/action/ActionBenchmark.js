@@ -160,11 +160,11 @@ export class BenchmarkProvider {
 
     static BENCHMARKS = [
         BenchmarkProvider.#createBenchmark('sand-fall-q', 500, function (sandGame, j) {
-            sandGame.graphics().drawRectangle(0, 0, -1, 0, BrushDefs.SAND, true);
+            sandGame.graphics().drawRectangle(0, 0, -1, 1, BrushDefs.SAND, true);
         }),
         BenchmarkProvider.#createBenchmark('sand-fall-s', 2000, function (sandGame, j) {
             if (j % 10 === 0) {
-                sandGame.graphics().drawRectangle(0, 0, -1, 0, BrushDefs.SAND, true);
+                sandGame.graphics().drawRectangle(0, 0, -1, 1, BrushDefs.SAND, true);
             }
         }),
         BenchmarkProvider.#createBenchmark('sand-fill', 1000, function (sandGame, j) {
@@ -173,11 +173,11 @@ export class BenchmarkProvider {
             }
         }),
         BenchmarkProvider.#createBenchmark('soil-fall-q', 500, function (sandGame, j) {
-            sandGame.graphics().drawRectangle(0, 0, -1, 0, BrushDefs.SOIL, true);
+            sandGame.graphics().drawRectangle(0, 0, -1, 1, BrushDefs.SOIL, true);
         }),
         BenchmarkProvider.#createBenchmark('soil-fall-s', 2000, function (sandGame, j) {
             if (j % 10 === 0) {
-                sandGame.graphics().drawRectangle(0, 0, -1, 0, BrushDefs.SOIL, true);
+                sandGame.graphics().drawRectangle(0, 0, -1, 1, BrushDefs.SOIL, true);
             }
         }),
         BenchmarkProvider.#createBenchmark('soil-fill', 1000, function (sandGame, j) {
@@ -186,11 +186,11 @@ export class BenchmarkProvider {
             }
         }),
         BenchmarkProvider.#createBenchmark('water-fall-q', 500, function (sandGame, j) {
-            sandGame.graphics().drawRectangle(0, 0, -1, 0, BrushDefs.WATER, true);
+            sandGame.graphics().drawRectangle(0, 0, -1, 1, BrushDefs.WATER, true);
         }),
         BenchmarkProvider.#createBenchmark('water-fall-s', 2000, function (sandGame, j) {
             if (j % 10 === 0) {
-                sandGame.graphics().drawRectangle(0, 0, -1, 0, BrushDefs.WATER, true);
+                sandGame.graphics().drawRectangle(0, 0, -1, 1, BrushDefs.WATER, true);
             }
         }),
         BenchmarkProvider.#createBenchmark('water-fill', 1000, function (sandGame, j) {
@@ -200,13 +200,13 @@ export class BenchmarkProvider {
         }),
         BenchmarkProvider.#createBenchmark('sand-into-water', 1000, function (sandGame, j) {
             if (j === 0) {
-                sandGame.graphics().drawRectangle(0, 0, -1, 30, BrushDefs.SAND, true);
+                sandGame.graphics().drawRectangle(0, 0, -1, 31, BrushDefs.SAND, true);
                 sandGame.graphics().drawRectangle(0, 60, -1, -1, BrushDefs.WATER, true);
             }
         }),
         BenchmarkProvider.#createBenchmark('soil-into-water', 1000, function (sandGame, j) {
             if (j === 0) {
-                sandGame.graphics().drawRectangle(0, 0, -1, 30, BrushDefs.SOIL, true);
+                sandGame.graphics().drawRectangle(0, 0, -1, 31, BrushDefs.SOIL, true);
                 sandGame.graphics().drawRectangle(0, 60, -1, -1, BrushDefs.WATER, true);
             }
         }),

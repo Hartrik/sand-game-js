@@ -7,7 +7,7 @@ import {CircleIterator} from "./CircleIterator.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-28
+ * @version 2024-01-10
  */
 export class SandGameGraphics {
 
@@ -75,13 +75,13 @@ export class SandGameGraphics {
             y2 = (y2 >= 0) ? y2 : this.getHeight() + y2 + 1;
         }
 
-        x1 = Math.max(Math.min(x1, this.getWidth() - 1), 0);
-        x2 = Math.max(Math.min(x2, this.getWidth() - 1), 0);
-        y1 = Math.max(Math.min(y1, this.getHeight() - 1), 0);
-        y2 = Math.max(Math.min(y2, this.getHeight() - 1), 0);
+        x1 = Math.max(Math.min(x1, this.getWidth()), 0);
+        x2 = Math.max(Math.min(x2, this.getWidth()), 0);
+        y1 = Math.max(Math.min(y1, this.getHeight()), 0);
+        y2 = Math.max(Math.min(y2, this.getHeight()), 0);
 
-        for (let y = y1; y <= y2; y++) {
-            for (let x = x1; x <= x2; x++) {
+        for (let y = y1; y < y2; y++) {
+            for (let x = x1; x < x2; x++) {
                 this.draw(x, y, brush);
             }
         }
@@ -155,7 +155,7 @@ export class SandGameGraphics {
     }
 
     fill(brush) {
-        this.drawRectangle(0, 0, this.#elementArea.getWidth() - 1, this.#elementArea.getHeight() - 1, brush);
+        this.drawRectangle(0, 0, this.#elementArea.getWidth(), this.#elementArea.getHeight(), brush);
     }
 
     floodFill(x, y, brush, neighbourhood) {

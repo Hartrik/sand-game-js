@@ -95,7 +95,7 @@ export class TemplateBlockPainter {
                 }
                 this.#graphics.drawRectangle(
                     x * ww, verticalOffset + (y * hh),
-                    x * ww + ww, verticalOffset + (y * hh) + hh, brush);
+                    x * ww + ww + 1, verticalOffset + (y * hh) + hh + 1, brush);
             }
         }
     }
