@@ -4,7 +4,7 @@ import {DomBuilder} from "../DomBuilder";
 /**
  *
  * @author Patrik Harag
- * @version 2024-01-09
+ * @version 2024-01-11
  */
 export class ComponentViewCanvasOverlayScenario extends Component {
 
@@ -46,20 +46,47 @@ export class ComponentViewCanvasOverlayScenario extends Component {
      * @param overlay {SandGameScenario}
      */
     register(overlay) {
+        let visible = false;
+        const addNode = (node) => {
+            this.#nodeOverlay.append(node);
+            if (!visible) {
+                visible = true;
+                this.#nodeOverlay.style.display = null;
+            }
+        };
 
         // handles splashes
-        const splashes = overlay.getSplashes();
-        if (splashes.length > 0) {
-            for (const splash of splashes) {
-                this.#nodeOverlay.append(this.#createSplashNode(splash));
-            }
-            this.#nodeOverlay.style.display = 'initial';
+        for (const splash of overlay.getSplashes()) {
+            addNode(this.#createSplashNode(splash));
         }
-
-        // future splashes
         overlay.addOnSplashAdded((splash) => {
-            this.#nodeOverlay.append(this.#createSplashNode(splash));
-            this.#nodeOverlay.style.display = 'initial';
+            addNode(this.#createSplashNode(splash));
+        });
+
+        // handle objectives
+        let objectiveParent = null;
+        let visibleNodes = 0;
+        const addObjective = (objective) => {
+            const node = this.#createObjectiveNode(objective);
+            if (objectiveParent === null) {
+                if (objective.isVisible()) {
+                    visibleNodes++;
+                }
+                objectiveParent = this.#createObjectivesListNode();
+                objectiveParent.style.display = (visibleNodes > 0) ? null : 'none';
+                addNode(objectiveParent);
+            }
+            objectiveParent.append(node);
+            objective.addOnVisibleChanged(visible => {
+                visibleNodes += (visible) ? 1 : -1;
+                objectiveParent.style.display = (visibleNodes > 0) ? null : 'none';
+            });
+        };
+        for (const objective of overlay.getObjectives()) {
+            addObjective(objective);
+        }
+        overlay.addOnObjectiveAdded((objective) => {
+            addObjective(objective);
         });
     }
 
@@ -74,8 +101,7 @@ export class ComponentViewCanvasOverlayScenario extends Component {
         let splashAttributes = {
             class: 'sand-game-splash',
             style: {
-                display: splash.isVisible() ? null : 'none',
-                pointerEvents: 'initial'
+                display: splash.isVisible() ? null : 'none'
             }
         };
         Object.assign(splashAttributes.style, config.style);
@@ -106,10 +132,29 @@ export class ComponentViewCanvasOverlayScenario extends Component {
         ]);
 
         splash.addOnVisibleChanged((visible) => {
-             splashNode.style.display = visible ? 'initial' : 'none';
+             splashNode.style.display = visible ? null : 'none';
         });
 
         return splashNode;
+    }
+
+    #createObjectivesListNode() {
+        return DomBuilder.div({ class: 'sand-game-objectives-list' }, null);
+    }
+
+    #createObjectiveNode(objective) {
+        const attributes = {
+            style: {
+                display: objective.isVisible() ? null : 'none'
+            }
+        }
+        const objectiveNode = DomBuilder.div(attributes, objective.getConfig().name);
+
+        objective.addOnVisibleChanged((visible) => {
+            objectiveNode.style.display = visible ? null : 'none';
+        });
+
+        return objectiveNode;
     }
 
     createNode(controller) {

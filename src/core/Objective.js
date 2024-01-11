@@ -1,37 +1,83 @@
 
 /**
+ * @typedef {object} ObjectiveConfig
+ * @property {string} name
+ * @property {string} description
+ * @property {boolean} visible
+ * @property {boolean} active
+ */
+
+/**
  *
  * @author Patrik Harag
- * @version 2024-01-07
+ * @version 2024-01-11
  */
 export class Objective {
 
-    /** @type string */
-    #name;
-    /** @type string */
-    #description;
+    /** @type ObjectiveConfig */
+    #config;
+
+    /** @type boolean */
+    #visible;
+    /** @type function(boolean)[] */
+    #onVisibleChanged = [];
+
+    /** @type boolean */
+    #active;
+    /** @type function(boolean)[] */
+    #onActiveChanged = [];
 
     /** @type boolean */
     #completed = false;
     /** @type function(boolean)[] */
     #onCompletedChanged = [];
 
-    /** @type boolean */
-    #visible = true;
-    /** @type function(boolean)[] */
-    #onVisibleChanged = [];
-
-    constructor(name, description) {
-        this.#name = name;
-        this.#description = description;
+    /**
+     *
+     * @param config {ObjectiveConfig}
+     */
+    constructor(config) {
+        this.#config = config;
+        this.#visible = config.visible === true;
+        this.#active = config.active === true;
     }
 
-    getName() {
-        return this.#name;
+    getConfig() {
+        return this.#config;  // TODO: immutable
     }
 
-    getDescription() {
-        return this.#description;
+    // visible
+
+    isVisible() {
+        return this.#visible;
+    }
+
+    setVisible(visible) {
+        this.#visible = visible;
+        for (let handler of this.#onVisibleChanged) {
+            handler(visible);
+        }
+    }
+
+    addOnVisibleChanged(handler) {
+        this.#onVisibleChanged.push(handler);
+    }
+
+    // active
+
+    isActive() {
+        return this.#active;
+    }
+
+    setActive(active) {
+        this.#active = active;
+        for (let handler of this.#onActiveChanged) {
+            handler(active);
+        }
+    }
+
+    addOnActiveChanged(handler) {
+        this.#onActiveChanged.push(handler);
     }
 
     // status
@@ -49,22 +95,5 @@ export class Objective {
 
     addOnCompleted(handler) {
         this.#onCompletedChanged.push(handler);
-    }
-
-    // visibility
-
-    isVisible() {
-        return this.#visible;
-    }
-
-    setVisible(visible) {
-        this.#visible = visible;
-        for (let handler of this.#onVisibleChanged) {
-            handler(visible);
-        }
-    }
-
-    addOnVisibleChanged(handler) {
-        this.#onVisibleChanged.push(handler);
     }
 }

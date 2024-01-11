@@ -1,9 +1,10 @@
 import {Splash} from "./Splash";
+import {Objective} from "./Objective";
 
 /**
  *
  * @author Patrik Harag
- * @version 2024-01-09
+ * @version 2024-01-11
  */
 export class SandGameScenario {
 
@@ -13,33 +14,89 @@ export class SandGameScenario {
     /** @type function(Splash)[] */
     #onSplashAdded = [];
 
+    /** @type Objective[] */
+    #objectives = [];
+
+    /** @type function(Objective)[] */
+    #onObjectiveAdded = [];
+
+    #statusCompleted = false;
+
+    /** @type function()[] */
+    #onStatusCompleted = [];
+
     constructor() {
         // empty
     }
 
-    createObjective() {
-        // TODO
-    }
+    // splash
 
     /**
      *
      * @param config {SplashConfig}
-     * @param visible {boolean}
      * @returns {Splash}
      */
-    createSplash(config, visible = true) {
-        const splash = new Splash(config, visible);
+    createSplash(config) {
+        const splash = new Splash(config);
         this.#splashes.push(splash);
         for (let handler of this.#onSplashAdded) {
-            handler();
+            handler(splash);
         }
+        return splash;
     }
 
     getSplashes() {
         return [...this.#splashes];
     }
 
+    /**
+     *
+     * @param handler {function(Splash)}
+     */
     addOnSplashAdded(handler) {
         this.#onSplashAdded.push(handler);
+    }
+
+    // objectives
+
+    /**
+     *
+     * @param config {ObjectiveConfig}
+     * @returns {Objective}
+     */
+    createObjective(config) {
+        const objective = new Objective(config);
+        this.#objectives.push(objective);
+        for (let handler of this.#onObjectiveAdded) {
+            handler(objective);
+        }
+        return objective;
+    }
+
+    getObjectives() {
+        return [...this.#objectives];
+    }
+
+    /**
+     *
+     * @param handler {function(Objective)}
+     */
+    addOnObjectiveAdded(handler) {
+        this.#onObjectiveAdded.push(handler);
+    }
+
+    // status
+
+    setCompleted() {
+        if (!this.#statusCompleted) {
+            this.#statusCompleted = true;
+            for (let handler of this.#onStatusCompleted) {
+                handler();
+            }
+        }
+    }
+
+    addOnStatusCompleted(handler) {
+        this.#onStatusCompleted.push(handler);
     }
 }

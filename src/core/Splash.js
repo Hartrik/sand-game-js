@@ -4,6 +4,7 @@
  * @property {HTMLElement|string} content
  * @property {CSSStyleDeclaration} style
  * @property {SplashButton[]} buttons
+ * @property {boolean} visible
  */
 /**
  * @typedef {object} SplashButton
@@ -24,17 +25,21 @@ export class Splash {
     #config;
 
     /** @type boolean */
-    #visible = true;
+    #visible;
     /** @type function(boolean)[] */
     #onVisibleChanged = [];
 
-    constructor(config, visible) {
+    /**
+     *
+     * @param config {SplashConfig}
+     */
+    constructor(config) {
         this.#config = config;
-        this.#visible = visible;
+        this.#visible = config.visible === true;
     }
 
     getConfig() {
-        return this.#config;
+        return this.#config;  // TODO: immutable
     }
 
     // visibility
