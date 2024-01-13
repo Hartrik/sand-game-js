@@ -1,8 +1,14 @@
 
 /**
+ * @typedef {object} MarkerConfig
+ * @property {CSSStyleDeclaration} style
+ * @property {boolean} visible
+ */
+
+/**
  *
  * @author Patrik Harag
- * @version 2024-01-07
+ * @version 2024-01-13
  */
 export class Marker {
 
@@ -15,28 +21,33 @@ export class Marker {
     /** @type number */
     #y2;
 
-    /** @type object */
-    #cssStyles;
+    /** @type MarkerConfig */
+    #config;
 
     /** @type boolean */
     #visible = true;
     /** @type function(boolean)[] */
     #onVisibleChanged = [];
 
-    constructor(x1, y1, x2, y2, cssStyles) {
+    constructor(x1, y1, x2, y2, config) {
         this.#x1 = x1;
         this.#y1 = y1;
         this.#x2 = x2;
         this.#y2 = y2;
-        this.#cssStyles = cssStyles;
+        this.#config = config;
+        this.#visible = config.visible === true;
     }
 
     getPosition() {
         return [ this.#x1, this.#y1, this.#x2, this.#y2 ];
     }
 
-    getCssStyles() {
-        return this.#cssStyles;
+    /**
+     *
+     * @returns {MarkerConfig}
+     */
+    getConfig() {
+        return this.#config;
     }
 
     // visibility
@@ -46,9 +57,12 @@ export class Marker {
     }
 
     setVisible(visible) {
-        this.#visible = visible;
-        for (let handler of this.#onVisibleChanged) {
-            handler(visible);
+        if (this.#visible !== visible) {
+            // handlers are triggered only on change
+            this.#visible = visible;
+            for (let handler of this.#onVisibleChanged) {
+                handler(visible);
+            }
         }
     }
 

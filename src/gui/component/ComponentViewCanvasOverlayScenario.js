@@ -1,10 +1,14 @@
 import {Component} from "./Component";
 import {DomBuilder} from "../DomBuilder";
 
+import _ASSET_ICON_SQUARE from './assets/icon-square.svg'
+import _ASSET_ICON_SQUARE_CHECK from './assets/icon-square-check.svg'
+import _ASSET_ICON_SQUARE_DOTTED from './assets/icon-square-dotted.svg'
+
 /**
  *
  * @author Patrik Harag
- * @version 2024-01-11
+ * @version 2024-01-12
  */
 export class ComponentViewCanvasOverlayScenario extends Component {
 
@@ -142,19 +146,57 @@ export class ComponentViewCanvasOverlayScenario extends Component {
         return DomBuilder.div({ class: 'sand-game-objectives-list' }, null);
     }
 
+    /**
+     *
+     * @param objective {Objective}
+     * @returns {HTMLElement}
+     */
     #createObjectiveNode(objective) {
+        const iconNode = DomBuilder.span(null, { class: 'sand-game-objective-icon' });
+        if (objective.isVisible()) {
+            DomBuilder.setContent(iconNode, this.#createObjectiveIcon(objective));
+        }
+
         const attributes = {
             style: {
                 display: objective.isVisible() ? null : 'none'
             }
         }
-        const objectiveNode = DomBuilder.div(attributes, objective.getConfig().name);
+        const objectiveNode = DomBuilder.div(attributes, [
+            iconNode,
+            objective.getConfig().name
+        ]);
 
         objective.addOnVisibleChanged((visible) => {
             objectiveNode.style.display = visible ? null : 'none';
+            if (visible) {
+                DomBuilder.setContent(iconNode, this.#createObjectiveIcon(objective));
+            }
+        });
+
+        objective.addOnActiveChanged((active) => {
+            if (objective.isVisible()) {
+                DomBuilder.setContent(iconNode, this.#createObjectiveIcon(objective));
+            }
+        });
+
+        objective.addOnCompleted(() => {
+            if (objective.isVisible()) {
+                DomBuilder.setContent(iconNode, this.#createObjectiveIcon(objective));
+            }
         });
 
         return objectiveNode;
+    }
+
+    #createObjectiveIcon(objective) {
+        if (objective.isCompleted()) {
+            return DomBuilder.create(_ASSET_ICON_SQUARE_CHECK);
+        }
+        if (objective.isActive()) {
+            return DomBuilder.create(_ASSET_ICON_SQUARE);
+        }
+        return DomBuilder.create(_ASSET_ICON_SQUARE_DOTTED);
     }
 
     createNode(controller) {

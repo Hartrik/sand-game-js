@@ -60,11 +60,18 @@ export class ComponentViewCanvasOverlayMarker extends Component {
         });
     }
 
+    /**
+     *
+     * @param marker {Marker}
+     * @returns {HTMLElement}
+     */
     #createMarkerNode(marker) {
         const [x1, y1, x2, y2] = marker.getPosition();
         const rectangle = this.#createRectangle(x1, y1, x2, y2);
-        for (const [key, value] of Object.entries(marker.getCssStyles())) {
-            rectangle.style[key] = value;
+        if (typeof marker.getConfig().style === 'object') {
+            for (const [key, value] of Object.entries(marker.getConfig().style)) {
+                rectangle.style[key] = value;
+            }
         }
         if (!marker.isVisible()) {
             rectangle.style.display = 'none';

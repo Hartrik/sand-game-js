@@ -17,7 +17,7 @@
 /**
  *
  * @author Patrik Harag
- * @version 2024-01-09
+ * @version 2024-01-13
  */
 export class Splash {
 
@@ -49,9 +49,12 @@ export class Splash {
     }
 
     setVisible(visible) {
-        this.#visible = visible;
-        for (let handler of this.#onVisibleChanged) {
-            handler(visible);
+        if (this.#visible !== visible) {
+            // handlers are triggered only on change
+            this.#visible = visible;
+            for (let handler of this.#onVisibleChanged) {
+                handler(visible);
+            }
         }
     }
 

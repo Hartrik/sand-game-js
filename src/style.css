@@ -1,7 +1,7 @@
 
 /*
  * @author Patrik Harag
- * @version 2024-01-11
+ * @version 2024-01-13
  */
 
 .sand-game-component {
@@ -33,7 +33,7 @@
 }
 
 .sand-game-component .sand-game-canvas-overlay .sand-game-splash {
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: rgba(160, 160, 160, 0.8);
     padding: 1em;
     cursor: initial;
     pointer-events: initial;
@@ -52,7 +52,7 @@
 }
 
 .sand-game-component .sand-game-canvas-overlay .sand-game-objectives-list {
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: rgba(160, 160, 160, 0.8);
     padding: 1em;
     cursor: initial;
     pointer-events: initial;
@@ -61,6 +61,11 @@
     top: 10pt;
     right: 10pt;
     position: absolute;
+}
+
+.sand-game-component .sand-game-canvas-overlay .sand-game-objectives-list .sand-game-objective-icon {
+    margin-right: 0.5em;
+    vertical-align: 0.1em;
 }
 
 .sand-game-component .sand-game-canvas-overlay .sand-game-splash .sand-game-splash-content {

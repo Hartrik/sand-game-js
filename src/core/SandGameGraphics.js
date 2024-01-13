@@ -3,11 +3,12 @@ import {Element} from "./Element.js";
 import {ElementArea} from "./ElementArea.js";
 import {Brush} from "./brush/Brush.js";
 import {CircleIterator} from "./CircleIterator.js";
+import {Marker} from "./Marker";
 
 /**
  *
  * @author Patrik Harag
- * @version 2024-01-10
+ * @version 2024-01-12
  */
 export class SandGameGraphics {
 
@@ -58,8 +59,8 @@ export class SandGameGraphics {
         }
     }
 
-    drawRectangle(x1, y1, x2, y2, brush, supportNegativeCoordinates = false) {
-        if (!(brush instanceof Brush)) {
+    drawRectangle(x1, y1, x2, y2, brushOrElement, supportNegativeCoordinates = false) {
+        if (!(brushOrElement instanceof Brush || brushOrElement instanceof Element)) {
             throw 'Brush expected';
         }
 
@@ -82,13 +83,17 @@ export class SandGameGraphics {
 
         for (let y = y1; y < y2; y++) {
             for (let x = x1; x < x2; x++) {
-                this.draw(x, y, brush);
+                this.draw(x, y, brushOrElement);
             }
         }
     }
 
-    drawLine(x1, y1, x2, y2, size, brush, round=false) {
-        if (!(brush instanceof Brush)) {
+    drawRectangleWH(x, y, w, h, brush) {
+        this.drawRectangle(x, y, x + w, y + h, brush, false);
+    }
+
+    drawLine(x1, y1, x2, y2, size, brushOrElement, round=false) {
+        if (!(brushOrElement instanceof Brush || brushOrElement instanceof Element)) {
             throw 'Brush expected';
         }
 
@@ -113,14 +118,14 @@ export class SandGameGraphics {
             consumer = (x, y) => {
                 CircleIterator.iterate(blueprint, (dx, dy, level) => {
                     if (level <= maxLevel) {
-                        this.draw(x + dx, y + dy, brush);
+                        this.draw(x + dx, y + dy, brushOrElement);
                     }
                 });
             };
         } else {
             const d = Math.ceil(size / 2);
             consumer = (x, y) => {
-                this.drawRectangle(x - d, y - d, x + d, y + d, brush);
+                this.drawRectangle(x - d, y - d, x + d, y + d, brushOrElement);
             };
         }
 
@@ -151,6 +156,20 @@ export class SandGameGraphics {
                 }
                 consumer(x1, y1);
             }
+        }
+    }
+
+    /**
+     *
+     * @param shape {Marker}
+     * @param brushOrElement {Brush|Element}
+     */
+    drawShape(shape, brushOrElement) {
+        if (shape instanceof Marker) {
+            const [x1, y1, x2, y2] = shape.getPosition();
+            this.drawRectangle(x1, y1, x2, y2, brushOrElement, false);
+        } else {
+            throw 'Shape not supported';
         }
     }
 

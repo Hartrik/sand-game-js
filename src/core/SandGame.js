@@ -21,7 +21,7 @@ import {TemplateLayeredPainter} from "./TemplateLayeredPainter.js";
 /**
  *
  * @author Patrik Harag
- * @version 2024-01-08
+ * @version 2024-01-13
  */
 export class SandGame {
 
@@ -89,6 +89,31 @@ export class SandGame {
         this.#overlay = new SandGameOverlay(elementArea.getWidth(), elementArea.getHeight());
         this.#scenario = new SandGameScenario();
 
+        this.#initObjectives();
+        this.#initSpawningExtensions();
+    }
+
+    #initObjectives() {
+        let activeObjectives = [];
+        const updateActiveObjectives = () => {
+            activeObjectives = this.#scenario.getObjectives().filter(o => {
+                return o.isActive() && (typeof o.getConfig().checkHandler === 'function');
+            });
+        };
+
+        this.#scenario.addOnObjectiveAdded(objective => {
+            updateActiveObjectives();
+            objective.addOnActiveChanged(() => updateActiveObjectives());
+            objective.addOnCompleted(() => updateActiveObjectives());
+        });
+        this.#onProcessed.push(() => {
+            for (let objective of activeObjectives) {
+                objective.getConfig().checkHandler(this.#processor.getIteration() - 1);
+            }
+        });
+    }
+
+    #initSpawningExtensions() {
         let grassSpawningExt = new ProcessorExtensionSpawnGrass(this.#elementArea, this.#random, this.#processor);
         this.#onProcessed.push(() => grassSpawningExt.run());
         let treeSpawningExt = new ProcessorExtensionSpawnTree(this.#elementArea, this.#random, this.#processor);

@@ -50,6 +50,10 @@ export class SandGameOverlay {
         return marker;
     }
 
+    createRectangleWH(x, y, w, h, cssStyles) {
+        return this.createRectangle(x, y, x + w, y + h, cssStyles);
+    }
+
     /**
      *
      * @returns {Marker[]}

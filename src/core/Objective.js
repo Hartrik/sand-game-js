@@ -5,12 +5,13 @@
  * @property {string} description
  * @property {boolean} visible
  * @property {boolean} active
+ * @property {function(iteration:number)} checkHandler
  */
 
 /**
  *
  * @author Patrik Harag
- * @version 2024-01-11
+ * @version 2024-01-13
  */
 export class Objective {
 
@@ -53,9 +54,12 @@ export class Objective {
     }
 
     setVisible(visible) {
-        this.#visible = visible;
-        for (let handler of this.#onVisibleChanged) {
-            handler(visible);
+        if (this.#visible !== visible) {
+            // handlers are triggered only on change
+            this.#visible = visible;
+            for (let handler of this.#onVisibleChanged) {
+                handler(visible);
+            }
         }
     }
 
@@ -70,9 +74,12 @@ export class Objective {
     }
 
     setActive(active) {
-        this.#active = active;
-        for (let handler of this.#onActiveChanged) {
-            handler(active);
+        if (this.#active !== active) {
+            // handlers are triggered only on change
+            this.#active = active;
+            for (let handler of this.#onActiveChanged) {
+                handler(active);
+            }
         }
     }
 
@@ -87,9 +94,12 @@ export class Objective {
     }
 
     setCompleted(completed) {
-        this.#completed = completed;
-        for (let handler of this.#onCompletedChanged) {
-            handler(completed);
+        if (this.#completed !== completed) {
+            // handlers are triggered only on change
+            this.#completed = completed;
+            for (let handler of this.#onCompletedChanged) {
+                handler(completed);
+            }
         }
     }
 
