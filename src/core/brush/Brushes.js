@@ -17,7 +17,7 @@ export class Brushes {
 
     /**
      *
-     * @param predicate {(function(number:elementHead, number:elementTail):boolean)|undefined}
+     * @param predicate {(function(elementHead:number, elementTail:number):boolean)|undefined}
      * @returns {CountingBrush}
      */
     static counting(predicate) {

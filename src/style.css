@@ -54,12 +54,14 @@
 .sand-game-component .sand-game-canvas-overlay .sand-game-objectives-list {
     background-color: rgba(160, 160, 160, 0.8);
     padding: 1em;
-    cursor: initial;
-    pointer-events: initial;
+
+    /*cursor: initial;*/
+    /*pointer-events: initial;*/
 
     /* position */
     top: 10pt;
     right: 10pt;
+    margin-left: 10pt;
     position: absolute;
 }
 

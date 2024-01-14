@@ -1,13 +1,6 @@
 import {ElementHead} from "../core/ElementHead";
 
 /**
- * @callback ElementPredicate
- * @param {number} elementHead
- * @param {number} elementTail
- * @returns {boolean}
- */
-
-/**
  *
  * @author Patrik Harag
  * @version 2024-01-10
@@ -32,13 +25,13 @@ export class PredicateDefs {
         };
     }
 
-    /** @type {ElementPredicate} */
+    /** @type {function(elementHead:number, elementTail:number):boolean} */
     static IS_WATER = function (elementHead, elementTail) {
         return ElementHead.getBehaviour(elementHead) === ElementHead.BEHAVIOUR_WATER
             && ElementHead.getTypeClass(elementHead) === ElementHead.TYPE_FLUID
     };
 
-    /** @type {ElementPredicate} */
+    /** @type {function(elementHead:number, elementTail:number):boolean} */
     static IS_POWDER = function (elementHead, elementTail) {
         const typeClass = ElementHead.getTypeClass(elementHead);
         return typeClass === ElementHead.TYPE_POWDER
@@ -46,17 +39,17 @@ export class PredicateDefs {
             || typeClass === ElementHead.TYPE_POWDER_WET;
     };
 
-    /** @type {ElementPredicate} */
+    /** @type {function(elementHead:number, elementTail:number):boolean} */
     static IS_STATIC = function (elementHead, elementTail) {
         return ElementHead.getTypeClass(elementHead) === ElementHead.TYPE_STATIC;
     };
 
-    /** @type {ElementPredicate} */
+    /** @type {function(elementHead:number, elementTail:number):boolean} */
     static IS_FISH = function (elementHead, elementTail) {
         return ElementHead.getBehaviour(elementHead) === ElementHead.BEHAVIOUR_FISH;
     };
 
-    /** @type {ElementPredicate} */
+    /** @type {function(elementHead:number, elementTail:number):boolean} */
     static IS_FISH_PART = function (elementHead, elementTail) {
         const behaviour = ElementHead.getBehaviour(elementHead);
         return behaviour === ElementHead.BEHAVIOUR_FISH || behaviour === ElementHead.BEHAVIOUR_FISH_BODY;

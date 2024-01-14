@@ -23,7 +23,17 @@ export class SandGameOverlay {
         this.#height = height;
     }
 
-    createRectangle(x1, y1, x2, y2, cssStyles, supportNegativeCoordinates = false) {
+    /**
+     *
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     * @param config {MarkerConfig}
+     * @param supportNegativeCoordinates {boolean}
+     * @returns {Marker}
+     */
+    createRectangle(x1, y1, x2, y2, config, supportNegativeCoordinates = false) {
         x1 = Math.trunc(x1);
         y1 = Math.trunc(y1);
         x2 = Math.trunc(x2);
@@ -41,7 +51,7 @@ export class SandGameOverlay {
         y1 = Math.max(Math.min(y1, this.#height - 1), 0);
         y2 = Math.max(Math.min(y2, this.#height - 1), 0);
 
-        const marker = new Marker(x1, y1, x2, y2, cssStyles);
+        const marker = new Marker(x1, y1, x2, y2, config);
         this.#markers.push(marker);
         for (let handler of this.#onMarkerAdded) {
             handler(marker);
