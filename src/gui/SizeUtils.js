@@ -2,7 +2,7 @@
 /**
  *
  * @author Patrik Harag
- * @version 2024-01-04
+ * @version 2024-01-15
  */
 export class SizeUtils {
 
@@ -23,12 +23,20 @@ export class SizeUtils {
     }
 
     static #determineMaxNumberOfPoints() {
-        const touchDevice = (navigator.maxTouchPoints || 'ontouchstart' in document.documentElement);
-        if (touchDevice) {
+        if (navigator.maxTouchPoints || 'ontouchstart' in document.documentElement) {
             // probably a smartphone
             return 75000;
         } else {
-            return 125000;
+            // bigger screen => usually more powerful (or newer) computer
+            if (window.screen.width >= 2560 && window.screen.height >= 1440) {
+                return 200000;  // >= QHD
+            } else if (window.screen.width >= 2048 && window.screen.height >= 1080) {
+                return 175000;  // >= 2k
+            } else if (window.screen.width >= 1920 && window.screen.height >= 1080) {
+                return 150000;
+            } else {
+                return 125000;
+            }
         }
     }
 
