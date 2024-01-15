@@ -5,7 +5,7 @@ import {ComponentViewCanvasInner} from "./ComponentViewCanvasInner";
 /**
  *
  * @author Patrik Harag
- * @version 2024-01-09
+ * @version 2024-01-15
  */
 export class ComponentViewCanvas extends Component {
 
@@ -50,6 +50,12 @@ export class ComponentViewCanvas extends Component {
             this.#currentCanvas = null;
             this.#canvasHolderNode.innerHTML = '';
         })
+
+        controller.getToolManager().addOnInputDisabledChanged(disabled => {
+            if (this.#currentCanvas !== null) {
+                this.#currentCanvas.onInputDisabledChanged(disabled);
+            }
+        });
 
         return this.#canvasHolderNode;
     }

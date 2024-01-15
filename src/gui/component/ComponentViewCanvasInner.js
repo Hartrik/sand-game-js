@@ -10,7 +10,7 @@ import {Analytics} from "../../Analytics";
  *
  *
  * @author Patrik Harag
- * @version 2024-01-09
+ * @version 2024-01-15
  */
 export class ComponentViewCanvasInner extends Component {
 
@@ -110,8 +110,10 @@ export class ComponentViewCanvasInner extends Component {
     }
 
     #initMouseHandling(sandGame) {
-        let domNode = this.#nodeCursorOverlay;
+        const domNode = this.#nodeCursorOverlay;
         const scale = this.#controller.getCurrentScale();
+
+        const toolManager = this.#controller.getToolManager();
 
         let getActualMousePosition = (e) => {
             const rect = domNode.getBoundingClientRect();
@@ -148,6 +150,10 @@ export class ComponentViewCanvasInner extends Component {
         });
 
         domNode.addEventListener('mousedown', (e) => {
+            if (toolManager.isInputDisabled()) {
+                return;
+            }
+
             const [x, y] = getActualMousePosition(e);
             lastX = x;
             lastY = y;
@@ -158,12 +164,12 @@ export class ComponentViewCanvasInner extends Component {
 
             if (e.buttons === 1) {
                 // primary button
-                lastTool = this.#controller.getToolManager().getPrimaryTool();
+                lastTool = toolManager.getPrimaryTool();
                 Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_PRIMARY);
 
             } else if (e.buttons === 2) {
                 // secondary button
-                let primaryTool = this.#controller.getToolManager().getPrimaryTool();
+                let primaryTool = toolManager.getPrimaryTool();
                 if (primaryTool.isSecondaryActionEnabled()) {
                     // special secondary action
 
@@ -176,7 +182,7 @@ export class ComponentViewCanvasInner extends Component {
 
                     return;
                 } else {
-                    lastTool = this.#controller.getToolManager().getSecondaryTool();
+                    lastTool = toolManager.getSecondaryTool();
                     Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_SECONDARY);
                 }
             } else if (e.buttons === 4) {
@@ -184,7 +190,7 @@ export class ComponentViewCanvasInner extends Component {
                 e.preventDefault();
 
                 if (!e.altKey && !e.ctrlKey && !e.shiftKey) {
-                    const tool = this.#controller.getToolManager().getTertiaryTool();
+                    const tool = toolManager.getTertiaryTool();
                     tool.applyPoint(x, y, sandGame.graphics(), false);
                     Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_TERTIARY);
                     Analytics.triggerToolUsed(tool);
@@ -206,7 +212,7 @@ export class ComponentViewCanvasInner extends Component {
 
                 // show/recreate cursor
                 this.#cursorOverlayComponent.hideCursors();
-                const cursorDefinition = this.#controller.getToolManager().getPrimaryTool().createCursor();
+                const cursorDefinition = toolManager.getPrimaryTool().createCursor();
                 if (cursorDefinition !== null) {
                     this.#cursorOverlayComponent.showCursor(x, y, scale, cursorDefinition);
                 }
@@ -229,6 +235,12 @@ export class ComponentViewCanvasInner extends Component {
             // cancel repeating
             cancelRepeatingIfNeeded();
 
+            if (toolManager.isInputDisabled()) {
+                lastTool = null;
+                this.#cursorOverlayComponent.hideCursors();
+                return;
+            }
+
             if (!ctrlPressed && !shiftPressed) {
                 // drawing while dragging...
 
@@ -237,7 +249,7 @@ export class ComponentViewCanvasInner extends Component {
                     const [x, y] = getActualMousePosition(e);
                     this.#cursorOverlayComponent.moveCursor(x, y, scale);
                 } else {
-                    const cursorDefinition = this.#controller.getToolManager().getPrimaryTool().createCursor();
+                    const cursorDefinition = toolManager.getPrimaryTool().createCursor();
                     if (cursorDefinition !== null) {
                         const [x, y] = getActualMousePosition(e);
                         this.#cursorOverlayComponent.showCursor(x, y, scale, cursorDefinition);
@@ -289,6 +301,10 @@ export class ComponentViewCanvasInner extends Component {
         domNode.addEventListener('mouseup', (e) => {
             // cancel repeating
             cancelRepeatingIfNeeded();
+
+            if (toolManager.isInputDisabled()) {
+                return;
+            }
 
             if (lastTool !== null) {
                 // click, dragging, rectangle or line
@@ -352,10 +368,14 @@ export class ComponentViewCanvasInner extends Component {
             return getActualMousePosition(touch);
         }
         domNode.addEventListener('touchstart', (e) => {
+            if (toolManager.isInputDisabled()) {
+                return;
+            }
+
             const [x, y] = getActualTouchPosition(e);
             lastX = x;
             lastY = y;
-            lastTool = this.#controller.getToolManager().getPrimaryTool();
+            lastTool = toolManager.getPrimaryTool();
             lastTool.applyPoint(x, y, sandGame.graphics(), false);
             Analytics.triggerFeatureUsed(Analytics.FEATURE_DRAW_PRIMARY);
             Analytics.triggerToolUsed(lastTool);
@@ -363,6 +383,11 @@ export class ComponentViewCanvasInner extends Component {
             e.preventDefault();
         });
         domNode.addEventListener('touchmove', (e) => {
+            if (toolManager.isInputDisabled()) {
+                lastTool = null;
+                return;
+            }
+
             if (lastTool === null) {
                 return;
             }
@@ -387,5 +412,9 @@ export class ComponentViewCanvasInner extends Component {
 
     setImageRenderingStyle(style) {
         this.#nodeCanvas.style.imageRendering = style;
+    }
+
+    onInputDisabledChanged(disabled) {
+        this.#nodeCursorOverlay.style.cursor = disabled ? 'not-allowed' : null;
     }
 }

@@ -6,7 +6,7 @@ import { ToolDefs } from "../../def/ToolDefs";
 /**
  *
  * @author Patrik Harag
- * @version 2023-08-19
+ * @version 2024-01-15
  */
 export class ComponentViewTools extends Component {
 
@@ -49,6 +49,10 @@ export class ComponentViewTools extends Component {
             if (tool === controller.getToolManager().getPrimaryTool()) {
                 button.classList.add('selected');
             }
+
+            controller.getToolManager().addOnInputDisabledChanged(disabled => {
+                button.disabled = disabled;
+            });
 
             buttons.push(button);
         }

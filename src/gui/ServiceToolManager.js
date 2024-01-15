@@ -3,7 +3,7 @@ import {Tool} from "../core/tool/Tool.js";
 /**
  *
  * @author Patrik Harag
- * @version 2024-01-06
+ * @version 2024-01-15
  */
 export class ServiceToolManager {
 
@@ -13,6 +13,12 @@ export class ServiceToolManager {
 
     /** @type function(Tool)[] */
     #onPrimaryToolChanged = [];
+
+
+    /** @type boolean */
+    #inputDisabled;
+    /** @type function(boolean)[] */
+    #onInputDisabledChanged = [];
 
     constructor(primaryTool, secondaryTool, tertiaryTool) {
         this.#primaryTool = primaryTool;
@@ -77,6 +83,31 @@ export class ServiceToolManager {
      */
     addOnPrimaryToolChanged(handler) {
         this.#onPrimaryToolChanged.push(handler);
+    }
+
+    /**
+     *
+     * @returns {boolean}
+     */
+    isInputDisabled() {
+        return this.#inputDisabled;
+    }
+
+    /**
+     *
+     * @param handler {function(boolean)}
+     */
+    addOnInputDisabledChanged(handler) {
+        this.#onInputDisabledChanged.push(handler);
+    }
+
+    setInputDisabled(disabled) {
+        if (this.#inputDisabled !== disabled) {
+            this.#inputDisabled = disabled;
+            for (let handler of this.#onInputDisabledChanged) {
+                handler(disabled);
+            }
+        }
     }
 
     createRevertAction() {
