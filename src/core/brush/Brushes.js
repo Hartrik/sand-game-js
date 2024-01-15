@@ -156,7 +156,7 @@ export class Brushes {
     static concat(first, second) {
         return Brushes.custom((x, y, random, oldElement) => {
             const firstResult = first.apply(x, y, random, oldElement);
-            const secondResult = second.apply(x, y, random, firstResult);
+            const secondResult = second.apply(x, y, random, firstResult !== null ? firstResult : oldElement);
             return (secondResult !== null) ? secondResult : firstResult;
         });
     }
