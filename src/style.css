@@ -1,7 +1,7 @@
 
 /*
  * @author Patrik Harag
- * @version 2024-01-13
+ * @version 2024-01-16
  */
 
 .sand-game-component {
@@ -115,7 +115,8 @@
     background-color: rgb(101, 101, 101);
 }
 
-.sand-game-component .btn.wall {
+.sand-game-component .btn.wall,
+.sand-game-component .btn.rock {
     background-color: rgb(56, 56, 56);
 }
 

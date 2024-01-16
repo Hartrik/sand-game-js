@@ -7,7 +7,7 @@ import { ToolInfo } from "../core/tool/ToolInfo";
 /**
  *
  * @author Patrik Harag
- * @version 2024-01-08
+ * @version 2024-01-16
  */
 export class ToolDefs {
 
@@ -40,7 +40,6 @@ export class ToolDefs {
         this.SAND,
         this.SOIL,
         this.GRAVEL,
-        this.WALL,
         this.ROCK,
         this.WATER,
         this.FIRE,
