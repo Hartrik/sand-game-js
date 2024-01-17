@@ -4,7 +4,7 @@ import {DomBuilder} from "../DomBuilder";
 /**
  *
  * @author Patrik Harag
- * @version 2024-01-10
+ * @version 2024-01-17
  */
 export class ComponentViewCanvasOverlayMarker extends Component {
 
@@ -66,10 +66,12 @@ export class ComponentViewCanvasOverlayMarker extends Component {
      * @returns {HTMLElement}
      */
     #createMarkerNode(marker) {
+        const config = marker.getConfig();
+
         const [x1, y1, x2, y2] = marker.getPosition();
-        const rectangle = this.#createRectangle(x1, y1, x2, y2);
-        if (typeof marker.getConfig().style === 'object') {
-            for (const [key, value] of Object.entries(marker.getConfig().style)) {
+        const rectangle = this.#createRectangle(x1, y1, x2, y2, config.label);
+        if (typeof config.style === 'object') {
+            for (const [key, value] of Object.entries(config.style)) {
                 rectangle.style[key] = value;
             }
         }
@@ -82,13 +84,14 @@ export class ComponentViewCanvasOverlayMarker extends Component {
         return rectangle;
     }
 
-    #createRectangle(x1, y1, x2, y2) {
+    #createRectangle(x1, y1, x2, y2, content = null) {
         const xPx = x1 / this.#scale;
         const yPx = y1 / this.#scale;
         const wPx = (x2 - x1) / this.#scale;
         const hPx = (y2 - y1) / this.#scale;
 
-        const rectangle = DomBuilder.div({
+        const attributes = {
+            class: 'sand-game-marker',
             style: {
                 left: xPx + 'px',
                 top: yPx + 'px',
@@ -96,9 +99,9 @@ export class ComponentViewCanvasOverlayMarker extends Component {
                 height: hPx + 'px',
                 position: 'absolute',
             }
-        });
+        };
 
-        return rectangle;
+        return DomBuilder.div(attributes, content);
     }
 
     createNode(controller) {

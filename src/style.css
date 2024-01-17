@@ -1,7 +1,7 @@
 
 /*
  * @author Patrik Harag
- * @version 2024-01-16
+ * @version 2024-01-17
  */
 
 .sand-game-component {
@@ -30,6 +30,11 @@
 .sand-game-component .sand-game-canvas-overlay {
     cursor: crosshair;
     user-select: none;
+}
+
+.sand-game-component .sand-game-canvas-overlay .sand-game-marker {
+    padding: 3pt;
+    font-size: small;
 }
 
 .sand-game-component .sand-game-canvas-overlay .sand-game-splash {

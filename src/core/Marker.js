@@ -2,13 +2,14 @@
 /**
  * @typedef {object} MarkerConfig
  * @property {CSSStyleDeclaration} style
+ * @property {string|HTMLElement} label
  * @property {boolean} visible
  */
 
 /**
  *
  * @author Patrik Harag
- * @version 2024-01-13
+ * @version 2024-01-17
  */
 export class Marker {
 
