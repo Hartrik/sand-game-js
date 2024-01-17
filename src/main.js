@@ -17,6 +17,7 @@ import { ComponentSimple } from "./gui/component/ComponentSimple";
 import { ComponentButton } from "./gui/component/ComponentButton";
 import { ComponentButtonStartStop } from "./gui/component/ComponentButtonStartStop";
 import { ComponentStatusIndicator } from "./gui/component/ComponentStatusIndicator";
+import { ComponentButtonRestart } from "./gui/component/ComponentButtonRestart";
 import { ActionIOImport } from "./gui/action/ActionIOImport";
 import { ActionIOExport } from "./gui/action/ActionIOExport";
 import { SceneImplHardcoded } from "./core/scene/SceneImplHardcoded";
@@ -45,6 +46,7 @@ export const tools = ToolDefs._LIST;
  *     primaryTool: undefined|string|Tool,
  *     secondaryTool: undefined|string|Tool,
  *     tertiaryTool: undefined|string|Tool,
+ *     disableRestart: undefined|boolean,
  *     disableStartStop: undefined|boolean,
  *     disableImport: undefined|boolean,
  *     disableExport: undefined|boolean,
@@ -54,7 +56,7 @@ export const tools = ToolDefs._LIST;
  * @returns {Controller}
  *
  * @author Patrik Harag
- * @version 2024-01-10
+ * @version 2024-01-17
  */
 export function init(root, config) {
     if (config === undefined) {
@@ -72,6 +74,7 @@ export function init(root, config) {
 
     const enableDebug = config.debug === true;
     const enableAutoStart = config.autoStart === undefined || config.autoStart === true;
+    const enableRestart = !(config.disableRestart === true);
     const enableStartStop = !(config.disableStartStop === true);
     const enableImport = !(config.disableImport === true);
     const enableExport = !(config.disableExport === true);
@@ -171,6 +174,7 @@ export function init(root, config) {
         new ComponentContainer('sand-game-options', [
             (enableImport) ? new ComponentButton('Import', ComponentButton.CLASS_LIGHT, new ActionIOImport()) : null,
             (enableExport) ? new ComponentButton('Export', ComponentButton.CLASS_LIGHT, new ActionIOExport()) : null,
+            (enableRestart && !enableSceneSelection) ? new ComponentButtonRestart(ComponentButton.CLASS_LIGHT) : null,
             (enableStartStop) ? new ComponentButtonStartStop(ComponentButton.CLASS_LIGHT) : null,
             new ComponentStatusIndicator((enableSizeChange)
                     ? DomBuilder.element('span', null, [DomBuilder.element('br'), 'Tip: adjust scale if needed'])

@@ -3,6 +3,8 @@ import { Component } from "./Component";
 import { Analytics } from "../../Analytics";
 import { SceneImplSnapshot } from "../../core/scene/SceneImplSnapshot";
 
+// TODO: support external restart
+
 /**
  *
  * @author Patrik Harag

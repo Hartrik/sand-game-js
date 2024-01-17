@@ -13,7 +13,7 @@ import { ToolInfo } from "../core/tool/ToolInfo";
 /**
  *
  * @author Patrik Harag
- * @version 2024-01-08
+ * @version 2024-01-17
  */
 export class Controller {
 
@@ -42,6 +42,9 @@ export class Controller {
     /** @type boolean */
     #showActiveChunks = false;
     #rendererInitializer = RendererInitializer.canvasWebGL();
+
+    /** @type Scene|null */
+    #initialScene = null;
 
     /** @type ServiceToolManager */
     #serviceToolManager;
@@ -87,10 +90,24 @@ export class Controller {
     }
 
     /**
+     * Returns initial scene definition - this is needed for restart etc.
+     *
+     * @returns {Scene|null}
+     */
+    getInitialScene() {
+        return this.#initialScene;
+    }
+
+    setInitialScene(scene) {
+        this.#initialScene = scene;
+    }
+
+    /**
      *
      * @param scene {Scene}
      */
     setup(scene) {
+        this.setInitialScene(scene);
         this.#initialize(scene);
     }
 
@@ -251,7 +268,7 @@ export class Controller {
     #onInitialized = [];
     /** @type function(SandGame)[] */
     #onBeforeClosed = [];
-    /** @type function[] */
+    /** @type function(Scene)[] */
     #onBeforeNewSceneLoaded = [];
     /** @type function[] */
     #onStarted = [];
@@ -269,7 +286,7 @@ export class Controller {
 
     /**
      *
-     * @param handler {function}
+     * @param handler {function(Scene)}
      * @returns void
      */
     addOnBeforeNewSceneLoaded(handler) {
@@ -367,7 +384,7 @@ export class Controller {
 
     openScene(scene) {
         for (let handler of this.#onBeforeNewSceneLoaded) {
-            handler();
+            handler(scene);
         }
         this.#close();
 

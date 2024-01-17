@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+    <path fill-rule="evenodd" d="M8 3.5a4.5 4.5 0 104.546 2.914.5.5 0 011.454-.414A6 6 0 118 2z"/>
+    <path d="M8 6V0l5 3L8 6"/>
+</svg>
