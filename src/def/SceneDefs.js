@@ -28,9 +28,9 @@ export class SceneDefs {
         apply: async function (sandGame) {
             sandGame.setBoxedMode();
             let layeredPainter = sandGame.layeredTemplate()
-                .layer([[0, 35], [40, 40], [60, 50], [80, 40], [200, 20], [400, 20], [1000, 20]],
+                .layerSpline([[0, 35], [40, 40], [60, 50], [80, 40], [200, 20], [400, 20], [1000, 20]],
                     true, Brushes.concat(BrushDefs.SOIL, BrushDefs.EFFECT_NOISE_LG))
-                .layer([[0, 0], [90, 0], [110, 10], [150, 10], [250, 0]],
+                .layerSpline([[0, 0], [90, 0], [110, 10], [150, 10], [250, 0]],
                         true, BrushDefs.SAND, 2)
                 .tool(120, 5, await Resources.parseToolDefinition(TemplateDefs.SAND_CASTLE))
                 .tree(60, 1, 200)
@@ -72,12 +72,12 @@ export class SceneDefs {
         apply: function (sandGame) {
             sandGame.setBoxedMode();
             sandGame.layeredTemplate()
-                .layer([[0, 20], [50, 15], [100, 10], [150, 10], [200, 10], [250, 10], [1250, 10]],
+                .layerSpline([[0, 20], [50, 15], [100, 10], [150, 10], [200, 10], [250, 10], [1250, 10]],
                     true, Brushes.concat(BrushDefs.GRAVEL, BrushDefs.EFFECT_NOISE_LG))
-                .layer([[0, 30], [25, 31], [50, 27], [100, 15], [150, 0], [200, 5], [220, 15], [300, 35], [330, 37],
+                .layerSpline([[0, 30], [25, 31], [50, 27], [100, 15], [150, 0], [200, 5], [220, 15], [300, 35], [330, 37],
                         [370, 50], [400, 45], [500, 40], [1250, 40]],
                     true, Brushes.concat(BrushDefs.SOIL, BrushDefs.EFFECT_NOISE_LG), 30)
-                .layer([[0, 0], [50, 0], [100, 10], [150, 10], [200, 9], [275, 0], [1250, 0]],
+                .layerSpline([[0, 0], [50, 0], [100, 10], [150, 10], [200, 9], [275, 0], [1250, 0]],
                     true, BrushDefs.SAND, 5)
                 .layer(35, false, BrushDefs.WATER)
                 .layer(36, false, Brushes.withIntensity(0.33, BrushDefs.WATER))

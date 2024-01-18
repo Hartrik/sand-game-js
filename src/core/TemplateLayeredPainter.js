@@ -1,34 +1,17 @@
 import Spline from "cubic-spline";
+import { createNoise2D } from "simplex-noise";
 import { ProcessorModuleGrass } from "./processing/ProcessorModuleGrass.js";
 import { ProcessorModuleTree } from "./processing/ProcessorModuleTree.js";
 import { BrushDefs } from "../def/BrushDefs";
+import { DeterministicRandom } from "./DeterministicRandom";
+import { ElementHead } from "./ElementHead";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-20
+ * @version 2024-01-18
  */
 export class TemplateLayeredPainter {
-
-    static #spline(points) {
-        const xs = new Array(points.length);
-        const ys = new Array(points.length);
-        for (let i = 0; i < points.length; i++) {
-            xs[i] = points[i][0];
-            ys[i] = points[i][1];
-        }
-        const spline = new Spline(xs, ys);
-        return function (x) {
-            return Math.max(Math.trunc(spline.at(x)), 0);
-        };
-    }
-
-    static #constant(height) {
-        return function(x) {
-            return Math.trunc(height);
-        };
-    }
-
 
     /** @type ElementArea */
     #elementArea;
@@ -59,17 +42,118 @@ export class TemplateLayeredPainter {
         this.#lastLevel = new Array(elementArea.getWidth()).fill(0);
     }
 
-    layer(layer, relative, brush, shuffleWithLevelBelow = 0) {
-        const f = (typeof layer === 'number')
-                ? TemplateLayeredPainter.#constant(layer)
-                : TemplateLayeredPainter.#spline(layer);
+    /**
+     *
+     * @param constant {number}
+     * @param relative {boolean}
+     * @param brush {Brush}
+     * @param shuffleWithLevelBelow {number}
+     * @returns {TemplateLayeredPainter}
+     */
+    layer(constant, relative, brush, shuffleWithLevelBelow = 0) {
+        function func(x) {
+            return Math.trunc(constant);
+        }
 
+        this.layerFunction(func, relative, brush, shuffleWithLevelBelow);
+        return this;
+    }
+
+    /**
+     *
+     * @param points {[number,number][]}
+     * @param relative {boolean}
+     * @param brush {Brush}
+     * @param shuffleWithLevelBelow {number}
+     * @returns {TemplateLayeredPainter}
+     */
+    layerSpline(points, relative, brush, shuffleWithLevelBelow = 0) {
+        const xs = new Array(points.length);
+        const ys = new Array(points.length);
+        for (let i = 0; i < points.length; i++) {
+            xs[i] = points[i][0];
+            ys[i] = points[i][1];
+        }
+        const spline = new Spline(xs, ys);
+        function func (x) {
+            return Math.max(Math.trunc(spline.at(x)), 0);
+        }
+
+        this.layerFunction(func, relative, brush, shuffleWithLevelBelow);
+        return this;
+    }
+
+    /**
+     *
+     * @param config {{seed:number,factor:number,threshold:number,force:number}[]}
+     * @param relative {boolean}
+     * @param brush {Brush}
+     * @param shuffleWithLevelBelow {number}
+     * @returns {TemplateLayeredPainter}
+     */
+    layerPerlin(config, relative, brush, shuffleWithLevelBelow = 0) {
+        const levels = [];
+        for (let levelConfig of config) {
+            if (levelConfig.seed === undefined) {
+                DeterministicRandom.DEFAULT.next();
+                levelConfig.seed = DeterministicRandom.DEFAULT.getState();
+            }
+            if (levelConfig.factor === undefined) {
+                throw 'factor not defined';
+            }
+            if (levelConfig.threshold === undefined) {
+                throw 'threshold not defined';
+            }
+            if (levelConfig.force === undefined) {
+                throw 'force not defined';
+            }
+
+            const random = new DeterministicRandom(levelConfig.seed);
+            const noise2d = createNoise2D(() => random.next());
+
+            levels.push({ instance: noise2d, levelConfig: levelConfig });
+        }
+
+        function func(x) {
+            let result = 0;
+            for (const { instance, levelConfig } of levels) {
+                const { factor, threshold, force } = levelConfig;
+
+                let value = (instance(x / factor, 0) + 1) / 2;  // 0..1
+
+                // apply threshold
+                if (value < threshold) {
+                    value = 0;
+                }
+                value = (value - threshold) * (1 / (1 - threshold));  // normalized 0..1
+
+                // apply force
+                value = value * force;
+
+                result += value;
+            }
+            return Math.trunc(result);
+        }
+
+        this.layerFunction(func, relative, brush, shuffleWithLevelBelow);
+        return this;
+    }
+
+    /**
+     *
+     * @param func {function(x:number):number}
+     * @param relative {boolean}
+     * @param brush {Brush}
+     * @param shuffleWithLevelBelow {number}
+     * @returns {TemplateLayeredPainter}
+     */
+    layerFunction(func, relative, brush, shuffleWithLevelBelow = 0) {
         for (let x = 0; x < this.#elementArea.getWidth(); x++) {
             const lastLevel = this.#lastLevel[x];
 
             const level = (relative)
-                    ? lastLevel + f(x)
-                    : f(x);
+                    ? lastLevel + func(x)
+                    : func(x);
 
             if (lastLevel < level) {
                 let count = 0;
@@ -118,7 +202,7 @@ export class TemplateLayeredPainter {
         return this;
     }
 
-    tree(x, type = 0, levelsToGrow = undefined) {
+    tree(x, type = undefined, levelsToGrow = undefined) {
         if (x <= 5 || x >= this.#elementArea.getWidth() - 5) {
             return this;  // out of bounds
         }
@@ -127,6 +211,21 @@ export class TemplateLayeredPainter {
         const y = this.#elementArea.getHeight() - 1 - lastLevel;
 
         const brush = this.#processorContext.getDefaults().getBrushTree();
+
+        // check element under
+        if (this.#elementArea.isValidPosition(x, y + 1)) {
+            const elementHeadUnder = this.#elementArea.getElementHead(x, y + 1);
+            if (ElementHead.getBehaviour(elementHeadUnder) !== ElementHead.BEHAVIOUR_SOIL) {
+                return this;
+            }
+        } else {
+            return this;
+        }
+
+        if (type === undefined) {
+            type = this.#random.nextInt(8);
+        }
+
         ProcessorModuleTree.spawnHere(this.#elementArea, x, y, type, brush, this.#random, this.#processorContext, levelsToGrow);
 
         // TODO: update lastLevel
