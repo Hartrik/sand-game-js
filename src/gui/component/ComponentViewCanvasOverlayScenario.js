@@ -8,7 +8,7 @@ import _ASSET_ICON_SQUARE_DOTTED from './assets/icon-square-dotted.svg'
 /**
  *
  * @author Patrik Harag
- * @version 2024-01-12
+ * @version 2024-01-19
  */
 export class ComponentViewCanvasOverlayScenario extends Component {
 
@@ -120,10 +120,21 @@ export class ComponentViewCanvasOverlayScenario extends Component {
 
         let splashNode = DomBuilder.div(splashAttributes, [
             DomBuilder.div(contentAttributes, config.content),
-            DomBuilder.div(footerAttributes, config.buttons.map(button => {
-                let buttonNode = DomBuilder.button(button.title, {
-                    class: button.class,
-                }, () => button.action(splash));
+            DomBuilder.div(footerAttributes, config.buttons.filter(button => button !== null).map(button => {
+                let buttonNode;
+                if (typeof button.action === 'string') {
+                    buttonNode = DomBuilder.element('a', {
+                        href: button.action,
+                        class: button.class
+                    }, button.title);
+                } else if (typeof button.action === 'function') {
+                    buttonNode = DomBuilder.button(button.title, {
+                        class: button.class,
+                    }, () => button.action(splash));
+                } else {
+                    throw 'Button action type not supported: ' + (typeof button.action);
+                }
+
                 if (button.focus) {
                     setTimeout(() => {
                         buttonNode.focus({

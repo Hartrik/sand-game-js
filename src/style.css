@@ -79,7 +79,9 @@
     flex: 1 1 auto;
 }
 
-.sand-game-component .sand-game-canvas-overlay .sand-game-splash .sand-game-splash-footer {
+.sand-game-component .sand-game-canvas-overlay .sand-game-splash .sand-game-splash-footer a,
+.sand-game-component .sand-game-canvas-overlay .sand-game-splash .sand-game-splash-footer button {
+    margin-right: 0.5em;
 }
 
 .sand-game-component .sand-game-tools {
