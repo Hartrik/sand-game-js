@@ -2,13 +2,15 @@ import { ToolDefs } from "./def/ToolDefs.js";
 
 /**
  *
- * @version 2023-07-23
+ * @version 2024-01-21
  * @author Patrik Harag
  */
 export class Analytics {
 
     static EVENT_NAME = 'app_sand_game_js';
     static FEATURE_APP_INITIALIZED = 'initialized';
+    static FEATURE_SCENARIO_COMPLETED = 's_completed';
+    static FEATURE_RENDERER_FALLBACK = 'renderer_fallback';
 
     // options bar
     static FEATURE_PAUSE = 'pause';
@@ -56,7 +58,11 @@ export class Analytics {
 
     static #report(properties) {
         if (typeof gtag === 'function') {
-            gtag('event', Analytics.EVENT_NAME, properties);
+            try {
+                gtag('event', Analytics.EVENT_NAME, properties);
+            } catch (e) {
+                console.warn(e);
+            }
         }
         // console.log('event: ' + Analytics.EVENT_NAME + ' = ' + JSON.stringify(properties));
     }

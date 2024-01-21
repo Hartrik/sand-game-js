@@ -1,5 +1,6 @@
 import {Splash} from "./Splash";
 import {Objective} from "./Objective";
+import {Analytics} from "../Analytics";
 
 /**
  *
@@ -90,6 +91,7 @@ export class SandGameScenario {
     setCompleted() {
         if (!this.#statusCompleted) {
             this.#statusCompleted = true;
+            Analytics.triggerFeatureUsed(Analytics.FEATURE_SCENARIO_COMPLETED);
             for (let handler of this.#onStatusCompleted) {
                 handler();
             }

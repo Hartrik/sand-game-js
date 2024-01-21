@@ -9,6 +9,7 @@ import { DomBuilder } from "./DomBuilder";
 import { Defaults } from "../def/Defaults";
 import { Tools } from "../core/tool/Tools";
 import { ToolInfo } from "../core/tool/ToolInfo";
+import { Analytics } from "../Analytics";
 
 /**
  *
@@ -176,6 +177,7 @@ export class Controller {
             this.#rendererInitializer = RendererInitializer.canvas2d();
             contextType = this.#rendererInitializer.getContextType();
             context = this.#initializeContextAs(canvas, contextType);
+            Analytics.triggerFeatureUsed(Analytics.FEATURE_RENDERER_FALLBACK);
         }
         return context;
     }
@@ -325,6 +327,7 @@ export class Controller {
         const snapshot = this.createSnapshot();
         this.#rendererInitializer = RendererInitializer.canvas2d();  // fallback to classic CPU renderer
         this.openScene(new SceneImplSnapshot(snapshot));
+        Analytics.triggerFeatureUsed(Analytics.FEATURE_RENDERER_FALLBACK);
     }
 
     #reportRenderingFailure(message) {
