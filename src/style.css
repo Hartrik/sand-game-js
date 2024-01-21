@@ -1,7 +1,7 @@
 
 /*
  * @author Patrik Harag
- * @version 2024-01-17
+ * @version 2024-01-21
  */
 
 .sand-game-component {
@@ -49,11 +49,39 @@
     margin: auto;
 
     /* size */
-    width: 80%;
-    min-height: 100px;
+    width: 70%;
+    min-height: 200px;
+    max-width: 600px;
+    max-height: 75%;
 
     flex-direction: column;
     display: flex;
+}
+
+.sand-game-component .sand-game-canvas-overlay .sand-game-splash .sand-game-splash-content {
+    flex: 1 1 auto;
+    overflow-y: auto;
+}
+
+.sand-game-component .sand-game-canvas-overlay .sand-game-splash .sand-game-splash-footer a,
+.sand-game-component .sand-game-canvas-overlay .sand-game-splash .sand-game-splash-footer button {
+    margin-top: 0.5em;
+    margin-right: 0.5em;
+}
+
+@media (max-width: 768px) {
+    .sand-game-component .sand-game-canvas-overlay .sand-game-splash {
+        top: 10%;
+        width: 90%;
+        max-height: 85%;
+
+        font-size: 90%
+    }
+
+    .sand-game-component .sand-game-canvas-overlay .sand-game-splash .sand-game-splash-footer a,
+    .sand-game-component .sand-game-canvas-overlay .sand-game-splash .sand-game-splash-footer button {
+        font-size: 90%;
+    }
 }
 
 .sand-game-component .sand-game-canvas-overlay .sand-game-objectives-list {
@@ -75,13 +103,11 @@
     vertical-align: 0.1em;
 }
 
-.sand-game-component .sand-game-canvas-overlay .sand-game-splash .sand-game-splash-content {
-    flex: 1 1 auto;
-}
-
-.sand-game-component .sand-game-canvas-overlay .sand-game-splash .sand-game-splash-footer a,
-.sand-game-component .sand-game-canvas-overlay .sand-game-splash .sand-game-splash-footer button {
-    margin-right: 0.5em;
+@media (max-width: 768px) {
+    .sand-game-component .sand-game-canvas-overlay .sand-game-objectives-list {
+        font-size: small;
+        padding: 0.5em 1em;
+    }
 }
 
 .sand-game-component .sand-game-tools {
