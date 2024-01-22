@@ -21,7 +21,7 @@ import {TemplateLayeredPainter} from "./TemplateLayeredPainter.js";
 /**
  *
  * @author Patrik Harag
- * @version 2024-01-13
+ * @version 2024-01-22
  */
 export class SandGame {
 
@@ -60,7 +60,7 @@ export class SandGame {
     /** @type function[] */
     #onRenderingFailed = [];
 
-    /** @type function[] */
+    /** @type function(number)[] */
     #onProcessed = [];
 
     /** @type SandGameOverlay */
@@ -157,7 +157,7 @@ export class SandGame {
         const t = Date.now();
         this.#iterationsCounter.tick(t);
         for (let func of this.#onProcessed) {
-            func();
+            func(this.#processor.getIteration());
         }
     }
 
@@ -239,6 +239,10 @@ export class SandGame {
         this.#processor.setErasingEnabled(true);
     }
 
+    /**
+     *
+     * @param handler {function(iteration:number)}
+     */
     addOnProcessed(handler) {
         this.#onProcessed.push(handler);
     }
