@@ -61,6 +61,10 @@ export class ComponentViewTools extends Component {
             let button = DomBuilder.button('Template', { class: 'btn btn-secondary btn-sand-game-tool template'}, () => {
                 new ActionDialogTemplateSelection().performAction(controller);
             });
+            controller.getToolManager().addOnInputDisabledChanged(disabled => {
+                button.disabled = disabled;
+            });
+
             buttons.push(button);
         }
 
