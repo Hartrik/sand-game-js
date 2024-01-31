@@ -4,24 +4,28 @@ import {Brush} from "./Brush";
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-20
+ * @version 2024-01-29
  */
 export class RandomBrush extends Brush {
 
-    /** @type Element[] */
-    #elements;
+    /** @type Brush[] */
+    #list;
 
-    constructor(elements) {
+    constructor(list) {
         super();
-        this.#elements = elements;
+        this.#list = list;
     }
 
     apply(x, y, random, oldElement) {
-        if (this.#elements.length > 1) {
-            const i = ((random) ? random : DeterministicRandom.DEFAULT).nextInt(this.#elements.length);
-            return this.#elements[i];
+        if (this.#list.length > 1) {
+            const i = ((random) ? random : DeterministicRandom.DEFAULT).nextInt(this.#list.length);
+            const item = this.#list[i];
+            return item.apply(x, y, random, oldElement);
+        } else if (this.#list.length === 1) {
+            const item = this.#list[0];
+            return item.apply(x, y, random, oldElement);
         } else {
-            return this.#elements[0];
+            return null;
         }
     }
 }

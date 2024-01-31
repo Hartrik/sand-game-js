@@ -1,17 +1,20 @@
 import {Element} from "../Element.js";
 import {ElementHead} from "../ElementHead.js";
+import {Brush} from "./Brush";
 import {DeterministicRandom} from "../DeterministicRandom";
 import {VisualEffects} from "../processing/VisualEffects";
 import {RandomBrush} from "./RandomBrush";
+import {RandomElementBrush} from "./RandomElementBrush";
 import {PaletteBrush} from "./PaletteBrush";
 import {TextureBrush} from "./TextureBrush";
 import {CustomBrush} from "./CustomBrush";
 import {CountingBrush} from "./CountingBrush";
+import {PredicateDefs} from "../../def/PredicateDefs";
 
 /**
  *
  * @author Patrik Harag
- * @version 2024-01-10
+ * @version 2024-01-29
  */
 export class Brushes {
 
@@ -26,11 +29,27 @@ export class Brushes {
 
     /**
      *
-     * @param elements {Element[]}
+     * @param list {Element[]|Brush[]}
      * @returns {Brush}
      */
-    static random(elements) {
-        return new RandomBrush(elements);
+    static random(list) {
+        let hasBrushes = undefined;
+        for (let item of list) {
+            if (item instanceof Element) {
+                if (hasBrushes === true) {
+                    throw 'Mixing Element and Brush instances';
+                }
+                hasBrushes = false;
+            } else if (item instanceof Brush) {
+                if (hasBrushes === false) {
+                    throw 'Mixing Element and Brush instances';
+                }
+                hasBrushes = true;
+            } else {
+                throw 'Element or Brush instances expected';
+            }
+        }
+        return (hasBrushes) ? new RandomBrush(list) : new RandomElementBrush(list);
     }
 
     static textureBrush(base64, innerBrush) {
@@ -82,37 +101,24 @@ export class Brushes {
      * @param brush {Brush}
      */
     static gentle(brush) {
-        return Brushes.custom((x, y, random, oldElement) => {
-            if (ElementHead.getTypeClass(oldElement.elementHead) === ElementHead.TYPE_AIR) {
-                return brush.apply(x, y, random, oldElement);
-            }
-            return null;
-        });
+        return Brushes.conditional(PredicateDefs.IS_AIR, brush);
     }
 
     /**
-     * Brush will paint only over other physical elements.
+     * Brush will paint only specific elements.
      *
+     * @param predicate {function(elementHead:number, elementTail:number):boolean}
      * @param brush {Brush}
      */
-    static physical(brush) {
+    static conditional(predicate, brush) {
         return Brushes.custom((x, y, random, oldElement) => {
             if (oldElement === null) {
                 return null;
             }
-
-            const typeClass = ElementHead.getTypeClass(oldElement.elementHead);
-            switch (typeClass) {
-                case ElementHead.TYPE_POWDER:
-                case ElementHead.TYPE_POWDER_WET:
-                case ElementHead.TYPE_POWDER_FLOATING:
-                case ElementHead.TYPE_FLUID:
-                case ElementHead.TYPE_GAS:
-                case ElementHead.TYPE_STATIC:
-                    return brush.apply(x, y, random, oldElement);
-                default:
-                    return null;
+            if (predicate(oldElement.elementHead, oldElement.elementTail)) {
+                return brush.apply(x, y, random, oldElement);
             }
+            return null;
         });
     }
 

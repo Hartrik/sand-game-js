@@ -25,7 +25,7 @@ import _ASSET_TEXTURE_METAL from './assets/brushes/metal.png';
 /**
  *
  * @author Patrik Harag
- * @version 2024-01-08
+ * @version 2024-01-29
  */
 export class BrushDefs {
 
@@ -322,6 +322,19 @@ export class BrushDefs {
     static EFFECT_TEMP_200 = Brushes.temperature(200);
     static EFFECT_TEMP_255 = Brushes.temperature(255);
 
+    static EFFECT_WET = Brushes.custom((x, y, random, oldElement) => {
+        if (oldElement !== null) {
+            const typeClass = ElementHead.getTypeClass(oldElement.elementHead);
+            if (typeClass === ElementHead.TYPE_POWDER) {
+                const modifiedElementHead = ElementHead.setTypeClass(oldElement.elementHead, ElementHead.TYPE_POWDER_WET);
+                return new Element(modifiedElementHead, oldElement.elementTail);
+            } else {
+                return oldElement;
+            }
+        }
+        return null;
+    });
+
     // --- SEARCH
 
     static _LIST = {
@@ -346,6 +359,7 @@ export class BrushDefs {
         effect_temp_127: BrushDefs.EFFECT_TEMP_127,
         effect_temp_200: BrushDefs.EFFECT_TEMP_200,
         effect_temp_255: BrushDefs.EFFECT_TEMP_255,
+        effect_wet: BrushDefs.EFFECT_WET,
     }
 
     /**
