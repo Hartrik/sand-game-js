@@ -341,12 +341,7 @@ export class SandGame {
                 type: ElementHead.getBehaviour(elementHead),
                 special: ElementHead.getSpecial(elementHead)
             },
-            modifiers: {
-                flammableType: ElementHead.getFlammableType(elementHead),
-                flameHeatType: ElementHead.getFlameHeatType(elementHead),
-                burnableType: ElementHead.getBurnableType(elementHead),
-                conductivityType: ElementHead.getConductivityType(elementHead),
-            },
+            heatModIndex: ElementHead.getHeatModIndex(elementHead),
             temperature: ElementHead.getTemperature(elementHead),
             color: [
                 ElementTail.getColorRed(elementTail),

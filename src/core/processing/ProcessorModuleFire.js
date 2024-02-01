@@ -5,7 +5,7 @@ import {VisualEffects} from "./VisualEffects.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-18
+ * @version 2024-02-01
  */
 export class ProcessorModuleFire {
 
@@ -36,18 +36,6 @@ export class ProcessorModuleFire {
             elementTail = ElementTail.setColor(elementTail, 125,   0,  0);
 
         return elementTail;
-    }
-
-    static #asFlameHeat(flameHeatType) {
-        return [0, 165, 220, 255][flameHeatType];  // none .. very hot
-    }
-
-    static #asBurnDownChanceTo10000(burnableType) {
-        return [0, 2, 100, 1000][burnableType];  // none .. fast
-    }
-
-    static #asFlammableChanceTo10000(flammableType) {
-        return [0, 100, 4500, 10000][flammableType];  // never .. quickly
     }
 
 
@@ -175,15 +163,14 @@ export class ProcessorModuleFire {
         }
 
         // for flammable elements...
-        const flammableType = ElementHead.getFlammableType(elementHead);
-        if (flammableType !== ElementHead.FLAME_HEAT_TYPE_NONE) {
+        const heatModIndex = ElementHead.getHeatModIndex(elementHead);
+        const flammableChance = ElementHead.hmiToFlammableChanceTo10000(heatModIndex);
+        if (flammableChance !== 0) {
             if (ElementHead.getBehaviour(elementHead) === ElementHead.BEHAVIOUR_FIRE_SOURCE) {
                 // already in fire
                 return;
             }
-
-            const random = this.#random.nextInt(10000);
-            if (random < ProcessorModuleFire.#asFlammableChanceTo10000(flammableType)) {
+            if (this.#random.nextInt(10000) < flammableChance) {
                 // ignite
                 this.ignite(elementHead, x, y);
                 return;
@@ -211,9 +198,10 @@ export class ProcessorModuleFire {
     // FIRE SOURCE
 
     behaviourFireSource(elementHead, x, y) {
-        const flameHeat = ProcessorModuleFire.#asFlameHeat(ElementHead.getFlameHeatType(elementHead));
+        const heatModIndex = ElementHead.getHeatModIndex(elementHead);
+        const flameHeat = ElementHead.hmiToFlameHeat(heatModIndex);
+        const burnDownChange = ElementHead.hmiToBurnDownChanceTo10000(heatModIndex);
 
-        const burnDownChange = ProcessorModuleFire.#asBurnDownChanceTo10000(ElementHead.getBurnableType(elementHead));
         if (this.#random.nextInt(10000) < burnDownChange) {
             // burned down
             if (this.#random.nextInt(100) < 8) {
@@ -291,10 +279,9 @@ export class ProcessorModuleFire {
 
     // UTILS
 
-    ignite(elementHead, x, y) {
+    ignite(elementHead, x, y, heatModIndex) {
         let modifiedElementHead = ElementHead.setBehaviour(elementHead, ElementHead.BEHAVIOUR_FIRE_SOURCE);
-        modifiedElementHead = ElementHead.setTemperature(modifiedElementHead,
-            ProcessorModuleFire.#asFlameHeat(ElementHead.getFlameHeatType(elementHead)));
+        modifiedElementHead = ElementHead.setTemperature(modifiedElementHead, ElementHead.hmiToFlameHeat(heatModIndex));
         this.#elementArea.setElementHead(x, y, modifiedElementHead);
         // change visual
         const elementTail = this.#elementArea.getElementTail(x, y);

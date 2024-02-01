@@ -12,7 +12,7 @@ import {ProcessorModuleWater} from "./ProcessorModuleWater";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-20
+ * @version 2024-02-01
  */
 export class Processor extends ProcessorContext {
 
@@ -552,15 +552,15 @@ export class Processor extends ProcessorContext {
             case 3: tx--; break;  // Left
         }
 
-        const conductivityType = ElementHead.getConductivityType(elementHead);
-        const heatLoss = (this.#random.nextInt(10000) < Processor.#asHeatLossChanceTo10000(conductivityType));
+        const heatModIndex = ElementHead.getHeatModIndex(elementHead);
+        const heatLoss = (this.#random.nextInt(10000) < ElementHead.hmiToHeatLossChanceTo10000(heatModIndex));
         let newTemp;
 
         if (this.#elementArea.isValidPosition(tx, ty)) {
             const targetElementHead = this.#elementArea.getElementHead(tx, ty);
             const targetTemp = ElementHead.getTemperature(targetElementHead);
 
-            const conductiveIndex = Processor.#asConductiveIndex(conductivityType);
+            const conductiveIndex = ElementHead.hmiToConductiveIndex(heatModIndex);
             newTemp = Math.trunc((conductiveIndex * targetTemp) + (1 - conductiveIndex) * temp);
             if (heatLoss) {
                 newTemp = Math.max(newTemp - 1, 0);
@@ -586,31 +586,19 @@ export class Processor extends ProcessorContext {
 
         // self-ignition
         if (newTemp > 100) {
-            const flammableType = ElementHead.getFlammableType(elementHead);
-            if (flammableType === 0) {
-                // not flammable
+            const chanceToIgnite = ElementHead.hmiToSelfIgnitionChanceTo10000(heatModIndex);
+            if (chanceToIgnite === 0) {
+                // not possible
                 return;
             }
             if (ElementHead.getBehaviour(elementHead) === ElementHead.BEHAVIOUR_FIRE_SOURCE) {
                 // already in fire
                 return;
             }
-            if (this.#random.nextInt(10000) < Processor.#asSelfIgnitionChanceTo10000(flammableType)) {
-                this.#moduleFire.ignite(elementHead, x, y);
+            if (this.#random.nextInt(10000) < chanceToIgnite) {
+                this.#moduleFire.ignite(elementHead, x, y, heatModIndex);
             }
         }
-    }
-
-    static #asHeatLossChanceTo10000(conductivityType) {
-        return [2500, 500, 20, 10][conductivityType];  // big .. small
-    }
-
-    static #asConductiveIndex(conductivityType) {
-        return [0.2, 0.25, 0.3, 0.45][conductivityType];  // small .. big
-    }
-
-    static #asSelfIgnitionChanceTo10000(flammableType) {
-        return [0, 2, 3, 5][flammableType];  // never .. quickly
     }
 
     /**

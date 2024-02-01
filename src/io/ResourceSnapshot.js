@@ -7,7 +7,7 @@ import { ElementHead } from "../core/ElementHead";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-17
+ * @version 2024-02-01
  */
 export class ResourceSnapshot {
 
@@ -104,6 +104,11 @@ export class ResourceSnapshot {
             // new trees
             ResourceSnapshot.#convertToV5(snapshot);
             snapshot.metadata.formatVersion = 5;
+        }
+        if (snapshot.metadata.formatVersion === 5) {
+            // conductivity, flammability... >> heat mod index
+            ResourceSnapshot.#convertToV6(snapshot);
+            snapshot.metadata.formatVersion = 6;
         }
 
         return snapshot;
@@ -205,6 +210,56 @@ export class ResourceSnapshot {
                 }
 
                 elementArea.setElementHead(x, y, elementHead);
+            }
+        }
+
+        snapshot.dataHeads = elementArea.getDataHeads();
+        snapshot.dataTails = elementArea.getDataTails();
+    }
+
+    static #convertToV6(snapshot) {
+        const elementArea = ElementArea.from(
+            snapshot.metadata.width, snapshot.metadata.height,
+            snapshot.dataHeads, snapshot.dataTails);
+
+        for (let y = 0; y < snapshot.metadata.height; y++) {
+            for (let x = 0; x < snapshot.metadata.width; x++) {
+                const elementHead = elementArea.getElementHead(x, y);
+
+                // map old 4 constants to heat mod index
+
+                const flammableType = (elementHead >> 16) & 0x00000003;
+                const flameHeatType = (elementHead >> 18) & 0x00000003;
+                const burnableType = (elementHead >> 20) & 0x00000003;
+                const conductivityType = (elementHead >> 22) & 0x00000003;
+
+                // [0.2, 0.25, 0.3, 0.45][conductivityType];  // small .. big    conductiveIndex
+                // [2500, 500, 20, 10][conductivityType];  // big .. small       heatLossChanceTo10000
+                // [0, 100, 4500, 10000][flammableType];  // never .. quickly    flammableChanceTo10000
+                // [0, 2, 3, 5][flammableType];  // never .. quickly             selfIgnitionChanceTo10000
+                // [0, 165, 220, 255][flameHeatType];  // none .. very hot       flameHeat
+                // [0, 2, 100, 1000][burnableType];  // none .. fast             burnDownChanceTo10000
+
+                // all used combinations
+                let heatModIndex = 0;  // default
+                if (flammableType === 0 && flameHeatType === 0 && burnableType === 0 && conductivityType === 0) {
+                    heatModIndex = 0;
+                } else if (flammableType === 0 && flameHeatType === 0 && burnableType === 0 && conductivityType === 1) {
+                    heatModIndex = 1;
+                } else if (flammableType === 0 && flameHeatType === 0 && burnableType === 0 && conductivityType === 2) {
+                    heatModIndex = 2;
+                } else if (flammableType === 0 && flameHeatType === 0 && burnableType === 0 && conductivityType === 3) {
+                    heatModIndex = 3;
+                } else if (flammableType === 2 && flameHeatType === 1 && burnableType === 3 && conductivityType === 0) {
+                    heatModIndex = 4;
+                } else if (flammableType === 1 && flameHeatType === 1 && burnableType === 1 && conductivityType === 0) {
+                    heatModIndex = 5;
+                } else if (flammableType === 2 && flameHeatType === 1 && burnableType === 2 && conductivityType === 0) {
+                    heatModIndex = 6;
+                }
+
+                const newElementHead = (elementHead & 0xFF00FFFF) | (heatModIndex << 16);
+                elementArea.setElementHead(x, y, newElementHead);
             }
         }
 

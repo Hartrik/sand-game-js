@@ -4,10 +4,10 @@
  *
  * The element head structure: <code>0x[type][beh.][flags][temp.]</code> (32b)
  * <pre>
- *     | type class         3b  | type modifiers                       5b  |
- *     | behaviour                   4b  | special                     4b  |
- *     | flammable  2b  | flame heat 2b  | burnable   2b  | t. cond.   2b  |
- *     | temperature                                                   8b  |
+ *     | type class   3b  | type modifiers                 5b  |
+ *     | behaviour             4b  | special               4b  |
+ *     | heat modifiers index                              8b  |
+ *     | temperature                                       8b  |
  * </pre>
  *
  * Type modifier for powder-like types: (5b)
@@ -16,7 +16,7 @@
  * </pre>
  *
  * @author Patrik Harag
- * @version 2023-12-10
+ * @version 2024-01-31
  */
 export class ElementHead {
 
@@ -49,29 +49,7 @@ export class ElementHead {
 
     static FIELD_SPECIAL_SIZE = 4;  // bits
 
-    // how hard it is to ignite this element
-    static FIELD_FLAMMABLE_TYPE_SIZE = 2;  // bits
-    static FLAMMABLE_TYPE_NONE = 0x00;
-    static FLAMMABLE_TYPE_SLOW = 0x01;
-    static FLAMMABLE_TYPE_MEDIUM = 0x02;
-    static FLAMMABLE_TYPE_FAST = 0x03;
-
-    // how much heat this element produces while burning
-    static FIELD_FLAME_HEAT_TYPE_SIZE = 2;  // bits
-    static FLAME_HEAT_TYPE_NONE = 0x00;
-    static FLAME_HEAT_TYPE_MEDIUM = 0x01;
-    static FLAME_HEAT_TYPE_HIGH = 0x02;
-    static FLAME_HEAT_TYPE_EXTREME = 0x03;
-
-    // how hard it is to burn down this element
-    static FIELD_BURNABLE_TYPE_SIZE = 2;  // bits
-    static BURNABLE_TYPE_NEVER = 0x00;
-    static BURNABLE_TYPE_SLOW = 0x01;
-    static BURNABLE_TYPE_MEDIUM = 0x02;
-    static BURNABLE_TYPE_FAST = 0x03;
-
-    static FIELD_T_CONDUCTIVITY_TYPE_SIZE = 2;  // bits
-    // TODO
+    static FIELD_HMI_SIZE = 8;  // bits
 
     static FIELD_TEMPERATURE_SIZE = 8;  // bits
 
@@ -105,12 +83,8 @@ export class ElementHead {
         return behaviour | (special << 4);
     }
 
-    static modifiers8(flammableType = 0, flameHeatType = 0, burnableType = 0, conductivityType = 0) {
-        let value = conductivityType << 2;
-        value = (value | burnableType) << 2;
-        value = (value | flameHeatType) << 2;
-        value = value | flammableType
-        return value;
+    static modifiers8(heatModIndex = 0) {
+        return heatModIndex;
     }
 
     // get methods
@@ -143,20 +117,8 @@ export class ElementHead {
         return (elementHead >> 12) & 0x0000000F;
     }
 
-    static getFlammableType(elementHead) {
-        return (elementHead >> 16) & 0x00000003;
-    }
-
-    static getFlameHeatType(elementHead) {
-        return (elementHead >> 18) & 0x00000003;
-    }
-
-    static getBurnableType(elementHead) {
-        return (elementHead >> 20) & 0x00000003;
-    }
-
-    static getConductivityType(elementHead) {
-        return (elementHead >> 22) & 0x00000003;
+    static getHeatModIndex(elementHead) {
+        return (elementHead >> 16) & 0x000000FF;
     }
 
     static getTemperature(elementHead) {
@@ -193,7 +155,118 @@ export class ElementHead {
         return (elementHead & 0xFFFF0FFF) | (special << 12);
     }
 
+    static setHeatModIndex(elementHead, heatModIndex) {
+        return (elementHead & 0xFF00FFFF) | (heatModIndex << 16);
+    }
+
     static setTemperature(elementHead, temperature) {
         return (elementHead & 0x00FFFFFF) | (temperature << 24);
+    }
+
+
+    // --- HEAT MODIFIERS ---
+
+    static #HEAT_MODS_COUNT = 8;
+    static #HEAT_MODS = Array(ElementHead.#HEAT_MODS_COUNT);
+
+    static #defHeatMods({i, conductiveIndex = 0.2, heatLossChanceTo10000 = 2500,
+                            flammableChanceTo10000 = 0, selfIgnitionChanceTo10000 = 0,
+                            flameHeat = 0, burnDownChanceTo10000 = 0 }) {
+
+        const array = Array(6);
+        array[0] = conductiveIndex;
+        array[1] = heatLossChanceTo10000;
+        array[2] = flammableChanceTo10000;
+        array[3] = selfIgnitionChanceTo10000;
+        array[4] = flameHeat;
+        array[5] = burnDownChanceTo10000;
+
+        ElementHead.#HEAT_MODS[i] = array;
+        return i;
+    }
+
+    static HMI_DEFAULT = ElementHead.#defHeatMods({
+        i: 0
+    });
+
+    static HMI_CONDUCTIVE_1 = ElementHead.#defHeatMods({
+        i: 1,
+        conductiveIndex: 0.25,
+        heatLossChanceTo10000: 500
+    });
+
+    static HMI_CONDUCTIVE_2 = ElementHead.#defHeatMods({
+        i: 2,
+        conductiveIndex: 0.3,
+        heatLossChanceTo10000: 20
+    });
+
+    static HMI_CONDUCTIVE_3 = ElementHead.#defHeatMods({
+        i: 3,
+        conductiveIndex: 0.45,
+        heatLossChanceTo10000: 10
+    });
+
+    static HMI_GRASS_LIKE = ElementHead.#defHeatMods({
+        i: 4,
+        flammableChanceTo10000: 4500,
+        selfIgnitionChanceTo10000: 3,
+        flameHeat: 165,
+        burnDownChanceTo10000: 1000
+    });
+
+    static HMI_WOOD_LIKE = ElementHead.#defHeatMods({
+        i: 5,
+        flammableChanceTo10000: 100,
+        selfIgnitionChanceTo10000: 2,
+        flameHeat: 165,
+        burnDownChanceTo10000: 2
+    });
+
+    static HMI_LEAF_LIKE = ElementHead.#defHeatMods({
+        i: 6,
+        flammableChanceTo10000: 4500,
+        selfIgnitionChanceTo10000: 3,
+        flameHeat: 165,
+        burnDownChanceTo10000: 100
+    });
+
+    static {
+        // fill missing definitions - bounds checking is not needed then...
+        for (let i = 0; i < ElementHead.#HEAT_MODS_COUNT; i++) {
+            if (ElementHead.#HEAT_MODS[i] === undefined) {
+                ElementHead.#defHeatMods(i);
+            }
+        }
+    }
+
+    // ---
+
+    static hmiToConductiveIndex(heatModIndex) {
+        return ElementHead.#HEAT_MODS[heatModIndex & 0x7][0];
+    }
+
+    static hmiToHeatLossChanceTo10000(heatModIndex) {
+        return ElementHead.#HEAT_MODS[heatModIndex & 0x7][1];
+    }
+
+    // how hard it is to ignite this element
+    static hmiToFlammableChanceTo10000(heatModIndex) {
+        return ElementHead.#HEAT_MODS[heatModIndex & 0x7][2];
+    }
+
+    // how hard it is to ignite this element
+    static hmiToSelfIgnitionChanceTo10000(heatModIndex) {
+        return ElementHead.#HEAT_MODS[heatModIndex & 0x7][3];
+    }
+
+    // how much heat this element produces while burning
+    static hmiToFlameHeat(heatModIndex) {
+        return ElementHead.#HEAT_MODS[heatModIndex & 0x7][4];
+    }
+
+    // how hard it is to burn down this element
+    static hmiToBurnDownChanceTo10000(heatModIndex) {
+        return ElementHead.#HEAT_MODS[heatModIndex & 0x7][5];
     }
 }

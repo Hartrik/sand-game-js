@@ -25,7 +25,7 @@ import _ASSET_TEXTURE_METAL from './assets/brushes/metal.png';
 /**
  *
  * @author Patrik Harag
- * @version 2024-01-29
+ * @version 2024-02-01
  */
 export class BrushDefs {
 
@@ -46,33 +46,6 @@ export class BrushDefs {
             ElementTail.of(255, 0, 125))
     ]);
 
-    static _TEST_FLAMMABLE_SOLID_M = Brushes.random([
-        new Element(
-            ElementHead.of(
-                ElementHead.type8(ElementHead.TYPE_STATIC),
-                ElementHead.behaviour8(),
-                ElementHead.modifiers8(ElementHead.FLAMMABLE_TYPE_FAST, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_NEVER)),
-            ElementTail.of(25, 52, 56))
-    ]);
-
-    static _TEST_FLAMMABLE_SOLID_H = Brushes.random([
-        new Element(
-            ElementHead.of(
-                ElementHead.type8(ElementHead.TYPE_STATIC),
-                ElementHead.behaviour8(),
-                ElementHead.modifiers8(ElementHead.FLAMMABLE_TYPE_FAST, ElementHead.FLAME_HEAT_TYPE_HIGH, ElementHead.BURNABLE_TYPE_NEVER)),
-            ElementTail.of(25, 56, 49))
-    ]);
-
-    static _TEST_FLAMMABLE_SOLID_E = Brushes.random([
-        new Element(
-            ElementHead.of(
-                ElementHead.type8(ElementHead.TYPE_STATIC),
-                ElementHead.behaviour8(),
-                ElementHead.modifiers8(ElementHead.FLAMMABLE_TYPE_FAST, ElementHead.FLAME_HEAT_TYPE_EXTREME, ElementHead.BURNABLE_TYPE_NEVER)),
-            ElementTail.of(25, 33, 56))
-    ]);
-
     // ---
 
     static AIR = Brushes.random([
@@ -86,7 +59,7 @@ export class BrushDefs {
             ElementHead.of(
                 ElementHead.type8(ElementHead.TYPE_STATIC),
                 ElementHead.behaviour8(0),
-                ElementHead.modifiers8(0, 0, 0, 1)),
+                ElementHead.modifiers8(ElementHead.HMI_CONDUCTIVE_1)),
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_2))
     ]));
 
@@ -95,7 +68,7 @@ export class BrushDefs {
             ElementHead.of(
                 ElementHead.type8(ElementHead.TYPE_STATIC),
                 ElementHead.behaviour8(),
-                ElementHead.modifiers8(0, 0, 0, 1)),
+                ElementHead.modifiers8(ElementHead.HMI_CONDUCTIVE_1)),
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_2))
     ]));
 
@@ -104,7 +77,7 @@ export class BrushDefs {
             ElementHead.of(
                 ElementHead.type8(ElementHead.TYPE_STATIC),
                 ElementHead.behaviour8(),
-                ElementHead.modifiers8(0, 0, 0, 3)),
+                ElementHead.modifiers8(ElementHead.HMI_CONDUCTIVE_3)),
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_3))
     ]));
 
@@ -113,7 +86,7 @@ export class BrushDefs {
         const elementHead = ElementHead.of(
             ElementHead.type8Powder(type, 6),
             ElementHead.behaviour8(),
-            ElementHead.modifiers8(0, 0, 0, 2));
+            ElementHead.modifiers8(ElementHead.HMI_CONDUCTIVE_2));
         const elementTail = ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_1, ElementTail.HEAT_EFFECT_2);
         return new Element(elementHead, elementTail);
     }));
@@ -123,7 +96,7 @@ export class BrushDefs {
         const elementHead = ElementHead.of(
             ElementHead.type8Powder(type, 5),
             ElementHead.behaviour8(ElementHead.BEHAVIOUR_SOIL),
-            ElementHead.modifiers8(0, 0, 0, 1));
+            ElementHead.modifiers8(ElementHead.HMI_CONDUCTIVE_1));
         const elementTail = ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_1, ElementTail.HEAT_EFFECT_1);
         return new Element(elementHead, elementTail);
     }));
@@ -133,7 +106,7 @@ export class BrushDefs {
         const elementHead = ElementHead.of(
             ElementHead.type8Powder(type, 3),
             ElementHead.behaviour8(),
-            ElementHead.modifiers8(0, 0, 0, 2));
+            ElementHead.modifiers8(ElementHead.HMI_CONDUCTIVE_2));
         const elementTail = ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_1, ElementTail.HEAT_EFFECT_2);
         return new Element(elementHead, elementTail);
     }));
@@ -143,7 +116,7 @@ export class BrushDefs {
             ElementHead.of(
                 ElementHead.type8Fluid(ElementHead.TYPE_FLUID),
                 ElementHead.behaviour8(ElementHead.BEHAVIOUR_WATER),
-                ElementHead.modifiers8(0, 0, 0, 3)),
+                ElementHead.modifiers8(ElementHead.HMI_CONDUCTIVE_3)),
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_1, ElementTail.HEAT_EFFECT_NONE))
     ]));
 
@@ -152,7 +125,7 @@ export class BrushDefs {
             ElementHead.of(
                 ElementHead.type8Fluid(ElementHead.TYPE_GAS),
                 ElementHead.behaviour8(ElementHead.BEHAVIOUR_WATER),
-                ElementHead.modifiers8(0, 0, 0, 3)),
+                ElementHead.modifiers8(ElementHead.HMI_CONDUCTIVE_3)),
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_1, ElementTail.HEAT_EFFECT_NONE))
     ]));
 
@@ -161,19 +134,19 @@ export class BrushDefs {
             ElementHead.of(
                 ElementHead.type8Powder(ElementHead.TYPE_POWDER, 0),
                 ElementHead.behaviour8(ElementHead.BEHAVIOUR_GRASS, 5),
-                ElementHead.modifiers8(ElementHead.FLAMMABLE_TYPE_MEDIUM, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_FAST)),
+                ElementHead.modifiers8(ElementHead.HMI_GRASS_LIKE)),
             ElementTail.of(56, 126, 38, ElementTail.BLUR_TYPE_1, ElementTail.HEAT_EFFECT_1)),
         new Element(
             ElementHead.of(
                 ElementHead.type8Powder(ElementHead.TYPE_POWDER, 0),
                 ElementHead.behaviour8(ElementHead.BEHAVIOUR_GRASS, 3),
-                ElementHead.modifiers8(ElementHead.FLAMMABLE_TYPE_MEDIUM, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_FAST)),
+                ElementHead.modifiers8(ElementHead.HMI_GRASS_LIKE)),
             ElementTail.of(46, 102, 31, ElementTail.BLUR_TYPE_1, ElementTail.HEAT_EFFECT_1)),
         new Element(
             ElementHead.of(
                 ElementHead.type8Powder(ElementHead.TYPE_POWDER, 0),
                 ElementHead.behaviour8(ElementHead.BEHAVIOUR_GRASS, 4),
-                ElementHead.modifiers8(ElementHead.FLAMMABLE_TYPE_MEDIUM, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_FAST)),
+                ElementHead.modifiers8(ElementHead.HMI_GRASS_LIKE)),
             ElementTail.of(72, 130, 70, ElementTail.BLUR_TYPE_1, ElementTail.HEAT_EFFECT_1))
     ]);
 
@@ -205,7 +178,7 @@ export class BrushDefs {
             ElementHead.of(
                 ElementHead.type8(ElementHead.TYPE_STATIC),
                 ElementHead.behaviour8(ElementHead.BEHAVIOUR_TREE, treeType),
-                ElementHead.modifiers8(ElementHead.FLAMMABLE_TYPE_SLOW, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_SLOW)),
+                ElementHead.modifiers8(ElementHead.HMI_WOOD_LIKE)),
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_1));
     }));
 
@@ -214,13 +187,13 @@ export class BrushDefs {
             ElementHead.of(
                 ElementHead.type8(ElementHead.TYPE_STATIC),
                 ElementHead.behaviour8(ElementHead.BEHAVIOUR_TREE_ROOT, 8),
-                ElementHead.modifiers8(ElementHead.FLAMMABLE_TYPE_SLOW, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_SLOW)),
+                ElementHead.modifiers8(ElementHead.HMI_WOOD_LIKE)),
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_1)),
         new Element(
             ElementHead.of(
                 ElementHead.type8(ElementHead.TYPE_STATIC),
                 ElementHead.behaviour8(ElementHead.BEHAVIOUR_TREE_ROOT, 5),
-                ElementHead.modifiers8(ElementHead.FLAMMABLE_TYPE_SLOW, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_SLOW)),
+                ElementHead.modifiers8(ElementHead.HMI_WOOD_LIKE)),
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_1))
     ]));
 
@@ -229,7 +202,7 @@ export class BrushDefs {
             ElementHead.of(
                 ElementHead.type8(ElementHead.TYPE_STATIC),
                 ElementHead.behaviour8(ElementHead.BEHAVIOUR_TREE_TRUNK, 0),
-                ElementHead.modifiers8(ElementHead.FLAMMABLE_TYPE_SLOW, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_SLOW)),
+                ElementHead.modifiers8(ElementHead.HMI_WOOD_LIKE)),
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_1))
     ]));
 
@@ -238,7 +211,7 @@ export class BrushDefs {
             ElementHead.of(
                 ElementHead.type8(ElementHead.TYPE_STATIC),
                 ElementHead.behaviour8(ElementHead.BEHAVIOUR_TREE_TRUNK, 0),
-                ElementHead.modifiers8(ElementHead.FLAMMABLE_TYPE_SLOW, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_SLOW)),
+                ElementHead.modifiers8(ElementHead.HMI_WOOD_LIKE)),
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_1))
     ]));
 
@@ -247,7 +220,7 @@ export class BrushDefs {
             ElementHead.of(
                 ElementHead.type8(ElementHead.TYPE_STATIC),
                 ElementHead.behaviour8(ElementHead.BEHAVIOUR_TREE_LEAF, 0),
-                ElementHead.modifiers8(ElementHead.FLAMMABLE_TYPE_MEDIUM, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_MEDIUM)),
+                ElementHead.modifiers8(ElementHead.HMI_LEAF_LIKE)),
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_1))
     ]));
 
@@ -256,7 +229,7 @@ export class BrushDefs {
             ElementHead.of(
                 ElementHead.type8(ElementHead.TYPE_STATIC),
                 ElementHead.behaviour8(ElementHead.BEHAVIOUR_TREE_LEAF, 0),
-                ElementHead.modifiers8(ElementHead.FLAMMABLE_TYPE_MEDIUM, ElementHead.FLAME_HEAT_TYPE_MEDIUM, ElementHead.BURNABLE_TYPE_MEDIUM)),
+                ElementHead.modifiers8(ElementHead.HMI_LEAF_LIKE)),
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_1))
     ]));
 
@@ -274,7 +247,7 @@ export class BrushDefs {
         const elementHead = ElementHead.of(
             ElementHead.type8Powder(type, 6),
             ElementHead.behaviour8(),
-            ElementHead.modifiers8(0, 0, 0, 2));
+            ElementHead.modifiers8(ElementHead.HMI_CONDUCTIVE_2));
         const elementTail = ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_1, ElementTail.HEAT_EFFECT_2, 3);
         return new Element(elementHead, elementTail);
     }));

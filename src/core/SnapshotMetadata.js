@@ -2,11 +2,11 @@
 /**
  *
  * @author Patrik Harag
- * @version 2024-01-08
+ * @version 2024-02-01
  */
 export class SnapshotMetadata {
 
-    static CURRENT_FORMAT_VERSION = 5;
+    static CURRENT_FORMAT_VERSION = 6;
 
 
     /** @type number */
