@@ -7,12 +7,13 @@ import { ComponentButton } from "./ComponentButton";
 import { ToolDefs } from "../../def/ToolDefs";
 import { RendererInitializer } from "../../core/rendering/RendererInitializer";
 import { ActionScreenshot } from "../action/ActionScreenshot";
+import { ActionRecord } from "../action/ActionRecord";
 import { ActionFill } from "../action/ActionFill";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-19
+ * @version 2024-02-02
  */
 export class ComponentViewTestTools extends Component {
 
@@ -26,10 +27,11 @@ export class ComponentViewTestTools extends Component {
         new ComponentButton("Tree spawn", ComponentViewTestTools.#BTN_SCENE, ActionsTest.TREE_SPAWN_TEST),
         new ComponentButton("Tree grow", ComponentViewTestTools.#BTN_SCENE, ActionsTest.treeGrowTest(0)),
         new ComponentButton("Tree grown", ComponentViewTestTools.#BTN_SCENE, ActionsTest.treeGrowTest(-1)),
+        new ComponentButton("Fill", ComponentViewTestTools.#BTN_SCENE, new ActionFill()),
 
         new ComponentButton("Benchmark", ComponentViewTestTools.#BTN_TOOL, new ActionBenchmark()),
         new ComponentButton("Screenshot", ComponentViewTestTools.#BTN_TOOL, new ActionScreenshot()),
-        new ComponentButton("Fill", ComponentViewTestTools.#BTN_TOOL, new ActionFill()),
+        new ComponentButton("Record (start/stop)", ComponentViewTestTools.#BTN_TOOL, new ActionRecord()),
 
         new ComponentButton("Chunks", ComponentViewTestTools.#BTN_RENDERING,
                 Action.createToggle(false, (c, v) => c.setShowActiveChunks(v))),
