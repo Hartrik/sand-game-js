@@ -41,7 +41,7 @@ export const tools = ToolDefs._LIST;
  *     version: undefined|string,
  *     debug: undefined|boolean,
  *     autoStart: undefined|boolean,
- *     scene: undefined|string|{sceneDefinition:(function(SandGame):Promise<any>|any)},
+ *     scene: undefined|string|{init:(function(SandGame, Controller):Promise<any>|any)},
  *     tools: undefined|(string|Tool)[],
  *     primaryTool: undefined|string|Tool,
  *     secondaryTool: undefined|string|Tool,
@@ -56,12 +56,14 @@ export const tools = ToolDefs._LIST;
  * @returns {Controller}
  *
  * @author Patrik Harag
- * @version 2024-01-17
+ * @version 2024-02-03
  */
 export function init(root, config) {
     if (config === undefined) {
         config = {};
     }
+
+    let controller;
 
     const {width, height, scale} = SizeUtils.determineOptimalSizes(root);
 
@@ -95,7 +97,9 @@ export function init(root, config) {
         scene = new SceneImplHardcoded({
             name: 'n/a',
             description: 'n/a',
-            apply: (typeof config.scene.init === 'function') ? config.scene.init : () => {}
+            apply: (typeof config.scene.init === 'function')
+                ? (sandGame) => config.scene.init(sandGame, controller)
+                : () => {}
         });
     } else {
         // default scene
@@ -164,7 +168,7 @@ export function init(root, config) {
     const dialogAnchorNode = DomBuilder.div({ class: 'sand-game-dialog-anchor sand-game-component' });
     document.body.prepend(dialogAnchorNode);
     const toolManager = new ServiceToolManager(primaryTool, secondaryTool, tertiaryTool);
-    const controller = new Controller(init, dialogAnchorNode, toolManager);
+    controller = new Controller(init, dialogAnchorNode, toolManager);
 
     // init components
 
