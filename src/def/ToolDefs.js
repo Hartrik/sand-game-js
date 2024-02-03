@@ -7,7 +7,7 @@ import { ToolInfo } from "../core/tool/ToolInfo";
 /**
  *
  * @author Patrik Harag
- * @version 2024-01-16
+ * @version 2024-02-03
  */
 export class ToolDefs {
 
@@ -61,6 +61,7 @@ export class ToolDefs {
         Tools.roundBrushTool(ToolDefs.#info( 'effect_temp_255', 'Temp 255'), BrushDefs.EFFECT_TEMP_255, ToolDefs.DEFAULT_SIZE),
         Tools.roundBrushTool(ToolDefs.#info( 'ash', 'Ash'), BrushDefs.ASH, ToolDefs.DEFAULT_SIZE),
         Tools.roundBrushTool(ToolDefs.#info( 'metal', 'Metal'), BrushDefs.METAL, ToolDefs.DEFAULT_SIZE),
+        Tools.roundBrushTool(ToolDefs.#info( 'metal_molten', 'Molten Metal'), BrushDefs.METAL_MOLTEN, ToolDefs.DEFAULT_SIZE),
     ];
 
     static _LIST = {};

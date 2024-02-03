@@ -12,7 +12,7 @@ import {ProcessorModuleWater} from "./ProcessorModuleWater";
 /**
  *
  * @author Patrik Harag
- * @version 2024-02-01
+ * @version 2024-02-03
  */
 export class Processor extends ProcessorContext {
 
@@ -474,6 +474,7 @@ export class Processor extends ProcessorContext {
                 break;
             case ElementHead.BEHAVIOUR_WATER:
                 if (this.#moduleWater.behaviourWater(elementHead, x, y)) {
+                    active = ElementHead.getTemperature(elementHead) > 0;
                     processTemperature = false;
                 }
                 break;
@@ -523,15 +524,12 @@ export class Processor extends ProcessorContext {
                 throw "Unknown element behaviour: " + behaviour;
         }
 
-        const temp = ElementHead.getTemperature(elementHead);
-        if (temp > 0) {
-            active = true;
-            if (processTemperature) {
-                this.#temperature(elementHead, x, y, temp);
-            }
+        if (processTemperature) {
+            const temperatureRelatedActivity = this.#temperature(elementHead, x, y);
+            return active || temperatureRelatedActivity;
+        } else {
+            return active
         }
-
-        return active;
     }
 
     /**
@@ -539,9 +537,20 @@ export class Processor extends ProcessorContext {
      * @param elementHead
      * @param x {number}
      * @param y {number}
-     * @param temp {number}
+     * @return boolean
      */
-    #temperature(elementHead, x, y, temp) {
+    #temperature(elementHead, x, y) {
+        const temp = ElementHead.getTemperature(elementHead);
+
+        if (temp === 0) {
+            const heatModIndex = ElementHead.getHeatModIndex(elementHead);
+            if (temp < ElementHead.hmiToHardeningTemperature(heatModIndex)) {
+                this.#tryHardening(elementHead, x, y, heatModIndex);
+                return true;
+            }
+            return false;
+        }
+
         // conduct temperature
 
         let tx = x, ty = y;
@@ -565,11 +574,19 @@ export class Processor extends ProcessorContext {
             if (heatLoss) {
                 newTemp = Math.max(newTemp - 1, 0);
             }
-            this.#elementArea.setElementHead(x, y, ElementHead.setTemperature(elementHead, newTemp));
 
-            const diff = temp - newTemp;
-            if (diff !== 0) {
-                let newTargetTemp = Math.trunc(targetTemp + diff)
+            if (temp - newTemp !== 0) {
+                // limit max absolute change - it will look more natural...
+                if (temp - newTemp > 24) {
+                    newTemp = temp - 24;
+                } else if (temp - newTemp < -24) {
+                    newTemp = temp + 24;
+                }
+
+                elementHead = ElementHead.setTemperature(elementHead, newTemp);
+                this.#elementArea.setElementHead(x, y, elementHead);
+
+                let newTargetTemp = Math.trunc(targetTemp + (temp - newTemp));
                 if (heatLoss) {
                     newTargetTemp = newTemp - 1;
                 }
@@ -580,25 +597,85 @@ export class Processor extends ProcessorContext {
         } else {
             if (heatLoss) {
                 newTemp = Math.max(temp - 1, 0);
-                this.#elementArea.setElementHead(x, y, ElementHead.setTemperature(elementHead, newTemp));
+                elementHead = ElementHead.setTemperature(elementHead, newTemp);
+                this.#elementArea.setElementHead(x, y, elementHead);
             }
         }
 
         // self-ignition
-        if (newTemp > 100) {
-            const chanceToIgnite = ElementHead.hmiToSelfIgnitionChanceTo10000(heatModIndex);
-            if (chanceToIgnite === 0) {
-                // not possible
-                return;
-            }
+        const chanceToIgnite = ElementHead.hmiToSelfIgnitionChanceTo10000(heatModIndex);
+        if (newTemp > 100 && chanceToIgnite > 0) {
             if (ElementHead.getBehaviour(elementHead) === ElementHead.BEHAVIOUR_FIRE_SOURCE) {
                 // already in fire
-                return;
-            }
-            if (this.#random.nextInt(10000) < chanceToIgnite) {
-                this.#moduleFire.ignite(elementHead, x, y, heatModIndex);
+            } else {
+                if (this.#random.nextInt(10000) < chanceToIgnite) {
+                    this.#moduleFire.ignite(elementHead, x, y, heatModIndex);
+                    return true;
+                }
             }
         }
+
+        // melting
+        if (newTemp > ElementHead.hmiToMeltingTemperature(heatModIndex)) {
+            elementHead = ElementHead.setType(elementHead, ElementHead.TYPE_FLUID);
+            elementHead = ElementHead.setHeatModIndex(elementHead, ElementHead.hmiToMeltingHMI(heatModIndex));
+            this.#elementArea.setElementHead(x, y, elementHead);
+            return true;
+        }
+
+        // hardening
+        if (newTemp < ElementHead.hmiToHardeningTemperature(heatModIndex)) {
+            this.#tryHardening(elementHead, x, y, heatModIndex);
+        }
+
+        return true;
+    }
+
+    #tryHardening(elementHead, x, y, heatModIndex) {
+        // there must be a solid element nearby
+        if (this.#findHardeningSupport(x, y)) {
+            elementHead = ElementHead.setType(elementHead, ElementHead.TYPE_STATIC);
+            elementHead = ElementHead.setHeatModIndex(elementHead, ElementHead.hmiToHardeningHMI(heatModIndex));
+            this.#elementArea.setElementHead(x, y, elementHead);
+        }
+    }
+
+    #findHardeningSupport(x, y) {
+        // below
+        if (y !== this.#height - 1) {
+            if (this.#isHardeningSupport(this.#elementArea.getElementHead(x, y + 1))) {
+                return true;
+            }
+        } else {
+            // bottom
+            if (!this.#fallThroughEnabled && !this.#erasingEnabled) {
+                return true;
+            }
+        }
+
+        // left
+        if (this.#elementArea.isValidPosition(x - 1, y)) {
+            if (this.#isHardeningSupport(this.#elementArea.getElementHead(x - 1, y))) {
+                return true;
+            }
+        }
+
+        // right
+        if (this.#elementArea.isValidPosition(x + 1, y)) {
+            if (this.#isHardeningSupport(this.#elementArea.getElementHead(x + 1, y))) {
+                return true;
+            }
+        }
+
+        return false;  // support not found
+    }
+
+    #isHardeningSupport(targetElementHead) {
+        const typeClass = ElementHead.getTypeClass(targetElementHead);
+        if (typeClass > ElementHead.TYPE_FLUID) {
+            return true;
+        }
+        return false;
     }
 
     /**

@@ -166,20 +166,26 @@ export class ElementHead {
 
     // --- HEAT MODIFIERS ---
 
-    static #HEAT_MODS_COUNT = 8;
+    static #HEAT_MODS_COUNT = 16;
     static #HEAT_MODS = Array(ElementHead.#HEAT_MODS_COUNT);
 
     static #defHeatMods({i, conductiveIndex = 0.2, heatLossChanceTo10000 = 2500,
                             flammableChanceTo10000 = 0, selfIgnitionChanceTo10000 = 0,
-                            flameHeat = 0, burnDownChanceTo10000 = 0 }) {
+                            flameHeat = 0, burnDownChanceTo10000 = 0,
+                            meltingTemperature = 0xFF + 1, meltingHMI = 0,
+                            hardeningTemperature = 0, hardeningHMI = 0}) {
 
-        const array = Array(6);
+        const array = Array(10);
         array[0] = conductiveIndex;
         array[1] = heatLossChanceTo10000;
         array[2] = flammableChanceTo10000;
         array[3] = selfIgnitionChanceTo10000;
         array[4] = flameHeat;
         array[5] = burnDownChanceTo10000;
+        array[6] = meltingTemperature;
+        array[7] = meltingHMI;
+        array[8] = hardeningTemperature;
+        array[9] = hardeningHMI;
 
         ElementHead.#HEAT_MODS[i] = array;
         return i;
@@ -231,6 +237,22 @@ export class ElementHead {
         burnDownChanceTo10000: 100
     });
 
+    static HMI_METAL = ElementHead.#defHeatMods({
+        i: 7,
+        conductiveIndex: 0.45,
+        heatLossChanceTo10000: 10,
+        meltingTemperature: 200,
+        meltingHMI: 8
+    });
+
+    static HMI_MOLTEN = ElementHead.#defHeatMods({
+        i: 8,
+        conductiveIndex: 0.45,
+        heatLossChanceTo10000: 10,
+        hardeningTemperature: 150,
+        hardeningHMI: 7
+    });
+
     static {
         // fill missing definitions - bounds checking is not needed then...
         for (let i = 0; i < ElementHead.#HEAT_MODS_COUNT; i++) {
@@ -243,30 +265,46 @@ export class ElementHead {
     // ---
 
     static hmiToConductiveIndex(heatModIndex) {
-        return ElementHead.#HEAT_MODS[heatModIndex & 0x7][0];
+        return ElementHead.#HEAT_MODS[heatModIndex & 0xF][0];
     }
 
     static hmiToHeatLossChanceTo10000(heatModIndex) {
-        return ElementHead.#HEAT_MODS[heatModIndex & 0x7][1];
+        return ElementHead.#HEAT_MODS[heatModIndex & 0xF][1];
     }
 
     // how hard it is to ignite this element
     static hmiToFlammableChanceTo10000(heatModIndex) {
-        return ElementHead.#HEAT_MODS[heatModIndex & 0x7][2];
+        return ElementHead.#HEAT_MODS[heatModIndex & 0xF][2];
     }
 
     // how hard it is to ignite this element
     static hmiToSelfIgnitionChanceTo10000(heatModIndex) {
-        return ElementHead.#HEAT_MODS[heatModIndex & 0x7][3];
+        return ElementHead.#HEAT_MODS[heatModIndex & 0xF][3];
     }
 
     // how much heat this element produces while burning
     static hmiToFlameHeat(heatModIndex) {
-        return ElementHead.#HEAT_MODS[heatModIndex & 0x7][4];
+        return ElementHead.#HEAT_MODS[heatModIndex & 0xF][4];
     }
 
     // how hard it is to burn down this element
     static hmiToBurnDownChanceTo10000(heatModIndex) {
-        return ElementHead.#HEAT_MODS[heatModIndex & 0x7][5];
+        return ElementHead.#HEAT_MODS[heatModIndex & 0xF][5];
+    }
+
+    static hmiToMeltingTemperature(heatModIndex) {
+        return ElementHead.#HEAT_MODS[heatModIndex & 0xF][6];
+    }
+
+    static hmiToMeltingHMI(heatModIndex) {
+        return ElementHead.#HEAT_MODS[heatModIndex & 0xF][7];
+    }
+
+    static hmiToHardeningTemperature(heatModIndex) {
+        return ElementHead.#HEAT_MODS[heatModIndex & 0xF][8];
+    }
+
+    static hmiToHardeningHMI(heatModIndex) {
+        return ElementHead.#HEAT_MODS[heatModIndex & 0xF][9];
     }
 }

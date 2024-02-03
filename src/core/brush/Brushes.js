@@ -10,6 +10,7 @@ import {TextureBrush} from "./TextureBrush";
 import {CustomBrush} from "./CustomBrush";
 import {CountingBrush} from "./CountingBrush";
 import {PredicateDefs} from "../../def/PredicateDefs";
+import {MeltingBrush} from "./MeltingBrush";
 
 /**
  *
@@ -176,5 +177,9 @@ export class Brushes {
             const newElementTail = noise.visualNoise(oldElement.elementTail, x, y, factor, threshold, force, nr, ng, nb);
             return new Element(oldElement.elementHead, newElementTail);
         });
+    }
+
+    static molten() {
+        return new MeltingBrush();
     }
 }

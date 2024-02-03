@@ -25,7 +25,7 @@ import _ASSET_TEXTURE_METAL from './assets/brushes/metal.png';
 /**
  *
  * @author Patrik Harag
- * @version 2024-02-01
+ * @version 2024-02-03
  */
 export class BrushDefs {
 
@@ -77,9 +77,11 @@ export class BrushDefs {
             ElementHead.of(
                 ElementHead.type8(ElementHead.TYPE_STATIC),
                 ElementHead.behaviour8(),
-                ElementHead.modifiers8(ElementHead.HMI_CONDUCTIVE_3)),
+                ElementHead.modifiers8(ElementHead.HMI_METAL)),
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_3))
     ]));
+
+    static METAL_MOLTEN = Brushes.concat(Brushes.concat(BrushDefs.METAL, Brushes.temperature(225)), Brushes.molten());
 
     static SAND = Brushes.paletteBrush(_ASSET_PALETTE_SAND, Brushes.custom((x, y, random) => {
         const type = random.nextInt(100) < 60 ? ElementHead.TYPE_POWDER : ElementHead.TYPE_POWDER_WET;
@@ -308,6 +310,8 @@ export class BrushDefs {
         return null;
     });
 
+    static EFFECT_MOLTEN = Brushes.molten();
+
     // --- SEARCH
 
     static _LIST = {
@@ -320,6 +324,7 @@ export class BrushDefs {
         wall: BrushDefs.WALL,
         rock: BrushDefs.ROCK,
         metal: BrushDefs.METAL,
+        metal_molten: BrushDefs.METAL,
         wood: BrushDefs.TREE_WOOD,
         water: BrushDefs.WATER,
         steam: BrushDefs.STEAM,
@@ -333,6 +338,7 @@ export class BrushDefs {
         effect_temp_200: BrushDefs.EFFECT_TEMP_200,
         effect_temp_255: BrushDefs.EFFECT_TEMP_255,
         effect_wet: BrushDefs.EFFECT_WET,
+        effect_melt: BrushDefs.EFFECT_MOLTEN,
     }
 
     /**
