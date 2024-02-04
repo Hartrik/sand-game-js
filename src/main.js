@@ -22,6 +22,7 @@ import { ActionIOImport } from "./gui/action/ActionIOImport";
 import { ActionIOExport } from "./gui/action/ActionIOExport";
 import { SceneImplHardcoded } from "./core/scene/SceneImplHardcoded";
 import { ServiceToolManager } from "./gui/ServiceToolManager";
+import { ActionReportProblem } from "./gui/action/ActionReportProblem";
 
 export { Tools } from "./core/tool/Tools";
 export { Brushes } from "./core/brush/Brushes";
@@ -52,11 +53,12 @@ export const tools = ToolDefs._LIST;
  *     disableExport: undefined|boolean,
  *     disableSizeChange: undefined|boolean,
  *     disableSceneSelection: undefined|boolean,
+ *     errorReporter: undefined|function(type:string,message:string,controller:Controller),
  * }}
  * @returns {Controller}
  *
  * @author Patrik Harag
- * @version 2024-02-03
+ * @version 2024-02-04
  */
 export function init(root, config) {
     if (config === undefined) {
@@ -82,6 +84,9 @@ export function init(root, config) {
     const enableExport = !(config.disableExport === true);
     const enableSizeChange = !(config.disableSizeChange === true);
     const enableSceneSelection = !(config.disableSceneSelection === true);
+    const enableUserErrorReporting = config.errorReporter !== undefined;
+
+    const errorReporter = config.errorReporter;
 
     // resolve scene
 
@@ -170,19 +175,31 @@ export function init(root, config) {
     const toolManager = new ServiceToolManager(primaryTool, secondaryTool, tertiaryTool);
     controller = new Controller(init, dialogAnchorNode, toolManager);
 
+    // init error reporting
+
+    if (errorReporter !== undefined) {
+        controller.addOnFailure((type, message) => errorReporter(type, message, controller));
+    }
+
     // init components
 
     const mainComponent = new ComponentContainer('sand-game-component', [
         new ComponentViewTools(tools, enableDefaultTemplates),
         new ComponentViewCanvas(),
         new ComponentContainer('sand-game-options', [
-            (enableImport) ? new ComponentButton('Import', ComponentButton.CLASS_LIGHT, new ActionIOImport()) : null,
-            (enableExport) ? new ComponentButton('Export', ComponentButton.CLASS_LIGHT, new ActionIOExport()) : null,
-            (enableRestart && !enableSceneSelection) ? new ComponentButtonRestart(ComponentButton.CLASS_LIGHT) : null,
-            (enableStartStop) ? new ComponentButtonStartStop(ComponentButton.CLASS_LIGHT) : null,
-            new ComponentStatusIndicator((enableSizeChange)
-                    ? DomBuilder.element('span', null, [DomBuilder.element('br'), 'Tip: adjust scale if needed'])
-                    : null),
+            new ComponentContainer('sand-game-options-left', [
+                (enableImport) ? new ComponentButton('Import', ComponentButton.CLASS_LIGHT, new ActionIOImport()) : null,
+                (enableExport) ? new ComponentButton('Export', ComponentButton.CLASS_LIGHT, new ActionIOExport()) : null,
+                (enableRestart && !enableSceneSelection) ? new ComponentButtonRestart(ComponentButton.CLASS_LIGHT) : null,
+                (enableStartStop) ? new ComponentButtonStartStop(ComponentButton.CLASS_LIGHT) : null,
+                new ComponentStatusIndicator((enableSizeChange)
+                        ? DomBuilder.element('span', null, [DomBuilder.element('br'), 'Tip: adjust scale if needed'])
+                        : null),
+            ]),
+            new ComponentContainer('sand-game-options-right', [
+                (enableUserErrorReporting) ? new ComponentButton('Report a problem', ComponentButton.CLASS_LIGHT, new ActionReportProblem(errorReporter)) : null,
+            ]),
+
         ]),
         new ComponentContainer('sand-game-views', [
             (enableSizeChange || enableSceneSelection) ? new ComponentContainer(null, [

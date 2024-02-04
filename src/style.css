@@ -188,6 +188,13 @@
 
 .sand-game-component .sand-game-options {
     white-space: nowrap;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.sand-game-component .sand-game-options .sand-game-options-right {
+    margin-left: auto;
     display: inline-block;
 }
 

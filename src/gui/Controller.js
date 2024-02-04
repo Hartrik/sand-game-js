@@ -14,7 +14,7 @@ import { Analytics } from "../Analytics";
 /**
  *
  * @author Patrik Harag
- * @version 2024-01-17
+ * @version 2024-02-04
  */
 export class Controller {
 
@@ -173,7 +173,7 @@ export class Controller {
         if ((contextType === 'webgl2') && (context === null || context === undefined)) {
             // WebGL is not supported - unsupported at all / unsupported after recent failure
             // - to test this, run Chrome with --disable-3d-apis
-            this.#reportRenderingFailure("Unable to get WebGL context. Using fallback renderer; game performance may be affected");
+            this.#reportFirstRenderingFailure("Unable to get WebGL context. Using fallback renderer; game performance may be affected");
             this.#rendererInitializer = RendererInitializer.canvas2d();
             contextType = this.#rendererInitializer.getContextType();
             context = this.#initializeContextAs(canvas, contextType);
@@ -276,6 +276,8 @@ export class Controller {
     #onStarted = [];
     /** @type function[] */
     #onStopped = [];
+    /** @type function(type:string,message:string)[] */
+    #onFailure = [];
 
     /**
      *
@@ -322,16 +324,28 @@ export class Controller {
         this.#onStopped.push(handler);
     }
 
+    /**
+     *
+     * @param handler {function(type:string,message:string)}
+     * @returns void
+     */
+    addOnFailure(handler) {
+        this.#onFailure.push(handler);
+    }
+
     restartAfterRenderingFailure(cause) {
-        this.#reportRenderingFailure(cause)
+        this.#reportFirstRenderingFailure(cause)
         const snapshot = this.createSnapshot();
         this.#rendererInitializer = RendererInitializer.canvas2d();  // fallback to classic CPU renderer
         this.openScene(new SceneImplSnapshot(snapshot));
         Analytics.triggerFeatureUsed(Analytics.FEATURE_RENDERER_FALLBACK);
     }
 
-    #reportRenderingFailure(message) {
+    #reportFirstRenderingFailure(message) {
         console.warn(message);
+        for (let handler of this.#onFailure) {
+            handler('rendering-warning', message);
+        }
 
         let toast = DomBuilder.bootstrapToastBuilder();
         toast.setHeaderContent(DomBuilder.element('strong', { style: 'color: orange;' }, 'Warning'));
@@ -342,6 +356,9 @@ export class Controller {
 
     #reportSeriousFailure(message) {
         console.error(message);
+        for (let handler of this.#onFailure) {
+            handler('serious', message);
+        }
 
         let toast = DomBuilder.bootstrapToastBuilder();
         toast.setHeaderContent(DomBuilder.element('strong', { style: 'color: red;' }, 'Error'));
