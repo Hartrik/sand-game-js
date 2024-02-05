@@ -8,7 +8,7 @@ import {Marker} from "./Marker";
 /**
  *
  * @author Patrik Harag
- * @version 2024-01-12
+ * @version 2024-02-05
  */
 export class SandGameGraphics {
 
@@ -29,6 +29,24 @@ export class SandGameGraphics {
         this.#random = random;
         this.#defaults = defaults;
         this.#triggerFunction = triggerFunction;
+    }
+
+    /**
+     *
+     * @param aX {number}
+     * @param aY {number}
+     * @param bX {number}
+     * @param bY {number}
+     */
+    swap(aX, aY, bX, bY) {
+        aX = Math.trunc(aX);
+        aY = Math.trunc(aY);
+        bX = Math.trunc(bX);
+        bY = Math.trunc(bY);
+
+        if (this.#elementArea.isValidPosition(aX, aY) && this.#elementArea.isValidPosition(bX, bY)) {
+            this.#elementArea.swap(aX, aY, bX, bY);
+        }
     }
 
     /**
