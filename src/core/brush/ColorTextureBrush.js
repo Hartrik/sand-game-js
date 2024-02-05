@@ -1,32 +1,26 @@
+import {AbstractEffectBrush} from "./AbstractEffectBrush";
 import {Assets} from "../../Assets";
 import {ElementTail} from "../ElementTail";
-import {Brush} from "./Brush";
+import {Element} from "../Element";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-02-20
+ * @version 2024-02-05
  */
-export class TextureBrush extends Brush {
-
-    /** @type Brush */
-    #innerBrush;
+export class ColorTextureBrush extends AbstractEffectBrush {
 
     /** @type ImageData|null */
     #imageData = null;
 
     constructor(innerBrush, base64) {
-        super();
-        this.#innerBrush = innerBrush;
+        super(innerBrush);
 
         Assets.asImageData(base64).then(imageData => this.#imageData = imageData);
     }
 
     apply(x, y, random, oldElement) {
-        const element = this.#innerBrush.apply(x, y, random);
-        if (element === null) {
-            return null;
-        }
+        const element = this._retrieveElement(x, y, random, oldElement);
 
         if (this.#imageData != null) {
             const cx = x % this.#imageData.width;
@@ -38,8 +32,11 @@ export class TextureBrush extends Brush {
             const blue = this.#imageData.data[index + 2];
             // const alpha = this.#imageData.data[index + 3];
 
-            element.elementTail = ElementTail.setColor(element.elementTail, red, green, blue);
+            const newElementTail = ElementTail.setColor(element.elementTail, red, green, blue);
+            return new Element(element.elementHead, newElementTail);
+
+        } else {
+            return element;
         }
-        return element;
     }
 }

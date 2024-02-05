@@ -2,11 +2,12 @@ import {Element} from "../Element.js";
 import {ElementHead} from "../ElementHead.js";
 import {Brush} from "./Brush";
 import {DeterministicRandom} from "../DeterministicRandom";
-import {VisualEffects} from "../processing/VisualEffects";
 import {RandomBrush} from "./RandomBrush";
 import {RandomElementBrush} from "./RandomElementBrush";
-import {PaletteBrush} from "./PaletteBrush";
-import {TextureBrush} from "./TextureBrush";
+import {ColorBrush} from "./ColorBrush";
+import {ColorPaletteBrush} from "./ColorPaletteBrush";
+import {ColorTextureBrush} from "./ColorTextureBrush";
+import {ColorNoiseBrush} from "./ColorNoiseBrush";
 import {CustomBrush} from "./CustomBrush";
 import {CountingBrush} from "./CountingBrush";
 import {PredicateDefs} from "../../def/PredicateDefs";
@@ -15,7 +16,7 @@ import {MeltingBrush} from "./MeltingBrush";
 /**
  *
  * @author Patrik Harag
- * @version 2024-01-29
+ * @version 2024-02-05
  */
 export class Brushes {
 
@@ -26,6 +27,15 @@ export class Brushes {
      */
     static counting(predicate) {
         return new CountingBrush(predicate);
+    }
+
+    /**
+     *
+     * @param func {function(x: number, y: number, random: DeterministicRandom, oldElement: Element)}
+     * @returns {Brush}
+     */
+    static custom(func) {
+        return new CustomBrush(func);
     }
 
     /**
@@ -53,31 +63,54 @@ export class Brushes {
         return (hasBrushes) ? new RandomBrush(list) : new RandomElementBrush(list);
     }
 
-    static textureBrush(base64, innerBrush) {
-        return new TextureBrush(innerBrush, base64);
+    /**
+     *
+     * @param r {number} 0..255
+     * @param g {number} 0..255
+     * @param b {number} 0..255
+     * @param innerBrush {Brush|undefined}
+     * @return {Brush}
+     */
+    static color(r = 0, g = 0, b = 0, innerBrush = undefined) {
+        return new ColorBrush(r, g, b, innerBrush);
+    }
+
+    /**
+     *
+     * @param base64
+     * @param innerBrush {Brush|undefined}
+     * @return {ColorTextureBrush}
+     */
+    static colorTexture(base64, innerBrush = undefined) {
+        return new ColorTextureBrush(innerBrush, base64);
     }
 
     /**
      *
      * @param palette {number[][]|string}
-     * @param innerBrush
+     * @param innerBrush {Brush|undefined}
      * @returns {Brush}
      */
-    static paletteBrush(palette, innerBrush) {
-        if (typeof palette === 'string') {
-            // parse
-            palette = palette.split('\n').map(line => line.split(',').map(Number));
-        }
-        return new PaletteBrush(innerBrush, palette);
+    static colorPalette(palette, innerBrush = undefined) {
+        return new ColorPaletteBrush(innerBrush, palette);
     }
 
     /**
      *
-     * @param func {function(x: number, y: number, random: DeterministicRandom, oldElement: Element)}
-     * @returns {Brush}
+     * @param coefficients {{
+     *     seed: number|undefined,
+     *     factor: number|undefined,
+     *     threshold: number|undefined,
+     *     force: number|undefined,
+     *     r: number|undefined,
+     *     g: number|undefined,
+     *     b: number|undefined
+     * }}
+     * @param innerBrush {Brush|undefined}
+     * @return {Brush}
      */
-    static custom(func) {
-        return new CustomBrush(func);
+    static colorNoise(coefficients, innerBrush = undefined) {
+        return new ColorNoiseBrush(innerBrush, coefficients);
     }
 
     /**
@@ -106,7 +139,7 @@ export class Brushes {
     }
 
     /**
-     * Brush will paint only specific elements.
+     * Brush will paint only over specific elements.
      *
      * @param predicate {function(elementHead:number, elementTail:number):boolean}
      * @param brush {Brush}
@@ -165,17 +198,6 @@ export class Brushes {
             const firstResult = first.apply(x, y, random, oldElement);
             const secondResult = second.apply(x, y, random, firstResult !== null ? firstResult : oldElement);
             return (secondResult !== null) ? secondResult : firstResult;
-        });
-    }
-
-    static noise(seed = 0, factor, threshold, force, nr, ng, nb) {
-        const noise = VisualEffects.visualNoiseProvider(seed);
-        return Brushes.custom((x, y, random, oldElement) => {
-            if (oldElement === null) {
-                return null;
-            }
-            const newElementTail = noise.visualNoise(oldElement.elementTail, x, y, factor, threshold, force, nr, ng, nb);
-            return new Element(oldElement.elementHead, newElementTail);
         });
     }
 
