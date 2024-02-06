@@ -19,13 +19,10 @@ import _ASSET_PALETTE_TREE_ROOT from './assets/brushes/tree-root.palette.csv';
 import _ASSET_PALETTE_TREE_LEAF_LIGHT from './assets/brushes/tree-leaf-light.palette.csv';
 import _ASSET_PALETTE_TREE_LEAF_DARK from './assets/brushes/tree-leaf-dark.palette.csv';
 
-import _ASSET_TEXTURE_ROCK from './assets/brushes/rock.png';
-import _ASSET_TEXTURE_METAL from './assets/brushes/metal.png';
-
 /**
  *
  * @author Patrik Harag
- * @version 2024-02-03
+ * @version 2024-02-06
  */
 export class BrushDefs {
 
@@ -63,25 +60,56 @@ export class BrushDefs {
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_2))
     ]));
 
-    static ROCK = Brushes.colorTexture(_ASSET_TEXTURE_ROCK, Brushes.random([
-        new Element(
-            ElementHead.of(
-                ElementHead.type8(ElementHead.TYPE_STATIC),
-                ElementHead.behaviour8(),
-                ElementHead.modifiers8(ElementHead.HMI_CONDUCTIVE_1)),
-            ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_2))
-    ]));
+    static ROCK = Brushes.join([
+        Brushes.random([
+            new Element(
+                ElementHead.of(
+                    ElementHead.type8(ElementHead.TYPE_STATIC),
+                    ElementHead.behaviour8(),
+                    ElementHead.modifiers8(ElementHead.HMI_CONDUCTIVE_1)),
+                ElementTail.of(155, 155, 155, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_2))
+        ]),
+        Brushes.colorNoise([
+            { seed: 40, factor: 60, threshold: 0.4, force: 0.9 },
+            { seed: 41, factor: 30, threshold: 0.4, force: 0.9 },
+            { seed: 42, factor: 15, threshold: 0.4, force: 0.5 },
+            { seed: 43, factor: 3, threshold: 0.1, force: 0.1 },
+        ], 79, 69, 63),
+        Brushes.colorNoise([
+            { seed: 51, factor: 30, threshold: 0.4, force: 0.9 },
+            { seed: 52, factor: 15, threshold: 0.4, force: 0.5 },
+            { seed: 53, factor: 3, threshold: 0.1, force: 0.1 },
+        ], 55, 48, 46),
+        Brushes.colorNoise([
+            { seed: 61, factor: 30, threshold: 0.4, force: 0.9 },
+            { seed: 62, factor: 15, threshold: 0.4, force: 0.5 },
+            { seed: 63, factor: 3, threshold: 0.1, force: 0.1 },
+        ], 33, 29, 28)
+    ]);
 
-    static METAL = Brushes.colorTexture(_ASSET_TEXTURE_METAL, Brushes.random([
-        new Element(
-            ElementHead.of(
-                ElementHead.type8(ElementHead.TYPE_STATIC),
-                ElementHead.behaviour8(),
-                ElementHead.modifiers8(ElementHead.HMI_METAL)),
-            ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_3))
-    ]));
+    static METAL = Brushes.join([
+        Brushes.random([
+            new Element(
+                ElementHead.of(
+                    ElementHead.type8(ElementHead.TYPE_STATIC),
+                    ElementHead.behaviour8(),
+                    ElementHead.modifiers8(ElementHead.HMI_METAL)),
+                ElementTail.of(155, 155, 155, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_3))
+        ]),
+        Brushes.colorNoise([
+            { seed: 40, factor: 40, threshold: 0.4, force: 0.75 },
+            { seed: 40, factor: 20, threshold: 0.5, force: 0.4 },
+            { seed: 40, factor: 10, threshold: 0.4, force: 0.2 },
+            { seed: 40, factor: 5, threshold: 0.4, force: 0.1 },
+        ], 135, 135, 135),
+        Brushes.colorNoise([
+            { seed: 41, factor: 10, threshold: 0.4, force: 0.4 },
+            { seed: 41, factor: 6, threshold: 0.3, force: 0.3 },
+            { seed: 41, factor: 4, threshold: 0.5, force: 0.3 },
+        ], 130, 130, 130)
+    ]);
 
-    static METAL_MOLTEN = Brushes.concat(Brushes.concat(BrushDefs.METAL, Brushes.temperature(225)), Brushes.molten());
+    static METAL_MOLTEN = Brushes.join([BrushDefs.METAL, Brushes.temperature(225), Brushes.molten()]);
 
     static SAND = Brushes.colorPalette(_ASSET_PALETTE_SAND, Brushes.custom((x, y, random) => {
         const type = random.nextInt(100) < 60 ? ElementHead.TYPE_POWDER : ElementHead.TYPE_POWDER_WET;

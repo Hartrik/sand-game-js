@@ -6,18 +6,40 @@ var Brushes;
 var BrushDefs;
 
 const initScript = `
-let brush = Brushes.color(64, 64, 64, BrushDefs.WALL);
-brush = Brushes.colorNoise({ seed: 0, factor: 160, threshold: 0.5, force: 0.1 }, brush);
-brush = Brushes.colorNoise({ seed: 1, factor: 80, threshold: 0.5, force: 0.2 }, brush);
-brush = Brushes.colorNoise({ seed: 2, factor: 40, threshold: 0.5, force: 0.2 }, brush);
-brush = Brushes.colorNoise({ seed: 2, factor: 20, threshold: 0.5, force: 0.1 }, brush);
-brush = Brushes.colorNoise({ seed: 4, factor: 2, threshold: 0.5, force: 0.1 }, brush);
-
-sandGame.graphics().fill(brush);
+Brushes.join([
+    Brushes.color(155, 155, 155, BrushDefs.WALL),
+    Brushes.colorNoise([
+        { seed: 40, factor: 40, threshold: 0.4, force: 0.75 },
+        { seed: 40, factor: 20, threshold: 0.5, force: 0.4 },
+        { seed: 40, factor: 10, threshold: 0.4, force: 0.2 },
+        { seed: 40, factor: 5, threshold: 0.4, force: 0.1 },
+    ], 135, 135, 135),
+    Brushes.colorNoise([
+        { seed: 41, factor: 10, threshold: 0.4, force: 0.4 },
+        { seed: 41, factor: 6, threshold: 0.3, force: 0.3 },
+        { seed: 41, factor: 4, threshold: 0.5, force: 0.3 },
+    ], 130, 130, 130)
+]);
 `.trim();
 
 document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('code-area').value = initScript;
+    const codeArea = document.getElementById('code-area');
+    codeArea.value = initScript;
+
+    // init drag and drop
+    document.getElementById('main').ondrop = function(e) {
+        e.preventDefault();
+
+        let reader = new FileReader();
+        let file = e.dataTransfer.files[0];
+        reader.onload = function(event) {
+            codeArea.value = event.target.result;
+            evaluateCode();
+        };
+        reader.readAsText(file);
+
+        return false;
+    };
 
     const SandGameJS = window.SandGameJS;
 
@@ -31,6 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     sandGame = s;
                 }
             },
+            autoStart: false,
             tools: [],
             primaryTool: SandGameJS.ToolDefs.NONE,
             secondaryTool: SandGameJS.ToolDefs.NONE,
@@ -61,6 +84,11 @@ function evaluateCode() {
 
     try {
         const result = eval(code);
+
+        if (typeof result === "object") {
+            sandGame.graphics().fill(result);
+        }
+
         // Display the result
         document.getElementById('result').innerText = result;
     } catch (error) {

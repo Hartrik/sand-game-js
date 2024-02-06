@@ -16,7 +16,7 @@ import {MeltingBrush} from "./MeltingBrush";
 /**
  *
  * @author Patrik Harag
- * @version 2024-02-05
+ * @version 2024-02-06
  */
 export class Brushes {
 
@@ -97,20 +97,31 @@ export class Brushes {
 
     /**
      *
-     * @param coefficients {{
+     * @param coefficients {
+     * {
      *     seed: number|undefined,
      *     factor: number|undefined,
      *     threshold: number|undefined,
      *     force: number|undefined,
-     *     r: number|undefined,
-     *     g: number|undefined,
-     *     b: number|undefined
-     * }}
+     * }
+     * |
+     * {
+     *     seed: number|undefined,
+     *     factor: number|undefined,
+     *     threshold: number|undefined,
+     *     force: number|undefined,
+     * }[]
+     * }
+     * @param r {number} 0..255
+     * @param g {number} 0..255
+     * @param b {number} 0..255
      * @param innerBrush {Brush|undefined}
      * @return {Brush}
      */
-    static colorNoise(coefficients, innerBrush = undefined) {
-        return new ColorNoiseBrush(innerBrush, coefficients);
+    static colorNoise(coefficients, r = undefined, g = undefined, b = undefined,
+            innerBrush = undefined) {
+
+        return new ColorNoiseBrush(innerBrush, coefficients, r, g, b);
     }
 
     /**
@@ -198,6 +209,19 @@ export class Brushes {
             const firstResult = first.apply(x, y, random, oldElement);
             const secondResult = second.apply(x, y, random, firstResult !== null ? firstResult : oldElement);
             return (secondResult !== null) ? secondResult : firstResult;
+        });
+    }
+
+    static join(brushes) {
+        return Brushes.custom((x, y, random, oldElement) => {
+            let last = oldElement;
+            for (let brush of brushes) {
+                const next = brush.apply(x, y, random, last);
+                if (next !== null) {
+                    last = next;
+                }
+            }
+            return last;
         });
     }
 

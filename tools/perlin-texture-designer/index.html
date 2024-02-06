@@ -15,20 +15,20 @@
   <script defer src="script.js"></script>
 
   <style>
-      textarea {
-          font-family: 'Courier New', monospace;
+      textarea.form-control {
+          font-family: 'Consolas', monospace;
+          font-size: 11pt;
       }
   </style>
 </head>
 <body>
-<main role="main" class="container">
+<main id="main" role="main" class="container">
   <h1>Sand Game JS - Perlin Texture Designer</h1>
   <div id="sand-game-root"></div>
-  <div class="container mt-5">
+  <div class="container mt-3">
     <textarea id="code-area" class="form-control mb-3" rows="10" placeholder="Enter code here..."></textarea>
     <button class="btn btn-primary" onclick="evaluateCode()">Evaluate</button>
     <div class="mt-3">
-      <strong>Result:</strong>
       <pre id="result"></pre>
     </div>
   </div>

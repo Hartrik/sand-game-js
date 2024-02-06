@@ -6,7 +6,7 @@ import {DeterministicRandom} from "../DeterministicRandom";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-19
+ * @version 2024-02-06
  */
 export class VisualEffects {
 
@@ -53,23 +53,39 @@ export class VisualEffects {
         return newTail;
     }
 
-    static visualNoiseProvider(seed) {
-        return new PerlinNoiseVisualEffect(seed);
+    /**
+     *
+     * @param seed {number|number[]|null}
+     * @returns {PerlinNoiseVisualEffect}
+     */
+    static visualNoiseProvider(seed = 0) {
+        if (Array.isArray(seed)) {
+            const instances = seed.map(s => {
+                const random = new DeterministicRandom(s);
+                return createNoise2D(() => random.next());
+            });
+            return new PerlinNoiseVisualEffect(instances);
+        } else {
+            const random = new DeterministicRandom(seed);
+            const noise2D = createNoise2D(() => random.next());
+            return new PerlinNoiseVisualEffect([noise2D]);
+        }
     }
 }
 
 class PerlinNoiseVisualEffect {
-    #noise2D;
+    #noise2DInstances;
 
-    constructor(seed) {
-        const random = new DeterministicRandom(seed);
-        this.#noise2D = createNoise2D(() => random.next());
+    constructor(noise2DInstances) {
+        this.#noise2DInstances = noise2DInstances;
     }
 
     visualNoise(elementTail, x, y, factor = 1, threshold = 0.5, force = 0.1,
                 nr = 0x00, ng = 0x00, nb = 0x00) {
 
-        let value = (this.#noise2D(x / factor, y / factor) + 1) / 2;  // 0..1
+        const nose2D = this.#noise2DInstances[0];
+
+        let value = (nose2D(x / factor, y / factor) + 1) / 2;  // 0..1
 
         // apply threshold
 
@@ -81,6 +97,46 @@ class PerlinNoiseVisualEffect {
         // alpha blending
 
         const alpha = 1 - (value * force);
+
+        let r = ElementTail.getColorRed(elementTail);
+        let g = ElementTail.getColorGreen(elementTail);
+        let b = ElementTail.getColorBlue(elementTail);
+
+        r = Math.trunc(r * alpha) + (nr * (1 - alpha));
+        g = Math.trunc(g * alpha) + (ng * (1 - alpha));
+        b = Math.trunc(b * alpha) + (nb * (1 - alpha));
+
+        return ElementTail.setColor(elementTail, r, g, b);
+    }
+
+    visualNoiseCombined(elementTail, x, y, coefficientList,
+                nr = 0x00, ng = 0x00, nb = 0x00) {
+
+        let result = 0;
+        for (let i = 0; i < coefficientList.length; i++) {
+            const { factor, threshold, force } = coefficientList[i];
+            const instance = this.#noise2DInstances[i % this.#noise2DInstances.length];
+
+            // apply factor and count value
+            let value = (instance(x / factor, y / factor) + 1) / 2;  // 0..1
+
+            // apply threshold
+            if (value < threshold) {
+                value = 0;
+            } else {
+                value = (value - threshold) * (1 / (1 - threshold));  // normalized 0..1
+
+                // apply force
+                value = value * force;
+
+                result += value;
+            }
+        }
+        result = Math.min(result, 1);
+
+        // alpha blending
+
+        const alpha = 1 - (result);
 
         let r = ElementTail.getColorRed(elementTail);
         let g = ElementTail.getColorGreen(elementTail);
