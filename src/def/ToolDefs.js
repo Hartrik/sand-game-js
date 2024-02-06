@@ -96,6 +96,24 @@ export class ToolDefs {
         }
     }));
 
+    static METAL = Tools.roundBrushTool(BrushDefs.METAL, ToolDefs.DEFAULT_SIZE, new ToolInfo({
+        codeName: 'metal',
+        displayName: 'Metal',
+        category: ToolDefs.CATEGORY_BRUSH,
+        badgeStyle: {
+            backgroundColor: '#7c7c7c',
+        }
+    }));
+
+    static METAL_MOLTEN = Tools.roundBrushTool(BrushDefs.METAL_MOLTEN, ToolDefs.DEFAULT_SIZE, new ToolInfo({
+        codeName: 'metal_molten',
+        displayName: 'M. Metal',
+        category: ToolDefs.CATEGORY_BRUSH,
+        badgeStyle: {
+            backgroundColor: '#e67d00',
+        }
+    }));
+
     static WATER = Tools.roundBrushTool(BrushDefs.WATER, ToolDefs.DEFAULT_SIZE, new ToolInfo({
         codeName: 'water',
         displayName: 'Water',
@@ -131,7 +149,9 @@ export class ToolDefs {
         this.SOIL,
         this.GRAVEL,
         this.ROCK,
+        this.METAL,
         this.WATER,
+        this.METAL_MOLTEN,
         this.FIRE,
         this.METEOR,
     ];
@@ -196,16 +216,6 @@ export class ToolDefs {
         Tools.roundBrushTool(BrushDefs.ASH, ToolDefs.DEFAULT_SIZE, new ToolInfo({
             codeName: 'ash',
             displayName: 'Ash',
-            category: ToolDefs.CATEGORY_BRUSH,
-        })),
-        Tools.roundBrushTool(BrushDefs.METAL, ToolDefs.DEFAULT_SIZE, new ToolInfo({
-            codeName: 'metal',
-            displayName: 'Metal',
-            category: ToolDefs.CATEGORY_BRUSH,
-        })),
-        Tools.roundBrushTool(BrushDefs.METAL_MOLTEN, ToolDefs.DEFAULT_SIZE, new ToolInfo({
-            codeName: 'metal_molten',
-            displayName: 'Molten Metal',
             category: ToolDefs.CATEGORY_BRUSH,
         }))
     ];

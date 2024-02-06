@@ -1,4 +1,5 @@
 import {ElementHead} from "../ElementHead.js";
+import {ElementTail} from "../ElementTail";
 import {DeterministicRandom} from "../DeterministicRandom.js";
 import {ProcessorContext} from "./ProcessorContext.js";
 import {ProcessorDefaults} from "./ProcessorDefaults.js";
@@ -12,7 +13,7 @@ import {ProcessorModuleWater} from "./ProcessorModuleWater";
 /**
  *
  * @author Patrik Harag
- * @version 2024-02-03
+ * @version 2024-02-06
  */
 export class Processor extends ProcessorContext {
 
@@ -619,7 +620,11 @@ export class Processor extends ProcessorContext {
         if (newTemp > ElementHead.hmiToMeltingTemperature(heatModIndex)) {
             elementHead = ElementHead.setType(elementHead, ElementHead.TYPE_FLUID);
             elementHead = ElementHead.setHeatModIndex(elementHead, ElementHead.hmiToMeltingHMI(heatModIndex));
-            this.#elementArea.setElementHead(x, y, elementHead);
+
+            let elementTail = this.#elementArea.getElementTail(x, y);
+            elementTail = ElementTail.setBlurType(elementTail, ElementTail.BLUR_TYPE_1);
+
+            this.#elementArea.setElementHeadAndTail(x, y, elementHead, elementTail);
             return true;
         }
 
@@ -636,7 +641,11 @@ export class Processor extends ProcessorContext {
         if (this.#findHardeningSupport(x, y)) {
             elementHead = ElementHead.setType(elementHead, ElementHead.TYPE_STATIC);
             elementHead = ElementHead.setHeatModIndex(elementHead, ElementHead.hmiToHardeningHMI(heatModIndex));
-            this.#elementArea.setElementHead(x, y, elementHead);
+
+            let elementTail = this.#elementArea.getElementTail(x, y);
+            elementTail = ElementTail.setBlurType(elementTail, ElementTail.BLUR_TYPE_NONE);
+
+            this.#elementArea.setElementHeadAndTail(x, y, elementHead, elementTail);
         }
     }
 

@@ -109,7 +109,7 @@ export class BrushDefs {
         ], 130, 130, 130)
     ]);
 
-    static METAL_MOLTEN = Brushes.join([BrushDefs.METAL, Brushes.temperature(225), Brushes.molten()]);
+    static METAL_MOLTEN = Brushes.join([BrushDefs.METAL, Brushes.temperature(180), Brushes.molten()]);
 
     static SAND = Brushes.colorPalette(_ASSET_PALETTE_SAND, Brushes.custom((x, y, random) => {
         const type = random.nextInt(100) < 60 ? ElementHead.TYPE_POWDER : ElementHead.TYPE_POWDER_WET;

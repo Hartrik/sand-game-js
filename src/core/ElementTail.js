@@ -67,6 +67,10 @@ export class ElementTail {
         return elementTail;
     }
 
+    static setBlurType(elementTail, blurType) {
+        return (elementTail & 0xFCFFFFFF) | (blurType << 24);
+    }
+
     static setBurntLevel(elementTail, burntLevel) {
         return (elementTail & 0xF3FFFFFF) | (burntLevel << 26);
     }
