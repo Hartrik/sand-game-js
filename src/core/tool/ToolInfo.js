@@ -2,46 +2,61 @@
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-25
+ * @version 2024-02-06
  */
 export class ToolInfo {
 
-    /** @type string|null */
-    #category;
+    #info
 
-    /** @type string|null */
-    #codeName;
+    /**
+     *
+     * @param info {{
+     *     codeName: string|undefined,
+     *     displayName: string|undefined,
+     *     category: string|undefined,
+     *     badgeStyle: CSSStyleDeclaration|undefined,
+     * }}
+     */
+    constructor(info = undefined) {
+        this.#info = info;
+    }
 
-    /** @type string|null */
-    #displayName;
-
-    constructor(category = null, codeName = null, displayName = null) {
-        this.#category = category;
-        this.#codeName = codeName;
-        this.#displayName = displayName;
+    derive(info) {
+        const derivedInfo = {};
+        Object.assign(derivedInfo, this.#info);
+        Object.assign(derivedInfo, info);
+        return new ToolInfo(derivedInfo);
     }
 
     /**
      *
-     * @return {string}
+     * @return {string|undefined}
      */
     getCategory() {
-        return this.#category;
+        return this.#info.category;
     }
 
     /**
      *
-     * @return {string}
+     * @return {string|undefined}
      */
     getDisplayName() {
-        return this.#displayName;
+        return this.#info.displayName;
     }
 
     /**
      *
-     * @return {string}
+     * @return {string|undefined}
      */
     getCodeName() {
-        return this.#codeName;
+        return this.#info.codeName;
+    }
+
+    /**
+     *
+     * @return {CSSStyleDeclaration|undefined}
+     */
+    getBadgeStyle() {
+        return this.#info.badgeStyle;
     }
 }

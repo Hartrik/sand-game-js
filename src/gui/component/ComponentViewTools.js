@@ -6,7 +6,7 @@ import { ToolDefs } from "../../def/ToolDefs";
 /**
  *
  * @author Patrik Harag
- * @version 2024-01-15
+ * @version 2024-02-06
  */
 export class ComponentViewTools extends Component {
 
@@ -32,7 +32,13 @@ export class ComponentViewTools extends Component {
         for (let tool of this.#tools) {
             let cssName = tool.getInfo().getCodeName();
             let displayName = tool.getInfo().getDisplayName();
-            let button = DomBuilder.button(displayName, { class: 'btn btn-secondary btn-sand-game-tool ' + cssName }, () => {
+            let badgeStyle = tool.getInfo().getBadgeStyle();
+
+            let attributes = {
+                class: 'btn btn-secondary btn-sand-game-tool ' + cssName,
+                style: badgeStyle
+            };
+            let button = DomBuilder.button(displayName, attributes, () => {
                 controller.getToolManager().setPrimaryTool(tool);
                 controller.getToolManager().setSecondaryTool(ToolDefs.ERASE);
             });

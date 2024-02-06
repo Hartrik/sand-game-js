@@ -6,8 +6,8 @@ import {ResourceUtils} from "../io/ResourceUtils";
 import {Analytics} from "../Analytics.js";
 import {Scene} from "../core/scene/Scene";
 import {Tool} from "../core/tool/Tool";
-import {ToolInfo} from "../core/tool/ToolInfo";
 import {Tools} from "../core/tool/Tools";
+import {ToolDefs} from "../def/ToolDefs";
 import {InsertElementAreaTool} from "../core/tool/InsertElementAreaTool";
 import {InsertRandomSceneTool} from "../core/tool/InsertRandomSceneTool";
 
@@ -16,7 +16,7 @@ import {InsertRandomSceneTool} from "../core/tool/InsertRandomSceneTool";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-25
+ * @version 2024-02-06
  */
 export class ServiceIO {
 
@@ -138,7 +138,7 @@ export class ServiceIO {
             if (tool instanceof InsertElementAreaTool || tool instanceof InsertRandomSceneTool) {
                 const revert = toolManager.createRevertAction();
                 toolManager.setPrimaryTool(tool);
-                toolManager.setSecondaryTool(Tools.actionTool(new ToolInfo(), revert));
+                toolManager.setSecondaryTool(Tools.actionTool(revert));
             } else {
                 toolManager.setPrimaryTool(tool);
             }
@@ -201,10 +201,10 @@ class TemplateForm {
             DomBuilder.element('fieldset', { class: 'mb-3 row' }, [
                 DomBuilder.element('legend', { class: 'col-form-label col-sm-3 float-sm-left pt-0' }, 'Material'),
                 DomBuilder.div({ class: 'col-sm-9' }, [
-                    this.#creatMaterialFormGroup('sand', BrushDefs.SAND, 'Sand'),
-                    this.#creatMaterialFormGroup('soil', BrushDefs.SOIL, 'Soil'),
-                    this.#creatMaterialFormGroup('wall', BrushDefs.WALL, 'Solid'),
-                    this.#creatMaterialFormGroup('wood', BrushDefs.TREE_WOOD, 'Wood')
+                    this.#creatMaterialFormGroup('sand', BrushDefs.SAND, 'Sand', ToolDefs.SAND.getInfo().getBadgeStyle()),
+                    this.#creatMaterialFormGroup('soil', BrushDefs.SOIL, 'Soil', ToolDefs.SOIL.getInfo().getBadgeStyle()),
+                    this.#creatMaterialFormGroup('wall', BrushDefs.WALL, 'Solid', ToolDefs.WALL.getInfo().getBadgeStyle()),
+                    this.#creatMaterialFormGroup('wood', BrushDefs.TREE_WOOD, 'Wood', ToolDefs.WOOD.getInfo().getBadgeStyle())
                 ])
             ]),
             DomBuilder.element('fieldset', { class: 'mb-3 row' }, [
@@ -289,7 +289,7 @@ class TemplateForm {
         ]);
     }
 
-    #creatMaterialFormGroup(value, brush, label) {
+    #creatMaterialFormGroup(value, brush, label, style) {
         const checked = (this.#materialValue === value);
         const id = 'image-template_checkbox-material-' + value;
 
@@ -306,9 +306,14 @@ class TemplateForm {
             this.#materialValue = value;
         });
 
+        const labelAttributes = {
+            class: 'form-check-label btn btn-secondary btn-sand-game-tool ' + value,
+            'for': id,
+            style: style
+        };
         return DomBuilder.div({ class: 'form-check' }, [
             input,
-            DomBuilder.element('label', { class: 'form-check-label btn btn-secondary btn-sand-game-tool ' + value, 'for': id }, label)
+            DomBuilder.element('label', labelAttributes, label)
         ]);
     }
 

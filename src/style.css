@@ -1,7 +1,7 @@
 
 /*
  * @author Patrik Harag
- * @version 2024-01-21
+ * @version 2024-02-06
  */
 
 .sand-game-component {
@@ -125,65 +125,25 @@
     margin-bottom: 4pt
 }
 
-.sand-game-component .btn.erase {
-    background-color: rgb(230, 230, 230);
-    color: black;
+.sand-game-component .sand-game-tools .btn-sand-game-tool.sand {
+    margin-left: 0.4em;
 }
 
-.sand-game-component .btn.move {
-    background-color: rgb(230, 230, 230);
-    color: black;
-    margin-right: 0.8em;
-}
-
-.sand-game-component .btn.sand {
-    background-color: rgb(183, 166, 67);
-}
-
-.sand-game-component .btn.soil {
-    background-color: rgb(142, 104, 72);
-}
-
-.sand-game-component .btn.gravel {
-    background-color: rgb(101, 101, 101);
-}
-
-.sand-game-component .btn.wall,
-.sand-game-component .btn.rock {
-    background-color: rgb(56, 56, 56);
-}
-
-.sand-game-component .btn.wood {
-    background-color: rgb(87, 48, 5);
-}
-
-.sand-game-component .btn.water {
-    background-color: rgb(4, 135, 186);
-}
-
-.sand-game-component .btn.fire {
-    background-color: #ff5900;
-}
-
-.sand-game-component .btn.fire.selected {
-    outline: black solid 1px;
-}
-
-.sand-game-component .btn.meteor {
-    background-color: #ff5900;
-}
-
-.sand-game-component .btn.meteor.selected {
-    outline: black solid 1px;
-}
-
-.sand-game-component .btn.template {
+.sand-game-component .sand-game-tools .btn-sand-game-tool.template {
     background-color: #82309d;
     margin-left: 0.4em;
 }
 
-.sand-game-component .btn.selected {
+.sand-game-component .btn-sand-game-tool.selected {
     outline: red solid 1px;
+}
+
+.sand-game-component .btn-sand-game-tool.fire.selected {
+    outline: black solid 1px;
+}
+
+.sand-game-component .btn-sand-game-tool.meteor.selected {
+    outline: black solid 1px;
 }
 
 .sand-game-component .sand-game-options {

@@ -28,7 +28,7 @@ export class ResourceTool {
         if (info === undefined) {
             throw 'Tool definition: info not set';
         }
-        const parsedInfo = new ToolInfo(info.category, info.codeName, info.displayName);
+        const parsedInfo = new ToolInfo(info);
 
         if (action === undefined) {
             throw 'Tool definition: action not set';
@@ -49,11 +49,11 @@ export class ResourceTool {
 
         if (type === 'image-template') {
             const scenes = await this.parseImageTemplate(json, zip);
-            return Tools.insertScenesTool(info, scenes, undefined);
+            return Tools.insertScenesTool(scenes, undefined, info);
 
         } else if (type === 'random-template') {
             const scenes = await this.parseRandomTemplate(json, zip);
-            return Tools.insertScenesTool(info, scenes, undefined);
+            return Tools.insertScenesTool(scenes, undefined, info);
 
         } else {
             throw 'Tool action not supported: ' + type;

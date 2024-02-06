@@ -33,7 +33,7 @@ export class ComponentViewTemplateSelection extends Component {
                     const revert = toolManager.createRevertAction();
 
                     toolManager.setPrimaryTool(loadedTool);
-                    toolManager.setSecondaryTool(Tools.actionTool(new ToolInfo(), revert));
+                    toolManager.setSecondaryTool(Tools.actionTool(revert));
 
                 } else {
                     // this should not happen

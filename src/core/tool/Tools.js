@@ -10,19 +10,19 @@ import {MoveTool} from "./MoveTool";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-28
+ * @version 2024-02-06
  */
 export class Tools {
 
-    static roundBrushTool(info, brush, size) {
+    static roundBrushTool(brush, size, info) {
         return new RoundBrushTool(info, brush, size);
     }
 
-    static pointBrushTool(info, brush) {
+    static pointBrushTool(brush, info) {
         return new PointBrushTool(info, brush);
     }
 
-    static point2BrushTool(info, brush1, brush2) {
+    static point2BrushTool(brush1, brush2, info) {
         return new Point2BrushTool(info, brush1, brush2);
     }
 
@@ -30,7 +30,7 @@ export class Tools {
         return new MeteorTool(info);
     }
 
-    static insertScenesTool(info, scenes, handler) {
+    static insertScenesTool(scenes, handler, info) {
         if (scenes.length === 1) {
             const elementArea = InsertElementAreaTool.asElementArea(scenes[0]);
             return new InsertElementAreaTool(info, elementArea, handler);
@@ -39,11 +39,11 @@ export class Tools {
         }
     }
 
-    static actionTool(info, handler) {
+    static actionTool(handler, info) {
         return new ActionTool(info, handler);
     }
 
-    static moveTool(info, size) {
+    static moveTool(size, info) {
         return new MoveTool(info, size);
     }
 }

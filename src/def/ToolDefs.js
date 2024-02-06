@@ -7,7 +7,7 @@ import { ToolInfo } from "../core/tool/ToolInfo";
 /**
  *
  * @author Patrik Harag
- * @version 2024-02-03
+ * @version 2024-02-06
  */
 export class ToolDefs {
 
@@ -16,22 +16,112 @@ export class ToolDefs {
     static CATEGORY_BRUSH = 'brush';
     static CATEGORY_TEMPLATE = 'template';
 
-    static #info(codeName, displayName, category = ToolDefs.CATEGORY_BRUSH) {
-        return new ToolInfo(category, codeName, displayName);
-    }
+    static NONE = Tools.actionTool(() => {}, new ToolInfo({
+        codeName: 'none',
+        displayName: 'None',
+        category: ToolDefs.CATEGORY_BRUSH,
+    }));
 
-    static NONE = Tools.actionTool(ToolDefs.#info('none', 'None'), () => {});
+    static ERASE = Tools.roundBrushTool(BrushDefs.AIR, ToolDefs.DEFAULT_SIZE, new ToolInfo({
+        codeName: 'erase',
+        displayName: 'Erase',
+        category: ToolDefs.CATEGORY_BRUSH,
+        badgeStyle: {
+            backgroundColor: '#e6e6e6',
+            color: 'black'
+        }
+    }));
 
-    static ERASE = Tools.roundBrushTool(ToolDefs.#info('erase', 'Erase'), BrushDefs.AIR, ToolDefs.DEFAULT_SIZE);
-    static MOVE = Tools.moveTool(ToolDefs.#info('move', 'Move'), 13);
-    static SAND = Tools.roundBrushTool(ToolDefs.#info('sand', 'Sand'), BrushDefs.SAND, ToolDefs.DEFAULT_SIZE);
-    static SOIL = Tools.roundBrushTool(ToolDefs.#info('soil', 'Soil'), BrushDefs.SOIL, ToolDefs.DEFAULT_SIZE);
-    static GRAVEL = Tools.roundBrushTool(ToolDefs.#info('gravel', 'Gravel'), BrushDefs.GRAVEL,ToolDefs.DEFAULT_SIZE);
-    static WALL = Tools.roundBrushTool(ToolDefs.#info('wall', 'Wall'), BrushDefs.WALL, ToolDefs.DEFAULT_SIZE);
-    static ROCK = Tools.roundBrushTool(ToolDefs.#info('rock', 'Rock'), BrushDefs.ROCK, ToolDefs.DEFAULT_SIZE);
-    static WATER = Tools.roundBrushTool(ToolDefs.#info('water', 'Water'), BrushDefs.WATER, ToolDefs.DEFAULT_SIZE);
-    static FIRE = Tools.roundBrushTool(ToolDefs.#info('fire', 'Fire'), Brushes.temperatureOrBrush(50, BrushDefs.FIRE), ToolDefs.DEFAULT_SIZE);
-    static METEOR = Tools.meteorTool(ToolDefs.#info('meteor', 'Meteor'));
+    static MOVE = Tools.moveTool(13, new ToolInfo({
+        codeName: 'move',
+        displayName: 'Move',
+        category: ToolDefs.CATEGORY_BRUSH,
+        badgeStyle: {
+            backgroundColor: '#e6e6e6',
+            color: 'black'
+        }
+    }));
+
+    static SAND = Tools.roundBrushTool(BrushDefs.SAND, ToolDefs.DEFAULT_SIZE, new ToolInfo({
+        codeName: 'sand',
+        displayName: 'Sand',
+        category: ToolDefs.CATEGORY_BRUSH,
+        badgeStyle: {
+            backgroundColor: '#b7a643',
+        }
+    }));
+
+    static SOIL = Tools.roundBrushTool(BrushDefs.SOIL, ToolDefs.DEFAULT_SIZE, new ToolInfo({
+        codeName: 'soil',
+        displayName: 'Soil',
+        category: ToolDefs.CATEGORY_BRUSH,
+        badgeStyle: {
+            backgroundColor: '#8e6848',
+        }
+    }));
+
+    static GRAVEL = Tools.roundBrushTool(BrushDefs.GRAVEL, ToolDefs.DEFAULT_SIZE, new ToolInfo({
+        codeName: 'gravel',
+        displayName: 'Gravel',
+        category: ToolDefs.CATEGORY_BRUSH,
+        badgeStyle: {
+            backgroundColor: '#656565',
+        }
+    }));
+
+    static WALL = Tools.roundBrushTool(BrushDefs.WALL, ToolDefs.DEFAULT_SIZE, new ToolInfo({
+        codeName: 'wall',
+        displayName: 'Wall',
+        category: ToolDefs.CATEGORY_BRUSH,
+        badgeStyle: {
+            backgroundColor: '#383838',
+        }
+    }));
+
+    static ROCK = Tools.roundBrushTool(BrushDefs.ROCK, ToolDefs.DEFAULT_SIZE, new ToolInfo({
+        codeName: 'rock',
+        displayName: 'Rock',
+        category: ToolDefs.CATEGORY_BRUSH,
+        badgeStyle: {
+            backgroundColor: '#383838',
+        }
+    }));
+
+    static WOOD = Tools.roundBrushTool(BrushDefs.TREE_WOOD, ToolDefs.DEFAULT_SIZE, new ToolInfo({
+        codeName: 'wood',
+        displayName: 'Wood',
+        category: ToolDefs.CATEGORY_BRUSH,
+        badgeStyle: {
+            backgroundColor: '#573005',
+        }
+    }));
+
+    static WATER = Tools.roundBrushTool(BrushDefs.WATER, ToolDefs.DEFAULT_SIZE, new ToolInfo({
+        codeName: 'water',
+        displayName: 'Water',
+        category: ToolDefs.CATEGORY_BRUSH,
+        badgeStyle: {
+            backgroundColor: '#0487ba',
+        }
+    }));
+
+    static FIRE = Tools.roundBrushTool(Brushes.temperatureOrBrush(50, BrushDefs.FIRE), ToolDefs.DEFAULT_SIZE, new ToolInfo({
+        codeName: 'fire',
+        displayName: 'Fire',
+        category: ToolDefs.CATEGORY_BRUSH,
+        badgeStyle: {
+            backgroundColor: '#ff5900',
+        }
+    }));
+
+    static METEOR = Tools.meteorTool(new ToolInfo({
+        codeName: 'meteor',
+        displayName: 'Meteor',
+        category: ToolDefs.CATEGORY_BRUSH,
+        badgeStyle: {
+            backgroundColor: '#ff5900',
+        }
+    }));
 
     /** @type Tool[] */
     static DEFAULT_TOOLS = [
@@ -48,20 +138,76 @@ export class ToolDefs {
 
     /** @type Tool[] */
     static TEST_TOOLS = [
-        Tools.pointBrushTool(ToolDefs.#info( 'grass', 'Grass'), BrushDefs.GRASS),
-        Tools.pointBrushTool(ToolDefs.#info( 'tree', 'Tree'), BrushDefs.TREE),
-        Tools.point2BrushTool(ToolDefs.#info( 'fish', 'Fish'), BrushDefs.FISH_HEAD, BrushDefs.FISH_BODY),
-        Tools.roundBrushTool(ToolDefs.#info( 'effect_burnt', 'Burnt'), BrushDefs.EFFECT_BURNT, ToolDefs.DEFAULT_SIZE),
-        Tools.roundBrushTool(ToolDefs.#info( 'effect_noise_sm', 'Noise SM'), BrushDefs.EFFECT_NOISE_SM, ToolDefs.DEFAULT_SIZE),
-        Tools.roundBrushTool(ToolDefs.#info( 'effect_noise_md', 'Noise MD'), BrushDefs.EFFECT_NOISE_MD, ToolDefs.DEFAULT_SIZE),
-        Tools.roundBrushTool(ToolDefs.#info( 'effect_noise_lg', 'Noise LG'), BrushDefs.EFFECT_NOISE_LG, ToolDefs.DEFAULT_SIZE),
-        Tools.roundBrushTool(ToolDefs.#info( 'effect_temp_0', 'Temp 0'), BrushDefs.EFFECT_TEMP_0, ToolDefs.DEFAULT_SIZE),
-        Tools.roundBrushTool(ToolDefs.#info( 'effect_temp_127', 'Temp 127'), BrushDefs.EFFECT_TEMP_127, ToolDefs.DEFAULT_SIZE),
-        Tools.roundBrushTool(ToolDefs.#info( 'effect_temp_200', 'Temp 200'), BrushDefs.EFFECT_TEMP_200, ToolDefs.DEFAULT_SIZE),
-        Tools.roundBrushTool(ToolDefs.#info( 'effect_temp_255', 'Temp 255'), BrushDefs.EFFECT_TEMP_255, ToolDefs.DEFAULT_SIZE),
-        Tools.roundBrushTool(ToolDefs.#info( 'ash', 'Ash'), BrushDefs.ASH, ToolDefs.DEFAULT_SIZE),
-        Tools.roundBrushTool(ToolDefs.#info( 'metal', 'Metal'), BrushDefs.METAL, ToolDefs.DEFAULT_SIZE),
-        Tools.roundBrushTool(ToolDefs.#info( 'metal_molten', 'Molten Metal'), BrushDefs.METAL_MOLTEN, ToolDefs.DEFAULT_SIZE),
+        Tools.pointBrushTool(BrushDefs.GRASS, new ToolInfo({
+            codeName: 'grass',
+            displayName: 'Grass',
+            category: ToolDefs.CATEGORY_BRUSH,
+        })),
+        Tools.pointBrushTool(BrushDefs.TREE, new ToolInfo({
+            codeName: 'tree',
+            displayName: 'Tree',
+            category: ToolDefs.CATEGORY_BRUSH,
+        })),
+        Tools.point2BrushTool(BrushDefs.FISH_HEAD, BrushDefs.FISH_BODY, new ToolInfo({
+            codeName: 'fish',
+            displayName: 'Fish',
+            category: ToolDefs.CATEGORY_BRUSH,
+        })),
+        Tools.roundBrushTool(BrushDefs.EFFECT_BURNT, ToolDefs.DEFAULT_SIZE, new ToolInfo({
+            codeName: 'effect_burnt',
+            displayName: 'Burnt',
+            category: ToolDefs.CATEGORY_BRUSH,
+        })),
+        Tools.roundBrushTool(BrushDefs.EFFECT_NOISE_SM, ToolDefs.DEFAULT_SIZE, new ToolInfo({
+            codeName: 'effect_noise_sm',
+            displayName: 'Noise SM',
+            category: ToolDefs.CATEGORY_BRUSH,
+        })),
+        Tools.roundBrushTool(BrushDefs.EFFECT_NOISE_MD, ToolDefs.DEFAULT_SIZE, new ToolInfo({
+            codeName: 'effect_noise_md',
+            displayName: 'Noise MD',
+            category: ToolDefs.CATEGORY_BRUSH,
+        })),
+        Tools.roundBrushTool(BrushDefs.EFFECT_NOISE_LG, ToolDefs.DEFAULT_SIZE, new ToolInfo({
+            codeName: 'effect_noise_lg',
+            displayName: 'Noise LG',
+            category: ToolDefs.CATEGORY_BRUSH,
+        })),
+        Tools.roundBrushTool(BrushDefs.EFFECT_TEMP_0, ToolDefs.DEFAULT_SIZE, new ToolInfo({
+            codeName: 'effect_temp_0',
+            displayName: 'Temp 0',
+            category: ToolDefs.CATEGORY_BRUSH,
+        })),
+        Tools.roundBrushTool(BrushDefs.EFFECT_TEMP_127, ToolDefs.DEFAULT_SIZE, new ToolInfo({
+            codeName: 'effect_temp_127',
+            displayName: 'Temp 127',
+            category: ToolDefs.CATEGORY_BRUSH,
+        })),
+        Tools.roundBrushTool(BrushDefs.EFFECT_TEMP_200, ToolDefs.DEFAULT_SIZE, new ToolInfo({
+            codeName: 'effect_temp_200',
+            displayName: 'Temp 200',
+            category: ToolDefs.CATEGORY_BRUSH,
+        })),
+        Tools.roundBrushTool(BrushDefs.EFFECT_TEMP_255, ToolDefs.DEFAULT_SIZE, new ToolInfo({
+            codeName: 'effect_temp_255',
+            displayName: 'Temp 255',
+            category: ToolDefs.CATEGORY_BRUSH,
+        })),
+        Tools.roundBrushTool(BrushDefs.ASH, ToolDefs.DEFAULT_SIZE, new ToolInfo({
+            codeName: 'ash',
+            displayName: 'Ash',
+            category: ToolDefs.CATEGORY_BRUSH,
+        })),
+        Tools.roundBrushTool(BrushDefs.METAL, ToolDefs.DEFAULT_SIZE, new ToolInfo({
+            codeName: 'metal',
+            displayName: 'Metal',
+            category: ToolDefs.CATEGORY_BRUSH,
+        })),
+        Tools.roundBrushTool(BrushDefs.METAL_MOLTEN, ToolDefs.DEFAULT_SIZE, new ToolInfo({
+            codeName: 'metal_molten',
+            displayName: 'Molten Metal',
+            category: ToolDefs.CATEGORY_BRUSH,
+        }))
     ];
 
     static _LIST = {};

@@ -415,8 +415,8 @@ export class Controller {
         const toolManager = this.getToolManager();
         const revert = toolManager.createRevertAction();
 
-        toolManager.setPrimaryTool(Tools.insertScenesTool(new ToolInfo(), [ scene ], revert));
-        toolManager.setSecondaryTool(Tools.actionTool(new ToolInfo(), revert));
+        toolManager.setPrimaryTool(Tools.insertScenesTool([ scene ], revert));
+        toolManager.setSecondaryTool(Tools.actionTool(revert));
     }
 
     // controller / canvas size
