@@ -9,6 +9,8 @@ import {StructureDefs} from "./StructureDefs";
 import _ASSET_PALETTE_SAND from './assets/brushes/sand.palette.csv';
 import _ASSET_PALETTE_SOIL from './assets/brushes/soil.palette.csv';
 import _ASSET_PALETTE_GRAVEL from './assets/brushes/gravel.palette.csv';
+import _ASSET_PALETTE_THERMITE from './assets/brushes/thermite-2.palette.csv';
+import _ASSET_PALETTE_COAL from './assets/brushes/coal.palette.csv';
 import _ASSET_PALETTE_ASH from './assets/brushes/ash.palette.csv';
 import _ASSET_PALETTE_WATER from './assets/brushes/water.palette.csv';
 import _ASSET_PALETTE_STEAM from './assets/brushes/steam.palette.csv';
@@ -22,7 +24,7 @@ import _ASSET_PALETTE_TREE_LEAF_DARK from './assets/brushes/tree-leaf-dark.palet
 /**
  *
  * @author Patrik Harag
- * @version 2024-02-06
+ * @version 2024-02-07
  */
 export class BrushDefs {
 
@@ -138,6 +140,26 @@ export class BrushDefs {
             ElementHead.behaviour8(),
             ElementHead.modifiers8(ElementHead.HMI_CONDUCTIVE_2));
         const elementTail = ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_1, ElementTail.HEAT_EFFECT_2);
+        return new Element(elementHead, elementTail);
+    }));
+
+    static COAL = Brushes.colorPalette(_ASSET_PALETTE_COAL, Brushes.custom((x, y, random) => {
+        const type = random.nextInt(100) < 40 ? ElementHead.TYPE_POWDER : ElementHead.TYPE_POWDER_WET;
+        const elementHead = ElementHead.of(
+            ElementHead.type8Powder(type, 4),
+            ElementHead.behaviour8(),
+            ElementHead.modifiers8(ElementHead.HMI_COAL));
+        const elementTail = ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_1, ElementTail.HEAT_EFFECT_2, 3);
+        return new Element(elementHead, elementTail);
+    }));
+
+    static THERMITE = Brushes.colorPalette(_ASSET_PALETTE_THERMITE, Brushes.custom((x, y, random) => {
+        const type = random.nextInt(100) < 60 ? ElementHead.TYPE_POWDER : ElementHead.TYPE_POWDER_WET;
+        const elementHead = ElementHead.of(
+            ElementHead.type8Powder(type, 5),
+            ElementHead.behaviour8(),
+            ElementHead.modifiers8(ElementHead.HMI_THERMITE));
+        const elementTail = ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_1, ElementTail.HEAT_EFFECT_2, 3);
         return new Element(elementHead, elementTail);
     }));
 

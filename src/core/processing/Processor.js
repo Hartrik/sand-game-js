@@ -570,30 +570,40 @@ export class Processor extends ProcessorContext {
             const targetElementHead = this.#elementArea.getElementHead(tx, ty);
             const targetTemp = ElementHead.getTemperature(targetElementHead);
 
-            const conductiveIndex = ElementHead.hmiToConductiveIndex(heatModIndex);
-            newTemp = Math.trunc((conductiveIndex * targetTemp) + (1 - conductiveIndex) * temp);
-            if (heatLoss) {
-                newTemp = Math.max(newTemp - 1, 0);
+            if (temp + targetTemp > 1) {
+                const conductiveIndex = ElementHead.hmiToConductiveIndex(heatModIndex);
+                newTemp = Math.trunc((conductiveIndex * targetTemp) + (1 - conductiveIndex) * temp);
             }
 
             if (temp - newTemp !== 0) {
-                // limit max absolute change - it will look more natural...
-                if (temp - newTemp > 24) {
-                    newTemp = temp - 24;
-                } else if (temp - newTemp < -24) {
-                    newTemp = temp + 24;
-                }
-
-                elementHead = ElementHead.setTemperature(elementHead, newTemp);
-                this.#elementArea.setElementHead(x, y, elementHead);
-
-                let newTargetTemp = Math.trunc(targetTemp + (temp - newTemp));
                 if (heatLoss) {
-                    newTargetTemp = newTemp - 1;
+                    newTemp--;
                 }
+                newTemp = Math.max(newTemp, 0);
+
+                // update target temp
+
+                let newTargetTemp;
+                if (targetTemp - newTemp > 10) {
+                    // limit max absolute dec change - it will look more natural...
+                    newTargetTemp = targetTemp - 10;
+                } else {
+                    newTargetTemp = targetTemp + (temp - newTemp);
+                }
+
                 newTargetTemp = Math.max(newTargetTemp, 0);
                 this.#elementArea.setElementHead(tx, ty, ElementHead.setTemperature(targetElementHead, newTargetTemp));
                 this.trigger(tx, ty);
+
+                // update this temp
+
+                if (temp - newTemp > 10) {
+                    // limit max absolute dec change - it will look more natural...
+                    newTemp = temp - 10;
+                }
+                elementHead = ElementHead.setTemperature(elementHead, newTemp);
+                this.#elementArea.setElementHead(x, y, elementHead);
+
             }
         } else {
             if (heatLoss) {

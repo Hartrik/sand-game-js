@@ -7,7 +7,7 @@ import { ToolInfo } from "../core/tool/ToolInfo";
 /**
  *
  * @author Patrik Harag
- * @version 2024-02-06
+ * @version 2024-02-07
  */
 export class ToolDefs {
 
@@ -66,6 +66,24 @@ export class ToolDefs {
         category: ToolDefs.CATEGORY_BRUSH,
         badgeStyle: {
             backgroundColor: '#656565',
+        }
+    }));
+
+    static COAL = Tools.roundBrushTool(BrushDefs.COAL, ToolDefs.DEFAULT_SIZE, new ToolInfo({
+        codeName: 'coal',
+        displayName: 'Coal',
+        category: ToolDefs.CATEGORY_BRUSH,
+        badgeStyle: {
+            backgroundColor: '#343434',
+        }
+    }));
+
+    static THERMITE = Tools.roundBrushTool(BrushDefs.THERMITE, ToolDefs.DEFAULT_SIZE, new ToolInfo({
+        codeName: 'thermite',
+        displayName: 'Thermite',
+        category: ToolDefs.CATEGORY_BRUSH,
+        badgeStyle: {
+            backgroundColor: '#914e47',
         }
     }));
 
@@ -148,6 +166,8 @@ export class ToolDefs {
         this.SAND,
         this.SOIL,
         this.GRAVEL,
+        this.COAL,
+        this.THERMITE,
         this.ROCK,
         this.METAL,
         this.WATER,

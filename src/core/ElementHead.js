@@ -16,7 +16,7 @@
  * </pre>
  *
  * @author Patrik Harag
- * @version 2024-01-31
+ * @version 2024-02-07
  */
 export class ElementHead {
 
@@ -193,6 +193,7 @@ export class ElementHead {
 
     static HMI_DEFAULT = ElementHead.#defHeatMods({
         i: 0
+        // default values
     });
 
     static HMI_CONDUCTIVE_1 = ElementHead.#defHeatMods({
@@ -251,6 +252,26 @@ export class ElementHead {
         heatLossChanceTo10000: 10,
         hardeningTemperature: 150,
         hardeningHMI: 7
+    });
+
+    static HMI_COAL = ElementHead.#defHeatMods({
+        i: 9,
+        conductiveIndex: 0.3,
+        heatLossChanceTo10000: 20,
+        flammableChanceTo10000: 500,
+        selfIgnitionChanceTo10000: 3,
+        flameHeat: 190,
+        burnDownChanceTo10000: 50
+    });
+
+    static HMI_THERMITE = ElementHead.#defHeatMods({
+        i: 10,
+        conductiveIndex: 0.45,
+        heatLossChanceTo10000: 10,
+        flammableChanceTo10000: 8000,
+        selfIgnitionChanceTo10000: 500,
+        flameHeat: 250,
+        burnDownChanceTo10000: 1000
     });
 
     static {
