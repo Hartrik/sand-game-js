@@ -2,9 +2,11 @@
 /**
  *
  * @author Patrik Harag
- * @version 2024-02-06
+ * @version 2024-02-08
  */
 export class ToolInfo {
+
+    static NOT_DEFINED = new ToolInfo();
 
     #info
 
@@ -17,7 +19,7 @@ export class ToolInfo {
      *     badgeStyle: CSSStyleDeclaration|undefined,
      * }}
      */
-    constructor(info = undefined) {
+    constructor(info = {}) {
         this.#info = info;
     }
 

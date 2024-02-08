@@ -1,17 +1,18 @@
 import {CursorDefinition} from "./CursorDefinition.js";
+import {ToolInfo} from "./ToolInfo";
 
 /**
  * @interface
  *
  * @author Patrik Harag
- * @version 2023-12-28
+ * @version 2024-02-08
  */
 export class Tool {
 
-    /** @type ToolInfo */
+    /** @type ToolInfo|null */
     #info;
 
-    constructor(info) {
+    constructor(info = ToolInfo.NOT_DEFINED) {
         this.#info = info;
     }
 
