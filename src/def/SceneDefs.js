@@ -7,7 +7,7 @@ import {TemplateDefs} from "./TemplateDefs";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-20
+ * @version 2024-02-08
  */
 export class SceneDefs {
 
@@ -27,16 +27,18 @@ export class SceneDefs {
         description: 'Boxed mode',
         apply: async function (sandGame) {
             sandGame.setBoxedMode();
+            const m = 40;
             let layeredPainter = sandGame.layeredTemplate()
-                .layerSpline([[0, 35], [40, 40], [60, 50], [80, 40], [200, 20], [400, 20], [1000, 20]],
+                .layerSpline([[0, 35], [60, 35], [40 + m, 40], [60 + m, 50], [80 + m, 40], [200 + m, 20], [400 + m, 20], [1000 + m, 20]],
                     true, Brushes.concat(BrushDefs.SOIL, BrushDefs.EFFECT_NOISE_LG))
-                .layerSpline([[0, 0], [90, 0], [110, 10], [150, 10], [250, 0]],
+                .layerSpline([[0, 0], [90 + m, 0], [110 + m, 10], [150 + m, 10], [250 + m, 0]],
                         true, BrushDefs.SAND, 2)
-                .tool(120, 5, await Resources.parseToolDefinition(TemplateDefs.SAND_CASTLE))
-                .tree(60, 1, 200)
-                .tree(30, 5)
-                .grass(20, 40)
-                .grass(50, 70);
+                .tool(30, 17, await Resources.parseToolDefinition(TemplateDefs.CABIN))
+                .tool(120 + m, 5, await Resources.parseToolDefinition(TemplateDefs.SAND_CASTLE))
+                .tree(60 + m, 1, 200)
+                .tree(30 + m, 5)
+                .grass(20 + m, 40 + m)
+                .grass(50 + m, 70 + m);
 
             if (sandGame.getWidth() / sandGame.getHeight() > 1.5) {
                 // wide screens only

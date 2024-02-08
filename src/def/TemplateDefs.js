@@ -23,13 +23,13 @@ import _ASSET_SAND_CASTLE from './assets/templates/sand-castle.png'
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-25
+ * @version 2024-02-08
  */
 export class TemplateDefs {
 
     static ROCK_SM = {
         info: {
-            displayName: "Rock SM",
+            displayName: "Small Rock",
             category: "template",
             icon: {
                 imageData: _ASSET_ROCK_SM_ICON
@@ -66,7 +66,7 @@ export class TemplateDefs {
 
     static ROCK_MD =  {
         info: {
-            displayName: "Rock",
+            displayName: "Medium Rock",
             category: "template",
             icon: {
                 imageData: _ASSET_ROCK_ICON
@@ -127,7 +127,7 @@ export class TemplateDefs {
 
     static ROCK_LG = {
         info: {
-            displayName: "Rock LG",
+            displayName: "Large Rock",
             category: "template",
             icon: {
                 imageData: _ASSET_ROCK_LG_ICON
@@ -157,9 +157,9 @@ export class TemplateDefs {
         info: {
             displayName: "Cabin",
             category: "template",
-            icon: {
-                imageData: _ASSET_WOODEN_HOUSE_ICON
-            }
+            // icon: {
+            //     imageData: _ASSET_WOODEN_HOUSE_ICON
+            // }
         },
         action: {
             type: "image-template",

@@ -58,7 +58,7 @@ export const tools = ToolDefs._LIST;
  * @returns {Controller}
  *
  * @author Patrik Harag
- * @version 2024-02-04
+ * @version 2024-02-08
  */
 export function init(root, config) {
     if (config === undefined) {
@@ -138,9 +138,7 @@ export function init(root, config) {
     }
 
     let tools;
-    let enableDefaultTemplates;
     if (Array.isArray(config.tools)) {
-        enableDefaultTemplates = false;
         tools = [];
         for (let t of config.tools) {
             let tool = resolveTool(t, null);
@@ -149,7 +147,6 @@ export function init(root, config) {
             }
         }
     } else {
-        enableDefaultTemplates = true;
         tools = ToolDefs.DEFAULT_TOOLS;
     }
 
@@ -184,7 +181,7 @@ export function init(root, config) {
     // init components
 
     const mainComponent = new ComponentContainer('sand-game-component', [
-        new ComponentViewTools(tools, enableDefaultTemplates),
+        new ComponentViewTools(tools, enableImport),
         new ComponentViewCanvas(),
         new ComponentContainer('sand-game-options', [
             new ComponentContainer('sand-game-options-left', [

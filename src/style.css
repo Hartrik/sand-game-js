@@ -1,7 +1,7 @@
 
 /*
  * @author Patrik Harag
- * @version 2024-02-06
+ * @version 2024-02-08
  */
 
 .sand-game-component {
@@ -126,11 +126,6 @@
 }
 
 .sand-game-component .sand-game-tools .btn-sand-game-tool.sand {
-    margin-left: 0.4em;
-}
-
-.sand-game-component .sand-game-tools .btn-sand-game-tool.template {
-    background-color: #82309d;
     margin-left: 0.4em;
 }
 

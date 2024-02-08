@@ -1,28 +1,26 @@
 import { DomBuilder } from "../DomBuilder";
-import { TemplateDefs } from "../../def/TemplateDefs";
 import { Resources } from "../../io/Resources";
 import { Tools } from "../../core/tool/Tools";
 import { Component } from "./Component";
-import { ToolInfo } from "../../core/tool/ToolInfo";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-25
+ * @version 2024-02-08
  */
 export class ComponentViewTemplateSelection extends Component {
+
+    #templateDefinitions;
+
+    constructor(templateDefinitions) {
+        super();
+        this.#templateDefinitions = templateDefinitions;
+    }
 
     createNode(controller) {
         let buttons = [];
 
-        let templateDefinitions = [
-            TemplateDefs.ROCK_SM,
-            TemplateDefs.ROCK_MD,
-            TemplateDefs.ROCK_LG,
-            TemplateDefs.CABIN,
-        ];
-
-        for (const toolDefinition of templateDefinitions) {
+        for (const toolDefinition of this.#templateDefinitions) {
             const name = toolDefinition.info.displayName;
             let loadedTool = null;
 
@@ -39,7 +37,9 @@ export class ComponentViewTemplateSelection extends Component {
                     // this should not happen
                 }
             });
-            button.style.backgroundImage = `url(${ toolDefinition.info.icon.imageData })`;
+            if (toolDefinition.info.icon !== undefined) {
+                button.style.backgroundImage = `url(${ toolDefinition.info.icon.imageData })`;
+            }
 
             buttons.push(button);
 

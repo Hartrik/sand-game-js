@@ -6,11 +6,12 @@ import {InsertElementAreaTool} from "./InsertElementAreaTool";
 import {InsertRandomSceneTool} from "./InsertRandomSceneTool";
 import {ActionTool} from "./ActionTool";
 import {MoveTool} from "./MoveTool";
+import {TemplateSelectionFakeTool} from "./TemplateSelectionFakeTool";
 
 /**
  *
  * @author Patrik Harag
- * @version 2024-02-06
+ * @version 2024-02-08
  */
 export class Tools {
 
@@ -45,5 +46,9 @@ export class Tools {
 
     static moveTool(size, info) {
         return new MoveTool(info, size);
+    }
+
+    static templateSelectionTool(templateDefinitions, info) {
+        return new TemplateSelectionFakeTool(info, templateDefinitions);
     }
 }

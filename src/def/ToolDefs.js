@@ -3,11 +3,12 @@ import { Tool } from "../core/tool/Tool.js";
 import { Tools } from "../core/tool/Tools";
 import { BrushDefs } from "./BrushDefs";
 import { ToolInfo } from "../core/tool/ToolInfo";
+import {TemplateDefs} from "./TemplateDefs";
 
 /**
  *
  * @author Patrik Harag
- * @version 2024-02-07
+ * @version 2024-02-08
  */
 export class ToolDefs {
 
@@ -15,6 +16,7 @@ export class ToolDefs {
 
     static CATEGORY_BRUSH = 'brush';
     static CATEGORY_TEMPLATE = 'template';
+    static CATEGORY_SELECTION = 'selection';
 
     static NONE = Tools.actionTool(() => {}, new ToolInfo({
         codeName: 'none',
@@ -105,6 +107,19 @@ export class ToolDefs {
         }
     }));
 
+    static ROCK_TEMPLATES = Tools.templateSelectionTool([
+        TemplateDefs.ROCK_SM,
+        TemplateDefs.ROCK_MD,
+        TemplateDefs.ROCK_LG
+    ], new ToolInfo({
+        codeName: 'rock_templates',
+        displayName: 'Rock',
+        category: ToolDefs.CATEGORY_SELECTION,
+        badgeStyle: {
+            backgroundColor: '#383838',
+        }
+    }));
+
     static WOOD = Tools.roundBrushTool(BrushDefs.TREE_WOOD, ToolDefs.DEFAULT_SIZE, new ToolInfo({
         codeName: 'wood',
         displayName: 'Wood',
@@ -168,9 +183,9 @@ export class ToolDefs {
         this.GRAVEL,
         this.COAL,
         this.THERMITE,
-        this.ROCK,
-        this.METAL,
         this.WATER,
+        this.ROCK_TEMPLATES,
+        this.METAL,
         this.METAL_MOLTEN,
         this.FIRE,
         this.METEOR,

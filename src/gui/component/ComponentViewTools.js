@@ -2,28 +2,35 @@ import { DomBuilder } from "../DomBuilder";
 import { Component } from "./Component";
 import { ActionDialogTemplateSelection } from "../action/ActionDialogTemplateSelection";
 import { ToolDefs } from "../../def/ToolDefs";
+import { TemplateSelectionFakeTool } from "../../core/tool/TemplateSelectionFakeTool";
 
 /**
  *
  * @author Patrik Harag
- * @version 2024-02-06
+ * @version 2024-02-08
  */
 export class ComponentViewTools extends Component {
 
     /** @type Tool[] */
     #tools;
-
     /** @type boolean */
-    #templates;
+    #importEnabled;
 
     /**
      * @param tools {Tool[]}
-     * @param templates {boolean}
+     * @param importEnabled {boolean}
      */
-    constructor(tools, templates) {
+    constructor(tools, importEnabled = false) {
         super();
         this.#tools = tools;
-        this.#templates = templates;
+        this.#importEnabled = importEnabled;
+    }
+
+    createAdditionalInfoAboutTemplates() {
+        return DomBuilder.div(null, [
+            DomBuilder.par(null, ""),
+            DomBuilder.par(null, "You can also create your own template using an image. See the Import button.")
+        ]);
     }
 
     createNode(controller) {
@@ -39,8 +46,17 @@ export class ComponentViewTools extends Component {
                 style: badgeStyle
             };
             let button = DomBuilder.button(displayName, attributes, () => {
-                controller.getToolManager().setPrimaryTool(tool);
-                controller.getToolManager().setSecondaryTool(ToolDefs.ERASE);
+                if (tool instanceof TemplateSelectionFakeTool) {
+                    let additionalInfo = null;
+                    if (this.#importEnabled) {
+                        additionalInfo = this.createAdditionalInfoAboutTemplates();
+                    }
+                    const action = new ActionDialogTemplateSelection(tool.getTemplateDefinitions(), additionalInfo);
+                    action.performAction(controller);
+                } else {
+                    controller.getToolManager().setPrimaryTool(tool);
+                    controller.getToolManager().setSecondaryTool(ToolDefs.ERASE);
+                }
             });
 
             controller.getToolManager().addOnPrimaryToolChanged(newTool => {
@@ -56,17 +72,6 @@ export class ComponentViewTools extends Component {
                 button.classList.add('selected');
             }
 
-            controller.getToolManager().addOnInputDisabledChanged(disabled => {
-                button.disabled = disabled;
-            });
-
-            buttons.push(button);
-        }
-
-        if (this.#templates) {
-            let button = DomBuilder.button('Template', { class: 'btn btn-secondary btn-sand-game-tool template'}, () => {
-                new ActionDialogTemplateSelection().performAction(controller);
-            });
             controller.getToolManager().addOnInputDisabledChanged(disabled => {
                 button.disabled = disabled;
             });
