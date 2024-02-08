@@ -185,6 +185,7 @@ export class ToolDefs {
         this.THERMITE,
         this.WATER,
         this.ROCK_TEMPLATES,
+        this.WALL,
         this.METAL,
         this.METAL_MOLTEN,
         this.FIRE,
