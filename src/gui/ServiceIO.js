@@ -186,7 +186,7 @@ export class ServiceIO {
  * Creates template form and remembers last values.
  *
  * @author Patrik Harag
- * @version 2023-05-19
+ * @version 2024-02-09
  */
 class TemplateForm {
 
@@ -200,11 +200,13 @@ class TemplateForm {
         return DomBuilder.element('form', null, [
             DomBuilder.element('fieldset', { class: 'mb-3 row' }, [
                 DomBuilder.element('legend', { class: 'col-form-label col-sm-3 float-sm-left pt-0' }, 'Material'),
-                DomBuilder.div({ class: 'col-sm-9' }, [
-                    this.#creatMaterialFormGroup('sand', BrushDefs.SAND, 'Sand', ToolDefs.SAND.getInfo().getBadgeStyle()),
-                    this.#creatMaterialFormGroup('soil', BrushDefs.SOIL, 'Soil', ToolDefs.SOIL.getInfo().getBadgeStyle()),
-                    this.#creatMaterialFormGroup('wall', BrushDefs.WALL, 'Solid', ToolDefs.WALL.getInfo().getBadgeStyle()),
-                    this.#creatMaterialFormGroup('wood', BrushDefs.TREE_WOOD, 'Wood', ToolDefs.WOOD.getInfo().getBadgeStyle())
+                DomBuilder.div({ class: 'col-sm-9', style: 'column-count: 2;' }, [
+                    this.#creatMaterialFormGroup(BrushDefs.SAND, ToolDefs.SAND.getInfo()),
+                    this.#creatMaterialFormGroup(BrushDefs.SOIL, ToolDefs.SOIL.getInfo()),
+                    this.#creatMaterialFormGroup(BrushDefs.THERMITE, ToolDefs.THERMITE.getInfo()),
+                    this.#creatMaterialFormGroup(BrushDefs.WALL, ToolDefs.WALL.getInfo()),
+                    this.#creatMaterialFormGroup(BrushDefs.METAL, ToolDefs.METAL.getInfo()),
+                    this.#creatMaterialFormGroup(BrushDefs.TREE_WOOD, ToolDefs.WOOD.getInfo()),
                 ])
             ]),
             DomBuilder.element('fieldset', { class: 'mb-3 row' }, [
@@ -289,7 +291,9 @@ class TemplateForm {
         ]);
     }
 
-    #creatMaterialFormGroup(value, brush, label, style) {
+    #creatMaterialFormGroup(brush, toolInfo) {
+        const value = toolInfo.getCodeName();
+
         const checked = (this.#materialValue === value);
         const id = 'image-template_checkbox-material-' + value;
 
@@ -309,11 +313,11 @@ class TemplateForm {
         const labelAttributes = {
             class: 'form-check-label btn btn-secondary btn-sand-game-tool ' + value,
             'for': id,
-            style: style
+            style: toolInfo.getBadgeStyle()
         };
         return DomBuilder.div({ class: 'form-check' }, [
             input,
-            DomBuilder.element('label', labelAttributes, label)
+            DomBuilder.element('label', labelAttributes, toolInfo.getDisplayName())
         ]);
     }
 
