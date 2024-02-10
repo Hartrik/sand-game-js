@@ -394,12 +394,16 @@ export class Controller {
      * @returns Snapshot
      */
     createSnapshot() {
-        let snapshot = this.#sandGame.createSnapshot();
-        snapshot.metadata.scale = this.getCurrentScale();
-        if (this.#init.version !== undefined) {
-            snapshot.metadata.appVersion = this.#init.version;
+        if (this.#sandGame !== null) {
+            let snapshot = this.#sandGame.createSnapshot();
+            snapshot.metadata.scale = this.getCurrentScale();
+            if (this.#init.version !== undefined) {
+                snapshot.metadata.appVersion = this.#init.version;
+            }
+            return snapshot;
+        } else {
+            return null;
         }
-        return snapshot;
     }
 
     openScene(scene) {

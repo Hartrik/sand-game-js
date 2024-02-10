@@ -31,6 +31,8 @@ export { ToolDefs} from "./def/ToolDefs";
 export { BrushDefs } from "./def/BrushDefs";
 export { PredicateDefs } from "./def/PredicateDefs";
 
+export { Resources } from "./io/Resources";
+
 export const brushes = BrushDefs._LIST;
 export const tools = ToolDefs._LIST;
 
@@ -58,7 +60,7 @@ export const tools = ToolDefs._LIST;
  * @returns {Controller}
  *
  * @author Patrik Harag
- * @version 2024-02-08
+ * @version 2024-02-10
  */
 export function init(root, config) {
     if (config === undefined) {
