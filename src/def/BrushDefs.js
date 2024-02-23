@@ -24,7 +24,7 @@ import _ASSET_PALETTE_TREE_LEAF_DARK from './assets/brushes/tree-leaf-dark.palet
 /**
  *
  * @author Patrik Harag
- * @version 2024-02-07
+ * @version 2024-02-24
  */
 export class BrushDefs {
 
@@ -66,7 +66,7 @@ export class BrushDefs {
         Brushes.random([
             new Element(
                 ElementHead.of(
-                    ElementHead.type8(ElementHead.TYPE_STATIC),
+                    ElementHead.type8(ElementHead.type8Solid(ElementHead.TYPE_STATIC, 1)),
                     ElementHead.behaviour8(),
                     ElementHead.modifiers8(ElementHead.HMI_CONDUCTIVE_1)),
                 ElementTail.of(155, 155, 155, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_2))
@@ -93,7 +93,7 @@ export class BrushDefs {
         Brushes.random([
             new Element(
                 ElementHead.of(
-                    ElementHead.type8(ElementHead.TYPE_STATIC),
+                    ElementHead.type8(ElementHead.type8Solid(ElementHead.TYPE_STATIC, 2)),
                     ElementHead.behaviour8(),
                     ElementHead.modifiers8(ElementHead.HMI_METAL)),
                 ElementTail.of(155, 155, 155, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_3))
@@ -228,7 +228,7 @@ export class BrushDefs {
         let treeType = random.nextInt(StructureDefs.TREE_TRUNK_TEMPLATES.length);
         return new Element(
             ElementHead.of(
-                ElementHead.type8(ElementHead.TYPE_STATIC),
+                ElementHead.type8(ElementHead.type8Solid(ElementHead.TYPE_STATIC, 3)),
                 ElementHead.behaviour8(ElementHead.BEHAVIOUR_TREE, treeType),
                 ElementHead.modifiers8(ElementHead.HMI_WOOD_LIKE)),
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_1));
@@ -237,13 +237,13 @@ export class BrushDefs {
     static TREE_ROOT = Brushes.colorPalette(_ASSET_PALETTE_TREE_ROOT, Brushes.random([
         new Element(
             ElementHead.of(
-                ElementHead.type8(ElementHead.TYPE_STATIC),
+                ElementHead.type8(ElementHead.type8Solid(ElementHead.TYPE_STATIC, 3)),
                 ElementHead.behaviour8(ElementHead.BEHAVIOUR_TREE_ROOT, 8),
                 ElementHead.modifiers8(ElementHead.HMI_WOOD_LIKE)),
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_1)),
         new Element(
             ElementHead.of(
-                ElementHead.type8(ElementHead.TYPE_STATIC),
+                ElementHead.type8(ElementHead.type8Solid(ElementHead.TYPE_STATIC, 3)),
                 ElementHead.behaviour8(ElementHead.BEHAVIOUR_TREE_ROOT, 5),
                 ElementHead.modifiers8(ElementHead.HMI_WOOD_LIKE)),
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_1))
@@ -252,7 +252,7 @@ export class BrushDefs {
     static TREE_WOOD = Brushes.colorPalette(_ASSET_PALETTE_TREE_WOOD_LIGHT, Brushes.random([
         new Element(
             ElementHead.of(
-                ElementHead.type8(ElementHead.TYPE_STATIC),
+                ElementHead.type8(ElementHead.type8Solid(ElementHead.TYPE_STATIC, 3)),
                 ElementHead.behaviour8(ElementHead.BEHAVIOUR_TREE_TRUNK, 0),
                 ElementHead.modifiers8(ElementHead.HMI_WOOD_LIKE)),
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_1))
@@ -261,7 +261,7 @@ export class BrushDefs {
     static TREE_WOOD_DARK = Brushes.colorPalette(_ASSET_PALETTE_TREE_WOOD_DARK, Brushes.random([
         new Element(
             ElementHead.of(
-                ElementHead.type8(ElementHead.TYPE_STATIC),
+                ElementHead.type8(ElementHead.type8Solid(ElementHead.TYPE_STATIC, 3)),
                 ElementHead.behaviour8(ElementHead.BEHAVIOUR_TREE_TRUNK, 0),
                 ElementHead.modifiers8(ElementHead.HMI_WOOD_LIKE)),
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_1))
@@ -270,7 +270,7 @@ export class BrushDefs {
     static TREE_LEAF_LIGHTER = Brushes.colorPalette(_ASSET_PALETTE_TREE_LEAF_LIGHT, Brushes.random([
         new Element(
             ElementHead.of(
-                ElementHead.type8(ElementHead.TYPE_STATIC),
+                ElementHead.type8(ElementHead.type8Solid(ElementHead.TYPE_STATIC, 3)),
                 ElementHead.behaviour8(ElementHead.BEHAVIOUR_TREE_LEAF, 0),
                 ElementHead.modifiers8(ElementHead.HMI_LEAF_LIKE)),
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_1))
@@ -279,7 +279,7 @@ export class BrushDefs {
     static TREE_LEAF_DARKER = Brushes.colorPalette(_ASSET_PALETTE_TREE_LEAF_DARK, Brushes.random([
         new Element(
             ElementHead.of(
-                ElementHead.type8(ElementHead.TYPE_STATIC),
+                ElementHead.type8(ElementHead.type8Solid(ElementHead.TYPE_STATIC, 3)),
                 ElementHead.behaviour8(ElementHead.BEHAVIOUR_TREE_LEAF, 0),
                 ElementHead.modifiers8(ElementHead.HMI_LEAF_LIKE)),
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_1))

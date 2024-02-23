@@ -1,15 +1,16 @@
 import { Tool } from "../core/tool/Tool";
 import { Tools } from "../core/tool/Tools";
+import { ToolInfo } from "../core/tool/ToolInfo";
+import { Brush } from "../core/brush/Brush";
 import { BrushDefs } from "../def/BrushDefs";
 import { ElementArea } from "../core/ElementArea";
 import { SceneImplModFlip } from "../core/scene/SceneImplModFlip";
 import { ResourceUtils } from "./ResourceUtils";
-import { ToolInfo } from "../core/tool/ToolInfo";
 
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-25
+ * @version 2024-02-22
  */
 export class ResourceTool {
 
@@ -93,7 +94,12 @@ export class ResourceTool {
         if (brushPar === undefined) {
             throw 'Image template: brush not set';
         }
-        const brush = BrushDefs.byCodeName(json.brush);
+        let brush = null;
+        if (typeof brushPar === 'string') {
+            brush = BrushDefs.byCodeName(brushPar);
+        } else if (typeof brushPar === 'object' && brushPar instanceof Brush) {
+            brush = brushPar;
+        }
         if (brush === null) {
             throw 'Image template: brush not found: ' + brushPar;
         }

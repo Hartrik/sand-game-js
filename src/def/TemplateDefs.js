@@ -23,7 +23,7 @@ import _ASSET_SAND_CASTLE from './assets/templates/sand-castle.png'
 /**
  *
  * @author Patrik Harag
- * @version 2024-02-08
+ * @version 2024-02-22
  */
 export class TemplateDefs {
 
@@ -41,14 +41,14 @@ export class TemplateDefs {
                 {
                     type: "image-template",
                     imageData: _ASSET_ROCK_SM_1,
-                    brush: "wall",
+                    brush: "rock",
                     threshold: 50,
                     randomFlipHorizontally: true
                 },
                 {
                     type: "image-template",
                     imageData: _ASSET_ROCK_SM_2,
-                    brush: "wall",
+                    brush: "rock",
                     threshold: 50,
                     randomFlipHorizontally: true,
                     randomFlipVertically: true
@@ -56,7 +56,7 @@ export class TemplateDefs {
                 {
                     type: "image-template",
                     imageData: _ASSET_ROCK_SM_3,
-                    brush: "wall",
+                    brush: "rock",
                     threshold: 50,
                     randomFlipHorizontally: true
                 }
@@ -78,14 +78,14 @@ export class TemplateDefs {
                 {
                     type: "image-template",
                     imageData: _ASSET_ROCK_1,
-                    brush: "wall",
+                    brush: "rock",
                     threshold: 50,
                     randomFlipHorizontally: true
                 },
                 {
                     type: "image-template",
                     imageData: _ASSET_ROCK_2,
-                    brush: "wall",
+                    brush: "rock",
                     threshold: 50,
                     randomFlipHorizontally: true,
                     randomFlipVertically: true
@@ -93,7 +93,7 @@ export class TemplateDefs {
                 {
                     type: "image-template",
                     imageData: _ASSET_ROCK_3,
-                    brush: "wall",
+                    brush: "rock",
                     threshold: 50,
                     randomFlipHorizontally: true,
                     randomFlipVertically: true
@@ -101,7 +101,7 @@ export class TemplateDefs {
                 {
                     type: "image-template",
                     imageData: _ASSET_ROCK_4,
-                    brush: "wall",
+                    brush: "rock",
                     threshold: 50,
                     randomFlipHorizontally: true,
                     randomFlipVertically: true
@@ -109,14 +109,14 @@ export class TemplateDefs {
                 {
                     type: "image-template",
                     imageData: _ASSET_ROCK_5,
-                    brush: "wall",
+                    brush: "rock",
                     threshold: 50,
                     randomFlipHorizontally: true
                 },
                 {
                     type: "image-template",
                     imageData: _ASSET_ROCK_6,
-                    brush: "wall",
+                    brush: "rock",
                     threshold: 50,
                     randomFlipHorizontally: true,
                     randomFlipVertically: true
@@ -139,13 +139,13 @@ export class TemplateDefs {
                 {
                     type: "image-template",
                     imageData: _ASSET_ROCK_LG_1,
-                    brush: "wall",
+                    brush: "rock",
                     threshold: 50
                 },
                 {
                     type: "image-template",
                     imageData: _ASSET_ROCK_LG_2,
-                    brush: "wall",
+                    brush: "rock",
                     threshold: 50,
                     randomFlipHorizontally: true
                 }

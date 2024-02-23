@@ -3,6 +3,7 @@ import {ElementTail} from "../ElementTail";
 import {DeterministicRandom} from "../DeterministicRandom.js";
 import {ProcessorContext} from "./ProcessorContext.js";
 import {ProcessorDefaults} from "./ProcessorDefaults.js";
+import {ProcessorModuleSolid} from "./ProcessorModuleSolid";
 import {ProcessorModuleFire} from "./ProcessorModuleFire.js";
 import {ProcessorModuleMeteor} from "./ProcessorModuleMeteor.js";
 import {ProcessorModuleGrass} from "./ProcessorModuleGrass.js";
@@ -13,7 +14,7 @@ import {ProcessorModuleWater} from "./ProcessorModuleWater";
 /**
  *
  * @author Patrik Harag
- * @version 2024-02-06
+ * @version 2024-02-23
  */
 export class Processor extends ProcessorContext {
 
@@ -62,6 +63,8 @@ export class Processor extends ProcessorContext {
     /** @type Uint32Array[] */
     #rndChunkXOrder = [];
 
+    /** @type ProcessorModuleSolid */
+    #moduleSolid;
     /** @type ProcessorModuleWater */
     #moduleWater;
     /** @type ProcessorModuleFire */
@@ -102,6 +105,7 @@ export class Processor extends ProcessorContext {
         this.#random = random;
         this.#processorDefaults = processorDefaults;
 
+        this.#moduleSolid = new ProcessorModuleSolid(elementArea, random, this);
         this.#moduleWater = new ProcessorModuleWater(elementArea, random, this);
         this.#moduleFire = new ProcessorModuleFire(elementArea, random, this);
         this.#moduleMeteor = new ProcessorModuleMeteor(elementArea, random, this);
@@ -205,6 +209,8 @@ export class Processor extends ProcessorContext {
     }
 
     next() {
+        this.#moduleSolid.onNextIteration();
+
         const activeChunks = Array.from(this.#activeChunks);
         this.#activeChunks.fill(false);
 
@@ -405,7 +411,6 @@ export class Processor extends ProcessorContext {
         const type = ElementHead.getTypeClass(elementHead);
         switch (type) {
             case ElementHead.TYPE_AIR:
-            case ElementHead.TYPE_STATIC:
                 // no action
                 return false;
 
@@ -427,6 +432,10 @@ export class Processor extends ProcessorContext {
                 return this.#testMove(elementHead, x, y, x, y - 1)
                     || this.#testMove(elementHead, x, y, x + 1, y)
                     || this.#testMove(elementHead, x, y, x - 1, y);
+
+            case ElementHead.TYPE_STATIC:
+                const fallingId = ElementHead.getTypeModifierSolidFallingId(elementHead);
+                return (fallingId !== 0);
 
             default:
                 return true;
@@ -649,7 +658,7 @@ export class Processor extends ProcessorContext {
     #tryHardening(elementHead, x, y, heatModIndex) {
         // there must be a solid element nearby
         if (this.#findHardeningSupport(x, y)) {
-            elementHead = ElementHead.setType(elementHead, ElementHead.TYPE_STATIC);
+            elementHead = ElementHead.setType(elementHead, ElementHead.type8Solid(ElementHead.TYPE_STATIC, 2));
             elementHead = ElementHead.setHeatModIndex(elementHead, ElementHead.hmiToHardeningHMI(heatModIndex));
 
             let elementTail = this.#elementArea.getElementTail(x, y);
@@ -834,6 +843,13 @@ export class Processor extends ProcessorContext {
                 return false;
 
             case ElementHead.TYPE_STATIC:
+                const fallingId = ElementHead.getTypeModifierSolidFallingId(elementHead);
+                if (fallingId === 0) {
+                    return false;
+                } else {
+                    return this.#moduleSolid.behaviourSolid(elementHead, x, y);
+                }
+
             case ElementHead.TYPE_EFFECT:
                 // no action
                 return false;

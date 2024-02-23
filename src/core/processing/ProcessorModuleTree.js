@@ -358,7 +358,8 @@ export class ProcessorModuleTree {
             let targetElementHead = this.#elementArea.getElementHead(targetX, targetY);
             let type = ElementHead.getTypeClass(targetElementHead);
             if (type === ElementHead.TYPE_POWDER || type === ElementHead.TYPE_POWDER_WET || type === ElementHead.TYPE_POWDER_FLOATING) {
-                let modifiedElementHead = ElementHead.setType(targetElementHead, ElementHead.TYPE_STATIC);
+                let newType = ElementHead.type8(ElementHead.type8Solid(ElementHead.TYPE_STATIC, 3));
+                let modifiedElementHead = ElementHead.setType(targetElementHead, newType);
                 this.#elementArea.setElementHead(targetX, targetY, modifiedElementHead);
             }
         }

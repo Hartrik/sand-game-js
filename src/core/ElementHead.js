@@ -15,8 +15,13 @@
  *     | sliding  1b |  direction  1b  | momentum  3b  |
  * </pre>
  *
+ * Type modifier for solid-like types: (5b)
+ * <pre>
+ *     | soft  1b |  falling id  4b  |
+ * </pre>
+ *
  * @author Patrik Harag
- * @version 2024-02-07
+ * @version 2024-02-23
  */
 export class ElementHead {
 
@@ -79,6 +84,12 @@ export class ElementHead {
         return typeClass;
     }
 
+    static type8Solid(typeClass, fallingId = 0) {
+        let value = fallingId << 5;
+        value = value | typeClass;
+        return value;
+    }
+
     static behaviour8(behaviour = 0, special = 0) {
         return behaviour | (special << 4);
     }
@@ -107,6 +118,14 @@ export class ElementHead {
 
     static getTypeModifierPowderMomentum(elementHead) {
         return (elementHead >> 5) & 0x00000007;
+    }
+
+    static getTypeModifierSolidSoft(elementHead) {
+        return (elementHead >> 3) & 0x00000001;
+    }
+
+    static getTypeModifierSolidFallingId(elementHead) {
+        return (elementHead >> 4) & 0x0000000F;
     }
 
     static getBehaviour(elementHead) {
@@ -145,6 +164,14 @@ export class ElementHead {
 
     static setTypeModifierPowderMomentum(elementHead, val) {
         return (elementHead & 0xFFFFFF1F) | (val << 5);
+    }
+
+    static setTypeModifierSolidSoft(elementHead, val) {
+        return (elementHead & 0xFFFFFFF7) | (val << 3);
+    }
+
+    static setTypeModifierSolidFallingId(elementHead, val) {
+        return (elementHead & 0xFFFFFF0F) | (val << 4);
     }
 
     static setBehaviour(elementHead, behaviour) {
