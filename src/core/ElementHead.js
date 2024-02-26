@@ -17,7 +17,7 @@
  *
  * Type modifier for solid-like types: (5b)
  * <pre>
- *     | soft  1b |  falling id  4b  |
+ *     | soft  1b |  body id  4b  |
  * </pre>
  *
  * @author Patrik Harag
@@ -84,8 +84,8 @@ export class ElementHead {
         return typeClass;
     }
 
-    static type8Solid(typeClass, fallingId = 0) {
-        let value = fallingId << 5;
+    static type8Solid(typeClass, bodyId = 0) {
+        let value = bodyId << 5;
         value = value | typeClass;
         return value;
     }
@@ -124,7 +124,7 @@ export class ElementHead {
         return (elementHead >> 3) & 0x00000001;
     }
 
-    static getTypeModifierSolidFallingId(elementHead) {
+    static getTypeModifierSolidBodyId(elementHead) {
         return (elementHead >> 4) & 0x0000000F;
     }
 
@@ -170,7 +170,7 @@ export class ElementHead {
         return (elementHead & 0xFFFFFFF7) | (val << 3);
     }
 
-    static setTypeModifierSolidFallingId(elementHead, val) {
+    static setTypeModifierSolidBodyId(elementHead, val) {
         return (elementHead & 0xFFFFFF0F) | (val << 4);
     }
 

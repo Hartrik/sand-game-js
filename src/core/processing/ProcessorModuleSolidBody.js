@@ -3,13 +3,13 @@ import {ElementHead} from "../ElementHead.js";
 /**
  *
  * @author Patrik Harag
- * @version 2024-02-23
+ * @version 2024-02-26
  */
-export class ProcessorModuleSolid {
+export class ProcessorModuleSolidBody {
 
     static #QUEUED_PAINT_ID = 255;
-    static #FALLING_STRUCTURE_LIMIT_MAX = 8192;
-    static #FALLING_STRUCTURE_LIMIT_MIN = 32;
+    static #BODY_SIZE_LIMIT_MAX = 8192;
+    static #BODY_SIZE_LIMIT_MIN = 32;
 
 
     /** @type ElementArea */
@@ -42,9 +42,9 @@ export class ProcessorModuleSolid {
     }
 
     behaviourSolid(elementHead, x, y) {
-        const fallingId = ElementHead.getTypeModifierSolidFallingId(elementHead);
+        const bodyId = ElementHead.getTypeModifierSolidBodyId(elementHead);
         // TODO: optimize - map paint id
-        const paintId = fallingId;
+        const paintId = bodyId;
 
         const point = x + (y * this.#elementArea.getWidth());
         const currentPaintId = this.#elementAreaOverlay[point];
@@ -54,12 +54,12 @@ export class ProcessorModuleSolid {
         }
 
         const [count, borderCount, borderCountCanMove, borderStack] = this.#discover(x, y, paintId);
-        // if (count >= ProcessorModuleSolid.#FALLING_STRUCTURE_LIMIT_MAX) {
+        // if (count >= ProcessorModuleSolidBody.#BODY_SIZE_LIMIT_MAX) {
         //     // too big
         //     return false;
         // }
 
-        // if (count < ProcessorModuleSolid.#FALLING_STRUCTURE_LIMIT_MIN) {
+        // if (count < ProcessorModuleSolidBody.#BODY_SIZE_LIMIT_MIN) {
         //     this.#destroy(paintId, borderStack);
         //     return true;
         // }
@@ -224,7 +224,7 @@ export class ProcessorModuleSolid {
 
         const point = x + (y * w);
         const currentPaintId = this.#elementAreaOverlay[point];
-        if (currentPaintId === ProcessorModuleSolid.#QUEUED_PAINT_ID) {
+        if (currentPaintId === ProcessorModuleSolidBody.#QUEUED_PAINT_ID) {
             // already queued
             return 0;
         }
@@ -252,7 +252,7 @@ export class ProcessorModuleSolid {
             return 0;
         }
 
-        this.#elementAreaOverlay[point] = ProcessorModuleSolid.#QUEUED_PAINT_ID;
+        this.#elementAreaOverlay[point] = ProcessorModuleSolidBody.#QUEUED_PAINT_ID;
         stack.push(point);
         return 0;
     }
