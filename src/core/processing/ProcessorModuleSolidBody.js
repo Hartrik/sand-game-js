@@ -60,20 +60,27 @@ export class ProcessorModuleSolidBody {
         // }
 
         // if (count < ProcessorModuleSolidBody.#BODY_SIZE_LIMIT_MIN) {
-        //     this.#destroy(paintId, borderStack);
+        //     this.#bodyDestroy(paintId, borderStack);
         //     return true;
         // }
 
         if (borderCountCanMove / borderCount > 0.95) {
-            this.#move(paintId, borderStack);
+            // falling or very unstable
+            this.#bodyMove(paintId, borderStack);
             this.#moved.add(paintId);
             return true;
+        }
+
+        if (borderCountCanMove / borderCount > 0.75) {
+            // unstable
+            this.#bodyPush(paintId, borderStack);
+            return false;
         }
 
         return false;
     }
 
-    #destroy(paintId, borderStack) {
+    #bodyDestroy(paintId, borderStack) {
         const w = this.#elementArea.getWidth();
 
         let point;
@@ -106,7 +113,7 @@ export class ProcessorModuleSolidBody {
         }
     }
 
-    #move(paintId, borderStack) {
+    #bodyMove(paintId, borderStack) {
         const w = this.#elementArea.getWidth();
         const h = this.#elementArea.getHeight();
 
@@ -168,16 +175,36 @@ export class ProcessorModuleSolidBody {
 
             // create some movement below
 
-            if (this.#elementArea.isValidPosition(bx, by + 2)) {
-                const elementHeadUnder = this.#elementArea.getElementHead(bx, by + 2);
-                const typeUnder = ElementHead.getTypeClass(elementHeadUnder);
+            this.triggerPowderElement(bx, by + 2);
+        }
+    }
 
-                if (typeUnder === ElementHead.TYPE_POWDER || typeUnder === ElementHead.TYPE_POWDER_WET) {
-                    let modified = elementHeadUnder;
-                    modified = ElementHead.setTypeModifierPowderSliding(modified, 1);
-                    modified = ElementHead.setTypeModifierPowderDirection(modified, this.#random.nextInt(2));
-                    this.#elementArea.setElementHead(bx, by + 2, modified);
-                }
+    #bodyPush(paintId, borderStack) {
+        const w = this.#elementArea.getWidth();
+
+        let point;
+        while ((point = borderStack.pop()) !== null) {
+            // process "column"
+
+            const bx = point % w;
+            const by = Math.trunc(point / w);
+
+            // create some movement below
+
+            this.triggerPowderElement(bx, by + 1);
+        }
+    }
+
+    triggerPowderElement(x, y) {
+        if (this.#elementArea.isValidPosition(x, y)) {
+            const elementHeadUnder = this.#elementArea.getElementHead(x, y);
+            const typeUnder = ElementHead.getTypeClass(elementHeadUnder);
+
+            if (typeUnder === ElementHead.TYPE_POWDER || typeUnder === ElementHead.TYPE_POWDER_WET) {
+                let modified = elementHeadUnder;
+                modified = ElementHead.setTypeModifierPowderSliding(modified, 1);
+                modified = ElementHead.setTypeModifierPowderDirection(modified, this.#random.nextInt(2));
+                this.#elementArea.setElementHead(x, y, modified);
             }
         }
     }
