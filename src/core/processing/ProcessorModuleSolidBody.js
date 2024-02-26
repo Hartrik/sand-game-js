@@ -203,7 +203,10 @@ export class ProcessorModuleSolidBody {
             if (typeUnder === ElementHead.TYPE_POWDER || typeUnder === ElementHead.TYPE_POWDER_WET) {
                 let modified = elementHeadUnder;
                 modified = ElementHead.setTypeModifierPowderSliding(modified, 1);
-                modified = ElementHead.setTypeModifierPowderDirection(modified, this.#random.nextInt(2));
+                if (this.#random.nextInt(15) === 0) {
+                    // change direction only once a while to make it less chaotic
+                    modified = ElementHead.setTypeModifierPowderDirection(modified, this.#random.nextInt(2));
+                }
                 this.#elementArea.setElementHead(x, y, modified);
             }
         }
