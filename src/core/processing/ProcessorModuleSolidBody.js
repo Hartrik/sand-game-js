@@ -112,14 +112,16 @@ export class ProcessorModuleSolidBody {
 
         let point;
         while ((point = borderStack.pop()) !== null) {
+            // process "column"
+
             const bx = point % w;
             const by = Math.trunc(point / w);
 
-            let elementHeadBelow = null;
-            let elementTailBelow = null;
+            let elementHeadOld = null;
+            let elementTailOld = null;
             if (by + 1 < h) {
-                elementHeadBelow = this.#elementArea.getElementHead(bx, by + 1);
-                elementTailBelow = this.#elementArea.getElementTail(bx, by + 1);
+                elementHeadOld = this.#elementArea.getElementHead(bx, by + 1);
+                elementTailOld = this.#elementArea.getElementTail(bx, by + 1);
             }
 
             let i = 0;
@@ -143,11 +145,39 @@ export class ProcessorModuleSolidBody {
                 }
             } while (true);
 
-            if (elementHeadBelow == null || ElementHead.getTypeClass(elementHeadBelow) !== ElementHead.TYPE_AIR) {
-                this.#elementArea.setElement(bx, by + i, this.#processorContext.getDefaults().getDefaultElement());
+            // deal with the old element
+
+            let reuseElement = false;
+            if (elementHeadOld != null) {
+                const typeClass = ElementHead.getTypeClass(elementHeadOld);
+                if (typeClass === ElementHead.TYPE_AIR) {
+                    reuseElement = true;
+                } else if (typeClass <= ElementHead.TYPE_FLUID) {
+                    reuseElement = (this.#random.nextInt(4) === 0);
+                }
+            }
+
+            if (reuseElement) {
+                // move element above the solid body
+                this.#elementArea.setElementHead(bx, by + i, elementHeadOld);
+                this.#elementArea.setElementTail(bx, by + i, elementTailOld);
             } else {
-                this.#elementArea.setElementHead(bx, by + i, elementHeadBelow);
-                this.#elementArea.setElementTail(bx, by + i, elementTailBelow);
+                // set default element
+                this.#elementArea.setElement(bx, by + i, this.#processorContext.getDefaults().getDefaultElement());
+            }
+
+            // create some movement below
+
+            if (this.#elementArea.isValidPosition(bx, by + 2)) {
+                const elementHeadUnder = this.#elementArea.getElementHead(bx, by + 2);
+                const typeUnder = ElementHead.getTypeClass(elementHeadUnder);
+
+                if (typeUnder === ElementHead.TYPE_POWDER || typeUnder === ElementHead.TYPE_POWDER_WET) {
+                    let modified = elementHeadUnder;
+                    modified = ElementHead.setTypeModifierPowderSliding(modified, 1);
+                    modified = ElementHead.setTypeModifierPowderDirection(modified, this.#random.nextInt(2));
+                    this.#elementArea.setElementHead(bx, by + 2, modified);
+                }
             }
         }
     }
