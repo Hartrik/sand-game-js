@@ -3,12 +3,12 @@ import { Tool } from "../core/tool/Tool.js";
 import { Tools } from "../core/tool/Tools";
 import { BrushDefs } from "./BrushDefs";
 import { ToolInfo } from "../core/tool/ToolInfo";
-import {TemplateDefs} from "./TemplateDefs";
+import { TemplateDefs } from "./TemplateDefs";
 
 /**
  *
  * @author Patrik Harag
- * @version 2024-02-08
+ * @version 2024-02-26
  */
 export class ToolDefs {
 
@@ -129,7 +129,7 @@ export class ToolDefs {
         }
     }));
 
-    static METAL = Tools.roundBrushTool(BrushDefs.METAL, ToolDefs.DEFAULT_SIZE, new ToolInfo({
+    static METAL = Tools.roundBrushToolForSolidBody(BrushDefs.METAL, ToolDefs.DEFAULT_SIZE, new ToolInfo({
         codeName: 'metal',
         displayName: 'Metal',
         category: ToolDefs.CATEGORY_BRUSH,

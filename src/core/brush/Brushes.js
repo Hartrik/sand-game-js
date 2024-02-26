@@ -12,11 +12,12 @@ import {CustomBrush} from "./CustomBrush";
 import {CountingBrush} from "./CountingBrush";
 import {PredicateDefs} from "../../def/PredicateDefs";
 import {MeltingBrush} from "./MeltingBrush";
+import {SolidBodyBrush} from "./SolidBodyBrush";
 
 /**
  *
  * @author Patrik Harag
- * @version 2024-02-06
+ * @version 2024-02-26
  */
 export class Brushes {
 
@@ -227,5 +228,14 @@ export class Brushes {
 
     static molten() {
         return new MeltingBrush();
+    }
+
+    /**
+     * @param solidBodyId {number}
+     * @param innerBrush {Brush|undefined}
+     * @return {SolidBodyBrush}
+     */
+    static toSolidBody(solidBodyId, innerBrush = undefined) {
+        return new SolidBodyBrush(solidBodyId, innerBrush);
     }
 }

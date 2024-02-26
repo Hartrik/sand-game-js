@@ -1,4 +1,5 @@
 import {RoundBrushTool} from "./RoundBrushTool";
+import {RoundBrushToolForSolidBody} from "./RoundBrushToolForSolidBody";
 import {PointBrushTool} from "./PointBrushTool";
 import {Point2BrushTool} from "./Point2BrushTool";
 import {MeteorTool} from "./MeteorTool";
@@ -11,12 +12,16 @@ import {TemplateSelectionFakeTool} from "./TemplateSelectionFakeTool";
 /**
  *
  * @author Patrik Harag
- * @version 2024-02-08
+ * @version 2024-02-26
  */
 export class Tools {
 
     static roundBrushTool(brush, size, info) {
         return new RoundBrushTool(info, brush, size);
+    }
+
+    static roundBrushToolForSolidBody(brush, size, info) {
+        return new RoundBrushToolForSolidBody(info, brush, size);
     }
 
     static pointBrushTool(brush, info) {

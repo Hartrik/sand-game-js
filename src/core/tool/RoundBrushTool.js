@@ -5,15 +5,12 @@ import {Brushes} from "../brush/Brushes";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-25
+ * @version 2024-02-26
  */
 export class RoundBrushTool extends Tool {
 
     /** @type Brush */
     #brush;
-
-    /** @type Brush */
-    #altBrush;
 
     /** @type number */
     #size;
@@ -21,7 +18,6 @@ export class RoundBrushTool extends Tool {
     constructor(info, brush, size) {
         super(info);
         this.#brush = brush;
-        this.#altBrush = Brushes.gentle(brush);
         this.#size = size;
     }
 
@@ -46,17 +42,25 @@ export class RoundBrushTool extends Tool {
     }
 
     applyStroke(x1, y1, x2, y2, graphics, altModifier) {
-        const brush = altModifier ? this.#altBrush : this.#brush;
+        const brush = this.#currentBrush(altModifier);
         graphics.drawLine(x1, y1, x2, y2, this.#size, brush, true);
     }
 
     applyArea(x1, y1, x2, y2, graphics, altModifier) {
-        const brush = altModifier ? this.#altBrush : this.#brush;
+        const brush = this.#currentBrush(altModifier);
         graphics.drawRectangle(x1, y1, x2, y2, brush);
     }
 
     applySpecial(x, y, graphics, altModifier) {
-        const brush = altModifier ? this.#altBrush : this.#brush;
+        const brush = this.#currentBrush(altModifier);
         graphics.floodFill(x, y, brush, 1);
+    }
+
+    #currentBrush(altModifier) {
+        let brush = this.#brush;
+        if (altModifier) {
+            brush = Brushes.gentle(brush);
+        }
+        return brush;
     }
 }
