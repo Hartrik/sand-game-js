@@ -3,7 +3,7 @@ import {ElementHead} from "../ElementHead.js";
 /**
  *
  * @author Patrik Harag
- * @version 2024-02-26
+ * @version 2024-02-28
  */
 export class ProcessorModuleSolidBody {
 
@@ -53,7 +53,7 @@ export class ProcessorModuleSolidBody {
             return this.#moved.has(paintId);
         }
 
-        const [count, borderCount, borderCountCanMove, borderStack] = this.#discover(x, y, paintId);
+        const [count, borderCount, borderCountCanMove, borderStack, properties] = this.#discover(x, y, elementHead, paintId);
         // if (count >= ProcessorModuleSolidBody.#BODY_SIZE_LIMIT_MAX) {
         //     // too big
         //     return false;
@@ -64,17 +64,27 @@ export class ProcessorModuleSolidBody {
         //     return true;
         // }
 
-        if (borderCountCanMove / borderCount > 0.95) {
-            // falling or very unstable
-            this.#bodyMove(paintId, borderStack);
-            this.#moved.add(paintId);
-            return true;
-        }
+        if (properties.tree) {
+            // living trees are more stable
+            if (borderCount === borderCountCanMove) {
+                // falling
+                this.#bodyMove(paintId, borderStack);
+                this.#moved.add(paintId);
+                return true;
+            }
+        } else {
+            if (borderCountCanMove / borderCount > 0.95) {
+                // falling or very unstable
+                this.#bodyMove(paintId, borderStack);
+                this.#moved.add(paintId);
+                return true;
+            }
 
-        if (borderCountCanMove / borderCount > 0.75) {
-            // unstable
-            this.#bodyPush(paintId, borderStack);
-            return false;
+            if (borderCountCanMove / borderCount > 0.75) {
+                // unstable
+                this.#bodyPush(paintId, borderStack);
+                return false;
+            }
         }
 
         return false;
@@ -219,10 +229,11 @@ export class ProcessorModuleSolidBody {
      *
      * @param x {number}
      * @param y {number}
+     * @param elementHead {number}
      * @param paintId {number}
-     * @return {[number, number, number, Uint32Stack]} result
+     * @return {[number, number, number, Uint32Stack, object]} result
      */
-    #discover(x, y, paintId) {
+    #discover(x, y, elementHead, paintId) {
         const pattern = 0b11110111;  // falling id and type class
         const matcher = this.#elementArea.getElementHead(x, y) & pattern;
 
@@ -234,9 +245,14 @@ export class ProcessorModuleSolidBody {
         const borderStack = this.#reusableBorderStack;
         borderStack.reset();
 
+        const properties = {
+            tree: ElementHead.getBehaviour(elementHead) === ElementHead.BEHAVIOUR_TREE  // default value
+        };
+
         let count = 0;
         let borderCount = 0;
         let borderCountCanMove = 0;
+
         let point = x + y * w;
         do {
             const x = point % w;
@@ -245,10 +261,19 @@ export class ProcessorModuleSolidBody {
             this.#elementAreaOverlay[point] = paintId;
             count++;
 
-            this.#discoverNeighbour(x, y - 1, pattern, matcher, stack, paintId);
-            this.#discoverNeighbour(x + 1, y, pattern, matcher, stack, paintId);
-            this.#discoverNeighbour(x - 1, y, pattern, matcher, stack, paintId);
-            const borderType = this.#discoverNeighbour(x, y + 1, pattern, matcher, stack, paintId, true);
+            this.#discoverNeighbour(x, y - 1, pattern, matcher, stack, paintId, properties);
+            this.#discoverNeighbour(x + 1, y, pattern, matcher, stack, paintId, properties);
+            this.#discoverNeighbour(x - 1, y, pattern, matcher, stack, paintId, properties);
+
+            if (properties.tree) {
+                // handle tree branches
+                this.#discoverNeighbour(x + 1, y - 1, pattern, matcher, stack, paintId, properties);
+                this.#discoverNeighbour(x - 1, y - 1, pattern, matcher, stack, paintId, properties);
+                this.#discoverNeighbour(x + 1, y + 1, pattern, matcher, stack, paintId, properties);
+                this.#discoverNeighbour(x - 1, y + 1, pattern, matcher, stack, paintId, properties);
+            }
+
+            const borderType = this.#discoverNeighbour(x, y + 1, pattern, matcher, stack, paintId, properties, true);
 
             if (borderType === 0) {
 
@@ -265,10 +290,10 @@ export class ProcessorModuleSolidBody {
 
         } while ((point = stack.pop()) != null);
 
-        return [count, borderCount, borderCountCanMove, borderStack];
+        return [count, borderCount, borderCountCanMove, borderStack, properties];
     }
 
-    #discoverNeighbour(x, y, pattern, matcher, stack, targetPaintId, isBelow) {
+    #discoverNeighbour(x, y, pattern, matcher, stack, targetPaintId, properties, isBelow) {
         if (x < 0 || y < 0) {
             return 0;
         }
@@ -294,6 +319,13 @@ export class ProcessorModuleSolidBody {
         }
 
         const elementHead = this.#elementArea.getElementHead(x, y);
+
+        if (!properties.tree) {
+            if (ElementHead.getBehaviour(elementHead) === ElementHead.BEHAVIOUR_TREE) {
+                properties.tree = true;
+            }
+        }
+
         if ((elementHead & pattern) !== matcher) {
             // no match
             if (isBelow) {
