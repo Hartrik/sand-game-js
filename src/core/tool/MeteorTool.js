@@ -6,7 +6,7 @@ import {Tool} from "./Tool";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-25
+ * @version 2024-03-06
  */
 export class MeteorTool extends Tool {
 
@@ -18,26 +18,26 @@ export class MeteorTool extends Tool {
         const diffSlope4 = Math.trunc(y / 4);
         if (x < diffSlope4 + 10) {
             // right only
-            graphics.draw(x + diffSlope4, 0, BrushDefs.METEOR_FROM_RIGHT);
+            graphics.draw(x + diffSlope4, 1, BrushDefs.METEOR_FROM_RIGHT);
             return;
         }
         if (x > graphics.getWidth() - diffSlope4 - 10) {
             // left only
-            graphics.draw(x - diffSlope4, 0, BrushDefs.METEOR_FROM_LEFT);
+            graphics.draw(x - diffSlope4, 1, BrushDefs.METEOR_FROM_LEFT);
             return;
         }
 
         if (x < graphics.getWidth() / 2) {
             if (DeterministicRandom.DEFAULT.next() < 0.8) {
-                graphics.draw(x + diffSlope4, 0, BrushDefs.METEOR_FROM_RIGHT);
+                graphics.draw(x + diffSlope4, 1, BrushDefs.METEOR_FROM_RIGHT);
             } else {
-                graphics.draw(x, 0, BrushDefs.METEOR);
+                graphics.draw(x, 1, BrushDefs.METEOR);
             }
         } else {
             if (DeterministicRandom.DEFAULT.next() < 0.8) {
-                graphics.draw(x - diffSlope4, 0, BrushDefs.METEOR_FROM_LEFT);
+                graphics.draw(x - diffSlope4, 1, BrushDefs.METEOR_FROM_LEFT);
             } else {
-                graphics.draw(x, 0, BrushDefs.METEOR);
+                graphics.draw(x, 1, BrushDefs.METEOR);
             }
         }
     }

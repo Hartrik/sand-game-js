@@ -5,7 +5,7 @@ import {VisualEffects} from "./VisualEffects.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-18
+ * @version 2024-03-06
  */
 export class ProcessorModuleMeteor {
 
@@ -69,7 +69,14 @@ export class ProcessorModuleMeteor {
         }
 
         if (this.#elementArea.isValidPosition(tx, ty)) {
-            if (this.#canMove(tx, ty)) {
+            if (this.#processorContext.isFallThroughEnabled() && ty === this.#elementArea.getHeight() - 1) {
+                // handle meteor in fallthrough mode
+                if (this.#canMove(tx, 0)) {
+                    // teleport
+                    this.#elementArea.swap(x, y, tx, 0);
+                    this.#processorContext.trigger(tx, 0);
+                }
+            } else if (this.#canMove(tx, ty)) {
                 // move
                 this.#elementArea.swap(x, y, tx, ty);
             } else {

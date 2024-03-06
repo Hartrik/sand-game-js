@@ -2,7 +2,7 @@
 /**
  *
  * @author Patrik Harag
- * @version 2023-05-16
+ * @version 2024-03-06
  */
 export class ProcessorContext {
 
@@ -21,6 +21,20 @@ export class ProcessorContext {
      * @returns ProcessorDefaults
      */
     getDefaults() {
+        throw 'Not implemented';
+    }
+
+    /**
+     * @returns {boolean}
+     */
+    isFallThroughEnabled() {
+        throw 'Not implemented';
+    }
+
+    /**
+     * @returns {boolean}
+     */
+    isErasingEnabled() {
         throw 'Not implemented';
     }
 
