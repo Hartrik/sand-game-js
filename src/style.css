@@ -1,7 +1,7 @@
 
 /*
  * @author Patrik Harag
- * @version 2024-02-08
+ * @version 2024-03-07
  */
 
 .sand-game-component {
@@ -142,15 +142,18 @@
 }
 
 .sand-game-component .sand-game-options {
-    white-space: nowrap;
+    width: 100%;
     display: flex;
     justify-content: space-between;
-    width: 100%;
+}
+
+.sand-game-component .sand-game-options .sand-game-options-left {
+    display: inline;
 }
 
 .sand-game-component .sand-game-options .sand-game-options-right {
+    display: inline;
     margin-left: auto;
-    display: inline-block;
 }
 
 .sand-game-component .sand-game-options .btn {

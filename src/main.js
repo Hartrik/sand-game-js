@@ -197,9 +197,8 @@ export function init(root, config) {
                         : null),
             ]),
             new ComponentContainer('sand-game-options-right', [
-                (enableUserErrorReporting) ? new ComponentButton('Report a problem', ComponentButton.CLASS_LIGHT, new ActionReportProblem(errorReporter)) : null,
+                (enableUserErrorReporting) ? new ComponentButton('Report a\xa0problem', ComponentButton.CLASS_LIGHT, new ActionReportProblem(errorReporter)) : null,
             ]),
-
         ]),
         new ComponentContainer('sand-game-views', [
             (enableSizeChange || enableSceneSelection) ? new ComponentContainer(null, [
