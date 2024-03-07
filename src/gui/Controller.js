@@ -173,7 +173,7 @@ export class Controller {
         if ((contextType === 'webgl2') && (context === null || context === undefined)) {
             // WebGL is not supported - unsupported at all / unsupported after recent failure
             // - to test this, run Chrome with --disable-3d-apis
-            this.#reportFirstRenderingFailure("Unable to get WebGL context. Using fallback renderer; game performance may be affected");
+            this.#reportFirstRenderingFailure("Unable to get WebGL context. Using fallback renderer; game performance and visual will be affected");
             this.#rendererInitializer = RendererInitializer.canvas2d();
             contextType = this.#rendererInitializer.getContextType();
             context = this.#initializeContextAs(canvas, contextType);
@@ -186,11 +186,18 @@ export class Controller {
         if (contextId === 'webgl2') {
             // handle WebGL failures
 
+            let contextLossHandled = false;
             canvasDomNode.addEventListener('webglcontextlost', (e) => {
                 // GPU memory leak, GPU failure, etc.
                 // - to test this move the texture definition into rendering loop to create a memory leak
 
-                const cause = 'WebGL context loss detected. Using fallback renderer; game performance may be affected';
+                if (!contextLossHandled) {
+                    contextLossHandled = true;
+                } else {
+                    return;  // already handled
+                }
+
+                const cause = 'WebGL context loss detected. Using fallback renderer; game performance and visuals will be affected';
                 e.preventDefault();
                 setTimeout(() => {
                     this.restartAfterRenderingFailure(cause);
@@ -350,7 +357,7 @@ export class Controller {
         let toast = DomBuilder.bootstrapToastBuilder();
         toast.setHeaderContent(DomBuilder.element('strong', { style: 'color: orange;' }, 'Warning'));
         toast.setBodyContent(DomBuilder.par(null, message));
-        toast.setDelay(20000);
+        toast.setDelay(60000);
         toast.show(this.#dialogAnchor);
     }
 

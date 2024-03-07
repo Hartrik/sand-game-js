@@ -6,6 +6,7 @@ import { Renderer } from "./Renderer";
 import _ASSET_PALETTE_TEMPERATURE_COLORS from './assets/temperature.palette.csv';
 
 // TODO: Currently element tail bytes are stored as floats (0..1) in texture and then transformed back to integers
+// TODO: https://www.khronos.org/webgl/wiki/HandlingContextLost
 
 /**
  * WebGL renderer.
@@ -385,7 +386,13 @@ export class RendererWebGL extends Renderer {
         gl.attachShader(program, this.#loadShader(gl, fragmentShader, gl.FRAGMENT_SHADER));
 
         gl.linkProgram(program);
-        this.#checkLinkStatus(gl, program);
+
+        // Check the link status
+        if (!gl.getProgramParameter(program, gl.LINK_STATUS) && !gl.isContextLost()) {
+            // Something went wrong with the link
+            const lastError = gl.getProgramInfoLog(program);
+            throw `Error in program linking: ${lastError}`;
+        }
 
         return program;
     }
@@ -408,23 +415,13 @@ export class RendererWebGL extends Renderer {
         gl.compileShader(shader);
 
         // Check the compile status
-        const compiled = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
-        if (!compiled) {
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS) && !gl.isContextLost()) {
             // Something went wrong during compilation; get the error
             const lastError = gl.getShaderInfoLog(shader);
             throw `Error compiling shader: ${lastError}`;
         }
 
         return shader;
-    }
-
-    #checkLinkStatus(gl, program) {
-        const linked = gl.getProgramParameter(program, gl.LINK_STATUS);
-        if (!linked) {
-            // something went wrong with the link
-            const lastError = gl.getProgramInfoLog(program);
-            throw `Error in program linking: ${lastError}`;
-        }
     }
 
     #parsePalette(palette) {
