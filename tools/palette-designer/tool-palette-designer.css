@@ -1,0 +1,29 @@
+
+/**
+ * @author Patrik Harag
+ * @version 2024-03-12
+ */
+
+.palette-designer {
+    position: relative;
+}
+
+.palette-designer .control-panel {
+    position: absolute;
+    right: 1em;
+    top: 3em;
+
+    width: 20em;
+    height: 80%;
+
+    padding: 1em;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 60%);
+}
+
+.palette-designer textarea.form-control {
+    height: 80%;
+
+    font-family: 'Consolas', monospace;
+    font-size: 11pt;
+}
