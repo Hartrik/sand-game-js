@@ -5,9 +5,11 @@ import {DeterministicRandom} from "../DeterministicRandom";
 import {RandomBrush} from "./RandomBrush";
 import {RandomElementBrush} from "./RandomElementBrush";
 import {ColorBrush} from "./ColorBrush";
-import {ColorPaletteBrush} from "./ColorPaletteBrush";
+import {ColorPaletteRandomBrush} from "./ColorPaletteRandomBrush";
 import {ColorTextureBrush} from "./ColorTextureBrush";
 import {ColorNoiseBrush} from "./ColorNoiseBrush";
+import ColorPaletteCyclicBrush from "./ColorMovingPaletteBrush";
+import ColorRandomize from "./ColorRandomize";
 import {CustomBrush} from "./CustomBrush";
 import {CountingBrush} from "./CountingBrush";
 import {PredicateDefs} from "../../def/PredicateDefs";
@@ -17,9 +19,16 @@ import {SolidBodyBrush} from "./SolidBodyBrush";
 /**
  *
  * @author Patrik Harag
- * @version 2024-02-26
+ * @version 2024-03-12
  */
 export class Brushes {
+
+    static #parsePalette(string) {
+        return string.split('\n')
+            .filter(line => line.trim() !== '')
+            .map(line => line.split(',').map(Number));
+    }
+
 
     /**
      *
@@ -92,8 +101,36 @@ export class Brushes {
      * @param innerBrush {Brush|undefined}
      * @returns {Brush}
      */
-    static colorPalette(palette, innerBrush = undefined) {
-        return new ColorPaletteBrush(innerBrush, palette);
+    static colorPaletteRandom(palette, innerBrush = undefined) {
+        if (typeof palette === 'string') {
+            palette = Brushes.#parsePalette(palette);
+        }
+        return new ColorPaletteRandomBrush(innerBrush, palette);
+    }
+
+    /**
+     *
+     * @param palette {number[][]|string}
+     * @param stepSize {number}
+     * @param innerBrush {Brush|undefined}
+     * @returns {Brush}
+     */
+    static colorPaletteCyclic(palette, stepSize = 1, innerBrush = undefined) {
+        if (typeof palette === 'string') {
+            palette = Brushes.#parsePalette(palette);
+        }
+        return new ColorPaletteCyclicBrush(innerBrush, palette, stepSize);
+    }
+
+    /**
+     * This brush provides a bit of randomness to element colors.
+     *
+     * @param maxDiff {number}
+     * @param innerBrush {Brush|undefined}
+     * @returns {Brush}
+     */
+    static colorRandomize(maxDiff, innerBrush = undefined) {
+        return new ColorRandomize(innerBrush, maxDiff);
     }
 
     /**

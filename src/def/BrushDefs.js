@@ -53,7 +53,7 @@ export class BrushDefs {
             ElementTail.of(255, 255, 255, ElementTail.BLUR_TYPE_BACKGROUND))
     ]);
 
-    static WALL = Brushes.colorPalette(_ASSET_PALETTE_WALL, Brushes.random([
+    static WALL = Brushes.colorPaletteRandom(_ASSET_PALETTE_WALL, Brushes.random([
         new Element(
             ElementHead.of(
                 ElementHead.type8(ElementHead.TYPE_STATIC),
@@ -113,7 +113,7 @@ export class BrushDefs {
 
     static METAL_MOLTEN = Brushes.join([BrushDefs.METAL, Brushes.temperature(180), Brushes.molten()]);
 
-    static SAND = Brushes.colorPalette(_ASSET_PALETTE_SAND, Brushes.custom((x, y, random) => {
+    static SAND = Brushes.colorPaletteRandom(_ASSET_PALETTE_SAND, Brushes.custom((x, y, random) => {
         const type = random.nextInt(100) < 60 ? ElementHead.TYPE_POWDER : ElementHead.TYPE_POWDER_WET;
         const elementHead = ElementHead.of(
             ElementHead.type8Powder(type, 6),
@@ -123,7 +123,7 @@ export class BrushDefs {
         return new Element(elementHead, elementTail);
     }));
 
-    static SOIL = Brushes.colorPalette(_ASSET_PALETTE_SOIL, Brushes.custom((x, y, random) => {
+    static SOIL = Brushes.colorPaletteRandom(_ASSET_PALETTE_SOIL, Brushes.custom((x, y, random) => {
         const type = random.nextInt(100) < 40 ? ElementHead.TYPE_POWDER : ElementHead.TYPE_POWDER_WET;
         const elementHead = ElementHead.of(
             ElementHead.type8Powder(type, 5),
@@ -133,7 +133,7 @@ export class BrushDefs {
         return new Element(elementHead, elementTail);
     }));
 
-    static GRAVEL = Brushes.colorPalette(_ASSET_PALETTE_GRAVEL, Brushes.custom((x, y, random) => {
+    static GRAVEL = Brushes.colorPaletteRandom(_ASSET_PALETTE_GRAVEL, Brushes.custom((x, y, random) => {
         const type = random.nextInt(100) < 20 ? ElementHead.TYPE_POWDER : ElementHead.TYPE_POWDER_WET;
         const elementHead = ElementHead.of(
             ElementHead.type8Powder(type, 3),
@@ -143,7 +143,7 @@ export class BrushDefs {
         return new Element(elementHead, elementTail);
     }));
 
-    static COAL = Brushes.colorPalette(_ASSET_PALETTE_COAL, Brushes.custom((x, y, random) => {
+    static COAL = Brushes.colorPaletteRandom(_ASSET_PALETTE_COAL, Brushes.custom((x, y, random) => {
         const type = random.nextInt(100) < 40 ? ElementHead.TYPE_POWDER : ElementHead.TYPE_POWDER_WET;
         const elementHead = ElementHead.of(
             ElementHead.type8Powder(type, 4),
@@ -153,7 +153,7 @@ export class BrushDefs {
         return new Element(elementHead, elementTail);
     }));
 
-    static THERMITE = Brushes.colorPalette(_ASSET_PALETTE_THERMITE, Brushes.custom((x, y, random) => {
+    static THERMITE = Brushes.colorPaletteRandom(_ASSET_PALETTE_THERMITE, Brushes.custom((x, y, random) => {
         const type = random.nextInt(100) < 60 ? ElementHead.TYPE_POWDER : ElementHead.TYPE_POWDER_WET;
         const elementHead = ElementHead.of(
             ElementHead.type8Powder(type, 5),
@@ -163,7 +163,7 @@ export class BrushDefs {
         return new Element(elementHead, elementTail);
     }));
 
-    static WATER = Brushes.colorPalette(_ASSET_PALETTE_WATER, Brushes.random([
+    static WATER = Brushes.colorPaletteRandom(_ASSET_PALETTE_WATER, Brushes.random([
         new Element(
             ElementHead.of(
                 ElementHead.type8Fluid(ElementHead.TYPE_FLUID),
@@ -172,7 +172,7 @@ export class BrushDefs {
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_1, ElementTail.HEAT_EFFECT_NONE))
     ]));
 
-    static STEAM = Brushes.colorPalette(_ASSET_PALETTE_STEAM, Brushes.random([
+    static STEAM = Brushes.colorPaletteRandom(_ASSET_PALETTE_STEAM, Brushes.random([
         new Element(
             ElementHead.of(
                 ElementHead.type8Fluid(ElementHead.TYPE_GAS),
@@ -224,7 +224,7 @@ export class BrushDefs {
             ElementTail.of(61, 68, 74, ElementTail.BLUR_TYPE_1, ElementTail.HEAT_EFFECT_1)),
     ]);
 
-    static TREE = Brushes.colorPalette(_ASSET_PALETTE_TREE_WOOD_DARK, Brushes.custom((x, y, random) => {
+    static TREE = Brushes.colorPaletteRandom(_ASSET_PALETTE_TREE_WOOD_DARK, Brushes.custom((x, y, random) => {
         let treeType = random.nextInt(StructureDefs.TREE_TRUNK_TEMPLATES.length);
         return new Element(
             ElementHead.of(
@@ -234,7 +234,7 @@ export class BrushDefs {
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_1));
     }));
 
-    static TREE_ROOT = Brushes.colorPalette(_ASSET_PALETTE_TREE_ROOT, Brushes.random([
+    static TREE_ROOT = Brushes.colorPaletteRandom(_ASSET_PALETTE_TREE_ROOT, Brushes.random([
         new Element(
             ElementHead.of(
                 ElementHead.type8(ElementHead.type8Solid(ElementHead.TYPE_STATIC, 3)),
@@ -249,7 +249,7 @@ export class BrushDefs {
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_1))
     ]));
 
-    static TREE_WOOD = Brushes.colorPalette(_ASSET_PALETTE_TREE_WOOD_LIGHT, Brushes.random([
+    static TREE_WOOD = Brushes.colorPaletteRandom(_ASSET_PALETTE_TREE_WOOD_LIGHT, Brushes.random([
         new Element(
             ElementHead.of(
                 ElementHead.type8(ElementHead.type8Solid(ElementHead.TYPE_STATIC, 3)),
@@ -258,7 +258,7 @@ export class BrushDefs {
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_1))
     ]));
 
-    static TREE_WOOD_DARK = Brushes.colorPalette(_ASSET_PALETTE_TREE_WOOD_DARK, Brushes.random([
+    static TREE_WOOD_DARK = Brushes.colorPaletteRandom(_ASSET_PALETTE_TREE_WOOD_DARK, Brushes.random([
         new Element(
             ElementHead.of(
                 ElementHead.type8(ElementHead.type8Solid(ElementHead.TYPE_STATIC, 3)),
@@ -267,7 +267,7 @@ export class BrushDefs {
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_1))
     ]));
 
-    static TREE_LEAF_LIGHTER = Brushes.colorPalette(_ASSET_PALETTE_TREE_LEAF_LIGHT, Brushes.random([
+    static TREE_LEAF_LIGHTER = Brushes.colorPaletteRandom(_ASSET_PALETTE_TREE_LEAF_LIGHT, Brushes.random([
         new Element(
             ElementHead.of(
                 ElementHead.type8(ElementHead.type8Solid(ElementHead.TYPE_STATIC, 3)),
@@ -276,7 +276,7 @@ export class BrushDefs {
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_1))
     ]));
 
-    static TREE_LEAF_DARKER = Brushes.colorPalette(_ASSET_PALETTE_TREE_LEAF_DARK, Brushes.random([
+    static TREE_LEAF_DARKER = Brushes.colorPaletteRandom(_ASSET_PALETTE_TREE_LEAF_DARK, Brushes.random([
         new Element(
             ElementHead.of(
                 ElementHead.type8(ElementHead.type8Solid(ElementHead.TYPE_STATIC, 3)),
@@ -294,7 +294,7 @@ export class BrushDefs {
         new Element(ElementHead.setTemperature(BrushDefs.#FIRE_ELEMENT_HEAD, 120), ElementTail.of(249, 219, 30))
     ]);
 
-    static ASH = Brushes.colorPalette(_ASSET_PALETTE_ASH, Brushes.custom((x, y, random) => {
+    static ASH = Brushes.colorPaletteRandom(_ASSET_PALETTE_ASH, Brushes.custom((x, y, random) => {
         const type = random.nextInt(100) < 80 ? ElementHead.TYPE_POWDER : ElementHead.TYPE_POWDER_WET;
         const elementHead = ElementHead.of(
             ElementHead.type8Powder(type, 6),

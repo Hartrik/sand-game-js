@@ -8,7 +8,7 @@ import {Element} from "../Element";
  * @author Patrik Harag
  * @version 2024-02-05
  */
-export class ColorPaletteBrush extends AbstractEffectBrush {
+export class ColorPaletteRandomBrush extends AbstractEffectBrush {
 
     /** @type number[][] */
     #palette;
