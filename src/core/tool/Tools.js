@@ -8,11 +8,12 @@ import {InsertRandomSceneTool} from "./InsertRandomSceneTool";
 import {ActionTool} from "./ActionTool";
 import {MoveTool} from "./MoveTool";
 import {TemplateSelectionFakeTool} from "./TemplateSelectionFakeTool";
+import GlobalActionTool from "./GlobalActionTool";
 
 /**
  *
  * @author Patrik Harag
- * @version 2024-02-26
+ * @version 2024-03-13
  */
 export class Tools {
 
@@ -47,6 +48,16 @@ export class Tools {
 
     static actionTool(handler, info) {
         return new ActionTool(info, handler);
+    }
+
+    /**
+     *
+     * @param handler {function(SandGame|null)}
+     * @param info {ToolInfo}
+     * @return {Tool}
+     */
+    static globalActionTool(handler, info) {
+        return new GlobalActionTool(info, handler);
     }
 
     static moveTool(size, info) {

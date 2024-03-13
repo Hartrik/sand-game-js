@@ -3,11 +3,12 @@ import { Component } from "./Component";
 import { ActionDialogTemplateSelection } from "../action/ActionDialogTemplateSelection";
 import { ToolDefs } from "../../def/ToolDefs";
 import { TemplateSelectionFakeTool } from "../../core/tool/TemplateSelectionFakeTool";
+import GlobalActionTool from "../../core/tool/GlobalActionTool";
 
 /**
  *
  * @author Patrik Harag
- * @version 2024-02-08
+ * @version 2024-03-13
  */
 export class ComponentViewTools extends Component {
 
@@ -26,13 +27,6 @@ export class ComponentViewTools extends Component {
         this.#importEnabled = importEnabled;
     }
 
-    createAdditionalInfoAboutTemplates() {
-        return DomBuilder.div(null, [
-            DomBuilder.par(null, ""),
-            DomBuilder.par(null, "You can also create your own template using an image. See the Import button.")
-        ]);
-    }
-
     createNode(controller) {
         let buttons = [];
 
@@ -46,17 +40,7 @@ export class ComponentViewTools extends Component {
                 style: badgeStyle
             };
             let button = DomBuilder.button(displayName, attributes, () => {
-                if (tool instanceof TemplateSelectionFakeTool) {
-                    let additionalInfo = null;
-                    if (this.#importEnabled) {
-                        additionalInfo = this.createAdditionalInfoAboutTemplates();
-                    }
-                    const action = new ActionDialogTemplateSelection(tool.getTemplateDefinitions(), additionalInfo);
-                    action.performAction(controller);
-                } else {
-                    controller.getToolManager().setPrimaryTool(tool);
-                    controller.getToolManager().setSecondaryTool(ToolDefs.ERASE);
-                }
+                this.#selectTool(tool, controller);
             });
 
             controller.getToolManager().addOnPrimaryToolChanged(newTool => {
@@ -80,5 +64,25 @@ export class ComponentViewTools extends Component {
         }
 
         return DomBuilder.div({ class: 'sand-game-tools' }, buttons);
+    }
+
+    #selectTool(tool, controller) {
+        if (tool instanceof TemplateSelectionFakeTool) {
+            let additionalInfo = null;
+            if (this.#importEnabled) {
+                additionalInfo = DomBuilder.div(null, [
+                    DomBuilder.par(null, ""),
+                    DomBuilder.par(null, "You can also create your own template using an image. See the Import button.")
+                ]);
+            }
+            const action = new ActionDialogTemplateSelection(tool.getTemplateDefinitions(), additionalInfo);
+            action.performAction(controller);
+        } else if (tool instanceof GlobalActionTool) {
+            const handler = tool.getHandler();
+            handler(controller.getSandGame());
+        } else {
+            controller.getToolManager().setPrimaryTool(tool);
+            controller.getToolManager().setSecondaryTool(ToolDefs.ERASE);
+        }
     }
 }

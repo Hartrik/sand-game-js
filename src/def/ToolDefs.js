@@ -8,13 +8,14 @@ import { TemplateDefs } from "./TemplateDefs";
 /**
  *
  * @author Patrik Harag
- * @version 2024-02-26
+ * @version 2024-03-13
  */
 export class ToolDefs {
 
     static DEFAULT_SIZE = 6;
 
     static CATEGORY_BRUSH = 'brush';
+    static CATEGORY_GLOBAL = 'global';
     static CATEGORY_TEMPLATE = 'template';
     static CATEGORY_SELECTION = 'selection';
 
@@ -38,6 +39,20 @@ export class ToolDefs {
         codeName: 'move',
         displayName: 'Move',
         category: ToolDefs.CATEGORY_BRUSH,
+        badgeStyle: {
+            backgroundColor: '#e6e6e6',
+            color: 'black'
+        }
+    }));
+
+    static FLIP_VERTICALLY = Tools.globalActionTool(sandGame => {
+        if (sandGame !== null) {
+            sandGame.graphics().flipVertically();
+        }
+    }, new ToolInfo({
+        codeName: 'flip_vertically',
+        displayName: 'Flip Vertically',
+        category: ToolDefs.CATEGORY_GLOBAL,
         badgeStyle: {
             backgroundColor: '#e6e6e6',
             color: 'black'

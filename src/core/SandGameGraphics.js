@@ -8,7 +8,7 @@ import {Marker} from "./Marker";
 /**
  *
  * @author Patrik Harag
- * @version 2024-02-05
+ * @version 2024-03-13
  */
 export class SandGameGraphics {
 
@@ -46,6 +46,8 @@ export class SandGameGraphics {
 
         if (this.#elementArea.isValidPosition(aX, aY) && this.#elementArea.isValidPosition(bX, bY)) {
             this.#elementArea.swap(aX, aY, bX, bY);
+            this.#triggerFunction(aX, aY);
+            this.#triggerFunction(bX, bY);
         }
     }
 
@@ -212,6 +214,17 @@ export class SandGameGraphics {
                 if (next.elementHead === elementTarget.elementHead && next.elementTail === elementTarget.elementTail) {
                     this.#elementArea.setElement(x, y, elementReplacement);
                 }
+            }
+        }
+    }
+
+    flipVertically() {
+        const width = this.getWidth();
+        const height = this.getHeight();
+        const halfHeight = Math.trunc(height / 2);
+        for (let x = 0; x < width; x++) {
+            for (let yd = 0; yd < halfHeight; yd++) {
+                this.swap(x, yd, x, height - yd - 1);
             }
         }
     }
