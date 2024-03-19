@@ -18,13 +18,15 @@
     "postcss-header": "^3.0.3",
     "rollup": "^2.70.1",
     "rollup-plugin-postcss": "^4.0.2",
-    "rollup-plugin-string": "^3.0.0"
+    "rollup-plugin-string": "^3.0.0",
+    "serve": "^14.2.1"
   },
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
     "test": "node test/test.js",
-    "pretest": "npm run build"
+    "pretest": "npm run build",
+    "serve": "serve"
   },
   "files": [
     "dist"

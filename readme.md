@@ -21,7 +21,9 @@ Sand Game JS is a browser-based successor to [Sand Game 2](https://github.com/Ha
 
 Dev build: https://harag.cz/app/sand-game-js?stage=dev (with test tools enabled, sometimes with experimental changes)
 
-Build:
+### Build
+
+Install [Node](https://nodejs.org/en) which contains npm.
 
 `npm run build` builds the library to `dist`.
 
@@ -29,7 +31,14 @@ Build:
 
 `npm test` builds the library, then tests it.
 
-Debugging tips:
+### Run
+
+A web server is needed to open index.html correctly.
+- IDEs like IntelliJ IDEA start web server automatically.
+- `npm run serve` starts web server from command line, http://localhost:3000
+
+### Debugging tips
+
 - Use `alt` + `ctrl` + `shift` + `middle mouse button` to debug an element.
 - Stop processing using `ctrl` + `enter` and then press (or hold) `ctrl` + `space` for running one simulation iteration.
     - Alternatively `ctrl` + `shift` + `space` will run the specified number of iterations – at once, without rendering and delays.
