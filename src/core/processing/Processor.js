@@ -14,7 +14,7 @@ import {ProcessorModuleWater} from "./ProcessorModuleWater";
 /**
  *
  * @author Patrik Harag
- * @version 2024-02-23
+ * @version 2024-03-23
  */
 export class Processor extends ProcessorContext {
 
@@ -194,6 +194,10 @@ export class Processor extends ProcessorContext {
         const chunkIndex = cy * this.#horChunkCount + cx;
         this.#activeChunks[chunkIndex] = true;
         // this.#changedChunks[chunkIndex] = true;
+    }
+
+    triggerSolidCreated(elementHead, x, y) {
+        this.#moduleSolidBody.onSolidCreated(elementHead, x, y);
     }
 
     getActiveChunks() {

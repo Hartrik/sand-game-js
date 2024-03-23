@@ -2,7 +2,7 @@
 /**
  *
  * @author Patrik Harag
- * @version 2024-03-06
+ * @version 2024-03-23
  */
 export class ProcessorContext {
 
@@ -39,6 +39,10 @@ export class ProcessorContext {
     }
 
     trigger(x, y) {
+        throw 'Not implemented';
+    }
+
+    triggerSolidCreated(elementHead, x, y) {
         throw 'Not implemented';
     }
 }

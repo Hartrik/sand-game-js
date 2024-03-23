@@ -8,6 +8,7 @@ import {ElementHead} from "../ElementHead.js";
 export class ProcessorModuleSolidBody {
 
     static #QUEUED_PAINT_ID = 255;
+    static #NEWLY_CREATED_PAINT_ID = 254;
     static #BODY_SIZE_LIMIT_MAX = 8192;
     static #BODY_SIZE_LIMIT_MIN = 32;
 
@@ -36,6 +37,10 @@ export class ProcessorModuleSolidBody {
         this.#reusableLowerBorderMinY = new Uint16Array(elementArea.getWidth());
     }
 
+    onSolidCreated(elementHead, x, y) {
+        this.#elementAreaOverlay[x + (y * this.#elementArea.getWidth())] = ProcessorModuleSolidBody.#NEWLY_CREATED_PAINT_ID;
+    }
+
     onNextIteration() {
         // TODO: optimize - do not clean if not used or needed
         this.#elementAreaOverlay.fill(0);
@@ -48,7 +53,12 @@ export class ProcessorModuleSolidBody {
         const paintId = bodyId;
 
         const point = x + (y * this.#elementArea.getWidth());
-        if (this.#elementAreaOverlay[point] === paintId) {
+        const currentPaintId = this.#elementAreaOverlay[point];
+        if (currentPaintId === ProcessorModuleSolidBody.#NEWLY_CREATED_PAINT_ID) {
+            // this handles newly created tree branches etc.
+            return true;
+        }
+        if (currentPaintId === paintId) {
             // already processed
             return this.#moved.has(paintId);
         }

@@ -140,6 +140,7 @@ export class ProcessorModuleTree {
                 this.#elementArea.setElementHeadAndTail(nx, ny, element.elementHead, modifiedTail);
             }
             this.#processorContext.trigger(nx, ny);
+            this.#processorContext.triggerSolidCreated(element.elementHead, nx, ny);
             if (increment) {
                 level++;
                 levelGrown++;
