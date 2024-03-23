@@ -3,7 +3,7 @@ import {ElementHead} from "../ElementHead.js";
 /**
  *
  * @author Patrik Harag
- * @version 2024-02-28
+ * @version 2024-03-23
  */
 export class ProcessorModuleSolidBody {
 
@@ -33,6 +33,7 @@ export class ProcessorModuleSolidBody {
         this.#processorContext = processorContext;
         this.#elementAreaOverlay = new Uint8Array(elementArea.getWidth() * elementArea.getHeight());
         this.#moved = new Set();
+        this.#reusableLowerBorderMinY = new Uint16Array(elementArea.getWidth());
     }
 
     onNextIteration() {
@@ -47,13 +48,22 @@ export class ProcessorModuleSolidBody {
         const paintId = bodyId;
 
         const point = x + (y * this.#elementArea.getWidth());
-        const currentPaintId = this.#elementAreaOverlay[point];
-        if (paintId === currentPaintId) {
+        if (this.#elementAreaOverlay[point] === paintId) {
             // already processed
             return this.#moved.has(paintId);
         }
 
-        const [count, borderCount, borderCountCanMove, borderStack, properties] = this.#discover(x, y, elementHead, paintId);
+        const [
+            originalCount, upperBorderStack, lowerBorderStack, lowerBorderMin, properties
+        ] = this.#discoverBoundaries(x, y, elementHead, paintId);
+
+        const extendedCount = this.#extendUpperBoundaries(upperBorderStack, lowerBorderMin, paintId);
+        const count = originalCount + extendedCount;
+
+        const [
+            borderCount, borderCountCanMove
+        ] = this.#determineCanMove(lowerBorderStack.shadowClone(), paintId);
+
         // if (count >= ProcessorModuleSolidBody.#BODY_SIZE_LIMIT_MAX) {
         //     // too big
         //     return false;
@@ -68,21 +78,21 @@ export class ProcessorModuleSolidBody {
             // living trees are more stable
             if (borderCount === borderCountCanMove) {
                 // falling
-                this.#bodyMove(paintId, borderStack);
+                this.#bodyMove(paintId, lowerBorderStack);
                 this.#moved.add(paintId);
                 return true;
             }
         } else {
             if (borderCountCanMove / borderCount > 0.95) {
                 // falling or very unstable
-                this.#bodyMove(paintId, borderStack);
+                this.#bodyMove(paintId, lowerBorderStack);
                 this.#moved.add(paintId);
                 return true;
             }
 
             if (borderCountCanMove / borderCount > 0.75) {
                 // unstable
-                this.#bodyPush(paintId, borderStack);
+                this.#bodyPush(paintId, lowerBorderStack);
                 return false;
             }
         }
@@ -90,11 +100,18 @@ export class ProcessorModuleSolidBody {
         return false;
     }
 
-    #bodyDestroy(paintId, borderStack) {
+    #bodyDestroy(paintId, lowerBorderStack) {
         const w = this.#elementArea.getWidth();
 
         let point;
-        while ((point = borderStack.pop()) !== null) {
+        while ((point = lowerBorderStack.pop()) !== null) {
+            // process "column"
+
+            if (point === 0xffffffff) {
+                // null point
+                continue;
+            }
+
             const bx = point % w;
             const by = Math.trunc(point / w);
 
@@ -123,13 +140,18 @@ export class ProcessorModuleSolidBody {
         }
     }
 
-    #bodyMove(paintId, borderStack) {
+    #bodyMove(paintId, lowerBorderStack) {
         const w = this.#elementArea.getWidth();
         const h = this.#elementArea.getHeight();
 
         let point;
-        while ((point = borderStack.pop()) !== null) {
+        while ((point = lowerBorderStack.pop()) !== null) {
             // process "column"
+
+            if (point === 0xffffffff) {
+                // null point
+                continue;
+            }
 
             const bx = point % w;
             const by = Math.trunc(point / w);
@@ -189,12 +211,17 @@ export class ProcessorModuleSolidBody {
         }
     }
 
-    #bodyPush(paintId, borderStack) {
+    #bodyPush(paintId, lowerBorderStack) {
         const w = this.#elementArea.getWidth();
 
         let point;
-        while ((point = borderStack.pop()) !== null) {
+        while ((point = lowerBorderStack.pop()) !== null) {
             // process "column"
+
+            if (point === 0xffffffff) {
+                // null point
+                continue;
+            }
 
             const bx = point % w;
             const by = Math.trunc(point / w);
@@ -222,8 +249,107 @@ export class ProcessorModuleSolidBody {
         }
     }
 
+    #determineCanMove(lowerBorderStack, paintId) {
+        const w = this.#elementArea.getWidth();
+        const h = this.#elementArea.getHeight();
+
+        let borderCount = 0;
+        let borderCountCanMove = 0;
+
+        let point;
+        while ((point = lowerBorderStack.pop()) !== null) {
+
+            const bx = point % w;
+            const by = Math.trunc(point / w);
+
+            if (by + 1 < h) {
+                const elementHead = this.#elementArea.getElementHead(bx, by + 1);
+
+                // check whether is not connected with other "column" by extendUpperBoundaries
+                if (this.#elementAreaOverlay[bx + ((by + 1) * w)] === paintId) {
+                    lowerBorderStack.removePrevious();  // remove
+                    continue;
+                }
+
+                borderCount++;
+
+                // can move here?
+                const typeClass = ElementHead.getTypeClass(elementHead);
+                switch (typeClass) {
+                    case ElementHead.TYPE_AIR:
+                    case ElementHead.TYPE_EFFECT:
+                    case ElementHead.TYPE_GAS:
+                    case ElementHead.TYPE_FLUID:
+                        borderCountCanMove++;
+                }
+            } else {
+                borderCount++;
+            }
+        }
+
+        return [borderCount, borderCountCanMove];
+    }
+
+    #extendUpperBoundaries(upperBorderStack, lowerBorderMinY, paintId) {
+        // handles e.g. sand /stuck/ inside a solid body
+
+        const w = this.#elementArea.getWidth();
+        const h = this.#elementArea.getHeight();
+
+        let extendedCount = 0;
+
+        let point;
+        while ((point = upperBorderStack.pop()) !== null) {
+            const bx = point % w;
+            const by = Math.trunc(point / w);
+
+            const columnLowerBorderMinY = lowerBorderMinY[bx];
+            if (columnLowerBorderMinY >= by) {
+                continue;
+            }
+            // there is at leas one lower border above this upper border
+
+            let i = 0;
+            let ty;
+            while ((ty = by - (i + 1)) >= 0 && ty > columnLowerBorderMinY) {
+                const nextPaintId = this.#elementAreaOverlay[bx + (ty * w)];
+
+                if (nextPaintId === paintId) {
+                    // lower boundary reached
+                    break;
+                }
+
+                if (nextPaintId !== 0) {
+                    // already in another body
+                    break;
+                }
+
+                const elementHead = this.#elementArea.getElementHead(bx, ty);
+                const typeClass = ElementHead.getTypeClass(elementHead);
+
+                // TODO: Im not sure here
+                /*if (typeClass <= ElementHead.TYPE_FLUID) {
+                    // light element
+                    break;
+                } else*/ if (typeClass < ElementHead.TYPE_STATIC) {
+                    // extend
+                    this.#elementAreaOverlay[bx + (ty * w)] = paintId;
+                    extendedCount++;
+                    i++;
+                } else {
+                    // too heavy element
+                    break;
+                }
+            }
+        }
+
+        return extendedCount;
+    }
+
     #reusableWorkStack = new Uint32Stack();
-    #reusableBorderStack = new Uint32Stack();
+    #reusableUpperBorderStack = new Uint32Stack();
+    #reusableLowerBorderStack = new Uint32Stack();
+    #reusableLowerBorderMinY;  // new Uint16Array(width);
 
     /**
      *
@@ -231,9 +357,9 @@ export class ProcessorModuleSolidBody {
      * @param y {number}
      * @param elementHead {number}
      * @param paintId {number}
-     * @return {[number, number, number, Uint32Stack, object]} result
+     * @return {[number, Uint32Stack, Uint32Stack, Uint16Array, object]} result
      */
-    #discover(x, y, elementHead, paintId) {
+    #discoverBoundaries(x, y, elementHead, paintId) {
         const pattern = 0b11110111;  // falling id and type class
         const matcher = this.#elementArea.getElementHead(x, y) & pattern;
 
@@ -242,17 +368,20 @@ export class ProcessorModuleSolidBody {
         const stack = this.#reusableWorkStack;
         stack.reset();
 
-        const borderStack = this.#reusableBorderStack;
-        borderStack.reset();
+        const upperBorderStack = this.#reusableUpperBorderStack;
+        upperBorderStack.reset();
+
+        const lowerBorderStack = this.#reusableLowerBorderStack;
+        lowerBorderStack.reset();
+
+        const lowerBorderMinY = this.#reusableLowerBorderMinY;
+        lowerBorderMinY.fill(0xffff);  // not set
 
         const properties = {
             tree: ElementHead.getBehaviour(elementHead) === ElementHead.BEHAVIOUR_TREE  // default value
         };
 
         let count = 0;
-        let borderCount = 0;
-        let borderCountCanMove = 0;
-
         let point = x + y * w;
         do {
             const x = point % w;
@@ -261,7 +390,11 @@ export class ProcessorModuleSolidBody {
             this.#elementAreaOverlay[point] = paintId;
             count++;
 
-            this.#discoverNeighbour(x, y - 1, pattern, matcher, stack, paintId, properties);
+            const upperBorder = this.#discoverNeighbour(x, y - 1, pattern, matcher, stack, paintId, properties);
+            if (upperBorder) {
+                upperBorderStack.push(point);
+            }
+
             this.#discoverNeighbour(x + 1, y, pattern, matcher, stack, paintId, properties);
             this.#discoverNeighbour(x - 1, y, pattern, matcher, stack, paintId, properties);
 
@@ -273,49 +406,38 @@ export class ProcessorModuleSolidBody {
                 this.#discoverNeighbour(x - 1, y + 1, pattern, matcher, stack, paintId, properties);
             }
 
-            const borderType = this.#discoverNeighbour(x, y + 1, pattern, matcher, stack, paintId, properties, true);
-
-            if (borderType === 0) {
-
-            } else if (borderType === 1) {
-                // border
-                borderStack.push(point);
-                borderCount++;
-            } else if (borderType === 2) {
-                // border & can move down
-                borderStack.push(point);
-                borderCount++;
-                borderCountCanMove++;
+            const lowerBorder = this.#discoverNeighbour(x, y + 1, pattern, matcher, stack, paintId, properties);
+            if (lowerBorder) {
+                lowerBorderStack.push(point);
+                const oldMin = lowerBorderMinY[x];
+                lowerBorderMinY[x] = (oldMin === 0xffff) ? y : Math.min(oldMin, y);
             }
 
         } while ((point = stack.pop()) != null);
 
-        return [count, borderCount, borderCountCanMove, borderStack, properties];
+        return [count, upperBorderStack, lowerBorderStack, lowerBorderMinY, properties];
     }
 
-    #discoverNeighbour(x, y, pattern, matcher, stack, targetPaintId, properties, isBelow) {
+    #discoverNeighbour(x, y, pattern, matcher, stack, targetPaintId, properties) {
         if (x < 0 || y < 0) {
-            return 0;
+            return true;  // border
         }
 
         const w = this.#elementArea.getWidth();
         const h = this.#elementArea.getHeight();
         if (x >= w || y >= h) {
-            if (isBelow) {
-                return 1;
-            }
-            return 0;
+            return true;  // border
         }
 
         const point = x + (y * w);
         const currentPaintId = this.#elementAreaOverlay[point];
         if (currentPaintId === ProcessorModuleSolidBody.#QUEUED_PAINT_ID) {
             // already queued
-            return 0;
+            return false;  // no border
         }
         if (currentPaintId === targetPaintId) {
             // already done
-            return 0;
+            return false;  // no border
         }
 
         const elementHead = this.#elementArea.getElementHead(x, y);
@@ -328,41 +450,31 @@ export class ProcessorModuleSolidBody {
 
         if ((elementHead & pattern) !== matcher) {
             // no match
-            if (isBelow) {
-                // can move here?
-                const typeClass = ElementHead.getTypeClass(elementHead);
-                switch (typeClass) {
-                    case ElementHead.TYPE_AIR:
-                    case ElementHead.TYPE_EFFECT:
-                    case ElementHead.TYPE_GAS:
-                    case ElementHead.TYPE_FLUID:
-                        return 2;
-                    default:
-                        return 1;
-                }
-            }
-            return 0;
+            return true;  // border
         }
 
         this.#elementAreaOverlay[point] = ProcessorModuleSolidBody.#QUEUED_PAINT_ID;
         stack.push(point);
-        return 0;
+        return false;  // no border
     }
 }
 
 /**
  *
  * @author Patrik Harag
- * @version 2024-02-23
+ * @version 2024-03-23
  */
 class Uint32Stack {
+    static create(size) {
+        return new Uint32Stack(new Uint32Array(Math.max(1, size)));
+    }
+
     /** @type Uint32Array */
     #array;
     #i = -1;
 
-    constructor(size = 1) {
-        size = Math.max(1, size);
-        this.#array = new Uint32Array(size);
+    constructor(array = new Uint32Array(1)) {
+        this.#array = array;
     }
 
     push(value) {
@@ -380,6 +492,16 @@ class Uint32Stack {
             return null;
         }
         return this.#array[this.#i--];
+    }
+
+    shadowClone() {
+        const clone = new Uint32Stack(this.#array);
+        clone.#i = this.#i;
+        return clone;
+    }
+
+    removePrevious() {
+        this.#array[this.#i + 1] = 0xffffffff;
     }
 
     reset() {
