@@ -30,7 +30,7 @@ export class ComponentButton extends Component {
 
     /**
      *
-     * @param label {string}
+     * @param label {string|HTMLElement|HTMLElement[]}
      * @param cssClass {string|null}
      * @param action {Action|function}
      */

@@ -22,16 +22,16 @@ import { ActionIOImport } from "./gui/action/ActionIOImport";
 import { ActionIOExport } from "./gui/action/ActionIOExport";
 import { SceneImplHardcoded } from "./core/scene/SceneImplHardcoded";
 import { ServiceToolManager } from "./gui/ServiceToolManager";
-import { ActionReportProblem } from "./gui/action/ActionReportProblem";
+import ComponentButtonReport from "./gui/component/ComponentButtonReport";
+
+// exported classes (accessible as SandGameJS.XXX)
 
 export { Tools } from "./core/tool/Tools";
 export { Brushes } from "./core/brush/Brushes";
-
 export { ToolDefs} from "./def/ToolDefs";
 export { BrushDefs } from "./def/BrushDefs";
 export { PredicateDefs } from "./def/PredicateDefs";
 export { SceneDefs } from "./def/SceneDefs";
-
 export { Resources } from "./io/Resources";
 
 export const brushes = BrushDefs._LIST;
@@ -61,7 +61,7 @@ export const tools = ToolDefs._LIST;
  * @returns {Controller}
  *
  * @author Patrik Harag
- * @version 2024-03-05
+ * @version 2024-03-23
  */
 export function init(root, config) {
     if (config === undefined) {
@@ -197,7 +197,7 @@ export function init(root, config) {
                         : null),
             ]),
             new ComponentContainer('sand-game-options-right', [
-                (enableUserErrorReporting) ? new ComponentButton('Report a\xa0problem', ComponentButton.CLASS_LIGHT, new ActionReportProblem(errorReporter)) : null,
+                (enableUserErrorReporting) ? new ComponentButtonReport(ComponentButton.CLASS_LIGHT, errorReporter) : null,
             ]),
         ]),
         new ComponentContainer('sand-game-views', [

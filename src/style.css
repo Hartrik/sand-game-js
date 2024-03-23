@@ -1,7 +1,7 @@
 
 /*
  * @author Patrik Harag
- * @version 2024-03-07
+ * @version 2024-03-23
  */
 
 .sand-game-component {
@@ -183,12 +183,6 @@
     font-size: small;
 }
 
-@media (max-width: 575px) {
-    .sand-game-component .sand-game-options .status-label {
-        display: none;
-    }
-}
-
 .sand-game-component .sand-game-options .status-stopped {
     color: blue;
 }
@@ -335,4 +329,16 @@
     width: 100px;
     height: 100px;
     padding-top: 50px;  /* Label location */
+}
+
+/* utils */
+
+.sand-game-component .visible-on-big-screen-only {
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .sand-game-component .visible-on-big-screen-only {
+        display: initial;
+    }
 }

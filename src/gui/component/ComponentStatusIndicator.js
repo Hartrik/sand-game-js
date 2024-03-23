@@ -6,7 +6,7 @@ import { Component } from "./Component";
 /**
  *
  * @author Patrik Harag
- * @version 2024-01-06
+ * @version 2024-03-23
  */
 export class ComponentStatusIndicator extends Component {
 
@@ -22,7 +22,7 @@ export class ComponentStatusIndicator extends Component {
 
         const nodeStatusLabel = DomBuilder.span('');
         const nodeLabel = [
-            DomBuilder.span('Performance: ', { class: 'status-label' }),
+            DomBuilder.span('Performance: ', { class: 'visible-on-big-screen-only' }),
             nodeStatusLabel
         ];
 
