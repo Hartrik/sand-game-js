@@ -16,7 +16,7 @@ export class RoundBrushToolForSolidBody extends Tool {
     #brush;
 
     /** @type Brush */
-    #toSolidBodyBrush = Brushes.conditional(PredicateDefs.IS_STATIC, Brushes.toSolidBody(2));  // TODO: hardcoded
+    #toSolidBodyBrush = Brushes.conditional(PredicateDefs.IS_STATIC, Brushes.toSolidBody(2, false));  // TODO: hardcoded
 
     /** @type number */
     #size;

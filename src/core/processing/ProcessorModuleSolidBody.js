@@ -265,8 +265,8 @@ export class ProcessorModuleSolidBody {
             this.#discoverNeighbour(x + 1, y, pattern, matcher, stack, paintId, properties);
             this.#discoverNeighbour(x - 1, y, pattern, matcher, stack, paintId, properties);
 
-            if (properties.tree) {
-                // handle tree branches
+            if (ElementHead.getTypeModifierSolidNeighbourhoodType(this.#elementArea.getElementHead(x, y)) === 0) {
+                // extended neighbourhood
                 this.#discoverNeighbour(x + 1, y - 1, pattern, matcher, stack, paintId, properties);
                 this.#discoverNeighbour(x - 1, y - 1, pattern, matcher, stack, paintId, properties);
                 this.#discoverNeighbour(x + 1, y + 1, pattern, matcher, stack, paintId, properties);

@@ -17,11 +17,11 @@
  *
  * Type modifier for solid-like types: (5b)
  * <pre>
- *     | soft  1b |  body id  4b  |
+ *     | neighbourhood type  1b |  body id  4b  |
  * </pre>
  *
  * @author Patrik Harag
- * @version 2024-02-23
+ * @version 2024-03-23
  */
 export class ElementHead {
 
@@ -84,8 +84,9 @@ export class ElementHead {
         return typeClass;
     }
 
-    static type8Solid(typeClass, bodyId = 0) {
-        let value = bodyId << 5;
+    static type8Solid(typeClass, bodyId = 0, extendedNeighbourhood = true) {
+        let value = bodyId << 1;
+        value = (value | (extendedNeighbourhood ? 0 : 1)) << 3;
         value = value | typeClass;
         return value;
     }
@@ -120,7 +121,7 @@ export class ElementHead {
         return (elementHead >> 5) & 0x00000007;
     }
 
-    static getTypeModifierSolidSoft(elementHead) {
+    static getTypeModifierSolidNeighbourhoodType(elementHead) {
         return (elementHead >> 3) & 0x00000001;
     }
 
@@ -166,7 +167,7 @@ export class ElementHead {
         return (elementHead & 0xFFFFFF1F) | (val << 5);
     }
 
-    static setTypeModifierSolidSoft(elementHead, val) {
+    static setTypeModifierSolidNeighbourhoodType(elementHead, val) {
         return (elementHead & 0xFFFFFFF7) | (val << 3);
     }
 

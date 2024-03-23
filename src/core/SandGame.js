@@ -21,7 +21,7 @@ import {TemplateLayeredPainter} from "./TemplateLayeredPainter.js";
 /**
  *
  * @author Patrik Harag
- * @version 2024-01-22
+ * @version 2024-03-23
  */
 export class SandGame {
 
@@ -335,7 +335,7 @@ export class SandGame {
 
         const json = {
             type: {
-                'class': ElementHead.getTypeClass(elementHead)
+                class: ElementHead.getTypeClass(elementHead),
             },
             behaviour: {
                 type: ElementHead.getBehaviour(elementHead),
@@ -352,6 +352,11 @@ export class SandGame {
             burntLevel: ElementTail.getBurntLevel(elementTail),
             heatEffect: ElementTail.getHeatEffect(elementTail)
         };
+
+        if (json.type.class === ElementHead.TYPE_STATIC) {
+            json.type.neighbourhood = ElementHead.getTypeModifierSolidNeighbourhoodType(elementHead);
+            json.type.body = ElementHead.getTypeModifierSolidBodyId(elementHead);
+        }
 
         let structure = JSON.stringify(json)
                 .replaceAll('"', '')

@@ -269,10 +269,11 @@ export class Brushes {
 
     /**
      * @param solidBodyId {number}
+     * @param extendedNeighbourhood {boolean|undefined}
      * @param innerBrush {Brush|undefined}
      * @return {SolidBodyBrush}
      */
-    static toSolidBody(solidBodyId, innerBrush = undefined) {
-        return new SolidBodyBrush(solidBodyId, innerBrush);
+    static toSolidBody(solidBodyId, extendedNeighbourhood = undefined, innerBrush = undefined) {
+        return new SolidBodyBrush(solidBodyId, extendedNeighbourhood, innerBrush);
     }
 }
