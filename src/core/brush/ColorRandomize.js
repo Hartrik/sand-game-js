@@ -1,6 +1,8 @@
-import {AbstractEffectBrush} from "./AbstractEffectBrush";
-import {Element} from "../Element";
-import {ElementTail} from "../ElementTail";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import AbstractEffectBrush from "./AbstractEffectBrush";
+import Element from "../Element";
+import ElementTail from "../ElementTail";
 
 /**
  * This brush provides a bit of randomness to element colors.

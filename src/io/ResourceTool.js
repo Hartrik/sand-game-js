@@ -1,18 +1,20 @@
-import { Tool } from "../core/tool/Tool";
-import { Tools } from "../core/tool/Tools";
-import { ToolInfo } from "../core/tool/ToolInfo";
-import { Brush } from "../core/brush/Brush";
-import { BrushDefs } from "../def/BrushDefs";
-import { ElementArea } from "../core/ElementArea";
-import { SceneImplModFlip } from "../core/scene/SceneImplModFlip";
-import { ResourceUtils } from "./ResourceUtils";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Tool from "../core/tool/Tool";
+import Tools from "../core/tool/Tools";
+import ToolInfo from "../core/tool/ToolInfo";
+import Brush from "../core/brush/Brush";
+import BrushDefs from "../def/BrushDefs";
+import ElementArea from "../core/ElementArea";
+import SceneImplModFlip from "../core/scene/SceneImplModFlip";
+import ResourceUtils from "./ResourceUtils";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-02-22
  */
-export class ResourceTool {
+export default class ResourceTool {
 
     static METADATA_JSON_NAME = 'tool.json';
 

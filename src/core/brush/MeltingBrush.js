@@ -1,14 +1,16 @@
-import {ElementHead} from "../ElementHead";
-import {ElementTail} from "../ElementTail";
-import {Element} from "../Element";
-import {Brush} from "./Brush";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import ElementHead from "../ElementHead";
+import ElementTail from "../ElementTail";
+import Element from "../Element";
+import Brush from "./Brush";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-02-06
  */
-export class MeltingBrush extends Brush {
+export default class MeltingBrush extends Brush {
 
     apply(x, y, random, oldElement) {
         if (oldElement === null) {

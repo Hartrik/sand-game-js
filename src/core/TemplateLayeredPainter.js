@@ -1,17 +1,19 @@
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
 import Spline from "cubic-spline";
 import { createNoise2D } from "simplex-noise";
-import { ProcessorModuleGrass } from "./processing/ProcessorModuleGrass.js";
-import { ProcessorModuleTree } from "./processing/ProcessorModuleTree.js";
-import { BrushDefs } from "../def/BrushDefs";
-import { DeterministicRandom } from "./DeterministicRandom";
-import { ElementHead } from "./ElementHead";
+import ProcessorModuleGrass from "./processing/ProcessorModuleGrass.js";
+import ProcessorModuleTree from "./processing/ProcessorModuleTree.js";
+import BrushDefs from "../def/BrushDefs";
+import DeterministicRandom from "./DeterministicRandom";
+import ElementHead from "./ElementHead";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-01-18
  */
-export class TemplateLayeredPainter {
+export default class TemplateLayeredPainter {
 
     /** @type ElementArea */
     #elementArea;

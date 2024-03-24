@@ -1,13 +1,15 @@
-import { DomBuilder } from "../DomBuilder";
-import { Action } from "./Action";
-import { ComponentViewTemplateSelection } from "../component/ComponentViewTemplateSelection";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import DomBuilder from "../DomBuilder";
+import Action from "./Action";
+import ComponentViewTemplateSelection from "../component/ComponentViewTemplateSelection";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-02-08
  */
-export class ActionDialogTemplateSelection extends Action {
+export default class ActionDialogTemplateSelection extends Action {
 
     #templateDefinitions;
     #additionalInfo;

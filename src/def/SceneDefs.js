@@ -1,15 +1,17 @@
-import {Brushes} from "../core/brush/Brushes";
-import {BrushDefs} from "./BrushDefs.js";
-import {SceneImplHardcoded} from "../core/scene/SceneImplHardcoded.js";
-import {Resources} from "../io/Resources";
-import {TemplateDefs} from "./TemplateDefs";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Brushes from "../core/brush/Brushes";
+import BrushDefs from "./BrushDefs.js";
+import SceneImplHardcoded from "../core/scene/SceneImplHardcoded.js";
+import Resources from "../io/Resources";
+import TemplateDefs from "./TemplateDefs";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-02-08
  */
-export class SceneDefs {
+export default class SceneDefs {
 
     /** @type Scene */
     static SCENE_EMPTY = new SceneImplHardcoded({

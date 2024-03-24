@@ -1,10 +1,11 @@
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-02-08
  */
-export class ToolInfo {
+export default class ToolInfo {
 
     static NOT_DEFINED = new ToolInfo();
 

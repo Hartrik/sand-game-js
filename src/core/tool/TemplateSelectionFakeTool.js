@@ -1,11 +1,13 @@
-import {Tool} from "./Tool";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Tool from "./Tool";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-02-08
  */
-export class TemplateSelectionFakeTool extends Tool {
+export default class TemplateSelectionFakeTool extends Tool {
 
     #templateDefinitions;
 

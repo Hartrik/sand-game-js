@@ -1,13 +1,15 @@
-import {Scene} from "./Scene.js";
-import {SandGame} from "../SandGame";
-import {ElementArea} from "../ElementArea.js";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Scene from "./Scene.js";
+import SandGame from "../SandGame";
+import ElementArea from "../ElementArea.js";
 
 /**
  *
  * @author Patrik Harag
  * @version 2023-12-20
  */
-export class SceneImplSnapshot extends Scene {
+export default class SceneImplSnapshot extends Scene {
 
     /**
      * @type Snapshot

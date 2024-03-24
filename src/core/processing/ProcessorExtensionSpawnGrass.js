@@ -1,11 +1,13 @@
-import {ProcessorModuleGrass} from "./ProcessorModuleGrass.js";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import ProcessorModuleGrass from "./ProcessorModuleGrass.js";
 
 /**
  *
  * @author Patrik Harag
  * @version 2023-12-08
  */
-export class ProcessorExtensionSpawnGrass {
+export default class ProcessorExtensionSpawnGrass {
     static MAX_COUNTER_VALUE = 2;
 
     /** @type ElementArea */

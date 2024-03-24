@@ -1,11 +1,13 @@
-import {ElementHead} from "../ElementHead.js";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import ElementHead from "../ElementHead.js";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-03-23
  */
-export class ProcessorModuleSolidBody {
+export default class ProcessorModuleSolidBody {
 
     static #QUEUED_PAINT_ID = 255;
     static #NEWLY_CREATED_PAINT_ID = 254;

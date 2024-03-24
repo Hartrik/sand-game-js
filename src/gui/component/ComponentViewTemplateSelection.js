@@ -1,14 +1,16 @@
-import { DomBuilder } from "../DomBuilder";
-import { Resources } from "../../io/Resources";
-import { Tools } from "../../core/tool/Tools";
-import { Component } from "./Component";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import DomBuilder from "../DomBuilder";
+import Resources from "../../io/Resources";
+import Tools from "../../core/tool/Tools";
+import Component from "./Component";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-02-08
  */
-export class ComponentViewTemplateSelection extends Component {
+export default class ComponentViewTemplateSelection extends Component {
 
     #templateDefinitions;
 

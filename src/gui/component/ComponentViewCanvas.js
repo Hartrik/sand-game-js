@@ -1,13 +1,15 @@
-import {DomBuilder} from "../DomBuilder";
-import {Component} from "./Component";
-import {ComponentViewCanvasInner} from "./ComponentViewCanvasInner";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import DomBuilder from "../DomBuilder";
+import Component from "./Component";
+import ComponentViewCanvasInner from "./ComponentViewCanvasInner";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-01-15
  */
-export class ComponentViewCanvas extends Component {
+export default class ComponentViewCanvas extends Component {
 
     /** @type {HTMLElement} */
     #canvasHolderNode = DomBuilder.div({ class: 'sand-game-canvas-holder' });

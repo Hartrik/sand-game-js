@@ -1,8 +1,10 @@
-import { Controller } from "../Controller";
-import { BrushDefs } from "../../def/BrushDefs";
-import { SceneImplHardcoded } from "../../core/scene/SceneImplHardcoded";
-import { Action } from "./Action";
-import { DomBuilder } from "../DomBuilder";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Controller from "../Controller";
+import BrushDefs from "../../def/BrushDefs";
+import SceneImplHardcoded from "../../core/scene/SceneImplHardcoded";
+import Action from "./Action";
+import DomBuilder from "../DomBuilder";
 import FileSaver from 'file-saver';
 
 /**
@@ -10,7 +12,7 @@ import FileSaver from 'file-saver';
  * @author Patrik Harag
  * @version 2023-12-04
  */
-export class ActionBenchmark extends Action {
+export default class ActionBenchmark extends Action {
 
     performAction(controller) {
         let benchmarkProvider = new BenchmarkProvider(controller, results => {
@@ -51,7 +53,7 @@ export class ActionBenchmark extends Action {
  * @author Patrik Harag
  * @version 2023-04-29
  */
-export class BenchmarkProvider {
+class BenchmarkProvider {
 
     static WAITING_GAP = 300;
 

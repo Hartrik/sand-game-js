@@ -1,22 +1,24 @@
-import { ElementArea } from "../core/ElementArea";
-import { SandGame } from "../core/SandGame";
-import { SceneImplTmpResize } from "../core/scene/SceneImplResize";
-import { ServiceToolManager } from "./ServiceToolManager";
-import { ServiceIO } from "./ServiceIO";
-import { RendererInitializer } from "../core/rendering/RendererInitializer";
-import { SceneImplSnapshot } from "../core/scene/SceneImplSnapshot";
-import { DomBuilder } from "./DomBuilder";
-import { Defaults } from "../def/Defaults";
-import { Tools } from "../core/tool/Tools";
-import { ToolInfo } from "../core/tool/ToolInfo";
-import { Analytics } from "../Analytics";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import ElementArea from "../core/ElementArea";
+import SandGame from "../core/SandGame";
+import SceneImplTmpResize from "../core/scene/SceneImplResize";
+import ServiceToolManager from "./ServiceToolManager";
+import ServiceIO from "./ServiceIO";
+import RendererInitializer from "../core/rendering/RendererInitializer";
+import SceneImplSnapshot from "../core/scene/SceneImplSnapshot";
+import DomBuilder from "./DomBuilder";
+import Defaults from "../def/Defaults";
+import Tools from "../core/tool/Tools";
+import ToolInfo from "../core/tool/ToolInfo";
+import Analytics from "../Analytics";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-02-04
  */
-export class Controller {
+export default class Controller {
 
     #init = {
         scale: 0.5,

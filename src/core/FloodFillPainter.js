@@ -1,11 +1,13 @@
-import { ElementHead } from "./ElementHead";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import ElementHead from "./ElementHead";
 
 /**
  *
  * @author Patrik Harag
  * @version 2023-08-20
  */
-export class FloodFillPainter {
+export default class FloodFillPainter {
 
     static NEIGHBOURHOOD_VON_NEUMANN = 0;
     static NEIGHBOURHOOD_MOORE = 1;

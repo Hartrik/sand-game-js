@@ -1,5 +1,7 @@
-import {Element} from "../Element.js";
-import {Brush} from "../brush/Brush.js";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Element from "../Element.js";
+import Brush from "../brush/Brush.js";
 
 /**
  * @interface
@@ -7,7 +9,7 @@ import {Brush} from "../brush/Brush.js";
  * @author Patrik Harag
  * @version 2023-12-17
  */
-export class ProcessorDefaults {
+export default class ProcessorDefaults {
 
     /**
      * @return Element

@@ -1,13 +1,15 @@
-import {ElementHead} from "../ElementHead.js";
-import {ElementTail} from "../ElementTail.js";
-import {VisualEffects} from "./VisualEffects.js";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import ElementHead from "../ElementHead.js";
+import ElementTail from "../ElementTail.js";
+import VisualEffects from "./VisualEffects.js";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-02-01
  */
-export class ProcessorModuleFire {
+export default class ProcessorModuleFire {
 
     static #FIRE_MIN_TEMPERATURE = 34;
 

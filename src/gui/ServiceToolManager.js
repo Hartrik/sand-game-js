@@ -1,11 +1,13 @@
-import {Tool} from "../core/tool/Tool.js";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Tool from "../core/tool/Tool.js";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-01-15
  */
-export class ServiceToolManager {
+export default class ServiceToolManager {
 
     #primaryTool;
     #secondaryTool;

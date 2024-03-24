@@ -1,16 +1,18 @@
-import {FloodFillPainter} from "./FloodFillPainter.js";
-import {Element} from "./Element.js";
-import {ElementArea} from "./ElementArea.js";
-import {Brush} from "./brush/Brush.js";
-import {CircleIterator} from "./CircleIterator.js";
-import {Marker} from "./Marker";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import FloodFillPainter from "./FloodFillPainter.js";
+import Element from "./Element.js";
+import ElementArea from "./ElementArea.js";
+import Brush from "./brush/Brush.js";
+import CircleIterator from "./CircleIterator.js";
+import Marker from "./Marker";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-03-13
  */
-export class SandGameGraphics {
+export default class SandGameGraphics {
 
     /** @type ElementArea */
     #elementArea;

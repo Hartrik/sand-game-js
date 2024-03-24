@@ -1,9 +1,10 @@
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
 
 /**
  * @author Patrik Harag
  * @version 2023-02-18
  */
-export class RenderingMode {
+export default class RenderingMode {
 
     /**
      * Element rendering function.

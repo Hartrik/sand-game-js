@@ -1,10 +1,11 @@
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-02-01
  */
-export class SnapshotMetadata {
+export default class SnapshotMetadata {
 
     static CURRENT_FORMAT_VERSION = 6;
 

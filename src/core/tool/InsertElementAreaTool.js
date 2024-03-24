@@ -1,14 +1,16 @@
-import {ElementArea} from "../ElementArea";
-import {Brushes} from "../brush/Brushes";
-import {CursorDefinitionElementArea} from "./CursorDefinitionElementArea";
-import {Tool} from "./Tool";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import ElementArea from "../ElementArea";
+import Brushes from "../brush/Brushes";
+import CursorDefinitionElementArea from "./CursorDefinitionElementArea";
+import Tool from "./Tool";
 
 /**
  *
  * @author Patrik Harag
  * @version 2023-12-28
  */
-export class InsertElementAreaTool extends Tool {
+export default class InsertElementAreaTool extends Tool {
 
     static asElementArea(scene) {
         return scene.createElementArea(InsertElementAreaTool.DEFAULT_W, InsertElementAreaTool.DEFAULT_H,

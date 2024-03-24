@@ -1,16 +1,18 @@
-import { Brushes } from "../core/brush/Brushes";
-import { Tool } from "../core/tool/Tool.js";
-import { Tools } from "../core/tool/Tools";
-import { BrushDefs } from "./BrushDefs";
-import { ToolInfo } from "../core/tool/ToolInfo";
-import { TemplateDefs } from "./TemplateDefs";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Brushes from "../core/brush/Brushes";
+import Tool from "../core/tool/Tool.js";
+import Tools from "../core/tool/Tools";
+import BrushDefs from "./BrushDefs";
+import ToolInfo from "../core/tool/ToolInfo";
+import TemplateDefs from "./TemplateDefs";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-03-13
  */
-export class ToolDefs {
+export default class ToolDefs {
 
     static DEFAULT_SIZE = 6;
 

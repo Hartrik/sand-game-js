@@ -1,12 +1,14 @@
-import { Action } from "./Action";
-import { DomBuilder } from "../DomBuilder";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Action from "./Action";
+import DomBuilder from "../DomBuilder";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-02-04
  */
-export class ActionReportProblem extends Action {
+export default class ActionReportProblem extends Action {
 
     /** @type function(type:string,message:string,controller:Controller) */
     #handler;

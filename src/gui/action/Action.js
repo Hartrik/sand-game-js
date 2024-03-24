@@ -1,3 +1,4 @@
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
 
 /**
  * @interface
@@ -5,7 +6,7 @@
  * @author Patrik Harag
  * @version 2023-08-19
  */
-export class Action {
+export default class Action {
 
     /**
      *

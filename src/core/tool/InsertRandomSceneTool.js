@@ -1,13 +1,15 @@
-import {DeterministicRandom} from "../DeterministicRandom";
-import {InsertElementAreaTool} from "./InsertElementAreaTool";
-import {Tool} from "./Tool";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import DeterministicRandom from "../DeterministicRandom";
+import InsertElementAreaTool from "./InsertElementAreaTool";
+import Tool from "./Tool";
 
 /**
  *
  * @author Patrik Harag
  * @version 2023-12-29
  */
-export class InsertRandomSceneTool extends Tool {
+export default class InsertRandomSceneTool extends Tool {
 
     /** @type Scene[] */
     #scenes;

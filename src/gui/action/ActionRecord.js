@@ -1,4 +1,6 @@
-import { Action } from "./Action";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Action from "./Action";
 import FileSaver from 'file-saver';
 import { zipSync } from "fflate";
 
@@ -7,7 +9,7 @@ import { zipSync } from "fflate";
  * @author Patrik Harag
  * @version 2024-02-02
  */
-export class ActionRecord extends Action {
+export default class ActionRecord extends Action {
 
     #controllerHandlersRegistered = false;
     #sandGameHandlersRegistered = false;

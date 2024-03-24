@@ -1,17 +1,19 @@
-import { Assets } from "../Assets";
-import { Brush } from "../core/brush/Brush";
-import { ElementArea } from "../core/ElementArea";
-import { ElementTail } from "../core/ElementTail";
-import { Scene } from "../core/scene/Scene";
-import { SceneImplTemplate } from "../core/scene/SceneImplTemplate";
-import { DeterministicRandom } from "../core/DeterministicRandom";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Assets from "../Assets";
+import Brush from "../core/brush/Brush";
+import ElementArea from "../core/ElementArea";
+import ElementTail from "../core/ElementTail";
+import Scene from "../core/scene/Scene";
+import SceneImplTemplate from "../core/scene/SceneImplTemplate";
+import DeterministicRandom from "../core/DeterministicRandom";
 
 /**
  *
  * @author Patrik Harag
  * @version 2023-12-09
  */
-export class ResourceUtils {
+export default class ResourceUtils {
 
     /**
      *

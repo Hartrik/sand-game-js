@@ -1,6 +1,8 @@
-import { DomBuilder } from "../DomBuilder";
-import { Component } from "./Component";
-import { Analytics } from "../../Analytics";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import DomBuilder from "../DomBuilder";
+import Component from "./Component";
+import Analytics from "../../Analytics";
 
 import _ASSET_IMG_ELEMENT_SIZE_1 from './assets/element-size-1.png'
 import _ASSET_IMG_ELEMENT_SIZE_2 from './assets/element-size-2.png'
@@ -12,7 +14,7 @@ import _ASSET_IMG_ELEMENT_SIZE_4 from './assets/element-size-4.png'
  * @author Patrik Harag
  * @version 2023-12-22
  */
-export class ComponentViewElementSizeSelection extends Component {
+export default class ComponentViewElementSizeSelection extends Component {
 
     static CLASS_SELECTED = 'selected-size';
 

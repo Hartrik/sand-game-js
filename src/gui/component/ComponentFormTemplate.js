@@ -1,7 +1,9 @@
-import {BrushDefs} from "../../def/BrushDefs";
-import {DomBuilder} from "../DomBuilder";
-import {ToolDefs} from "../../def/ToolDefs";
-import {Component} from "./Component";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import BrushDefs from "../../def/BrushDefs";
+import DomBuilder from "../DomBuilder";
+import ToolDefs from "../../def/ToolDefs";
+import Component from "./Component";
 
 /**
  * Creates template form and remembers last values.
@@ -9,7 +11,7 @@ import {Component} from "./Component";
  * @author Patrik Harag
  * @version 2024-02-09
  */
-export class ComponentFormTemplate extends Component {
+export default class ComponentFormTemplate extends Component {
 
     #thresholdValue = 50;
     #maxWidth = 300;

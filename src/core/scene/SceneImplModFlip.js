@@ -1,5 +1,7 @@
-import {Scene} from "./Scene.js";
-import {SandGame} from "../SandGame.js";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Scene from "./Scene.js";
+import SandGame from "../SandGame.js";
 
 /**
  * Create flipped scene using object composition.
@@ -7,7 +9,7 @@ import {SandGame} from "../SandGame.js";
  * @author Patrik Harag
  * @version 2023-12-20
  */
-export class SceneImplModFlip extends Scene {
+export default class SceneImplModFlip extends Scene {
 
     /**
      * @type Scene

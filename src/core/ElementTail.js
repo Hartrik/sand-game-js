@@ -1,3 +1,4 @@
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
 
 /**
  * Tools for working with the element tail.
@@ -13,7 +14,7 @@
  * @author Patrik Harag
  * @version 2023-12-04
  */
-export class ElementTail {
+export default class ElementTail {
 
     static BLUR_TYPE_NONE = 0x0;
     /** This element acts as a background = blur can be applied over this element */

@@ -1,12 +1,14 @@
-import { DomBuilder } from "../DomBuilder";
-import { Component } from "./Component";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import DomBuilder from "../DomBuilder";
+import Component from "./Component";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-01-04
  */
-export class ComponentContainer extends Component {
+export default class ComponentContainer extends Component {
 
     #cssClass;
     #components;

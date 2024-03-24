@@ -1,11 +1,13 @@
-import {ElementHead} from "../ElementHead.js";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import ElementHead from "../ElementHead.js";
 
 /**
  *
  * @author Patrik Harag
  * @version 2023-12-17
  */
-export class ProcessorExtensionSpawnTree {
+export default class ProcessorExtensionSpawnTree {
     static STARTING_COUNTER_VALUE = 1000;
     static MAX_COUNTER_VALUE = 4;
 

@@ -1,6 +1,8 @@
-import { Action } from "./Action";
-import { Analytics } from "../../Analytics";
-import { Resources } from "../../io/Resources";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Action from "./Action";
+import Analytics from "../../Analytics";
+import Resources from "../../io/Resources";
 import FileSaver from 'file-saver';
 
 /**
@@ -8,7 +10,7 @@ import FileSaver from 'file-saver';
  * @author Patrik Harag
  * @version 2023-08-19
  */
-export class ActionIOExport extends Action {
+export default class ActionIOExport extends Action {
 
     performAction(controller) {
         const snapshot = controller.createSnapshot();

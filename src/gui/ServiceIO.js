@@ -1,14 +1,16 @@
-import {DomBuilder} from "./DomBuilder.js";
-import {ElementArea} from "../core/ElementArea.js";
-import {Resources} from "../io/Resources.js";
-import {ResourceUtils} from "../io/ResourceUtils";
-import {Analytics} from "../Analytics.js";
-import {Scene} from "../core/scene/Scene";
-import {Tool} from "../core/tool/Tool";
-import {Tools} from "../core/tool/Tools";
-import {InsertElementAreaTool} from "../core/tool/InsertElementAreaTool";
-import {InsertRandomSceneTool} from "../core/tool/InsertRandomSceneTool";
-import {ComponentFormTemplate} from "./component/ComponentFormTemplate";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import DomBuilder from "./DomBuilder.js";
+import ElementArea from "../core/ElementArea.js";
+import Resources from "../io/Resources.js";
+import ResourceUtils from "../io/ResourceUtils";
+import Analytics from "../Analytics.js";
+import Scene from "../core/scene/Scene";
+import Tool from "../core/tool/Tool";
+import Tools from "../core/tool/Tools";
+import InsertElementAreaTool from "../core/tool/InsertElementAreaTool";
+import InsertRandomSceneTool from "../core/tool/InsertRandomSceneTool";
+import ComponentFormTemplate from "./component/ComponentFormTemplate";
 
 // TODO: refactor
 
@@ -17,7 +19,7 @@ import {ComponentFormTemplate} from "./component/ComponentFormTemplate";
  * @author Patrik Harag
  * @version 2024-02-06
  */
-export class ServiceIO {
+export default class ServiceIO {
 
     /** @type Controller */
     #controller;

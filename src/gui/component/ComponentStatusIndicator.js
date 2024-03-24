@@ -1,14 +1,16 @@
-import { Analytics } from "../../Analytics";
-import { DomBuilder } from "../DomBuilder";
-import { Processor } from "../../core/processing/Processor";
-import { Component } from "./Component";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Analytics from "../../Analytics";
+import DomBuilder from "../DomBuilder";
+import Processor from "../../core/processing/Processor";
+import Component from "./Component";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-03-23
  */
-export class ComponentStatusIndicator extends Component {
+export default class ComponentStatusIndicator extends Component {
 
     #additionalInfo;
 

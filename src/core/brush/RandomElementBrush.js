@@ -1,12 +1,14 @@
-import {DeterministicRandom} from "../DeterministicRandom";
-import {Brush} from "./Brush";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import DeterministicRandom from "../DeterministicRandom";
+import Brush from "./Brush";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-01-29
  */
-export class RandomElementBrush extends Brush {
+export default class RandomElementBrush extends Brush {
 
     /** @type Element[] */
     #elements;

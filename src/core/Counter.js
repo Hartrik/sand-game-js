@@ -1,10 +1,11 @@
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
 
 /**
  *
  * @author Patrik Harag
  * @version 2022-09-25
  */
-export class Counter {
+export default class Counter {
 
     #currentValue = 0;
     #lastValue = 0;

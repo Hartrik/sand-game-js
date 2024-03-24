@@ -1,3 +1,4 @@
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
 
 /**
  * @typedef {object} MarkerConfig
@@ -11,7 +12,7 @@
  * @author Patrik Harag
  * @version 2024-01-17
  */
-export class Marker {
+export default class Marker {
 
     /** @type number */
     #x1;

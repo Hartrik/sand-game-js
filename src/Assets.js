@@ -1,10 +1,11 @@
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
 
 /**
  *
  * @author Patrik Harag
  * @version 2023-12-09
  */
-export class Assets {
+export default class Assets {
 
     /**
      *

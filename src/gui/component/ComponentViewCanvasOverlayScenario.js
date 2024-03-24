@@ -1,5 +1,7 @@
-import {Component} from "./Component";
-import {DomBuilder} from "../DomBuilder";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Component from "./Component";
+import DomBuilder from "../DomBuilder";
 
 import _ASSET_ICON_SQUARE from './assets/icon-square.svg'
 import _ASSET_ICON_SQUARE_CHECK from './assets/icon-square-check.svg'
@@ -10,7 +12,7 @@ import _ASSET_ICON_SQUARE_DOTTED from './assets/icon-square-dotted.svg'
  * @author Patrik Harag
  * @version 2024-01-19
  */
-export class ComponentViewCanvasOverlayScenario extends Component {
+export default class ComponentViewCanvasOverlayScenario extends Component {
 
     /** @type Controller */
     #controller;

@@ -1,3 +1,4 @@
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
 
 /**
  * Tools for working with the element head.
@@ -23,7 +24,7 @@
  * @author Patrik Harag
  * @version 2024-03-23
  */
-export class ElementHead {
+export default class ElementHead {
 
     static FIELD_TYPE_CLASS_SIZE = 3;  // bits
     static TYPE_AIR = 0x0;

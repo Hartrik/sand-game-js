@@ -1,6 +1,8 @@
-import {ComponentButton} from "./ComponentButton";
-import {ActionReportProblem} from "../action/ActionReportProblem";
-import {DomBuilder} from "../DomBuilder";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import ComponentButton from "./ComponentButton";
+import ActionReportProblem from "../action/ActionReportProblem";
+import DomBuilder from "../DomBuilder";
 
 /**
  *

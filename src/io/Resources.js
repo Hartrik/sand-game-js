@@ -1,17 +1,19 @@
-import { Snapshot } from "../core/Snapshot";
-import { Scene } from "../core/scene/Scene";
-import { SceneImplSnapshot } from "../core/scene/SceneImplSnapshot";
-import { Tool } from "../core/tool/Tool";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Snapshot from "../core/Snapshot";
+import Scene from "../core/scene/Scene";
+import SceneImplSnapshot from "../core/scene/SceneImplSnapshot";
+import Tool from "../core/tool/Tool";
 import { strFromU8, unzipSync } from 'fflate';
-import { ResourceSnapshot } from "./ResourceSnapshot";
-import { ResourceTool } from "./ResourceTool";
+import ResourceSnapshot from "./ResourceSnapshot";
+import ResourceTool from "./ResourceTool";
 
 /**
  *
  * @author Patrik Harag
  * @version 2023-12-09
  */
-export class Resources {
+export default class Resources {
 
     static JSON_RESOURCE_TYPE_FIELD = 'resourceType';
 

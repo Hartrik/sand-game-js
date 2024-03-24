@@ -1,14 +1,16 @@
-import {AbstractEffectBrush} from "./AbstractEffectBrush";
-import {DeterministicRandom} from "../DeterministicRandom";
-import {ElementTail} from "../ElementTail";
-import {Element} from "../Element";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import AbstractEffectBrush from "./AbstractEffectBrush";
+import DeterministicRandom from "../DeterministicRandom";
+import ElementTail from "../ElementTail";
+import Element from "../Element";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-02-05
  */
-export class ColorPaletteRandomBrush extends AbstractEffectBrush {
+export default class ColorPaletteRandomBrush extends AbstractEffectBrush {
 
     /** @type number[][] */
     #palette;

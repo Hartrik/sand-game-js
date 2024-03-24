@@ -1,11 +1,13 @@
-import {Brush} from "./Brush";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Brush from "./Brush";
 
 /**
  *
  * @author Patrik Harag
  * @version 2023-02-20
  */
-export class CustomBrush extends Brush {
+export default class CustomBrush extends Brush {
 
     /** @type function(x: number, y: number, random: DeterministicRandom, oldElement: Element) */
     #func;

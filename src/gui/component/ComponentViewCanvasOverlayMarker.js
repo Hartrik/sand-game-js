@@ -1,12 +1,14 @@
-import {Component} from "./Component";
-import {DomBuilder} from "../DomBuilder";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Component from "./Component";
+import DomBuilder from "../DomBuilder";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-01-17
  */
-export class ComponentViewCanvasOverlayMarker extends Component {
+export default class ComponentViewCanvasOverlayMarker extends Component {
 
     /** @type Controller */
     #controller;

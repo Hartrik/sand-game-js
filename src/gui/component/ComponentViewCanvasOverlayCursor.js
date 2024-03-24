@@ -1,14 +1,16 @@
-import {Component} from "./Component";
-import {DomBuilder} from "../DomBuilder";
-import {CursorDefinitionElementArea} from "../../core/tool/CursorDefinitionElementArea";
-import {Renderer2D} from "../../core/rendering/Renderer2D";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Component from "./Component";
+import DomBuilder from "../DomBuilder";
+import CursorDefinitionElementArea from "../../core/tool/CursorDefinitionElementArea";
+import Renderer2D from "../../core/rendering/Renderer2D";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-01-07
  */
-export class ComponentViewCanvasOverlayCursor extends Component {
+export default class ComponentViewCanvasOverlayCursor extends Component {
 
     /** @type Controller */
     #controller;

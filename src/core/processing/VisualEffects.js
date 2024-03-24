@@ -1,14 +1,16 @@
-import {ElementTail} from "../ElementTail.js";
-import {ElementHead} from "../ElementHead.js";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import ElementTail from "../ElementTail.js";
+import ElementHead from "../ElementHead.js";
 import {createNoise2D} from "simplex-noise";
-import {DeterministicRandom} from "../DeterministicRandom";
+import DeterministicRandom from "../DeterministicRandom";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-02-06
  */
-export class VisualEffects {
+export default class VisualEffects {
 
     static isVisualBurnApplicable(elementHead) {
         const type = ElementHead.getTypeClass(elementHead);

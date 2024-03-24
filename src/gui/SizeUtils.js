@@ -1,10 +1,11 @@
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-01-15
  */
-export class SizeUtils {
+export default class SizeUtils {
 
     static #determineSize(root) {
         let parentWidth;

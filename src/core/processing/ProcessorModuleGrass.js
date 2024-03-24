@@ -1,12 +1,14 @@
-import {ElementHead} from "../ElementHead.js";
-import {VisualEffects} from "./VisualEffects";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import ElementHead from "../ElementHead.js";
+import VisualEffects from "./VisualEffects";
 
 /**
  *
  * @author Patrik Harag
  * @version 2023-12-08
  */
-export class ProcessorModuleGrass {
+export default class ProcessorModuleGrass {
 
     static #MAX_TEMPERATURE = 20;
 

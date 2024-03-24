@@ -1,29 +1,31 @@
-import {Counter} from "./Counter.js";
-import {DeterministicRandom} from "./DeterministicRandom.js";
-import {Element} from "./Element.js";
-import {ElementHead} from "./ElementHead.js";
-import {ElementTail} from "./ElementTail.js";
-import {ElementArea} from "./ElementArea.js";
-import {Processor} from "./processing/Processor.js";
-import {ProcessorExtensionSpawnFish} from "./processing/ProcessorExtensionSpawnFish.js";
-import {ProcessorExtensionSpawnGrass} from "./processing/ProcessorExtensionSpawnGrass.js";
-import {ProcessorExtensionSpawnTree} from "./processing/ProcessorExtensionSpawnTree.js";
-import {Renderer} from "./rendering/Renderer.js";
-import {RendererInitializer} from "./rendering/RendererInitializer.js";
-import {SandGameGraphics} from "./SandGameGraphics.js";
-import {SandGameOverlay} from "./SandGameOverlay";
-import {SandGameScenario} from "./SandGameScenario";
-import {Snapshot} from "./Snapshot.js";
-import {SnapshotMetadata} from "./SnapshotMetadata.js";
-import {TemplateBlockPainter} from "./TemplateBlockPainter.js";
-import {TemplateLayeredPainter} from "./TemplateLayeredPainter.js";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Counter from "./Counter.js";
+import DeterministicRandom from "./DeterministicRandom.js";
+import Element from "./Element.js";
+import ElementHead from "./ElementHead.js";
+import ElementTail from "./ElementTail.js";
+import ElementArea from "./ElementArea.js";
+import Processor from "./processing/Processor.js";
+import ProcessorExtensionSpawnFish from "./processing/ProcessorExtensionSpawnFish.js";
+import ProcessorExtensionSpawnGrass from "./processing/ProcessorExtensionSpawnGrass.js";
+import ProcessorExtensionSpawnTree from "./processing/ProcessorExtensionSpawnTree.js";
+import Renderer from "./rendering/Renderer.js";
+import RendererInitializer from "./rendering/RendererInitializer.js";
+import SandGameGraphics from "./SandGameGraphics.js";
+import SandGameOverlay from "./SandGameOverlay";
+import SandGameScenario from "./SandGameScenario";
+import Snapshot from "./Snapshot.js";
+import SnapshotMetadata from "./SnapshotMetadata.js";
+import TemplateBlockPainter from "./TemplateBlockPainter.js";
+import TemplateLayeredPainter from "./TemplateLayeredPainter.js";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-03-23
  */
-export class SandGame {
+export default class SandGame {
 
     /** @type ElementArea */
     #elementArea;

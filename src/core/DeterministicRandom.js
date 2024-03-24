@@ -1,3 +1,4 @@
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
 
 /**
  * Custom random implementation: "Mulberry32"
@@ -6,7 +7,7 @@
  * @author Patrik Harag
  * @version 2023-12-20
  */
-export class DeterministicRandom {
+export default class DeterministicRandom {
 
     static DEFAULT = new DeterministicRandom(106244033);
 

@@ -1,11 +1,13 @@
-import {ElementHead} from "../core/ElementHead";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import ElementHead from "../core/ElementHead";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-01-29
  */
-export class PredicateDefs {
+export default class PredicateDefs {
 
     static and(predicateA, predicateB) {
         return function (elementHead, elementTail) {

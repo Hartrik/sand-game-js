@@ -1,9 +1,11 @@
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
 /**
  *
  * @author Patrik Harag
  * @version 2023-07-23
  */
-export class CircleIterator {
+export default class CircleIterator {
 
     // This may look ugly but it's all I need
 

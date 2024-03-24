@@ -1,13 +1,15 @@
-import {ElementHead} from "../ElementHead.js";
-import {CircleIterator} from "../CircleIterator.js";
-import {VisualEffects} from "./VisualEffects.js";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import ElementHead from "../ElementHead.js";
+import CircleIterator from "../CircleIterator.js";
+import VisualEffects from "./VisualEffects.js";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-03-06
  */
-export class ProcessorModuleMeteor {
+export default class ProcessorModuleMeteor {
 
     // TODO: leave some metal behind...
     // TODO: when water hit?

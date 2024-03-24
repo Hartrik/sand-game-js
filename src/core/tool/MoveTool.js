@@ -1,9 +1,11 @@
-import {Tool} from "./Tool";
-import {ToolInfo} from "./ToolInfo";
-import {ElementArea} from "../ElementArea";
-import {ElementHead} from "../ElementHead";
-import {InsertElementAreaTool} from "./InsertElementAreaTool";
-import {Brushes} from "../brush/Brushes";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Tool from "./Tool";
+import ToolInfo from "./ToolInfo";
+import ElementArea from "../ElementArea";
+import ElementHead from "../ElementHead";
+import InsertElementAreaTool from "./InsertElementAreaTool";
+import Brushes from "../brush/Brushes";
 
 /**
  * It can be used to move elements from one place to another.
@@ -12,7 +14,7 @@ import {Brushes} from "../brush/Brushes";
  * @author Patrik Harag
  * @version 2023-12-29
  */
-export class MoveTool extends Tool {
+export default class MoveTool extends Tool {
 
     /** @type number */
     #size;

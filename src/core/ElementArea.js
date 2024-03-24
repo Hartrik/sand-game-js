@@ -1,11 +1,13 @@
-import {Element} from "./Element.js";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Element from "./Element.js";
 
 /**
  *
  * @author Patrik Harag
  * @version 2023-10-11
  */
-export class ElementArea {
+export default class ElementArea {
 
     /**
      * This element is used for templates etc.

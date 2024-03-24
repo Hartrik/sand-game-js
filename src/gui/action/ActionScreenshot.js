@@ -1,4 +1,6 @@
-import { Action } from "./Action";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Action from "./Action";
 import FileSaver from 'file-saver';
 
 /**
@@ -6,7 +8,7 @@ import FileSaver from 'file-saver';
  * @author Patrik Harag
  * @version 2023-11-20
  */
-export class ActionScreenshot extends Action {
+export default class ActionScreenshot extends Action {
 
     performAction(controller) {
         const canvas = controller.getCanvas();

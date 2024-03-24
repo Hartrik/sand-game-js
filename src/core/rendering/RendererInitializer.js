@@ -1,9 +1,11 @@
-import { Renderer } from "./Renderer";
-import { Renderer2D } from "./Renderer2D";
-import { RenderingModeHeatmap } from "./RenderingModeHeatmap";
-import { RenderingModeElementType } from "./RenderingModeElementType";
-import { RendererWebGL } from "./RendererWebGL";
-import { RendererNull } from "./RendererNull";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Renderer from "./Renderer";
+import Renderer2D from "./Renderer2D";
+import RenderingModeHeatmap from "./RenderingModeHeatmap";
+import RenderingModeElementType from "./RenderingModeElementType";
+import RendererWebGL from "./RendererWebGL";
+import RendererNull from "./RendererNull";
 
 /**
  * @interface
@@ -11,7 +13,7 @@ import { RendererNull } from "./RendererNull";
  * @author Patrik Harag
  * @version 2023-10-11
  */
-export class RendererInitializer {
+export default class RendererInitializer {
 
     getContextType() {
         throw 'Not implemented'

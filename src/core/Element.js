@@ -1,10 +1,11 @@
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
 
 /**
  *
  * @author Patrik Harag
  * @version 2022-09-09
  */
-export class Element {
+export default class Element {
     elementHead;
     elementTail;
 

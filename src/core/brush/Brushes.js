@@ -1,27 +1,29 @@
-import {Element} from "../Element.js";
-import {ElementHead} from "../ElementHead.js";
-import {Brush} from "./Brush";
-import {DeterministicRandom} from "../DeterministicRandom";
-import {RandomBrush} from "./RandomBrush";
-import {RandomElementBrush} from "./RandomElementBrush";
-import {ColorBrush} from "./ColorBrush";
-import {ColorPaletteRandomBrush} from "./ColorPaletteRandomBrush";
-import {ColorTextureBrush} from "./ColorTextureBrush";
-import {ColorNoiseBrush} from "./ColorNoiseBrush";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Element from "../Element.js";
+import ElementHead from "../ElementHead.js";
+import Brush from "./Brush";
+import DeterministicRandom from "../DeterministicRandom";
+import RandomBrush from "./RandomBrush";
+import RandomElementBrush from "./RandomElementBrush";
+import ColorBrush from "./ColorBrush";
+import ColorPaletteRandomBrush from "./ColorPaletteRandomBrush";
+import ColorTextureBrush from "./ColorTextureBrush";
+import ColorNoiseBrush from "./ColorNoiseBrush";
 import ColorPaletteCyclicBrush from "./ColorMovingPaletteBrush";
 import ColorRandomize from "./ColorRandomize";
-import {CustomBrush} from "./CustomBrush";
-import {CountingBrush} from "./CountingBrush";
-import {PredicateDefs} from "../../def/PredicateDefs";
-import {MeltingBrush} from "./MeltingBrush";
-import {SolidBodyBrush} from "./SolidBodyBrush";
+import CustomBrush from "./CustomBrush";
+import CountingBrush from "./CountingBrush";
+import PredicateDefs from "../../def/PredicateDefs";
+import MeltingBrush from "./MeltingBrush";
+import SolidBodyBrush from "./SolidBodyBrush";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-03-12
  */
-export class Brushes {
+export default class Brushes {
 
     static #parsePalette(string) {
         return string.split('\n')

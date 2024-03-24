@@ -1,5 +1,7 @@
-import {Element} from "../Element.js";
-import {DeterministicRandom} from "../DeterministicRandom";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Element from "../Element.js";
+import DeterministicRandom from "../DeterministicRandom";
 
 /**
  * @interface
@@ -7,7 +9,7 @@ import {DeterministicRandom} from "../DeterministicRandom";
  * @author Patrik Harag
  * @version 2023-12-20
  */
-export class Brush {
+export default class Brush {
 
     /**
      *

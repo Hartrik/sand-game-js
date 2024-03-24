@@ -1,3 +1,4 @@
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
 
 /**
  * @typedef {object} SplashConfig
@@ -19,7 +20,7 @@
  * @author Patrik Harag
  * @version 2024-01-13
  */
-export class Splash {
+export default class Splash {
 
     /** @type SplashConfig */
     #config;

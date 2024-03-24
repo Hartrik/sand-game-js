@@ -1,13 +1,15 @@
-import { AbstractEffectBrush } from "./AbstractEffectBrush";
-import { Element } from "../Element";
-import { ElementHead } from "../ElementHead";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import AbstractEffectBrush from "./AbstractEffectBrush";
+import Element from "../Element";
+import ElementHead from "../ElementHead";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-03-23
  */
-export class SolidBodyBrush extends AbstractEffectBrush {
+export default class SolidBodyBrush extends AbstractEffectBrush {
 
     #solidBodyId;
     #extendedNeighbourhood;

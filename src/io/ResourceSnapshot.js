@@ -1,15 +1,17 @@
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
 import { strToU8, zipSync } from "fflate";
-import { Snapshot } from "../core/Snapshot";
-import { SnapshotMetadata } from "../core/SnapshotMetadata";
-import { ElementArea } from "../core/ElementArea";
-import { ElementHead } from "../core/ElementHead";
+import Snapshot from "../core/Snapshot";
+import SnapshotMetadata from "../core/SnapshotMetadata";
+import ElementArea from "../core/ElementArea";
+import ElementHead from "../core/ElementHead";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-02-01
  */
-export class ResourceSnapshot {
+export default class ResourceSnapshot {
 
     static METADATA_JSON_NAME = 'snapshot.json';
     static LEGACY_METADATA_JSON_NAME = 'metadata.json';

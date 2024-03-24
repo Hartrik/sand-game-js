@@ -1,13 +1,15 @@
-import {Brush} from "../brush/Brush";
-import {Tool} from "./Tool";
-import {Brushes} from "../brush/Brushes";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Brush from "../brush/Brush";
+import Tool from "./Tool";
+import Brushes from "../brush/Brushes";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-02-26
  */
-export class RoundBrushTool extends Tool {
+export default class RoundBrushTool extends Tool {
 
     /** @type Brush */
     #brush;

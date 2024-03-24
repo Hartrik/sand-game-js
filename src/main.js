@@ -1,38 +1,43 @@
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
 
-import { SizeUtils } from "./gui/SizeUtils";
-import { Analytics } from "./Analytics";
-import { DomBuilder } from "./gui/DomBuilder";
-import { Controller } from "./gui/Controller";
-import { BrushDefs } from "./def/BrushDefs";
-import { SceneDefs } from "./def/SceneDefs";
-import { Tool } from "./core/tool/Tool";
-import { ToolDefs} from "./def/ToolDefs";
-import { ComponentViewTools } from "./gui/component/ComponentViewTools";
-import { ComponentViewCanvas } from "./gui/component/ComponentViewCanvas";
-import { ComponentButtonAdjustScale } from "./gui/component/ComponentButtonAdjustScale";
-import { ComponentViewSceneSelection } from "./gui/component/ComponentViewSceneSelection";
-import { ComponentViewTestTools } from "./gui/component/ComponentViewTestTools";
-import { ComponentContainer } from "./gui/component/ComponentContainer";
-import { ComponentSimple } from "./gui/component/ComponentSimple";
-import { ComponentButton } from "./gui/component/ComponentButton";
-import { ComponentButtonStartStop } from "./gui/component/ComponentButtonStartStop";
-import { ComponentStatusIndicator } from "./gui/component/ComponentStatusIndicator";
-import { ComponentButtonRestart } from "./gui/component/ComponentButtonRestart";
-import { ActionIOImport } from "./gui/action/ActionIOImport";
-import { ActionIOExport } from "./gui/action/ActionIOExport";
-import { SceneImplHardcoded } from "./core/scene/SceneImplHardcoded";
-import { ServiceToolManager } from "./gui/ServiceToolManager";
+import SizeUtils from "./gui/SizeUtils";
+import Analytics from "./Analytics";
+import DomBuilder from "./gui/DomBuilder";
+import Controller from "./gui/Controller";
+import Brushes from "./core/brush/Brushes";
+import BrushDefs from "./def/BrushDefs";
+import Tool from "./core/tool/Tool";
+import Tools from "./core/tool/Tools";
+import ToolDefs from "./def/ToolDefs";
+import PredicateDefs from "./def/PredicateDefs";
+import SceneDefs from "./def/SceneDefs";
+import ComponentViewTools from "./gui/component/ComponentViewTools";
+import ComponentViewCanvas from "./gui/component/ComponentViewCanvas";
+import ComponentButtonAdjustScale from "./gui/component/ComponentButtonAdjustScale";
+import ComponentViewSceneSelection from "./gui/component/ComponentViewSceneSelection";
+import ComponentViewTestTools from "./gui/component/ComponentViewTestTools";
+import ComponentContainer from "./gui/component/ComponentContainer";
+import ComponentSimple from "./gui/component/ComponentSimple";
+import ComponentButton from "./gui/component/ComponentButton";
+import ComponentButtonStartStop from "./gui/component/ComponentButtonStartStop";
+import ComponentStatusIndicator from "./gui/component/ComponentStatusIndicator";
+import ComponentButtonRestart from "./gui/component/ComponentButtonRestart";
+import ActionIOImport from "./gui/action/ActionIOImport";
+import ActionIOExport from "./gui/action/ActionIOExport";
+import SceneImplHardcoded from "./core/scene/SceneImplHardcoded";
+import ServiceToolManager from "./gui/ServiceToolManager";
 import ComponentButtonReport from "./gui/component/ComponentButtonReport";
+import Resources from "./io/Resources";
 
-// exported classes (accessible as SandGameJS.XXX)
+// exported classes and constants (accessible as SandGameJS.XXX)
 
-export { Tools } from "./core/tool/Tools";
-export { Brushes } from "./core/brush/Brushes";
-export { ToolDefs} from "./def/ToolDefs";
-export { BrushDefs } from "./def/BrushDefs";
-export { PredicateDefs } from "./def/PredicateDefs";
-export { SceneDefs } from "./def/SceneDefs";
-export { Resources } from "./io/Resources";
+export { Tools };
+export { Brushes };
+export { ToolDefs};
+export { BrushDefs };
+export { PredicateDefs };
+export { SceneDefs };
+export { Resources };
 
 export const brushes = BrushDefs._LIST;
 export const tools = ToolDefs._LIST;

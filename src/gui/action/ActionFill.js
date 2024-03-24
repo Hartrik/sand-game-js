@@ -1,11 +1,13 @@
-import { Action } from "./Action";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Action from "./Action";
 
 /**
  *
  * @author Patrik Harag
  * @version 2023-12-05
  */
-export class ActionFill extends Action {
+export default class ActionFill extends Action {
 
     performAction(controller) {
         const sandGame = controller.getSandGame();

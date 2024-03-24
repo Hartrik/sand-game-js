@@ -1,9 +1,11 @@
-import {ElementHead} from "../ElementHead.js";
-import {ElementTail} from "../ElementTail";
-import {BrushDefs} from "../../def/BrushDefs.js";
-import {ProcessorContext} from "./ProcessorContext.js";
-import {DeterministicRandom} from "../DeterministicRandom.js";
-import {VisualEffects} from "./VisualEffects";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import ElementHead from "../ElementHead.js";
+import ElementTail from "../ElementTail";
+import BrushDefs from "../../def/BrushDefs.js";
+import ProcessorContext from "./ProcessorContext.js";
+import DeterministicRandom from "../DeterministicRandom.js";
+import VisualEffects from "./VisualEffects";
 
 // TODO: direct BrushDefs access >> Defaults
 
@@ -12,7 +14,7 @@ import {VisualEffects} from "./VisualEffects";
  * @author Patrik Harag
  * @version 2023-12-20
  */
-export class ProcessorModuleTree {
+export default class ProcessorModuleTree {
 
     static TYPE_TRUNK = 1;
     static TYPE_BRANCH = 2;

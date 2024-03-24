@@ -1,13 +1,15 @@
-import {AbstractEffectBrush} from "./AbstractEffectBrush";
-import {Element} from "../Element";
-import {VisualEffects} from "../processing/VisualEffects";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import AbstractEffectBrush from "./AbstractEffectBrush";
+import Element from "../Element";
+import VisualEffects from "../processing/VisualEffects";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-02-06
  */
-export class ColorNoiseBrush extends AbstractEffectBrush {
+export default class ColorNoiseBrush extends AbstractEffectBrush {
 
     #r; #g; #b;
 

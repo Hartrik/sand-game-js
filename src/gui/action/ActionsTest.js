@@ -1,5 +1,7 @@
-import {BrushDefs} from "../../def/BrushDefs";
-import {StructureDefs} from "../../def/StructureDefs";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import BrushDefs from "../../def/BrushDefs";
+import StructureDefs from "../../def/StructureDefs";
 
 
 /**
@@ -7,7 +9,7 @@ import {StructureDefs} from "../../def/StructureDefs";
  * @author Patrik Harag
  * @version 2023-12-19
  */
-export class ActionsTest {
+export default class ActionsTest {
 
     static ALL_MATERIALS = function (controller) {
         let sandGame = controller.getSandGame();

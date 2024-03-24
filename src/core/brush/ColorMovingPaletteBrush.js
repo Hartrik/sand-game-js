@@ -1,6 +1,8 @@
-import {AbstractEffectBrush} from "./AbstractEffectBrush";
-import {ElementTail} from "../ElementTail";
-import {Element} from "../Element";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import AbstractEffectBrush from "./AbstractEffectBrush";
+import ElementTail from "../ElementTail";
+import Element from "../Element";
 
 /**
  *

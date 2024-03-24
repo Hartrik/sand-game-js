@@ -1,11 +1,13 @@
-import {Component} from "./Component";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Component from "./Component";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-01-04
  */
-export class ComponentSimple extends Component {
+export default class ComponentSimple extends Component {
 
     #node;
 

@@ -1,3 +1,4 @@
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
 
 /**
  * @typedef {object} ObjectiveConfig
@@ -13,7 +14,7 @@
  * @author Patrik Harag
  * @version 2024-01-13
  */
-export class Objective {
+export default class Objective {
 
     /** @type ObjectiveConfig */
     #config;

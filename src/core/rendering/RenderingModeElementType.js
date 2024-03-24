@@ -1,11 +1,13 @@
-import {RenderingMode} from "./RenderingMode.js";
-import {ElementHead} from "../ElementHead.js";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import RenderingMode from "./RenderingMode.js";
+import ElementHead from "../ElementHead.js";
 
 /**
  * @author Patrik Harag
  * @version 2023-08-18
  */
-export class RenderingModeElementType extends RenderingMode {
+export default class RenderingModeElementType extends RenderingMode {
 
     constructor() {
         super();

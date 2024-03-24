@@ -1,4 +1,6 @@
-import {Brush} from "./Brush";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Brush from "./Brush";
 
 /**
  * Special brush for counting elements.
@@ -6,7 +8,7 @@ import {Brush} from "./Brush";
  * @author Patrik Harag
  * @version 2024-01-10
  */
-export class CountingBrush extends Brush {
+export default class CountingBrush extends Brush {
 
     static #NULL_REDICATE = function (elementHead, elementTail) {
         return false;

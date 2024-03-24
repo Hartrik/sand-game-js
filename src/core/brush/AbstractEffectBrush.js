@@ -1,11 +1,13 @@
-import {Brush} from "./Brush";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Brush from "./Brush";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-02-05
  */
-export class AbstractEffectBrush extends Brush {
+export default class AbstractEffectBrush extends Brush {
 
     /** @type Brush|undefined */
     #innerBrush;

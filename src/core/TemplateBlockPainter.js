@@ -1,10 +1,11 @@
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
 
 /**
  *
  * @author Patrik Harag
  * @version 2022-09-21
  */
-export class TemplateBlockPainter {
+export default class TemplateBlockPainter {
 
     /** @type SandGameGraphics */
     #graphics;

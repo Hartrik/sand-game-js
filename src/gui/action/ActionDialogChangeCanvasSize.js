@@ -1,13 +1,15 @@
-import { DomBuilder } from "../DomBuilder";
-import { Action } from "./Action";
-import { Analytics } from "../../Analytics";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import DomBuilder from "../DomBuilder";
+import Action from "./Action";
+import Analytics from "../../Analytics";
 
 /**
  *
  * @author Patrik Harag
  * @version 2023-08-19
  */
-export class ActionDialogChangeCanvasSize extends Action {
+export default class ActionDialogChangeCanvasSize extends Action {
 
     performAction(controller) {
         let formBuilder = DomBuilder.bootstrapSimpleFormBuilder();

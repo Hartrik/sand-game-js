@@ -1,3 +1,5 @@
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
 import _ASSET_ROCK_ICON from './assets/templates/rock-icon.png'
 import _ASSET_ROCK_1 from './assets/templates/rock-1.png'
 import _ASSET_ROCK_2 from './assets/templates/rock-2.png'
@@ -25,7 +27,7 @@ import _ASSET_SAND_CASTLE from './assets/templates/sand-castle.png'
  * @author Patrik Harag
  * @version 2024-02-22
  */
-export class TemplateDefs {
+export default class TemplateDefs {
 
     static ROCK_SM = {
         info: {

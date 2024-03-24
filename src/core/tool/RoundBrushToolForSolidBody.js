@@ -1,16 +1,18 @@
-import { Tool } from "./Tool";
-import { Brush } from "../brush/Brush";
-import { Brushes } from "../brush/Brushes";
-import { ElementHead } from "../ElementHead";
-import { Element } from "../Element";
-import { PredicateDefs } from "../../def/PredicateDefs";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Tool from "./Tool";
+import Brush from "../brush/Brush";
+import Brushes from "../brush/Brushes";
+import ElementHead from "../ElementHead";
+import Element from "../Element";
+import PredicateDefs from "../../def/PredicateDefs";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-02-26
  */
-export class RoundBrushToolForSolidBody extends Tool {
+export default class RoundBrushToolForSolidBody extends Tool {
 
     /** @type Brush */
     #brush;

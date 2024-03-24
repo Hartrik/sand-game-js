@@ -1,10 +1,11 @@
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
 
 /**
  *
  * @version 2023-12-21
  * @author Patrik Harag
  */
-export class DomBuilder {
+export default class DomBuilder {
 
     /**
      *

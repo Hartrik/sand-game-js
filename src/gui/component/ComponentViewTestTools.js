@@ -1,21 +1,23 @@
-import { DomBuilder } from "../DomBuilder";
-import { Action } from "../action/Action";
-import { ActionsTest } from "../action/ActionsTest";
-import { ActionBenchmark } from "../action/ActionBenchmark";
-import { Component } from "./Component";
-import { ComponentButton } from "./ComponentButton";
-import { ToolDefs } from "../../def/ToolDefs";
-import { RendererInitializer } from "../../core/rendering/RendererInitializer";
-import { ActionScreenshot } from "../action/ActionScreenshot";
-import { ActionRecord } from "../action/ActionRecord";
-import { ActionFill } from "../action/ActionFill";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import DomBuilder from "../DomBuilder";
+import Action from "../action/Action";
+import ActionsTest from "../action/ActionsTest";
+import ActionBenchmark from "../action/ActionBenchmark";
+import Component from "./Component";
+import ComponentButton from "./ComponentButton";
+import ToolDefs from "../../def/ToolDefs";
+import RendererInitializer from "../../core/rendering/RendererInitializer";
+import ActionScreenshot from "../action/ActionScreenshot";
+import ActionRecord from "../action/ActionRecord";
+import ActionFill from "../action/ActionFill";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-02-02
  */
-export class ComponentViewTestTools extends Component {
+export default class ComponentViewTestTools extends Component {
 
     static #BTN_SCENE = ComponentButton.CLASS_OUTLINE_SECONDARY;
     static #BTN_RENDERING = ComponentButton.CLASS_OUTLINE_INFO;

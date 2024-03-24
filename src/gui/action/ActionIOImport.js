@@ -1,11 +1,13 @@
-import { Action } from "./Action";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Action from "./Action";
 
 /**
  *
  * @author Patrik Harag
  * @version 2023-08-19
  */
-export class ActionIOImport extends Action {
+export default class ActionIOImport extends Action {
 
     performAction(controller) {
         let input = document.createElement('input');

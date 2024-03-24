@@ -1,13 +1,15 @@
-import {RoundBrushTool} from "./RoundBrushTool";
-import {RoundBrushToolForSolidBody} from "./RoundBrushToolForSolidBody";
-import {PointBrushTool} from "./PointBrushTool";
-import {Point2BrushTool} from "./Point2BrushTool";
-import {MeteorTool} from "./MeteorTool";
-import {InsertElementAreaTool} from "./InsertElementAreaTool";
-import {InsertRandomSceneTool} from "./InsertRandomSceneTool";
-import {ActionTool} from "./ActionTool";
-import {MoveTool} from "./MoveTool";
-import {TemplateSelectionFakeTool} from "./TemplateSelectionFakeTool";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import RoundBrushTool from "./RoundBrushTool";
+import RoundBrushToolForSolidBody from "./RoundBrushToolForSolidBody";
+import PointBrushTool from "./PointBrushTool";
+import Point2BrushTool from "./Point2BrushTool";
+import MeteorTool from "./MeteorTool";
+import InsertElementAreaTool from "./InsertElementAreaTool";
+import InsertRandomSceneTool from "./InsertRandomSceneTool";
+import ActionTool from "./ActionTool";
+import MoveTool from "./MoveTool";
+import TemplateSelectionFakeTool from "./TemplateSelectionFakeTool";
 import GlobalActionTool from "./GlobalActionTool";
 
 /**
@@ -15,7 +17,7 @@ import GlobalActionTool from "./GlobalActionTool";
  * @author Patrik Harag
  * @version 2024-03-13
  */
-export class Tools {
+export default class Tools {
 
     static roundBrushTool(brush, size, info) {
         return new RoundBrushTool(info, brush, size);

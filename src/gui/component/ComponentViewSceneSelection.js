@@ -1,7 +1,9 @@
-import { DomBuilder } from "../DomBuilder";
-import { Component } from "./Component";
-import { Analytics } from "../../Analytics";
-import { SceneImplSnapshot } from "../../core/scene/SceneImplSnapshot";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import DomBuilder from "../DomBuilder";
+import Component from "./Component";
+import Analytics from "../../Analytics";
+import SceneImplSnapshot from "../../core/scene/SceneImplSnapshot";
 
 // TODO: support external restart
 
@@ -10,7 +12,7 @@ import { SceneImplSnapshot } from "../../core/scene/SceneImplSnapshot";
  * @author Patrik Harag
  * @version 2024-01-04
  */
-export class ComponentViewSceneSelection extends Component {
+export default class ComponentViewSceneSelection extends Component {
 
     static CLASS_SELECTED = 'selected-scene';
     static CLASS_VISITED = 'visited-scene';

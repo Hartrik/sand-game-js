@@ -1,10 +1,12 @@
-import {Brush} from "../core/brush/Brush.js";
-import {Brushes} from "../core/brush/Brushes";
-import {ElementHead} from "../core/ElementHead.js";
-import {ElementTail} from "../core/ElementTail.js";
-import {Element} from "../core/Element.js";
-import {VisualEffects} from "../core/processing/VisualEffects.js";
-import {StructureDefs} from "./StructureDefs";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Brush from "../core/brush/Brush.js";
+import Brushes from "../core/brush/Brushes";
+import ElementHead from "../core/ElementHead.js";
+import ElementTail from "../core/ElementTail.js";
+import Element from "../core/Element.js";
+import VisualEffects from "../core/processing/VisualEffects.js";
+import StructureDefs from "./StructureDefs";
 
 import _ASSET_PALETTE_SAND from './assets/brushes/sand.palette.csv';
 import _ASSET_PALETTE_SOIL from './assets/brushes/soil.palette.csv';
@@ -26,7 +28,7 @@ import _ASSET_PALETTE_TREE_LEAF_DARK from './assets/brushes/tree-leaf-dark.palet
  * @author Patrik Harag
  * @version 2024-02-24
  */
-export class BrushDefs {
+export default class BrushDefs {
 
     static NONE = Brushes.custom(() => null);
 

@@ -1,6 +1,8 @@
-import { ComponentButton } from "./ComponentButton";
-import { DomBuilder } from "../DomBuilder";
-import { ActionRestart } from "../action/ActionRestart";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import ComponentButton from "./ComponentButton";
+import DomBuilder from "../DomBuilder";
+import ActionRestart from "../action/ActionRestart";
 
 import _ASSET_SVG_RESTART from "./assets/icon-reset.svg";
 
@@ -9,7 +11,7 @@ import _ASSET_SVG_RESTART from "./assets/icon-reset.svg";
  * @author Patrik Harag
  * @version 2024-01-17
  */
-export class ComponentButtonRestart extends ComponentButton {
+export default class ComponentButtonRestart extends ComponentButton {
 
     constructor(cssClass) {
         super('', cssClass, new ActionRestart());

@@ -1,11 +1,13 @@
-import {Marker} from "./Marker";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Marker from "./Marker";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-01-08
  */
-export class SandGameOverlay {
+export default class SandGameOverlay {
 
     /** @type number */
     #width;

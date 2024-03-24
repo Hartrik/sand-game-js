@@ -1,10 +1,12 @@
-import {Component} from "./Component";
-import {ComponentViewCanvasOverlayDebug} from "./ComponentViewCanvasOverlayDebug";
-import {ComponentViewCanvasOverlayMarker} from "./ComponentViewCanvasOverlayMarker";
-import {ComponentViewCanvasOverlayCursor} from "./ComponentViewCanvasOverlayCursor";
-import {ComponentViewCanvasOverlayScenario} from "./ComponentViewCanvasOverlayScenario";
-import {DomBuilder} from "../DomBuilder";
-import {Analytics} from "../../Analytics";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Component from "./Component";
+import ComponentViewCanvasOverlayDebug from "./ComponentViewCanvasOverlayDebug";
+import ComponentViewCanvasOverlayMarker from "./ComponentViewCanvasOverlayMarker";
+import ComponentViewCanvasOverlayCursor from "./ComponentViewCanvasOverlayCursor";
+import ComponentViewCanvasOverlayScenario from "./ComponentViewCanvasOverlayScenario";
+import DomBuilder from "../DomBuilder";
+import Analytics from "../../Analytics";
 
 /**
  *
@@ -12,7 +14,7 @@ import {Analytics} from "../../Analytics";
  * @author Patrik Harag
  * @version 2024-01-15
  */
-export class ComponentViewCanvasInner extends Component {
+export default class ComponentViewCanvasInner extends Component {
 
     /** @type Controller */
     #controller;

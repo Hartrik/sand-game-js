@@ -1,7 +1,9 @@
-import { Action } from "../action/Action";
-import { ComponentButton } from "./ComponentButton";
-import { Analytics } from "../../Analytics";
-import { DomBuilder } from "../DomBuilder";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Action from "../action/Action";
+import ComponentButton from "./ComponentButton";
+import Analytics from "../../Analytics";
+import DomBuilder from "../DomBuilder";
 
 import _ASSET_SVG_PAUSE from "./assets/icon-pause.svg";
 import _ASSET_SVG_PLAY from "./assets/icon-play.svg";
@@ -11,7 +13,7 @@ import _ASSET_SVG_PLAY from "./assets/icon-play.svg";
  * @author Patrik Harag
  * @version 2024-01-10
  */
-export class ComponentButtonStartStop extends ComponentButton {
+export default class ComponentButtonStartStop extends ComponentButton {
 
     constructor(cssClass) {
         super('', cssClass, Action.create(controller => {

@@ -1,4 +1,6 @@
-import {Tool} from "./Tool";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Tool from "./Tool";
 
 /**
  *

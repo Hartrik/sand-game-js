@@ -1,12 +1,14 @@
-import {ElementHead} from "../ElementHead.js";
-import {ProcessorContext} from "./ProcessorContext.js";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import ElementHead from "../ElementHead.js";
+import ProcessorContext from "./ProcessorContext.js";
 
 /**
  *
  * @author Patrik Harag
  * @version 2023-12-10
  */
-export class ProcessorModuleFish {
+export default class ProcessorModuleFish {
 
     static #MAX_TEMPERATURE = 20;
 

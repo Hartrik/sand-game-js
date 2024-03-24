@@ -1,13 +1,15 @@
-import { Component } from "./Component";
-import { DomBuilder } from "../DomBuilder";
-import { Action } from "../action/Action";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Component from "./Component";
+import DomBuilder from "../DomBuilder";
+import Action from "../action/Action";
 
 /**
  *
  * @author Patrik Harag
  * @version 2023-12-05
  */
-export class ComponentButton extends Component {
+export default class ComponentButton extends Component {
 
     static CLASS_PRIMARY = 'btn-primary';
     static CLASS_SECONDARY = 'btn-secondary';

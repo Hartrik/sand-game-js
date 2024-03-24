@@ -1,7 +1,9 @@
-import { ElementTail } from "../ElementTail";
-import { ElementArea } from "../ElementArea";
-import { RenderingMode } from "./RenderingMode";
-import { Renderer } from "./Renderer";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import ElementTail from "../ElementTail";
+import ElementArea from "../ElementArea";
+import RenderingMode from "./RenderingMode";
+import Renderer from "./Renderer";
 
 /**
  * Double buffered renderer. With motion blur.
@@ -9,7 +11,7 @@ import { Renderer } from "./Renderer";
  * @author Patrik Harag
  * @version 2023-08-27
  */
-export class Renderer2D extends Renderer {
+export default class Renderer2D extends Renderer {
 
     /**
      *

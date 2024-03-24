@@ -1,4 +1,6 @@
-import { Renderer } from "./Renderer";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Renderer from "./Renderer";
 
 /**
  * Null renderer. For testing purposes - to measure effects of rendering...
@@ -6,7 +8,7 @@ import { Renderer } from "./Renderer";
  * @author Patrik Harag
  * @version 2023-10-11
  */
-export class RendererNull extends Renderer {
+export default class RendererNull extends Renderer {
 
     constructor() {
         super();

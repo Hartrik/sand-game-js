@@ -1,11 +1,13 @@
-import { ToolDefs } from "./def/ToolDefs.js";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import ToolDefs from "./def/ToolDefs.js";
 
 /**
  *
  * @version 2024-01-21
  * @author Patrik Harag
  */
-export class Analytics {
+export default class Analytics {
 
     static EVENT_NAME = 'app_sand_game_js';
     static FEATURE_APP_INITIALIZED = 'initialized';

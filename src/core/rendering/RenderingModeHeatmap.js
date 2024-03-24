@@ -1,6 +1,8 @@
-import {RenderingMode} from "./RenderingMode.js";
-import {ElementHead} from "../ElementHead.js";
-import {Assets} from "../../Assets.js";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import RenderingMode from "./RenderingMode.js";
+import ElementHead from "../ElementHead.js";
+import Assets from "../../Assets.js";
 
 import _ASSET_GRADIENT_RAINBOW from './assets/heatmap.palette.png'
 
@@ -8,7 +10,7 @@ import _ASSET_GRADIENT_RAINBOW from './assets/heatmap.palette.png'
  * @author Patrik Harag
  * @version 2023-08-14
  */
-export class RenderingModeHeatmap extends RenderingMode {
+export default class RenderingModeHeatmap extends RenderingMode {
 
     /** @type ImageData */
     #gradientImageData = null;

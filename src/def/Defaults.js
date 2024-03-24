@@ -1,13 +1,15 @@
-import {ProcessorDefaults} from "../core/processing/ProcessorDefaults";
-import {BrushDefs} from "./BrushDefs";
-import {StructureDefs} from "./StructureDefs";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import ProcessorDefaults from "../core/processing/ProcessorDefaults";
+import BrushDefs from "./BrushDefs";
+import StructureDefs from "./StructureDefs";
 
 /**
  *
  * @author Patrik Harag
  * @version 2023-12-17
  */
-export class Defaults extends ProcessorDefaults {
+export default class Defaults extends ProcessorDefaults {
 
     static #DEFAULT_ELEMENT = BrushDefs.AIR.apply(0, 0, undefined);
 

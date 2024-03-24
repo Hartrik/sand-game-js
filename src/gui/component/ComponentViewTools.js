@@ -1,8 +1,10 @@
-import { DomBuilder } from "../DomBuilder";
-import { Component } from "./Component";
-import { ActionDialogTemplateSelection } from "../action/ActionDialogTemplateSelection";
-import { ToolDefs } from "../../def/ToolDefs";
-import { TemplateSelectionFakeTool } from "../../core/tool/TemplateSelectionFakeTool";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import DomBuilder from "../DomBuilder";
+import Component from "./Component";
+import ActionDialogTemplateSelection from "../action/ActionDialogTemplateSelection";
+import ToolDefs from "../../def/ToolDefs";
+import TemplateSelectionFakeTool from "../../core/tool/TemplateSelectionFakeTool";
 import GlobalActionTool from "../../core/tool/GlobalActionTool";
 
 /**
@@ -10,7 +12,7 @@ import GlobalActionTool from "../../core/tool/GlobalActionTool";
  * @author Patrik Harag
  * @version 2024-03-13
  */
-export class ComponentViewTools extends Component {
+export default class ComponentViewTools extends Component {
 
     /** @type Tool[] */
     #tools;

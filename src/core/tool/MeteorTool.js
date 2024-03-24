@@ -1,6 +1,8 @@
-import {BrushDefs} from "../../def/BrushDefs";
-import {DeterministicRandom} from "../DeterministicRandom";
-import {Tool} from "./Tool";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import BrushDefs from "../../def/BrushDefs";
+import DeterministicRandom from "../DeterministicRandom";
+import Tool from "./Tool";
 
 // TODO: direct BrushDefs access >> Defaults
 /**
@@ -8,7 +10,7 @@ import {Tool} from "./Tool";
  * @author Patrik Harag
  * @version 2024-03-06
  */
-export class MeteorTool extends Tool {
+export default class MeteorTool extends Tool {
 
     constructor(info) {
         super(info);

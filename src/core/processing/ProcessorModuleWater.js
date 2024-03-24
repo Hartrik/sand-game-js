@@ -1,11 +1,13 @@
-import {ElementHead} from "../ElementHead.js";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import ElementHead from "../ElementHead.js";
 
 /**
  *
  * @author Patrik Harag
  * @version 2023-12-20
  */
-export class ProcessorModuleWater {
+export default class ProcessorModuleWater {
 
     /** @type ElementArea */
     #elementArea;

@@ -1,22 +1,24 @@
-import {ElementHead} from "../ElementHead.js";
-import {ElementTail} from "../ElementTail";
-import {DeterministicRandom} from "../DeterministicRandom.js";
-import {ProcessorContext} from "./ProcessorContext.js";
-import {ProcessorDefaults} from "./ProcessorDefaults.js";
-import {ProcessorModuleSolidBody} from "./ProcessorModuleSolidBody";
-import {ProcessorModuleFire} from "./ProcessorModuleFire.js";
-import {ProcessorModuleMeteor} from "./ProcessorModuleMeteor.js";
-import {ProcessorModuleGrass} from "./ProcessorModuleGrass.js";
-import {ProcessorModuleFish} from "./ProcessorModuleFish.js";
-import {ProcessorModuleTree} from "./ProcessorModuleTree.js";
-import {ProcessorModuleWater} from "./ProcessorModuleWater";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import ElementHead from "../ElementHead.js";
+import ElementTail from "../ElementTail";
+import DeterministicRandom from "../DeterministicRandom.js";
+import ProcessorContext from "./ProcessorContext.js";
+import ProcessorDefaults from "./ProcessorDefaults.js";
+import ProcessorModuleSolidBody from "./ProcessorModuleSolidBody";
+import ProcessorModuleFire from "./ProcessorModuleFire.js";
+import ProcessorModuleMeteor from "./ProcessorModuleMeteor.js";
+import ProcessorModuleGrass from "./ProcessorModuleGrass.js";
+import ProcessorModuleFish from "./ProcessorModuleFish.js";
+import ProcessorModuleTree from "./ProcessorModuleTree.js";
+import ProcessorModuleWater from "./ProcessorModuleWater";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-03-23
  */
-export class Processor extends ProcessorContext {
+export default class Processor extends ProcessorContext {
 
     /** @type ElementArea */
     #elementArea;

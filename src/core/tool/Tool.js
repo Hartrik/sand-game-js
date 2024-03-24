@@ -1,5 +1,7 @@
-import {CursorDefinition} from "./CursorDefinition.js";
-import {ToolInfo} from "./ToolInfo";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import CursorDefinition from "./CursorDefinition.js";
+import ToolInfo from "./ToolInfo";
 
 /**
  * @interface
@@ -7,7 +9,7 @@ import {ToolInfo} from "./ToolInfo";
  * @author Patrik Harag
  * @version 2024-02-08
  */
-export class Tool {
+export default class Tool {
 
     /** @type ToolInfo|null */
     #info;

@@ -1,7 +1,9 @@
-import { ElementHead } from "../ElementHead";
-import { ElementTail } from "../ElementTail";
-import { ElementArea } from "../ElementArea";
-import { Renderer } from "./Renderer";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import ElementHead from "../ElementHead";
+import ElementTail from "../ElementTail";
+import ElementArea from "../ElementArea";
+import Renderer from "./Renderer";
 
 import _ASSET_PALETTE_TEMPERATURE_COLORS from './assets/temperature.palette.csv';
 
@@ -14,7 +16,7 @@ import _ASSET_PALETTE_TEMPERATURE_COLORS from './assets/temperature.palette.csv'
  * @author Patrik Harag
  * @version 2023-12-10
  */
-export class RendererWebGL extends Renderer {
+export default class RendererWebGL extends Renderer {
 
     /** @type WebGLRenderingContext */
     #context;

@@ -1,10 +1,12 @@
-import { CursorDefinition } from "./CursorDefinition";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import CursorDefinition from "./CursorDefinition";
 
 /**
  * @author Patrik Harag
  * @version 2023-05-04
  */
-export class CursorDefinitionElementArea extends CursorDefinition {
+export default class CursorDefinitionElementArea extends CursorDefinition {
 
     /** @type ElementArea */
     #elementArea;

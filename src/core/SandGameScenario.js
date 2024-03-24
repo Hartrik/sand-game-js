@@ -1,13 +1,15 @@
-import {Splash} from "./Splash";
-import {Objective} from "./Objective";
-import {Analytics} from "../Analytics";
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
+
+import Splash from "./Splash";
+import Objective from "./Objective";
+import Analytics from "../Analytics";
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-01-11
  */
-export class SandGameScenario {
+export default class SandGameScenario {
 
     /** @type Splash[] */
     #splashes = [];

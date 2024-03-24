@@ -1,10 +1,11 @@
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
 
 /**
  *
  * @author Patrik Harag
  * @version 2024-03-23
  */
-export class ProcessorContext {
+export default class ProcessorContext {
 
     static OPT_CYCLES_PER_SECOND = 120;
     static OPT_FRAMES_PER_SECOND = 60;

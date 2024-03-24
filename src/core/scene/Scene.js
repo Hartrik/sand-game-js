@@ -1,3 +1,4 @@
+// Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
 
 /**
  * @interface
@@ -5,7 +6,7 @@
  * @author Patrik Harag
  * @version 2023-12-20
  */
-export class Scene {
+export default class Scene {
 
     /**
      * @returns [width: number, height: number]
