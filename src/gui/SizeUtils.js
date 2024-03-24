@@ -3,11 +3,11 @@
 /**
  *
  * @author Patrik Harag
- * @version 2024-01-15
+ * @version 2024-03-24
  */
 export default class SizeUtils {
 
-    static #determineSize(root) {
+    static #determineSize(root, maxWidthPx = 1400, maxHeightPx = 800) {
         let parentWidth;
         if (window.innerWidth <= 575) {
             parentWidth = window.innerWidth;  // no margins
@@ -15,8 +15,8 @@ export default class SizeUtils {
             parentWidth = root.clientWidth;  // including padding
         }
 
-        let width = Math.min(1400, parentWidth);
-        let height = Math.min(800, Math.trunc(window.innerHeight * 0.70));
+        let width = Math.min(maxWidthPx, parentWidth);
+        let height = Math.min(maxHeightPx, Math.trunc(window.innerHeight * 0.70));
         if (width / height < 0.75) {
             height = Math.trunc(width / 0.75);
         }
@@ -57,9 +57,16 @@ export default class SizeUtils {
         }
     }
 
-    static determineOptimalSizes(parentNode) {
-        const {width, height} = SizeUtils.#determineSize(parentNode);
-        const scale = SizeUtils.#determineOptimalScale(width, height, SizeUtils.#determineMaxNumberOfPoints());
+    static determineOptimalSizes(parentNode, canvasConfig = undefined) {
+        const maxWidthPx = (canvasConfig !== undefined) ? canvasConfig.maxWidthPx : undefined;
+        const maxHeightPx = (canvasConfig !== undefined) ? canvasConfig.maxHeightPx : undefined;
+
+        const {width, height} = SizeUtils.#determineSize(parentNode, maxWidthPx, maxHeightPx);
+
+        const scaleOverride = (canvasConfig !== undefined) ? canvasConfig.scale : undefined;
+        const scale = (scaleOverride === undefined)
+            ? SizeUtils.#determineOptimalScale(width, height, SizeUtils.#determineMaxNumberOfPoints())
+            : scaleOverride;
         return { width, height, scale };
     }
 }

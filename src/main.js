@@ -49,6 +49,11 @@ export const tools = ToolDefs._LIST;
  * @param config {{
  *     version: undefined|string,
  *     debug: undefined|boolean,
+ *     canvas: undefined|{
+ *         scale: undefined|number,
+ *         maxWidthPx: undefined|number,
+ *         maxHeightPx: undefined|number
+ *     },
  *     autoStart: undefined|boolean,
  *     scene: undefined|string|{init:(function(SandGame, Controller):Promise<any>|any)},
  *     tools: undefined|(string|Tool)[],
@@ -66,7 +71,7 @@ export const tools = ToolDefs._LIST;
  * @returns {Controller}
  *
  * @author Patrik Harag
- * @version 2024-03-23
+ * @version 2024-03-24
  */
 export function init(root, config) {
     if (config === undefined) {
@@ -75,7 +80,7 @@ export function init(root, config) {
 
     let controller;
 
-    const {width, height, scale} = SizeUtils.determineOptimalSizes(root);
+    const {width, height, scale} = SizeUtils.determineOptimalSizes(root, config.canvas);
 
     const init = {
         scale: scale,
