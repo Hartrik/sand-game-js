@@ -10,6 +10,7 @@ import Tool from "./core/tool/Tool";
 import Tools from "./core/tool/Tools";
 import ToolDefs from "./def/ToolDefs";
 import PredicateDefs from "./def/PredicateDefs";
+import Scenes from "./core/scene/Scenes";
 import SceneDefs from "./def/SceneDefs";
 import ComponentViewTools from "./gui/component/ComponentViewTools";
 import ComponentViewCanvas from "./gui/component/ComponentViewCanvas";
@@ -24,18 +25,18 @@ import ComponentStatusIndicator from "./gui/component/ComponentStatusIndicator";
 import ComponentButtonRestart from "./gui/component/ComponentButtonRestart";
 import ActionIOImport from "./gui/action/ActionIOImport";
 import ActionIOExport from "./gui/action/ActionIOExport";
-import SceneImplHardcoded from "./core/scene/SceneImplHardcoded";
 import ServiceToolManager from "./gui/ServiceToolManager";
 import ComponentButtonReport from "./gui/component/ComponentButtonReport";
 import Resources from "./io/Resources";
 
 // exported classes and constants (accessible as SandGameJS.XXX)
 
-export { Tools };
 export { Brushes };
-export { ToolDefs};
 export { BrushDefs };
 export { PredicateDefs };
+export { Tools };
+export { ToolDefs};
+export { Scenes };
 export { SceneDefs };
 export { Resources };
 
@@ -56,6 +57,7 @@ export const tools = ToolDefs._LIST;
  *     },
  *     autoStart: undefined|boolean,
  *     scene: undefined|string|{init:(function(SandGame, Controller):Promise<any>|any)},
+ *     scenes: undefined|Scene[]|Object.<string,Scene>,
  *     tools: undefined|(string|Tool)[],
  *     primaryTool: undefined|string|Tool,
  *     secondaryTool: undefined|string|Tool,
@@ -101,32 +103,57 @@ export function init(root, config) {
 
     const errorReporter = config.errorReporter;
 
-    // resolve scene
+    // resolve scene list
+
+    let scenes;
+    let customScenes;
+    if (Array.isArray(config.scenes)) {
+        scenes = {};
+        for (let i = 0; i < config.scenes.length; i++) {
+            scenes['scene_' + i] = config.scenes[i];
+        }
+        customScenes = true;
+    } else if (typeof config.scenes === "object") {
+        scenes = config.scenes;
+        customScenes = true;
+    } else {
+        // build-in scenes
+        scenes = SceneDefs.SCENES;
+        customScenes = false;
+    }
+
+    // resolve current scene
 
     let scene;
     let sceneName;
     if (typeof config.scene === 'string') {
-        // build-in scene
+        // from scene list
         sceneName = config.scene;
-        scene = SceneDefs.SCENES[sceneName];
+        scene = scenes[sceneName];
+        if (scene === undefined) {
+            throw 'Scene not found: ' + sceneName;
+        }
     } else if (typeof config.scene === 'object') {
         // custom scene
         sceneName = 'n/a';
-        scene = new SceneImplHardcoded({
-            name: 'n/a',
-            description: 'n/a',
-            apply: (typeof config.scene.init === 'function')
-                ? (sandGame) => config.scene.init(sandGame, controller)
-                : () => {}
-        });
+        const sceneFunc = (typeof config.scene.init === 'function')
+            ? (sandGame) => config.scene.init(sandGame, controller)
+            : () => {};
+        scene = Scenes.custom('n/a', sceneFunc);
     } else {
         // default scene
-        if (enableDebug) {
-            sceneName = 'landscape_1';  // always the same
+        if (customScenes) {
+            // select first
+            sceneName = Object.keys(scenes)[0];
+            scene = Object.values(scenes)[0];
         } else {
-            sceneName = (Math.random() > 0.1) ? 'landscape_1' : 'landscape_2';
+            if (enableDebug) {
+                sceneName = 'landscape_1';  // always the same
+            } else {
+                sceneName = (Math.random() > 0.1) ? 'landscape_1' : 'landscape_2';
+            }
+            scene = scenes[sceneName];
         }
-        scene = SceneDefs.SCENES[sceneName];
     }
 
     // resolve tools
@@ -214,7 +241,7 @@ export function init(root, config) {
             (enableSizeChange || enableSceneSelection) ? new ComponentContainer(null, [
                 (enableSizeChange) ? new ComponentButtonAdjustScale() : null,
                 (enableSceneSelection) ? new ComponentSimple(DomBuilder.span('Scenes', { class: 'scenes-label' })) : null,
-                (enableSceneSelection) ? new ComponentViewSceneSelection(controller, SceneDefs.SCENES, sceneName) : null,
+                (enableSceneSelection) ? new ComponentViewSceneSelection(controller, scenes, sceneName) : null,
             ]) : null,
             (enableDebug) ? new ComponentViewTestTools() : null,
         ])
