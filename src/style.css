@@ -1,7 +1,7 @@
 
 /*
  * @author Patrik Harag
- * @version 2024-03-23
+ * @version 2024-03-24
  */
 
 .sand-game-component {
@@ -181,6 +181,7 @@
 .sand-game-component .sand-game-options .dropdown-menu {
     user-select: none;
     font-size: small;
+    width: 300px;
 }
 
 .sand-game-component .sand-game-options .status-stopped {

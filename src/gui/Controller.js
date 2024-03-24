@@ -16,7 +16,7 @@ import Analytics from "../Analytics";
 /**
  *
  * @author Patrik Harag
- * @version 2024-02-04
+ * @version 2024-03-24
  */
 export default class Controller {
 
@@ -82,6 +82,10 @@ export default class Controller {
         this.#currentWidthPoints = Math.trunc(this.#init.canvasWidthPx * this.#init.scale);
         this.#currentHeightPoints = Math.trunc(this.#init.canvasHeightPx * this.#init.scale);
         this.#currentScale = this.#init.scale;
+    }
+
+    getVersion() {
+        return this.#init.version;
     }
 
     /**

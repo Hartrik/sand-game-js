@@ -89,8 +89,8 @@ export default class ComponentStatusIndicator extends Component {
             sandGame.addOnRendered(() => {
                 const fps = controller.getSandGame().getFramesPerSecond();
                 const ips = controller.getSandGame().getIterationsPerSecond();
-                labelFPS.textContent = '= ' + fps;
-                labelCPS.textContent = '= ' + ips;
+                labelFPS.textContent = ' = ' + fps;
+                labelCPS.textContent = ' = ' + ips;
             });
         });
 
@@ -98,7 +98,7 @@ export default class ComponentStatusIndicator extends Component {
         const updateCanvasSize = () => {
             const w = controller.getCurrentWidthPoints();
             const h = controller.getCurrentHeightPoints();
-            labelCanvasSize.textContent = `= ${w.toLocaleString()}\u00D7${h.toLocaleString()} = ${(w * h).toLocaleString()}`;
+            labelCanvasSize.textContent = ` = ${w.toLocaleString()}\u00D7${h.toLocaleString()} = ${(w * h).toLocaleString()}`;
         }
         controller.addOnInitialized(() => {
             updateCanvasSize();
@@ -106,19 +106,19 @@ export default class ComponentStatusIndicator extends Component {
         updateCanvasSize();
 
         return [
-            DomBuilder.span('Simulated elements'),
+            DomBuilder.span('Sand Game JS ' + controller.getVersion(), { style: 'font-weight: bold;' }),
             DomBuilder.element('br'),
+
+            DomBuilder.span('Simulated elements'),
             labelCanvasSize,
             DomBuilder.element('br'),
 
             DomBuilder.span('Simulation iterations /s'),
-            DomBuilder.element('br'),
             labelCPS,
             DomBuilder.span(' (target: ' + Processor.OPT_CYCLES_PER_SECOND + ')', { style: 'color: lightgray;' }),
             DomBuilder.element('br'),
 
             DomBuilder.span('Rendered frames /s'),
-            DomBuilder.element('br'),
             labelFPS,
             DomBuilder.span(' (target: ' + Processor.OPT_FRAMES_PER_SECOND + ')', { style: 'color: lightgray;' }),
             DomBuilder.element('br'),
