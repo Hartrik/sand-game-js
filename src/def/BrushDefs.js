@@ -190,7 +190,7 @@ export default class BrushDefs {
                 ElementHead.type8Fluid(ElementHead.TYPE_FLUID),
                 ElementHead.behaviour8(ElementHead.BEHAVIOUR_NONE),
                 ElementHead.modifiers8(ElementHead.HMI_OIL)),
-            ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_1, ElementTail.HEAT_EFFECT_NONE))
+            ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_1, ElementTail.HEAT_EFFECT_NONE, 3))
     ]));
 
     static GRASS = Brushes.random([

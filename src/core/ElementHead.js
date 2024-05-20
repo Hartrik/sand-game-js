@@ -308,8 +308,8 @@ export default class ElementHead {
         i: 11,
         conductiveIndex: 0.45,
         heatLossChanceTo10000: 10,
-        flammableChanceTo10000: 1000,
-        selfIgnitionChanceTo10000: 500,
+        flammableChanceTo10000: 10000,
+        selfIgnitionChanceTo10000: 2500,
         flameHeat: 220,
         burnDownChanceTo10000: 1000
     });
