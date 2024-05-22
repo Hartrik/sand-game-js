@@ -16,7 +16,7 @@ import ProcessorModuleLiquid from "./ProcessorModuleLiquid";
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-27
+ * @version 2024-05-22
  */
 export default class Processor extends ProcessorContext {
 
@@ -417,6 +417,8 @@ export default class Processor extends ProcessorContext {
             case ElementHead.BEHAVIOUR_SOIL:
             case ElementHead.BEHAVIOUR_TREE_TRUNK:
                 return false;
+            case ElementHead.BEHAVIOUR_LIQUID:
+                return this.#moduleLiquid.testBehaviourLiquid(elementHead, x, y);
             default:
                 return true;
         }
@@ -505,8 +507,11 @@ export default class Processor extends ProcessorContext {
             case ElementHead.BEHAVIOUR_SOIL:
                 break;
             case ElementHead.BEHAVIOUR_LIQUID:
-                if (this.#moduleLiquid.behaviourLiquid(elementHead, x, y)) {
-                    active = ElementHead.getTemperature(elementHead) > 0;
+                const r = this.#moduleLiquid.behaviourLiquid(elementHead, x, y);
+                if ((r & ProcessorModuleLiquid.RET_FLAG_ACTIVE) === ProcessorModuleLiquid.RET_FLAG_ACTIVE) {
+                    active = true;
+                }
+                if ((r & ProcessorModuleLiquid.RET_FLAG_SKIP_TEMP) === ProcessorModuleLiquid.RET_FLAG_SKIP_TEMP) {
                     processTemperature = false;
                 }
                 break;
@@ -573,7 +578,7 @@ export default class Processor extends ProcessorContext {
         if (temp === 0) {
             const heatModIndex = ElementHead.getHeatModIndex(elementHead);
             if (temp < ElementHead.hmiToHardeningTemperature(heatModIndex)) {
-                this.#tryHardening(elementHead, x, y, heatModIndex);
+                this.#tryHardening(elementHead, x, y, heatModIndex, true);
                 return true;
             }
             return false;
@@ -667,15 +672,15 @@ export default class Processor extends ProcessorContext {
 
         // hardening
         if (newTemp < ElementHead.hmiToHardeningTemperature(heatModIndex)) {
-            this.#tryHardening(elementHead, x, y, heatModIndex);
+            this.#tryHardening(elementHead, x, y, heatModIndex, false);
         }
 
         return true;
     }
 
-    #tryHardening(elementHead, x, y, heatModIndex) {
+    #tryHardening(elementHead, x, y, heatModIndex, force) {
         // there must be a solid element nearby
-        if (this.#findHardeningSupport(x, y)) {
+        if (force || this.#findHardeningSupport(x, y)) {
             elementHead = ElementHead.setType(elementHead, ElementHead.type8Solid(ElementHead.TYPE_STATIC, 2));
             elementHead = ElementHead.setHeatModIndex(elementHead, ElementHead.hmiToHardeningHMI(heatModIndex));
 

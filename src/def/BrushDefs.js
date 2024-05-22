@@ -97,7 +97,7 @@ export default class BrushDefs {
             new Element(
                 ElementHead.of(
                     ElementHead.type8(ElementHead.type8Solid(ElementHead.TYPE_STATIC, 2, false)),
-                    ElementHead.behaviour8(),
+                    ElementHead.behaviour8(ElementHead.BEHAVIOUR_LIQUID, 1),
                     ElementHead.modifiers8(ElementHead.HMI_METAL)),
                 ElementTail.of(155, 155, 155, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_3))
         ]),
