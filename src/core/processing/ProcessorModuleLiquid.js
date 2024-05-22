@@ -5,9 +5,13 @@ import ElementHead from "../ElementHead.js";
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-20
+ * @version 2024-05-21
  */
-export default class ProcessorModuleWater {
+export default class ProcessorModuleLiquid {
+
+    static SUBTYPE_WATER = 0;
+    static SUBTYPE_WATER_STAINING = 1;
+
 
     /** @type ElementArea */
     #elementArea;
@@ -24,7 +28,15 @@ export default class ProcessorModuleWater {
         this.#processorContext = processorContext;
     }
 
-    behaviourWater(elementHead, x, y) {
+    behaviourLiquid(elementHead, x, y) {
+        const special = ElementHead.getSpecial(elementHead);
+        switch (special) {
+            case ProcessorModuleLiquid.SUBTYPE_WATER:
+                return this.#behaviourSubtypeWater(elementHead, x, y);
+        }
+    }
+
+    #behaviourSubtypeWater(elementHead, x, y) {
         const typeClass = ElementHead.getTypeClass(elementHead);
         const temperature = ElementHead.getTemperature(elementHead);
 

@@ -11,7 +11,7 @@ import ProcessorModuleFire from "./ProcessorModuleFire.js";
 import ProcessorModuleMeteor from "./ProcessorModuleMeteor.js";
 import ProcessorModuleGrass from "./ProcessorModuleGrass.js";
 import ProcessorModuleTree from "./ProcessorModuleTree.js";
-import ProcessorModuleWater from "./ProcessorModuleWater";
+import ProcessorModuleLiquid from "./ProcessorModuleLiquid";
 
 /**
  *
@@ -69,8 +69,8 @@ export default class Processor extends ProcessorContext {
     #moduleSolidBody;
     /** @type ProcessorModuleEntity */
     #moduleEntity;
-    /** @type ProcessorModuleWater */
-    #moduleWater;
+    /** @type ProcessorModuleLiquid */
+    #moduleLiquid;
     /** @type ProcessorModuleFire */
     #moduleFire;
     /** @type ProcessorModuleMeteor */
@@ -112,7 +112,7 @@ export default class Processor extends ProcessorContext {
 
         this.#moduleSolidBody = new ProcessorModuleSolidBody(elementArea, random, this);
         this.#moduleEntity = new ProcessorModuleEntity(elementArea, random, this);
-        this.#moduleWater = new ProcessorModuleWater(elementArea, random, this);
+        this.#moduleLiquid = new ProcessorModuleLiquid(elementArea, random, this);
         this.#moduleFire = new ProcessorModuleFire(elementArea, random, this);
         this.#moduleMeteor = new ProcessorModuleMeteor(elementArea, random, this);
         this.#moduleGrass = new ProcessorModuleGrass(elementArea, random, this);
@@ -504,8 +504,8 @@ export default class Processor extends ProcessorContext {
             case ElementHead.BEHAVIOUR_NONE:
             case ElementHead.BEHAVIOUR_SOIL:
                 break;
-            case ElementHead.BEHAVIOUR_WATER:
-                if (this.#moduleWater.behaviourWater(elementHead, x, y)) {
+            case ElementHead.BEHAVIOUR_LIQUID:
+                if (this.#moduleLiquid.behaviourLiquid(elementHead, x, y)) {
                     active = ElementHead.getTemperature(elementHead) > 0;
                     processTemperature = false;
                 }

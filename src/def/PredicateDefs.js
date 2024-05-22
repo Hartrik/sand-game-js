@@ -54,7 +54,8 @@ export default class PredicateDefs {
 
     /** @type {function(elementHead:number, elementTail:number):boolean} */
     static IS_WATER = function (elementHead, elementTail) {
-        return ElementHead.getBehaviour(elementHead) === ElementHead.BEHAVIOUR_WATER
+        // TODO
+        return ElementHead.getBehaviour(elementHead) === ElementHead.BEHAVIOUR_LIQUID
             && ElementHead.getTypeClass(elementHead) === ElementHead.TYPE_FLUID;
     };
 

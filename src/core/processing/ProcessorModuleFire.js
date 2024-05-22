@@ -73,8 +73,8 @@ export default class ProcessorModuleFire {
         }
 
         const elementHeadAbove = this.#elementArea.getElementHeadOrNull(x, y - 1);
-        // check is above water
-        if (ElementHead.getBehaviour(elementHeadAbove) === ElementHead.BEHAVIOUR_WATER) {
+        // check is fluid above
+        if (ElementHead.getTypeClass(elementHeadAbove) === ElementHead.TYPE_FLUID) {
             this.#elementArea.setElement(x, y, this.#processorContext.getDefaults().getDefaultElement());
             return;
         }
@@ -253,7 +253,7 @@ export default class ProcessorModuleFire {
         }
 
         // water => extinguish
-        if (ElementHead.getBehaviour(elementHead) === ElementHead.BEHAVIOUR_WATER) {
+        if (ElementHead.getBehaviour(elementHead) === ElementHead.BEHAVIOUR_LIQUID) {
             return 0b10;
         }
 

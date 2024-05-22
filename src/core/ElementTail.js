@@ -5,7 +5,7 @@
  *
  * The element head structure: <code>0x[flags][red][green][blue]</code> (32b)
  * <pre>
- *     |            2b  |            2b  | burnt lvl  2b  | blur type  2b  |
+ *     |            2b  | heat e.    2b  | burnt lvl  2b  | blur type  2b  |
  *     | color red                                                     8b  |
  *     | color green                                                   8b  |
  *     | color blue                                                    8b  |

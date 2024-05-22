@@ -42,17 +42,19 @@ export default class ElementHead {
     static BEHAVIOUR_NONE = 0x0;
     static BEHAVIOUR_SOIL = 0x1;
     static BEHAVIOUR_GRASS = 0x2;
-    static BEHAVIOUR_FISH = 0x3;  // unused
-    static BEHAVIOUR_FISH_BODY = 0x4;  // unused
+    static BEHAVIOUR_3 = 0x3;  // unused
+    static BEHAVIOUR_4 = 0x4;  // unused
     static BEHAVIOUR_TREE = 0x5;
     static BEHAVIOUR_TREE_ROOT = 0x6;
     static BEHAVIOUR_TREE_TRUNK = 0x7;
     static BEHAVIOUR_TREE_LEAF = 0x8;
     static BEHAVIOUR_FIRE = 0x9;
     static BEHAVIOUR_FIRE_SOURCE = 0xA;
-    static BEHAVIOUR_METEOR = 0xB;
-    static BEHAVIOUR_WATER = 0xC;
+    static BEHAVIOUR_METEOR = 0xB;  // TODO: to entity?
+    static BEHAVIOUR_LIQUID = 0xC;
     static BEHAVIOUR_ENTITY = 0xD;
+    static BEHAVIOUR_E = 0xE;
+    static BEHAVIOUR_F = 0xF;
 
     static FIELD_SPECIAL_SIZE = 4;  // bits
 

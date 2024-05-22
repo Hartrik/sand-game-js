@@ -170,7 +170,7 @@ export default class BrushDefs {
         new Element(
             ElementHead.of(
                 ElementHead.type8Fluid(ElementHead.TYPE_FLUID),
-                ElementHead.behaviour8(ElementHead.BEHAVIOUR_WATER),
+                ElementHead.behaviour8(ElementHead.BEHAVIOUR_LIQUID),
                 ElementHead.modifiers8(ElementHead.HMI_CONDUCTIVE_3)),
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_1, ElementTail.HEAT_EFFECT_NONE))
     ]));
@@ -179,7 +179,7 @@ export default class BrushDefs {
         new Element(
             ElementHead.of(
                 ElementHead.type8Fluid(ElementHead.TYPE_GAS),
-                ElementHead.behaviour8(ElementHead.BEHAVIOUR_WATER),
+                ElementHead.behaviour8(ElementHead.BEHAVIOUR_LIQUID),
                 ElementHead.modifiers8(ElementHead.HMI_CONDUCTIVE_3)),
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_1, ElementTail.HEAT_EFFECT_NONE))
     ]));
