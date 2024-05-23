@@ -253,7 +253,8 @@ export default class ProcessorModuleFire {
         }
 
         // water => extinguish
-        if (ElementHead.getBehaviour(elementHead) === ElementHead.BEHAVIOUR_LIQUID) {
+        if (ElementHead.getBehaviour(elementHead) === ElementHead.BEHAVIOUR_LIQUID
+                && ElementHead.getSpecial(elementHead) === 0) {
             return 0b10;
         }
 
