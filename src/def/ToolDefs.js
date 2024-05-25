@@ -172,8 +172,8 @@ export default class ToolDefs {
         }
     });
 
-    static BRICK_WALL = Tools.roundBrushTool(BrushDefs.BRICK, ToolDefs.DEFAULT_SIZE, {
-        codeName: 'brick_wall',
+    static BRICK = Tools.roundBrushTool(BrushDefs.BRICK, ToolDefs.DEFAULT_SIZE, {
+        codeName: 'brick',
         displayName: 'Brick',
         category: ToolDefs.CATEGORY_SOLIDS,
         badgeStyle: {
@@ -181,8 +181,8 @@ export default class ToolDefs {
         }
     });
 
-    static WOODEN_WALL = Tools.roundBrushTool(BrushDefs.WOOD, ToolDefs.DEFAULT_SIZE, {
-        codeName: 'wooden_wall',
+    static WOOD = Tools.roundBrushTool(BrushDefs.WOOD, ToolDefs.DEFAULT_SIZE, {
+        codeName: 'wood',
         displayName: 'Wood',
         category: ToolDefs.CATEGORY_SOLIDS,
         badgeStyle: {
@@ -190,8 +190,8 @@ export default class ToolDefs {
         }
     });
 
-    static ROCK_WALL = Tools.roundBrushTool(BrushDefs.ROCK, ToolDefs.DEFAULT_SIZE, {
-        codeName: 'rock_wall',
+    static ROCK = Tools.roundBrushTool(BrushDefs.ROCK, ToolDefs.DEFAULT_SIZE, {
+        codeName: 'rock',
         displayName: 'Rock',
         category: ToolDefs.CATEGORY_SOLIDS,
         badgeStyle: {
@@ -319,8 +319,8 @@ export default class ToolDefs {
         this.COAL,
         this.THERMITE,
         this.WALL,
-        this.BRICK_WALL,
-        this.WOODEN_WALL,
+        this.BRICK,
+        this.WOOD,
         this.METAL,
         this.ROCK_TEMPLATES_SM,
         this.ROCK_TEMPLATES_MD,
@@ -361,7 +361,7 @@ export default class ToolDefs {
             ToolDefs.FLIP_HORIZONTALLY,
             ToolDefs.FLIP_VERTICALLY,
             ...ToolDefs.DEFAULT_TOOLS,
-            ToolDefs.ROCK_WALL,
+            ToolDefs.ROCK,
             ToolDefs.BIRD,
             ToolDefs.BUTTERFLY,
             ToolDefs.FISH

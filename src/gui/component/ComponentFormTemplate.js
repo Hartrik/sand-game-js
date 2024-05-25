@@ -29,7 +29,7 @@ export default class ComponentFormTemplate extends Component {
                     this.#creatMaterialFormGroup(BrushDefs.THERMITE, ToolDefs.THERMITE.getInfo()),
                     this.#creatMaterialFormGroup(BrushDefs.WALL, ToolDefs.WALL.getInfo()),
                     this.#creatMaterialFormGroup(BrushDefs.METAL, ToolDefs.METAL.getInfo()),
-                    this.#creatMaterialFormGroup(BrushDefs.WOOD, ToolDefs.WOODEN_WALL.getInfo()),
+                    this.#creatMaterialFormGroup(BrushDefs.WOOD, ToolDefs.WOOD.getInfo()),
                 ])
             ]),
             DomBuilder.element('fieldset', {class: 'mb-3 row'}, [
