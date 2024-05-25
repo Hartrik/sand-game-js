@@ -5,7 +5,7 @@ import SandGame from "../core/SandGame";
 import SceneImplTmpResize from "../core/scene/SceneImplResize";
 import ServiceToolManager from "./ServiceToolManager";
 import ServiceIO from "./ServiceIO";
-import RendererInitializer from "../core/rendering/RendererInitializer";
+import RendererInitializerDefs from "../def/RendererInitializerDefs";
 import RenderingWebGLException from "../core/rendering/RenderingWebGLException";
 import SceneImplSnapshot from "../core/scene/SceneImplSnapshot";
 import DomBuilder from "./DomBuilder";
@@ -17,7 +17,7 @@ import Analytics from "../Analytics";
 /**
  *
  * @author Patrik Harag
- * @version 2024-05-08
+ * @version 2024-05-25
  */
 export default class Controller {
 
@@ -47,7 +47,7 @@ export default class Controller {
     #simulationEnabled = false;
     /** @type boolean */
     #showActiveChunks = false;
-    #rendererInitializer = RendererInitializer.canvasWebGL();
+    #rendererInitializer = RendererInitializerDefs.canvasWebGL();
 
     /** @type Scene|null */
     #initialScene = null;
@@ -197,7 +197,7 @@ export default class Controller {
             // WebGL is not supported - unsupported at all / unsupported after recent failure
             // - to test this, run Chrome with --disable-3d-apis
             this.#reportFirstRenderingFailure("Unable to get WebGL context. Using fallback renderer; game performance and visual will be affected");
-            this.#rendererInitializer = RendererInitializer.canvas2d();
+            this.#rendererInitializer = RendererInitializerDefs.canvas2d();
             contextType = this.#rendererInitializer.getContextType();
             context = this.#initializeContextAs(canvas, contextType);
             Analytics.triggerFeatureUsed(Analytics.FEATURE_RENDERER_FALLBACK);
@@ -369,7 +369,7 @@ export default class Controller {
 
     #restartAfterInitializationRendererFailure(cause, scene) {
         this.#reportFirstRenderingFailure(cause)
-        this.#rendererInitializer = RendererInitializer.canvas2d();  // fallback to classic CPU renderer
+        this.#rendererInitializer = RendererInitializerDefs.canvas2d();  // fallback to classic CPU renderer
         this.#initialize(scene);
         Analytics.triggerFeatureUsed(Analytics.FEATURE_RENDERER_FALLBACK);
     }
@@ -377,7 +377,7 @@ export default class Controller {
     #restartAfterRenderingFailure(cause) {
         this.#reportFirstRenderingFailure(cause)
         const snapshot = this.createSnapshot();
-        this.#rendererInitializer = RendererInitializer.canvas2d();  // fallback to classic CPU renderer
+        this.#rendererInitializer = RendererInitializerDefs.canvas2d();  // fallback to classic CPU renderer
         this.openScene(new SceneImplSnapshot(snapshot));
         Analytics.triggerFeatureUsed(Analytics.FEATURE_RENDERER_FALLBACK);
     }

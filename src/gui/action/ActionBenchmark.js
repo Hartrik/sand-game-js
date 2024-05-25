@@ -1,16 +1,17 @@
 // Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
 
-import Controller from "../Controller";
-import BrushDefs from "../../def/BrushDefs";
-import SceneImplHardcoded from "../../core/scene/SceneImplHardcoded";
 import Action from "./Action";
 import DomBuilder from "../DomBuilder";
 import FileSaver from 'file-saver';
 
+// Warning: dev tools only
+
+const Scenes = window.SandGameJS.Scenes;
+
 /**
  *
  * @author Patrik Harag
- * @version 2023-12-04
+ * @version 2024-05-25
  */
 export default class ActionBenchmark extends Action {
 
@@ -74,10 +75,7 @@ class BenchmarkProvider {
     }
 
     start() {
-        let scene = new SceneImplHardcoded({
-            onCreated: (sandGame) => this.#benchmarkScene(sandGame)
-        });
-
+        let scene = Scenes.custom('Benchmark', (s) => this.#benchmarkScene(s));
         this.#controller.openScene(scene);
         this.#controller.start();
     }
@@ -122,7 +120,7 @@ class BenchmarkProvider {
                 ipsMin = Number.MAX_SAFE_INTEGER;
                 waiting = BenchmarkProvider.WAITING_GAP;
 
-                sandGame.graphics().fill(BrushDefs.AIR);
+                sandGame.graphics().fill(sandGame.getBrushCollection().byCodeName('air'));
 
                 if (benchmarkQueue.length === 0) {
                     this.#onFinish(this.#finalizeResults(sandGame, benchmarkResults));
@@ -162,54 +160,67 @@ class BenchmarkProvider {
 
     static BENCHMARKS = [
         BenchmarkProvider.#createBenchmark('sand-fall-q', 500, function (sandGame, j) {
-            sandGame.graphics().drawRectangle(0, 0, -1, 1, BrushDefs.SAND, true);
+            const sand = sandGame.getBrushCollection().byCodeName('sand');
+            sandGame.graphics().drawRectangle(0, 0, -1, 1, sand, true);
         }),
         BenchmarkProvider.#createBenchmark('sand-fall-s', 2000, function (sandGame, j) {
             if (j % 10 === 0) {
-                sandGame.graphics().drawRectangle(0, 0, -1, 1, BrushDefs.SAND, true);
+                const sand = sandGame.getBrushCollection().byCodeName('sand');
+                sandGame.graphics().drawRectangle(0, 0, -1, 1, sand, true);
             }
         }),
         BenchmarkProvider.#createBenchmark('sand-fill', 1000, function (sandGame, j) {
             if (j === 0) {
-                sandGame.graphics().drawRectangle(0, 0, -1, -1, BrushDefs.SAND, true);
+                const sand = sandGame.getBrushCollection().byCodeName('sand');
+                sandGame.graphics().drawRectangle(0, 0, -1, -1, sand, true);
             }
         }),
         BenchmarkProvider.#createBenchmark('soil-fall-q', 500, function (sandGame, j) {
-            sandGame.graphics().drawRectangle(0, 0, -1, 1, BrushDefs.SOIL, true);
+            const soil = sandGame.getBrushCollection().byCodeName('soil');
+            sandGame.graphics().drawRectangle(0, 0, -1, 1, soil, true);
         }),
         BenchmarkProvider.#createBenchmark('soil-fall-s', 2000, function (sandGame, j) {
             if (j % 10 === 0) {
-                sandGame.graphics().drawRectangle(0, 0, -1, 1, BrushDefs.SOIL, true);
+                const soil = sandGame.getBrushCollection().byCodeName('soil');
+                sandGame.graphics().drawRectangle(0, 0, -1, 1, soil, true);
             }
         }),
         BenchmarkProvider.#createBenchmark('soil-fill', 1000, function (sandGame, j) {
             if (j === 0) {
-                sandGame.graphics().drawRectangle(0, 0, -1, -1, BrushDefs.SOIL, true);
+                const soil = sandGame.getBrushCollection().byCodeName('soil');
+                sandGame.graphics().drawRectangle(0, 0, -1, -1, soil, true);
             }
         }),
         BenchmarkProvider.#createBenchmark('water-fall-q', 500, function (sandGame, j) {
-            sandGame.graphics().drawRectangle(0, 0, -1, 1, BrushDefs.WATER, true);
+            const water = sandGame.getBrushCollection().byCodeName('water');
+            sandGame.graphics().drawRectangle(0, 0, -1, 1, water, true);
         }),
         BenchmarkProvider.#createBenchmark('water-fall-s', 2000, function (sandGame, j) {
             if (j % 10 === 0) {
-                sandGame.graphics().drawRectangle(0, 0, -1, 1, BrushDefs.WATER, true);
+                const water = sandGame.getBrushCollection().byCodeName('water');
+                sandGame.graphics().drawRectangle(0, 0, -1, 1, water, true);
             }
         }),
         BenchmarkProvider.#createBenchmark('water-fill', 1000, function (sandGame, j) {
             if (j === 0) {
-                sandGame.graphics().drawRectangle(0, 0, -1, -1, BrushDefs.WATER, true);
+                const water = sandGame.getBrushCollection().byCodeName('water');
+                sandGame.graphics().drawRectangle(0, 0, -1, -1, water, true);
             }
         }),
         BenchmarkProvider.#createBenchmark('sand-into-water', 1000, function (sandGame, j) {
             if (j === 0) {
-                sandGame.graphics().drawRectangle(0, 0, -1, 31, BrushDefs.SAND, true);
-                sandGame.graphics().drawRectangle(0, 60, -1, -1, BrushDefs.WATER, true);
+                const sand = sandGame.getBrushCollection().byCodeName('sand');
+                const water = sandGame.getBrushCollection().byCodeName('water');
+                sandGame.graphics().drawRectangle(0, 0, -1, 31, sand, true);
+                sandGame.graphics().drawRectangle(0, 60, -1, -1, water, true);
             }
         }),
         BenchmarkProvider.#createBenchmark('soil-into-water', 1000, function (sandGame, j) {
             if (j === 0) {
-                sandGame.graphics().drawRectangle(0, 0, -1, 31, BrushDefs.SOIL, true);
-                sandGame.graphics().drawRectangle(0, 60, -1, -1, BrushDefs.WATER, true);
+                const soil = sandGame.getBrushCollection().byCodeName('soil');
+                const water = sandGame.getBrushCollection().byCodeName('water');
+                sandGame.graphics().drawRectangle(0, 0, -1, 31, soil, true);
+                sandGame.graphics().drawRectangle(0, 60, -1, -1, water, true);
             }
         }),
     ];

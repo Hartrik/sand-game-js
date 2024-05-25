@@ -17,7 +17,6 @@ import ComponentViewTools from "./gui/component/ComponentViewTools";
 import ComponentViewCanvas from "./gui/component/ComponentViewCanvas";
 import ComponentButtonAdjustScale from "./gui/component/ComponentButtonAdjustScale";
 import ComponentViewSceneSelection from "./gui/component/ComponentViewSceneSelection";
-// import ComponentViewTestTools from "./gui/component/ComponentViewTestTools";
 import ComponentContainer from "./gui/component/ComponentContainer";
 import ComponentSimple from "./gui/component/ComponentSimple";
 import ComponentButton from "./gui/component/ComponentButton";
@@ -36,6 +35,7 @@ import ExtensionSpawnTrees from "./core/extensions/ExtensionSpawnTrees";
 import ExtensionSpawnButterflies from "./core/extensions/ExtensionSpawnButterflies";
 import ExtensionSpawnBirds from "./core/extensions/ExtensionSpawnBirds";
 import ExtensionGenWaypoints from "./core/extensions/ExtensionGenWaypoints";
+import RendererInitializerDefs from "./def/RendererInitializerDefs";
 
 // exported classes and constants (accessible as SandGameJS.XXX)
 
@@ -48,6 +48,7 @@ export { Entities };
 export { Scenes };
 export { SceneDefs };
 export { Resources };
+export { RendererInitializerDefs };
 
 export const brushes = BrushDefs._LIST;
 export const tools = ToolDefs._LIST;
@@ -308,7 +309,7 @@ export function init(root, config) {
                 (enableSceneSelection) ? new ComponentSimple(DomBuilder.span('Scenes', { class: 'scenes-label' })) : null,
                 (enableSceneSelection) ? new ComponentViewSceneSelection(controller, scenes, sceneName) : null,
             ]) : null,
-            //(enableDebug) ? new ComponentViewTestTools() : null,
+            (enableDebug && window.SandGameJS_ModuleDev !== undefined) ? SandGameJS_ModuleDev.createComponent() : null,
         ])
     ]);
 

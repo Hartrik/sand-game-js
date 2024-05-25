@@ -1,9 +1,10 @@
 // Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
 
-import Tools from "../core/tool/Tools";
-import BrushDefs from "./BrushDefs";
-import ToolInfo from "../core/tool/ToolInfo";
-import EntityFactories from "../core/entity/EntityFactories";
+// Warning: dev tools only
+
+const Tools = window.SandGameJS.Tools;
+const ToolDefs = window.SandGameJS.ToolDefs;
+const BrushDefs = window.SandGameJS.BrushDefs;
 
 /**
  *
@@ -21,91 +22,73 @@ export default class ToolDevDefs {
     static CATEGORY_EFFECTS = 'effects';
     static CATEGORY_BIOLOGICAL = 'biological';
 
-    static BIRD = Tools.insertEntityTool(EntityFactories.birdFactory, new ToolInfo({
-        codeName: 'bird',
-        displayName: 'Bird',
-        category: ToolDevDefs.CATEGORY_BIOLOGICAL,
-    }));
-
-    static BUTTERFLY = Tools.insertEntityTool(EntityFactories.butterflyFactory, new ToolInfo({
-        codeName: 'butterfly',
-        displayName: 'Butterfly',
-        category: ToolDevDefs.CATEGORY_BIOLOGICAL,
-    }));
-
-    static FISH = Tools.insertEntityTool(EntityFactories.fishFactory, new ToolInfo({
-        codeName: 'fish',
-        displayName: 'Fish',
-        category: ToolDevDefs.CATEGORY_BIOLOGICAL,
-    }));
-
     /** @type Tool[] */
     static TEST_TOOLS = [
-        Tools.pointBrushTool(BrushDefs.GRASS, new ToolInfo({
+        Tools.pointBrushTool(BrushDefs.GRASS, {
             codeName: 'grass',
             displayName: 'Grass',
             category: ToolDevDefs.CATEGORY_BIOLOGICAL,
-        })),
-        Tools.pointBrushTool(BrushDefs.TREE, new ToolInfo({
+        }),
+        Tools.pointBrushTool(BrushDefs.TREE, {
             codeName: 'tree',
             displayName: 'Tree',
             category: ToolDevDefs.CATEGORY_BIOLOGICAL,
-        })),
-        ToolDevDefs.BIRD,
-        ToolDevDefs.BUTTERFLY,
-        ToolDevDefs.FISH,
+        }),
+        ToolDefs.BIRD,
+        ToolDefs.BUTTERFLY,
+        ToolDefs.FISH,
         Tools.actionTool((x, y, graphics) => {
             graphics.entities().assignWaypoint(x, y);
-        }, new ToolInfo({
+        }, {
             codeName: 'entity_waypoint',
             displayName: 'Waypoint',
             category: ToolDevDefs.CATEGORY_BIOLOGICAL,
-        })),
-        Tools.roundBrushTool(BrushDefs.EFFECT_BURNT, ToolDevDefs.DEFAULT_SIZE, new ToolInfo({
+        }),
+        Tools.roundBrushTool(BrushDefs.EFFECT_BURNT, ToolDevDefs.DEFAULT_SIZE, {
             codeName: 'effect_burnt',
             displayName: 'Burnt',
             category: ToolDevDefs.CATEGORY_EFFECTS,
-        })),
-        Tools.roundBrushTool(BrushDefs.EFFECT_NOISE_SM, ToolDevDefs.DEFAULT_SIZE, new ToolInfo({
+        }),
+        Tools.roundBrushTool(BrushDefs.EFFECT_NOISE_SM, ToolDevDefs.DEFAULT_SIZE, {
             codeName: 'effect_noise_sm',
             displayName: 'Noise SM',
             category: ToolDevDefs.CATEGORY_EFFECTS,
-        })),
-        Tools.roundBrushTool(BrushDefs.EFFECT_NOISE_MD, ToolDevDefs.DEFAULT_SIZE, new ToolInfo({
+        }),
+        Tools.roundBrushTool(BrushDefs.EFFECT_NOISE_MD, ToolDevDefs.DEFAULT_SIZE, {
             codeName: 'effect_noise_md',
             displayName: 'Noise MD',
             category: ToolDevDefs.CATEGORY_EFFECTS,
-        })),
-        Tools.roundBrushTool(BrushDefs.EFFECT_NOISE_LG, ToolDevDefs.DEFAULT_SIZE, new ToolInfo({
+        }),
+        Tools.roundBrushTool(BrushDefs.EFFECT_NOISE_LG, ToolDevDefs.DEFAULT_SIZE, {
             codeName: 'effect_noise_lg',
             displayName: 'Noise LG',
             category: ToolDevDefs.CATEGORY_EFFECTS,
-        })),
-        Tools.roundBrushTool(BrushDefs.EFFECT_TEMP_0, ToolDevDefs.DEFAULT_SIZE, new ToolInfo({
+        }),
+        Tools.roundBrushTool(BrushDefs.EFFECT_TEMP_0, ToolDevDefs.DEFAULT_SIZE, {
             codeName: 'effect_temp_0',
             displayName: 'Temp 0',
             category: ToolDevDefs.CATEGORY_EFFECTS,
-        })),
-        Tools.roundBrushTool(BrushDefs.EFFECT_TEMP_127, ToolDevDefs.DEFAULT_SIZE, new ToolInfo({
+        }),
+        Tools.roundBrushTool(BrushDefs.EFFECT_TEMP_127, ToolDevDefs.DEFAULT_SIZE, {
             codeName: 'effect_temp_127',
             displayName: 'Temp 127',
             category: ToolDevDefs.CATEGORY_EFFECTS,
-        })),
-        Tools.roundBrushTool(BrushDefs.EFFECT_TEMP_200, ToolDevDefs.DEFAULT_SIZE, new ToolInfo({
+        }),
+        Tools.roundBrushTool(BrushDefs.EFFECT_TEMP_200, ToolDevDefs.DEFAULT_SIZE, {
             codeName: 'effect_temp_200',
             displayName: 'Temp 200',
             category: ToolDevDefs.CATEGORY_EFFECTS,
-        })),
-        Tools.roundBrushTool(BrushDefs.EFFECT_TEMP_255, ToolDevDefs.DEFAULT_SIZE, new ToolInfo({
+        }),
+        Tools.roundBrushTool(BrushDefs.EFFECT_TEMP_255, ToolDevDefs.DEFAULT_SIZE, {
             codeName: 'effect_temp_255',
             displayName: 'Temp 255',
             category: ToolDevDefs.CATEGORY_EFFECTS,
-        })),
-        Tools.roundBrushTool(BrushDefs.ASH, ToolDevDefs.DEFAULT_SIZE, new ToolInfo({
+        }),
+        Tools.roundBrushTool(BrushDefs.ASH, ToolDevDefs.DEFAULT_SIZE, {
             codeName: 'ash',
             displayName: 'Ash',
             category: ToolDevDefs.CATEGORY_POWDER,
-        }))
+        })
     ];
 
     static _LIST = {};

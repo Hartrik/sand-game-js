@@ -55,8 +55,8 @@ let SGJS_OUTPUTS = [
 let SGJS_DEV_MODULE_OUTPUTS = [
     {
         // browser-friendly UMD build
-        name: 'SandGameJSModuleDev',
-        file: 'dist/sand-game-js-module-dev.umd.js',
+        name: 'SandGameJS_ModuleDev',
+        file: 'dist/sand-game-js_module-dev.umd.js',
         banner: pkg.copyright,
         format: 'umd',
         sourcemap: true,
@@ -119,8 +119,8 @@ if (devBuild) {
 
     SGJS_DEV_MODULE_OUTPUTS.push({
         // browser-friendly UMD build, MINIMIZED
-        name: 'SandGameJSModuleDev',
-        file: 'dist/sand-game-js-module-dev.umd.min.js',
+        name: 'SandGameJS_ModuleDev',
+        file: 'dist/sand-game-js_module-dev.umd.min.js',
         format: 'umd',
         sourcemap: true,
         plugins: PLUGINS_MIN

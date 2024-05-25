@@ -1,6 +1,6 @@
 // Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
 
-import ComponentViewTestTools from "./gui/component/ComponentViewTestTools";
+import ComponentViewDevTools from "./gui/component/ComponentViewDevTools";
 
 /**
  * Initialize component.
@@ -9,5 +9,5 @@ import ComponentViewTestTools from "./gui/component/ComponentViewTestTools";
  * @version 2024-05-25
  */
 export function createComponent() {
-    return new ComponentViewTestTools();
+    return new ComponentViewDevTools();
 }
