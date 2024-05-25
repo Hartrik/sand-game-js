@@ -226,15 +226,6 @@ export default class ToolDefs {
         }
     });
 
-    static WOOD = Tools.roundBrushTool(BrushDefs.TREE_WOOD, ToolDefs.DEFAULT_SIZE, {
-        codeName: 'wood',
-        displayName: 'Wood',
-        category: ToolDefs.CATEGORY_SOLIDS,
-        badgeStyle: {
-            backgroundColor: '#573005',
-        }
-    });
-
     static METAL = Tools.roundBrushToolForSolidBody(BrushDefs.METAL, ToolDefs.DEFAULT_SIZE, {
         codeName: 'metal',
         displayName: 'Metal',
