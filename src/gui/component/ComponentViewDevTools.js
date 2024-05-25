@@ -13,6 +13,7 @@ import ActionBenchmark from "../action/ActionBenchmark";
 import ActionFill from "../action/ActionFill";
 import ToolDevDefs from "../../def/ToolDevDefs";
 import ActionsDev from "../action/ActionsDev";
+import ActionShowActiveChunks from "../action/ActionShowActiveChunks";
 
 // Warning: dev tools only
 
@@ -43,8 +44,7 @@ export default class ComponentViewDevTools extends Component {
             new ComponentButton("Record (start/stop)", BTN_TOOL, new ActionRecord()),
             new ComponentButton("Screenshot", BTN_TOOL, new ActionScreenshot()),
 
-            new ComponentButton("Chunks", BTN_RENDERING,
-                Action.createToggle(false, (c, v) => c.setShowActiveChunks(v))),
+            new ComponentButton("Chunks", BTN_RENDERING, new ActionShowActiveChunks()),
             new ComponentButton("M/webgl", BTN_RENDERING,
                 Action.create(c => c.setRendererInitializer(RendererInitializerDefs.canvasWebGL()))),
             new ComponentButton("M/classic", BTN_RENDERING,

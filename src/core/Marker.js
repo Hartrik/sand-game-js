@@ -4,13 +4,14 @@
  * @typedef {object} MarkerConfig
  * @property {CSSStyleDeclaration} style
  * @property {string|HTMLElement} label
+ * @property {string|undefined} group
  * @property {boolean} visible
  */
 
 /**
  *
  * @author Patrik Harag
- * @version 2024-01-17
+ * @version 2024-05-25
  */
 export default class Marker {
 

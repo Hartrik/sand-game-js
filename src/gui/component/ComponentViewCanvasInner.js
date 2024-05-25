@@ -1,7 +1,6 @@
 // Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
 
 import Component from "./Component";
-import ComponentViewCanvasOverlayDebug from "./ComponentViewCanvasOverlayDebug";
 import ComponentViewCanvasOverlayMarker from "./ComponentViewCanvasOverlayMarker";
 import ComponentViewCanvasOverlayCursor from "./ComponentViewCanvasOverlayCursor";
 import ComponentViewCanvasOverlayScenario from "./ComponentViewCanvasOverlayScenario";
@@ -12,7 +11,7 @@ import Analytics from "../../Analytics";
  *
  *
  * @author Patrik Harag
- * @version 2024-01-15
+ * @version 2024-05-25
  */
 export default class ComponentViewCanvasInner extends Component {
 
@@ -20,10 +19,6 @@ export default class ComponentViewCanvasInner extends Component {
     #controller;
 
     #nodeCanvas;
-
-    /** @type ComponentViewCanvasOverlayDebug */
-    #debugOverlayComponent;
-    #nodeDebugOverlay;
 
     /** @type ComponentViewCanvasOverlayMarker */
     #markerOverlayComponent;
@@ -48,9 +43,6 @@ export default class ComponentViewCanvasInner extends Component {
         const h = this.#controller.getCurrentHeightPoints();
         const scale = this.#controller.getCurrentScale();
         this.#nodeCanvas = this.#createCanvas(w, h, scale);
-
-        this.#debugOverlayComponent = new ComponentViewCanvasOverlayDebug(w, h, scale, controller);
-        this.#nodeDebugOverlay = this.#debugOverlayComponent.createNode();
 
         this.#markerOverlayComponent = new ComponentViewCanvasOverlayMarker(w, h, scale, controller);
         this.#nodeMarkerOverlay = this.#markerOverlayComponent.createNode();
@@ -84,7 +76,6 @@ export default class ComponentViewCanvasInner extends Component {
             class: 'sand-game-canvas-component'
         }, [
             this.#nodeCanvas,
-            this.#nodeDebugOverlay,
             this.#nodeMarkerOverlay,
             this.#nodeCursorOverlay,
             this.#nodeScenarioOverlay,
@@ -98,15 +89,6 @@ export default class ComponentViewCanvasInner extends Component {
     register(sandGame) {
         this.#markerOverlayComponent.register(sandGame.overlay());
         this.#scenarioOverlayComponent.register(sandGame.scenario());
-
-        // chunk highlighting
-        sandGame.addOnRendered((changedChunks) => {
-            if (this.#controller.isShowActiveChunks()) {
-                this.#debugOverlayComponent.highlightChunks(changedChunks);
-            } else {
-                this.#debugOverlayComponent.highlightChunks(null);
-            }
-        });
 
         this.#initMouseHandling(sandGame);
     }

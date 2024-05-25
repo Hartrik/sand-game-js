@@ -5,7 +5,7 @@ import Marker from "./Marker";
 /**
  *
  * @author Patrik Harag
- * @version 2024-01-08
+ * @version 2024-05-25
  */
 export default class SandGameOverlay {
 
@@ -62,16 +62,31 @@ export default class SandGameOverlay {
         return marker;
     }
 
-    createRectangleWH(x, y, w, h, cssStyles) {
-        return this.createRectangle(x, y, x + w, y + h, cssStyles);
+    /**
+     *
+     * @param x
+     * @param y
+     * @param w
+     * @param h
+     * @param config {MarkerConfig}
+     * @returns {Marker}
+     */
+    createRectangleWH(x, y, w, h, config) {
+        return this.createRectangle(x, y, x + w, y + h, config);
     }
 
     /**
      *
+     * @param group {string|undefined}
      * @returns {Marker[]}
      */
-    getMarkers() {
-        return [...this.#markers];
+    getMarkers(group = undefined) {
+        if (group === undefined) {
+            return [...this.#markers];
+        } else {
+            // TODO: cache?
+            return this.#markers.filter(m => m.getConfig().group === group);
+        }
     }
 
     addOnMarkerAdded(handler) {

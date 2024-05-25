@@ -45,8 +45,6 @@ export default class Controller {
     #onImageRenderingStyleChanged = [];
     /** @type boolean */
     #simulationEnabled = false;
-    /** @type boolean */
-    #showActiveChunks = false;
     #rendererInitializer = RendererInitializerDefs.canvasWebGL();
 
     /** @type Scene|null */
@@ -532,22 +530,6 @@ export default class Controller {
     }
 
     // controller / options
-
-    /**
-     *
-     * @param show {boolean}
-     * @returns void
-     */
-    setShowActiveChunks(show) {
-        this.#showActiveChunks = show;
-    }
-
-    /**
-     * @returns {boolean}
-     */
-    isShowActiveChunks() {
-        return this.#showActiveChunks;
-    }
 
     /**
      *
