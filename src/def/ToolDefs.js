@@ -7,7 +7,7 @@ import TemplateDefs from "./TemplateDefs";
 import EntityFactories from "../core/entity/EntityFactories";
 
 import _ASSET_ICON_POWDERS from './assets/tools/powder.svg'
-import _ASSET_ICON_SOLID from './assets/tools/square-fill.svg'
+import _ASSET_ICON_SOLID from './assets/tools/solid.svg'
 import _ASSET_ICON_EFFECTS from './assets/tools/fire.svg'
 import _ASSET_ICON_FLUIDS from './assets/tools/droplet-fill.svg'
 
@@ -35,6 +35,7 @@ export default class ToolDefs {
                 svg: _ASSET_ICON_POWDERS
             },
             badgeStyle: {
+                color: 'black',
                 backgroundColor: '#d9bc7a',
             }
         };
@@ -44,6 +45,7 @@ export default class ToolDefs {
                 svg: _ASSET_ICON_FLUIDS
             },
             badgeStyle: {
+                color: 'black',
                 backgroundColor: '#6aa6bd',
             }
         };
@@ -53,6 +55,7 @@ export default class ToolDefs {
                 svg: _ASSET_ICON_SOLID
             },
             badgeStyle: {
+                color: 'black',
                 backgroundColor: '#adadad',
             }
         };
@@ -62,6 +65,7 @@ export default class ToolDefs {
                 svg: _ASSET_ICON_EFFECTS
             },
             badgeStyle: {
+                color: 'black',
                 backgroundColor: '#ff945b',
             }
         };
