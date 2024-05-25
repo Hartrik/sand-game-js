@@ -41,11 +41,22 @@ const PLUGINS_COMMON = [
 ];
 
 
-let OUTPUTS = [
+let SGJS_OUTPUTS = [
     {
         // browser-friendly UMD build
         name: 'SandGameJS',
         file: 'dist/sand-game-js.umd.js',
+        banner: pkg.copyright,
+        format: 'umd',
+        sourcemap: true,
+    }
+]
+
+let SGJS_DEV_MODULE_OUTPUTS = [
+    {
+        // browser-friendly UMD build
+        name: 'SandGameJSModuleDev',
+        file: 'dist/sand-game-js-module-dev.umd.js',
         banner: pkg.copyright,
         format: 'umd',
         sourcemap: true,
@@ -97,7 +108,7 @@ if (devBuild) {
         })
     ];
 
-    OUTPUTS.push({
+    SGJS_OUTPUTS.push({
             // browser-friendly UMD build, MINIMIZED
             name: 'SandGameJS',
             file: 'dist/sand-game-js.umd.min.js',
@@ -105,12 +116,21 @@ if (devBuild) {
             sourcemap: true,
             plugins: PLUGINS_MIN
     });
+
+    SGJS_DEV_MODULE_OUTPUTS.push({
+        // browser-friendly UMD build, MINIMIZED
+        name: 'SandGameJSModuleDev',
+        file: 'dist/sand-game-js-module-dev.umd.min.js',
+        format: 'umd',
+        sourcemap: true,
+        plugins: PLUGINS_MIN
+    });
 }
 export default [
     {
         input: 'src/main.js',
         plugins: PLUGINS_COMMON,
-        output: OUTPUTS
+        output: SGJS_OUTPUTS
     },
     {
         input: 'src/style.css',
@@ -136,5 +156,10 @@ export default [
             if (warning.code === 'FILE_NAME_CONFLICT') return;
             warn(warning);
         }
+    },
+    {
+        input: 'src/module-dev.js',
+        plugins: PLUGINS_COMMON,
+        output: SGJS_DEV_MODULE_OUTPUTS
     },
 ];

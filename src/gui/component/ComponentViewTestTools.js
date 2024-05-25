@@ -6,11 +6,11 @@ import ActionsTest from "../action/ActionsTest";
 import ActionBenchmark from "../action/ActionBenchmark";
 import Component from "./Component";
 import ComponentButton from "./ComponentButton";
-import ToolDefs from "../../def/ToolDefs";
 import RendererInitializer from "../../core/rendering/RendererInitializer";
 import ActionScreenshot from "../action/ActionScreenshot";
 import ActionRecord from "../action/ActionRecord";
 import ActionFill from "../action/ActionFill";
+import ToolDevDefs from "../../def/ToolDevDefs";
 
 /**
  *
@@ -56,7 +56,7 @@ export default class ComponentViewTestTools extends Component {
         let content = DomBuilder.div({ class: 'test-tools' }, []);
 
         let components = [...ComponentViewTestTools.COMPONENTS];
-        for (let tool of ToolDefs.TEST_TOOLS) {
+        for (let tool of ToolDevDefs.TEST_TOOLS) {
             let action = Action.create(c => c.getToolManager().setPrimaryTool(tool));
             components.push(new ComponentButton(tool.getInfo().getDisplayName(), ComponentViewTestTools.#BTN_BRUSH, action));
         }

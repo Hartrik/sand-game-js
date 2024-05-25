@@ -17,7 +17,7 @@ import ComponentViewTools from "./gui/component/ComponentViewTools";
 import ComponentViewCanvas from "./gui/component/ComponentViewCanvas";
 import ComponentButtonAdjustScale from "./gui/component/ComponentButtonAdjustScale";
 import ComponentViewSceneSelection from "./gui/component/ComponentViewSceneSelection";
-import ComponentViewTestTools from "./gui/component/ComponentViewTestTools";
+// import ComponentViewTestTools from "./gui/component/ComponentViewTestTools";
 import ComponentContainer from "./gui/component/ComponentContainer";
 import ComponentSimple from "./gui/component/ComponentSimple";
 import ComponentButton from "./gui/component/ComponentButton";
@@ -308,7 +308,7 @@ export function init(root, config) {
                 (enableSceneSelection) ? new ComponentSimple(DomBuilder.span('Scenes', { class: 'scenes-label' })) : null,
                 (enableSceneSelection) ? new ComponentViewSceneSelection(controller, scenes, sceneName) : null,
             ]) : null,
-            (enableDebug) ? new ComponentViewTestTools() : null,
+            //(enableDebug) ? new ComponentViewTestTools() : null,
         ])
     ]);
 
