@@ -165,7 +165,7 @@ export default class ToolDefs {
 
     static WALL = Tools.roundBrushTool(BrushDefs.WALL, ToolDefs.DEFAULT_SIZE, {
         codeName: 'wall',
-        displayName: 'Wall',
+        displayName: 'Static Wall',
         category: ToolDefs.CATEGORY_SOLIDS,
         badgeStyle: {
             backgroundColor: '#383838',
