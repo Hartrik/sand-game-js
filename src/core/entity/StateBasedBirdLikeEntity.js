@@ -7,7 +7,7 @@ import StateBasedAbstractEntity from "./StateBasedAbstractEntity";
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-28
+ * @version 2024-05-25
  */
 export default class StateBasedBirdLikeEntity extends StateBasedAbstractEntity {
 
@@ -42,7 +42,7 @@ export default class StateBasedBirdLikeEntity extends StateBasedAbstractEntity {
         }
 
         if (isActive) {
-            if (isFalling) {
+            if (isFalling || this._stuck > 0) {
                 const xChange = this._random.nextInt(3) - 1;
                 const yChange = 1;
                 this._moveForced(xChange, yChange);
