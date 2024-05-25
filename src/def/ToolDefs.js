@@ -172,6 +172,15 @@ export default class ToolDefs {
         }
     });
 
+    static BRICK_WALL = Tools.roundBrushTool(BrushDefs.BRICK, ToolDefs.DEFAULT_SIZE, {
+        codeName: 'brick',
+        displayName: 'Brick',
+        category: ToolDefs.CATEGORY_SOLIDS,
+        badgeStyle: {
+            backgroundColor: '#B56D64',
+        }
+    });
+
     static ROCK = Tools.roundBrushTool(BrushDefs.ROCK, ToolDefs.DEFAULT_SIZE, {
         codeName: 'rock',
         displayName: 'Rock',
@@ -296,6 +305,7 @@ export default class ToolDefs {
         this.COAL,
         this.THERMITE,
         this.WALL,
+        this.BRICK_WALL,
         this.ROCK_TEMPLATES,
         this.METAL,
         this.WATER,

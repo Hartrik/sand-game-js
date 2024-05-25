@@ -24,10 +24,12 @@ import _ASSET_PALETTE_TREE_ROOT from './assets/brushes/tree-root.palette.csv';
 import _ASSET_PALETTE_TREE_LEAF_LIGHT from './assets/brushes/tree-leaf-light.palette.csv';
 import _ASSET_PALETTE_TREE_LEAF_DARK from './assets/brushes/tree-leaf-dark.palette.csv';
 
+import _ASSET_TEXTURE_BRICK from './assets/brushes/brick-wall.png';
+
 /**
  *
  * @author Patrik Harag
- * @version 2024-05-19
+ * @version 2024-05-25
  */
 export default class BrushDefs {
 
@@ -90,6 +92,19 @@ export default class BrushDefs {
             { seed: 62, factor: 15, threshold: 0.4, force: 0.5 },
             { seed: 63, factor: 3, threshold: 0.1, force: 0.1 },
         ], 33, 29, 28)
+    ]);
+
+    static BRICK = Brushes.join([
+        Brushes.random([
+            new Element(
+                ElementHead.of(
+                    ElementHead.type8(ElementHead.type8Solid(ElementHead.TYPE_STATIC, 4, false)),
+                    ElementHead.behaviour8(),
+                    ElementHead.modifiers8(ElementHead.HMI_CONDUCTIVE_1)),
+                ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_2))
+        ]),
+        Brushes.colorTexture(_ASSET_TEXTURE_BRICK),
+        Brushes.colorNoise({ seed: 4011, factor: 10, threshold: 0.5, force: 0.2 })
     ]);
 
     static METAL = Brushes.join([
@@ -364,6 +379,7 @@ export default class BrushDefs {
         gravel: BrushDefs.GRAVEL,
         wall: BrushDefs.WALL,
         rock: BrushDefs.ROCK,
+        brick: BrushDefs.BRICK,
         metal: BrushDefs.METAL,
         metal_molten: BrushDefs.METAL_MOLTEN,
         wood: BrushDefs.TREE_WOOD,
