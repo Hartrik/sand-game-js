@@ -25,6 +25,7 @@ import _ASSET_PALETTE_TREE_LEAF_LIGHT from './assets/brushes/tree-leaf-light.pal
 import _ASSET_PALETTE_TREE_LEAF_DARK from './assets/brushes/tree-leaf-dark.palette.csv';
 
 import _ASSET_TEXTURE_BRICK from './assets/brushes/brick-wall.png';
+import _ASSET_TEXTURE_WOOD from './assets/brushes/wood-wall.png';
 
 /**
  *
@@ -105,6 +106,19 @@ export default class BrushDefs {
         ]),
         Brushes.colorTexture(_ASSET_TEXTURE_BRICK),
         Brushes.colorNoise({ seed: 4011, factor: 10, threshold: 0.5, force: 0.2 })
+    ]);
+
+    static WOOD = Brushes.join([
+        Brushes.random([
+            new Element(
+                ElementHead.of(
+                    ElementHead.type8(ElementHead.type8Solid(ElementHead.TYPE_STATIC, 3)),
+                    ElementHead.behaviour8(),
+                    ElementHead.modifiers8(ElementHead.HMI_WOOD_LIKE)),
+                ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_1))
+        ]),
+        Brushes.colorTexture(_ASSET_TEXTURE_WOOD),
+        Brushes.colorNoise({ seed: 1515, factor: 10, threshold: 0.5, force: 0.1 }, 255, 255, 255)
     ]);
 
     static METAL = Brushes.join([
@@ -379,10 +393,10 @@ export default class BrushDefs {
         gravel: BrushDefs.GRAVEL,
         wall: BrushDefs.WALL,
         rock: BrushDefs.ROCK,
+        wood: BrushDefs.WOOD,
         brick: BrushDefs.BRICK,
         metal: BrushDefs.METAL,
         metal_molten: BrushDefs.METAL_MOLTEN,
-        wood: BrushDefs.TREE_WOOD,
         water: BrushDefs.WATER,
         steam: BrushDefs.STEAM,
         oil: BrushDefs.OIL,
