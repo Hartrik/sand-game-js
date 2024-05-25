@@ -172,7 +172,7 @@ export default class ToolDefs {
         }
     });
 
-    static BRICK = Tools.roundBrushTool(BrushDefs.BRICK, ToolDefs.DEFAULT_SIZE, {
+    static BRICK = Tools.roundBrushToolForSolidBody(BrushDefs.BRICK, ToolDefs.DEFAULT_SIZE, {
         codeName: 'brick',
         displayName: 'Brick',
         category: ToolDefs.CATEGORY_SOLIDS,
@@ -181,7 +181,7 @@ export default class ToolDefs {
         }
     });
 
-    static WOOD = Tools.roundBrushTool(BrushDefs.WOOD, ToolDefs.DEFAULT_SIZE, {
+    static WOOD = Tools.roundBrushToolForSolidBody(BrushDefs.WOOD, ToolDefs.DEFAULT_SIZE, {
         codeName: 'wood',
         displayName: 'Wood',
         category: ToolDefs.CATEGORY_SOLIDS,
@@ -190,7 +190,7 @@ export default class ToolDefs {
         }
     });
 
-    static ROCK = Tools.roundBrushTool(BrushDefs.ROCK, ToolDefs.DEFAULT_SIZE, {
+    static ROCK = Tools.roundBrushToolForSolidBody(BrushDefs.ROCK, ToolDefs.DEFAULT_SIZE, {
         codeName: 'rock',
         displayName: 'Rock',
         category: ToolDefs.CATEGORY_SOLIDS,
