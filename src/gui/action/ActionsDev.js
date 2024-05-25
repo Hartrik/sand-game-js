@@ -1,15 +1,15 @@
 // Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
 
-import BrushDefs from "../../def/BrushDefs";
-import StructureDefs from "../../def/StructureDefs";
+// Warning: dev tools only
 
+const BrushDefs = window.SandGameJS.BrushDefs;
 
 /**
  *
  * @author Patrik Harag
  * @version 2023-12-19
  */
-export default class ActionsTest {
+export default class ActionsDev {
 
     static ALL_MATERIALS = function (controller) {
         let sandGame = controller.getSandGame();
@@ -65,7 +65,7 @@ export default class ActionsTest {
 
             sandGame.graphics().fill(BrushDefs.AIR);
 
-            let count = StructureDefs.TREE_TRUNK_TEMPLATES.length;
+            let count = 8;
             let segment = Math.trunc(sandGame.getWidth() / 8);
 
             const template1 = sandGame.layeredTemplate();
