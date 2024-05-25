@@ -173,7 +173,7 @@ export default class ToolDefs {
     });
 
     static BRICK_WALL = Tools.roundBrushTool(BrushDefs.BRICK, ToolDefs.DEFAULT_SIZE, {
-        codeName: 'brick',
+        codeName: 'brick_wall',
         displayName: 'Brick',
         category: ToolDefs.CATEGORY_SOLIDS,
         badgeStyle: {
@@ -182,7 +182,7 @@ export default class ToolDefs {
     });
 
     static ROCK = Tools.roundBrushTool(BrushDefs.ROCK, ToolDefs.DEFAULT_SIZE, {
-        codeName: 'rock',
+        codeName: 'rock_wall',
         displayName: 'Rock',
         category: ToolDefs.CATEGORY_SOLIDS,
         badgeStyle: {
@@ -190,16 +190,30 @@ export default class ToolDefs {
         }
     });
 
-    static ROCK_TEMPLATES = Tools.templateSelectionTool([
-        TemplateDefs.ROCK_SM,
-        TemplateDefs.ROCK_MD,
-        TemplateDefs.ROCK_LG
-    ], {
-        codeName: 'rock_templates',
-        displayName: 'Rock',
+    static ROCK_TEMPLATES_SM = Tools.templateSelectionTool(TemplateDefs.ROCK_SM, {
+        codeName: 'rock_templates_sm',
+        displayName: 'Rock \u2022',
         category: ToolDefs.CATEGORY_SOLIDS,
         badgeStyle: {
-            backgroundColor: '#383838',
+            backgroundColor: '#574F48',
+        }
+    });
+
+    static ROCK_TEMPLATES_MD = Tools.templateSelectionTool(TemplateDefs.ROCK_MD, {
+        codeName: 'rock_templates_md',
+        displayName: 'Rock \u25cf',
+        category: ToolDefs.CATEGORY_SOLIDS,
+        badgeStyle: {
+            backgroundColor: '#574F48',
+        }
+    });
+
+    static ROCK_TEMPLATES_LG = Tools.templateSelectionTool(TemplateDefs.ROCK_LG, {
+        codeName: 'rock_templates_lg',
+        displayName: 'Rock \u2b24',
+        category: ToolDefs.CATEGORY_SOLIDS,
+        badgeStyle: {
+            backgroundColor: '#574F48',
         }
     });
 
@@ -306,8 +320,10 @@ export default class ToolDefs {
         this.THERMITE,
         this.WALL,
         this.BRICK_WALL,
-        this.ROCK_TEMPLATES,
         this.METAL,
+        this.ROCK_TEMPLATES_SM,
+        this.ROCK_TEMPLATES_MD,
+        this.ROCK_TEMPLATES_LG,
         this.WATER,
         this.OIL,
         this.METAL_MOLTEN,

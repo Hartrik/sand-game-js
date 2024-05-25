@@ -7,11 +7,13 @@ import ToolDefs from "../../def/ToolDefs";
 import TemplateSelectionFakeTool from "../../core/tool/TemplateSelectionFakeTool";
 import GlobalActionTool from "../../core/tool/GlobalActionTool";
 import SelectionFakeTool from "../../core/tool/SelectionFakeTool";
+import Resources from "../../io/Resources";
+import Tools from "../../core/tool/Tools";
 
 /**
  *
  * @author Patrik Harag
- * @version 2024-05-19
+ * @version 2024-05-25
  */
 export default class ComponentViewTools extends Component {
 
@@ -123,8 +125,22 @@ export default class ComponentViewTools extends Component {
                     DomBuilder.par(null, "You can also create your own template using an image. See the Import button.")
                 ]);
             }
-            const action = new ActionDialogTemplateSelection(tool.getTemplateDefinitions(), additionalInfo);
-            action.performAction(controller);
+            const templateDefinitions = tool.getTemplateDefinitions();
+            if (typeof templateDefinitions === 'object') {
+                // single template
+                Resources.parseToolDefinition(templateDefinitions).then(tool => {
+                    const toolManager = controller.getToolManager();
+                    const revert = toolManager.createRevertAction();
+                    toolManager.setPrimaryTool(tool);
+                    toolManager.setSecondaryTool(Tools.actionTool(revert));
+                }).catch(e => {
+                    console.warn('Template loading failed: ' + e);
+                });
+            } else {
+                // multiple templates
+                const action = new ActionDialogTemplateSelection(templateDefinitions, additionalInfo);
+                action.performAction(controller);
+            }
         } else if (tool instanceof GlobalActionTool) {
             const handler = tool.getHandler();
             const sandGame = controller.getSandGame();
