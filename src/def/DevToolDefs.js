@@ -11,7 +11,7 @@ const BrushDefs = window.SandGameJS.BrushDefs;
  * @author Patrik Harag
  * @version 2024-05-25
  */
-export default class ToolDevDefs {
+export default class DevToolDefs {
 
     static DEFAULT_SIZE = 6;
 
@@ -27,12 +27,12 @@ export default class ToolDevDefs {
         Tools.pointBrushTool(BrushDefs.GRASS, {
             codeName: 'grass',
             displayName: 'Grass',
-            category: ToolDevDefs.CATEGORY_BIOLOGICAL,
+            category: DevToolDefs.CATEGORY_BIOLOGICAL,
         }),
         Tools.pointBrushTool(BrushDefs.TREE, {
             codeName: 'tree',
             displayName: 'Tree',
-            category: ToolDevDefs.CATEGORY_BIOLOGICAL,
+            category: DevToolDefs.CATEGORY_BIOLOGICAL,
         }),
         ToolDefs.BIRD,
         ToolDefs.BUTTERFLY,
@@ -42,64 +42,64 @@ export default class ToolDevDefs {
         }, {
             codeName: 'entity_waypoint',
             displayName: 'Waypoint',
-            category: ToolDevDefs.CATEGORY_BIOLOGICAL,
+            category: DevToolDefs.CATEGORY_BIOLOGICAL,
         }),
-        Tools.roundBrushTool(BrushDefs.EFFECT_BURNT, ToolDevDefs.DEFAULT_SIZE, {
+        Tools.roundBrushTool(BrushDefs.EFFECT_BURNT, DevToolDefs.DEFAULT_SIZE, {
             codeName: 'effect_burnt',
             displayName: 'Burnt',
-            category: ToolDevDefs.CATEGORY_EFFECTS,
+            category: DevToolDefs.CATEGORY_EFFECTS,
         }),
-        Tools.roundBrushTool(BrushDefs.EFFECT_NOISE_SM, ToolDevDefs.DEFAULT_SIZE, {
+        Tools.roundBrushTool(BrushDefs.EFFECT_NOISE_SM, DevToolDefs.DEFAULT_SIZE, {
             codeName: 'effect_noise_sm',
             displayName: 'Noise SM',
-            category: ToolDevDefs.CATEGORY_EFFECTS,
+            category: DevToolDefs.CATEGORY_EFFECTS,
         }),
-        Tools.roundBrushTool(BrushDefs.EFFECT_NOISE_MD, ToolDevDefs.DEFAULT_SIZE, {
+        Tools.roundBrushTool(BrushDefs.EFFECT_NOISE_MD, DevToolDefs.DEFAULT_SIZE, {
             codeName: 'effect_noise_md',
             displayName: 'Noise MD',
-            category: ToolDevDefs.CATEGORY_EFFECTS,
+            category: DevToolDefs.CATEGORY_EFFECTS,
         }),
-        Tools.roundBrushTool(BrushDefs.EFFECT_NOISE_LG, ToolDevDefs.DEFAULT_SIZE, {
+        Tools.roundBrushTool(BrushDefs.EFFECT_NOISE_LG, DevToolDefs.DEFAULT_SIZE, {
             codeName: 'effect_noise_lg',
             displayName: 'Noise LG',
-            category: ToolDevDefs.CATEGORY_EFFECTS,
+            category: DevToolDefs.CATEGORY_EFFECTS,
         }),
-        Tools.roundBrushTool(BrushDefs.EFFECT_TEMP_0, ToolDevDefs.DEFAULT_SIZE, {
+        Tools.roundBrushTool(BrushDefs.EFFECT_TEMP_0, DevToolDefs.DEFAULT_SIZE, {
             codeName: 'effect_temp_0',
             displayName: 'Temp 0',
-            category: ToolDevDefs.CATEGORY_EFFECTS,
+            category: DevToolDefs.CATEGORY_EFFECTS,
         }),
-        Tools.roundBrushTool(BrushDefs.EFFECT_TEMP_127, ToolDevDefs.DEFAULT_SIZE, {
+        Tools.roundBrushTool(BrushDefs.EFFECT_TEMP_127, DevToolDefs.DEFAULT_SIZE, {
             codeName: 'effect_temp_127',
             displayName: 'Temp 127',
-            category: ToolDevDefs.CATEGORY_EFFECTS,
+            category: DevToolDefs.CATEGORY_EFFECTS,
         }),
-        Tools.roundBrushTool(BrushDefs.EFFECT_TEMP_200, ToolDevDefs.DEFAULT_SIZE, {
+        Tools.roundBrushTool(BrushDefs.EFFECT_TEMP_200, DevToolDefs.DEFAULT_SIZE, {
             codeName: 'effect_temp_200',
             displayName: 'Temp 200',
-            category: ToolDevDefs.CATEGORY_EFFECTS,
+            category: DevToolDefs.CATEGORY_EFFECTS,
         }),
-        Tools.roundBrushTool(BrushDefs.EFFECT_TEMP_255, ToolDevDefs.DEFAULT_SIZE, {
+        Tools.roundBrushTool(BrushDefs.EFFECT_TEMP_255, DevToolDefs.DEFAULT_SIZE, {
             codeName: 'effect_temp_255',
             displayName: 'Temp 255',
-            category: ToolDevDefs.CATEGORY_EFFECTS,
+            category: DevToolDefs.CATEGORY_EFFECTS,
         }),
-        Tools.roundBrushTool(BrushDefs.ASH, ToolDevDefs.DEFAULT_SIZE, {
+        Tools.roundBrushTool(BrushDefs.ASH, DevToolDefs.DEFAULT_SIZE, {
             codeName: 'ash',
             displayName: 'Ash',
-            category: ToolDevDefs.CATEGORY_POWDER,
+            category: DevToolDefs.CATEGORY_POWDER,
         })
     ];
 
     static _LIST = {};
     static {
-        for (const tool of ToolDevDefs.TEST_TOOLS) {
-            ToolDevDefs._LIST[tool.getInfo().getCodeName()] = tool;
+        for (const tool of DevToolDefs.TEST_TOOLS) {
+            DevToolDefs._LIST[tool.getInfo().getCodeName()] = tool;
         }
     }
 
     static byCodeName(codeName) {
-        const tool = ToolDevDefs._LIST[codeName];
+        const tool = DevToolDefs._LIST[codeName];
         if (tool !== undefined) {
             return tool;
         }

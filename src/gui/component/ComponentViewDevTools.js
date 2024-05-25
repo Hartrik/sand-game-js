@@ -11,9 +11,9 @@ import ActionRecord from "../action/ActionRecord";
 import ActionScreenshot from "../action/ActionScreenshot";
 import ActionBenchmark from "../action/ActionBenchmark";
 import ActionFill from "../action/ActionFill";
-import ToolDevDefs from "../../def/ToolDevDefs";
 import ActionsDev from "../action/ActionsDev";
 import ActionShowActiveChunks from "../action/ActionShowActiveChunks";
+import DevToolDefs from "../../def/DevToolDefs";
 
 // Warning: dev tools only
 
@@ -58,7 +58,7 @@ export default class ComponentViewDevTools extends Component {
             new ComponentButton("Pixelated", BTN_RENDERING,
                 Action.createToggle(true, (c, v) => c.setCanvasImageRenderingStyle(v ? 'pixelated' : 'auto'))),
         ];
-        for (let tool of ToolDevDefs.TEST_TOOLS) {
+        for (let tool of DevToolDefs.TEST_TOOLS) {
             let action = Action.create(c => c.getToolManager().setPrimaryTool(tool));
             components.push(new ComponentButton(tool.getInfo().getDisplayName(), BTN_BRUSH, action));
         }
