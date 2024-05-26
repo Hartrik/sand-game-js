@@ -126,7 +126,11 @@ export default class ComponentViewTools extends Component {
                 ]);
             }
             const templateDefinitions = tool.getTemplateDefinitions();
-            if (typeof templateDefinitions === 'object') {
+            if (Array.isArray(templateDefinitions)) {
+                // multiple templates
+                const action = new ActionDialogTemplateSelection(templateDefinitions, additionalInfo);
+                action.performAction(controller);
+            } else {
                 // single template
                 Resources.parseToolDefinition(templateDefinitions).then(tool => {
                     const toolManager = controller.getToolManager();
@@ -136,10 +140,6 @@ export default class ComponentViewTools extends Component {
                 }).catch(e => {
                     console.warn('Template loading failed: ' + e);
                 });
-            } else {
-                // multiple templates
-                const action = new ActionDialogTemplateSelection(templateDefinitions, additionalInfo);
-                action.performAction(controller);
             }
         } else if (tool instanceof GlobalActionTool) {
             const handler = tool.getHandler();
