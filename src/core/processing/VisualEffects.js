@@ -19,7 +19,7 @@ export default class VisualEffects {
 
     static visualBurn(elementTail, force = 1, maxBurntLevel = 3) {
         const burntLevel = ElementTail.getBurntLevel(elementTail);
-        if (burntLevel > 2) {
+        if (burntLevel >= 3) {
             return elementTail;
         }
 

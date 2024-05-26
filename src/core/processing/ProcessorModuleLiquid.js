@@ -1,6 +1,7 @@
 // Sand Game JS; Patrik Harag, https://harag.cz; all rights reserved
 
 import ElementHead from "../ElementHead.js";
+import VisualEffects from "./VisualEffects";
 
 /**
  *
@@ -100,20 +101,25 @@ export default class ProcessorModuleLiquid {
             return 0;
         }
 
-        const rnd = this.#random.nextInt(8);
         let skipTemperature = 0;
+
+        const rnd = this.#random.nextInt(8);
+
+        // moving
         if (rnd % 4 === 0) {
             // gravity down...
-            if (this.#tryMoveHeavyFluid(elementHead, x, y, x, y + 1)) {
-                // nothing
+            if (this.#testMoveHeavyFluid(x, y + 1)) {
+                this.#elementArea.swap(x, y, x, y + 1);
                 skipTemperature = ProcessorModuleLiquid.RET_FLAG_SKIP_TEMP;
             } else {
                 if (rnd === 4) {
-                    if (this.#tryMoveHeavyFluid(elementHead, x, y, x + 1, y)) {
+                    if (this.#testMoveHeavyFluid(x + 1, y)) {
+                        this.#elementArea.swap(x, y, x + 1, y);
                         skipTemperature = ProcessorModuleLiquid.RET_FLAG_SKIP_TEMP;
                     }
                 } else {
-                    if (this.#tryMoveHeavyFluid(elementHead, x, y, x - 1, y)) {
+                    if (this.#testMoveHeavyFluid(x - 1, y)) {
+                        this.#elementArea.swap(x, y, x - 1, y);
                         skipTemperature = ProcessorModuleLiquid.RET_FLAG_SKIP_TEMP;
                     }
                 }
@@ -138,28 +144,44 @@ export default class ProcessorModuleLiquid {
             return 0;
         }
 
-        const rnd = this.#random.nextInt(32);
         let skipTemperature = 0;
+
+        const rnd = this.#random.nextInt(32);
+
+        // moving
         if (rnd % 16 === 0) {
             // gravity down...
-            if (this.#tryMoveLightFluid(elementHead, x, y, x, y - 1)) {
-                // nothing
+            if (this.#testMoveLightFluid(x, y - 1)) {
+                this.#elementArea.swap(x, y, x, y - 1);
                 skipTemperature = ProcessorModuleLiquid.RET_FLAG_SKIP_TEMP;
             } else {
                 if (rnd === 0) {
-                    if (this.#tryMoveLightFluid(elementHead, x, y, x + 1, y)) {
+                    if (this.#testMoveLightFluid(x + 1, y)) {
+                        this.#elementArea.swap(x, y, x + 1, y);
                         skipTemperature = ProcessorModuleLiquid.RET_FLAG_SKIP_TEMP;
                     }
                 } else {
-                    if (this.#tryMoveLightFluid(elementHead, x, y, x - 1, y)) {
+                    if (this.#testMoveLightFluid(x - 1, y)) {
+                        this.#elementArea.swap(x, y, x - 1, y);
                         skipTemperature = ProcessorModuleLiquid.RET_FLAG_SKIP_TEMP;
                     }
                 }
             }
         }
 
-        const active = ProcessorModuleLiquid.RET_FLAG_ACTIVE;  // it doesn't matter because of temperature...
-        return active | skipTemperature;
+        // staining
+        if (rnd === 7) {
+            const targetHead = this.#elementArea.getElementHeadOrNull(x, y + 1);
+            if (targetHead !== null) {
+                if (ElementHead.getTypeClass(targetHead) >= ElementHead.TYPE_FLUID) {
+                    let targetTail = this.#elementArea.getElementTail(x, y + 1);
+                    targetTail = VisualEffects.visualBurn(targetTail, 1, 1);
+                    this.#elementArea.setElementTail(x, y + 1, targetTail);
+                }
+            }
+        }
+
+        return skipTemperature;
     }
 
     #testBehaviourSubtypeLightOil(elementHead, x, y) {
@@ -167,12 +189,15 @@ export default class ProcessorModuleLiquid {
         if (typeClass !== ElementHead.TYPE_FLUID) {
             return false;
         }
-        return true;  // TODO: optimize
+
+        return this.#testMoveLightFluid(x, y - 1)
+            || this.#testMoveLightFluid(x + 1, y)
+            || this.#testMoveLightFluid(x - 1, y);
     }
 
     // --- utilities
 
-    #tryMoveHeavyFluid(elementHead, x, y, nx, ny) {
+    #testMoveHeavyFluid(nx, ny) {
         const targetElementHead = this.#elementArea.getElementHeadOrNull(nx, ny);
         if (targetElementHead === null) {
             return false;
@@ -181,14 +206,11 @@ export default class ProcessorModuleLiquid {
             return false;
         }
         const special = ElementHead.getSpecial(targetElementHead);
-        if (special >= ProcessorModuleLiquid.FIRST_HEAVY) {
-            return false;
-        }
-        this.#elementArea.swap(x, y, nx, ny);
-        return true;
+        return special < ProcessorModuleLiquid.FIRST_HEAVY;
+
     }
 
-    #tryMoveLightFluid(elementHead, x, y, nx, ny) {
+    #testMoveLightFluid(nx, ny) {
         const targetElementHead = this.#elementArea.getElementHeadOrNull(nx, ny);
         if (targetElementHead === null) {
             return false;
@@ -197,10 +219,6 @@ export default class ProcessorModuleLiquid {
             return false;
         }
         const special = ElementHead.getSpecial(targetElementHead);
-        if (special >= ProcessorModuleLiquid.FIRST_LIGHT && special <= ProcessorModuleLiquid.FIRST_HEAVY) {
-            return false;
-        }
-        this.#elementArea.swap(x, y, nx, ny);
-        return true;
+        return !(special >= ProcessorModuleLiquid.FIRST_LIGHT && special <= ProcessorModuleLiquid.FIRST_HEAVY);
     }
 }
