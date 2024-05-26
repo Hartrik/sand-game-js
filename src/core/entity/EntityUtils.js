@@ -5,7 +5,7 @@ import ElementHead from "../ElementHead";
 /**
  *
  * @author Patrik Harag
- * @version 2024-05-05
+ * @version 2024-05-26
  */
 export default class EntityUtils {
 
@@ -42,8 +42,9 @@ export default class EntityUtils {
             return false;
         }
         const typeClass = ElementHead.getTypeClass(elementHead);
-        return typeClass === ElementHead.TYPE_FLUID;
-
+        return typeClass === ElementHead.TYPE_FLUID
+            && ElementHead.getBehaviour(elementHead) === ElementHead.BEHAVIOUR_LIQUID
+            && ElementHead.getSpecial(elementHead) === ElementHead.SPECIAL_LIQUID_WATER;
     }
 
     static isElementEntity(elementHead) {

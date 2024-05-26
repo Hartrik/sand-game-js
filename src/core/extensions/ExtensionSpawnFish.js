@@ -7,7 +7,7 @@ import Entities from "../entity/Entities";
 /**
  *
  * @author Patrik Harag
- * @version 2024-05-05
+ * @version 2024-05-26
  */
 export default class ExtensionSpawnFish extends Extension {
 
@@ -58,7 +58,10 @@ export default class ExtensionSpawnFish extends Extension {
             if (typeClass === ElementHead.TYPE_AIR) {
                 waterCount = 0;
             } else if (typeClass === ElementHead.TYPE_FLUID) {
-                waterCount++;
+                if (ElementHead.getBehaviour(elementHead) === ElementHead.BEHAVIOUR_LIQUID
+                        && ElementHead.getSpecial(elementHead) === ElementHead.SPECIAL_LIQUID_WATER) {
+                    waterCount++;
+                }
             } else if (typeClass === ElementHead.TYPE_POWDER || typeClass === ElementHead.TYPE_POWDER_WET) {
                 if (waterCount > 7 && this.#isSpaceAround(x, y - 1)) {
                     return y - 1;
