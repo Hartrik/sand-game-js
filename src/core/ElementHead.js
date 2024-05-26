@@ -22,7 +22,7 @@
  * </pre>
  *
  * @author Patrik Harag
- * @version 2024-05-19
+ * @version 2024-05-26
  */
 export default class ElementHead {
 
@@ -57,6 +57,9 @@ export default class ElementHead {
     static BEHAVIOUR_F = 0xF;
 
     static FIELD_SPECIAL_SIZE = 4;  // bits
+    static SPECIAL_LIQUID_WATER = 0;
+    static SPECIAL_LIQUID_LIGHT_OIL = 5;
+    static SPECIAL_LIQUID_HEAVY_MOLTEN = 10;
 
     static FIELD_HMI_SIZE = 8;  // bits
 

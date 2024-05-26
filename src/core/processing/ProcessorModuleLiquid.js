@@ -5,16 +5,15 @@ import ElementHead from "../ElementHead.js";
 /**
  *
  * @author Patrik Harag
- * @version 2024-05-23
+ * @version 2024-05-26
  */
 export default class ProcessorModuleLiquid {
 
     static RET_FLAG_ACTIVE = 0b10;
     static RET_FLAG_SKIP_TEMP = 0b01;
 
-    static SUBTYPE_WATER = 0;
-    static SUBTYPE_MOLTEN_METAL = 1;
-    static SUBTYPE_FLAMMABLE = 2;
+    static FIRST_LIGHT = ElementHead.SPECIAL_LIQUID_LIGHT_OIL;
+    static FIRST_HEAVY = ElementHead.SPECIAL_LIQUID_HEAVY_MOLTEN;
 
 
     /** @type ElementArea */
@@ -35,12 +34,12 @@ export default class ProcessorModuleLiquid {
     behaviourLiquid(elementHead, x, y) {
         const special = ElementHead.getSpecial(elementHead);
         switch (special) {
-            case ProcessorModuleLiquid.SUBTYPE_WATER:
+            case ElementHead.SPECIAL_LIQUID_WATER:
                 return this.#behaviourSubtypeWater(elementHead, x, y);
-            case ProcessorModuleLiquid.SUBTYPE_MOLTEN_METAL:
-                return this.#behaviourSubtypeMoltenMetal(elementHead, x, y);
-            case ProcessorModuleLiquid.SUBTYPE_FLAMMABLE:
-                return this.#behaviourSubtypeFlammable(elementHead, x, y);
+            case ElementHead.SPECIAL_LIQUID_LIGHT_OIL:
+                return this.#behaviourSubtypeLightOil(elementHead, x, y);
+            case ElementHead.SPECIAL_LIQUID_HEAVY_MOLTEN:
+                return this.#behaviourSubtypeHeavyMolten(elementHead, x, y);
         }
         return 0;
     }
@@ -48,12 +47,12 @@ export default class ProcessorModuleLiquid {
     testBehaviourLiquid(elementHead, x, y) {
         const special = ElementHead.getSpecial(elementHead);
         switch (special) {
-            case ProcessorModuleLiquid.SUBTYPE_WATER:
+            case ElementHead.SPECIAL_LIQUID_WATER:
                 return this.#testBehaviourSubtypeWater(elementHead, x, y);
-            case ProcessorModuleLiquid.SUBTYPE_MOLTEN_METAL:
-                return this.#testBehaviourSubtypeMoltenMetal(elementHead, x, y);
-            case ProcessorModuleLiquid.SUBTYPE_FLAMMABLE:
-                return this.#testBehaviourSubtypeFlammable(elementHead, x, y);
+            case ElementHead.SPECIAL_LIQUID_LIGHT_OIL:
+                return this.#testBehaviourSubtypeLightOil(elementHead, x, y);
+            case ElementHead.SPECIAL_LIQUID_HEAVY_MOLTEN:
+                return this.#testBehaviourSubtypeHeavyMolten(elementHead, x, y);
         }
         return false;
     }
@@ -95,7 +94,7 @@ export default class ProcessorModuleLiquid {
         return false;
     }
 
-    #behaviourSubtypeMoltenMetal(elementHead, x, y) {
+    #behaviourSubtypeHeavyMolten(elementHead, x, y) {
         const typeClass = ElementHead.getTypeClass(elementHead);
         if (typeClass !== ElementHead.TYPE_FLUID) {
             return 0;
@@ -125,7 +124,7 @@ export default class ProcessorModuleLiquid {
         return active | skipTemperature;
     }
 
-    #testBehaviourSubtypeMoltenMetal(elementHead, x, y) {
+    #testBehaviourSubtypeHeavyMolten(elementHead, x, y) {
         const typeClass = ElementHead.getTypeClass(elementHead);
         if (typeClass !== ElementHead.TYPE_FLUID) {
             return false;
@@ -133,7 +132,7 @@ export default class ProcessorModuleLiquid {
         return true;  // it doesn't matter because of temperature...
     }
 
-    #behaviourSubtypeFlammable(elementHead, x, y) {
+    #behaviourSubtypeLightOil(elementHead, x, y) {
         const typeClass = ElementHead.getTypeClass(elementHead);
         if (typeClass !== ElementHead.TYPE_FLUID) {
             return 0;
@@ -163,7 +162,7 @@ export default class ProcessorModuleLiquid {
         return active | skipTemperature;
     }
 
-    #testBehaviourSubtypeFlammable(elementHead, x, y) {
+    #testBehaviourSubtypeLightOil(elementHead, x, y) {
         const typeClass = ElementHead.getTypeClass(elementHead);
         if (typeClass !== ElementHead.TYPE_FLUID) {
             return false;
@@ -182,7 +181,7 @@ export default class ProcessorModuleLiquid {
             return false;
         }
         const special = ElementHead.getSpecial(targetElementHead);
-        if (special !== ProcessorModuleLiquid.SUBTYPE_WATER) {
+        if (special >= ProcessorModuleLiquid.FIRST_HEAVY) {
             return false;
         }
         this.#elementArea.swap(x, y, nx, ny);
@@ -198,7 +197,7 @@ export default class ProcessorModuleLiquid {
             return false;
         }
         const special = ElementHead.getSpecial(targetElementHead);
-        if (special === ProcessorModuleLiquid.SUBTYPE_FLAMMABLE) {
+        if (special >= ProcessorModuleLiquid.FIRST_LIGHT && special <= ProcessorModuleLiquid.FIRST_HEAVY) {
             return false;
         }
         this.#elementArea.swap(x, y, nx, ny);
