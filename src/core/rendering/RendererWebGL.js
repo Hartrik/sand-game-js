@@ -35,12 +35,15 @@ export default class RendererWebGL extends Renderer {
 
     #doRendering;
 
+    #timeStartMs;
+
     constructor(elementArea, chunkSize, context) {
         super();
         this.#context = context;
         this.#elementArea = elementArea;
         this.#width = elementArea.getWidth();
         this.#height = elementArea.getHeight();
+        this.#timeStartMs = new Date().getTime();
 
         const gl = this.#context;
 
@@ -50,6 +53,7 @@ export default class RendererWebGL extends Renderer {
         const temperaturePaletteSize = temperaturePaletteData.byteLength / 4;
 
         const blurProgram = this.#loadProgram(gl, _SHADER_BLUR_VERT, _SHADER_BLUR_FRAG);
+        const blurProgramLocationTime = gl.getUniformLocation(blurProgram, "u_time");
         const blurProgramLocationElementHeads = gl.getUniformLocation(blurProgram, "u_element_heads");
         const blurProgramLocationElementTails = gl.getUniformLocation(blurProgram, "u_element_tails");
         const blurProgramLocationBlur = gl.getUniformLocation(blurProgram, "u_blur");
@@ -156,6 +160,7 @@ export default class RendererWebGL extends Renderer {
             gl.bindFramebuffer(gl.FRAMEBUFFER, blurTextureIndex === 2 ? motionBlurFrameBuffer1 : motionBlurFrameBuffer2);
 
             gl.useProgram(blurProgram);
+            gl.uniform1f(blurProgramLocationTime, (new Date().getTime() - this.#timeStartMs) * 0.001);  // in seconds...
             gl.uniform1i(blurProgramLocationElementHeads, 0);  // texture 0
             gl.uniform1i(blurProgramLocationElementTails, 1);  // texture 1
             gl.uniform1i(blurProgramLocationBlur, (blurTextureIndex === 2) ? 3 : 2);  // texture 3 or 2

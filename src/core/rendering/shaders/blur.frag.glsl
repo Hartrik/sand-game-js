@@ -5,12 +5,13 @@ precision mediump float;
 in vec2 v_texcoord;
 out vec4 v_color;
 
+uniform float u_time;  // seconds
 uniform sampler2D u_element_heads;
 uniform sampler2D u_element_tails;
 uniform sampler2D u_blur;
 uniform sampler2D u_temperature_palette;
 
-// --- common
+// ------ ------ temperature ------ ------
 
 #define TEMP_PALETTE_SIZE 91.0
 
@@ -49,7 +50,44 @@ void applyTemperature(float temperature, int heatType, inout float r, inout floa
     b = (b * alpha) + (cb * (1.0 - alpha));
 }
 
-// ---
+// ------ ------ noise ------ ------
+// inspired by https://www.shadertoy.com/view/Mt2SzR
+
+float noise_func(float x, float y) {
+    return fract(sin(x + y * 10000.) * 10000.);
+}
+
+float noise_smooth(vec2 p) {
+    vec2 interp = smoothstep(0., 1., fract(p));
+    float s = mix(noise_func(floor(p.x), floor(p.y)), noise_func(ceil(p.x), floor(p.y)), interp.x);
+    float n = mix(noise_func(floor(p.x), ceil(p.y)), noise_func(ceil(p.x), ceil(p.y)), interp.x);
+    return mix(s, n, interp.y);
+}
+
+float noise_fractal(vec2 p) {
+    float x = 0.;
+    x += noise_smooth(p);
+    x += noise_smooth(p * 2.) / 2.;
+    x += noise_smooth(p * 4.) / 4.;
+    x += noise_smooth(p * 8.) / 8.;
+    x += noise_smooth(p * 16.) / 16.;
+    x /= 1. + 1./2. + 1./4. + 1./8. + 1./16.;
+    return x;
+}
+
+float noise_moving(vec2 p, float timeMod) {
+    float x = noise_fractal(p + (u_time * timeMod));  // slower
+    float y = noise_fractal(p - (u_time * timeMod));
+    return noise_fractal(p + vec2(x, y));
+}
+
+float noiseA(vec2 p, float timeMod) {
+    float x = noise_moving(p, timeMod);
+    float y = noise_moving(p + 100., timeMod);
+    return noise_moving(p + vec2(x, y), timeMod);
+}
+
+// ------ ------ main ------ ------
 
 float rand(vec2 co) {
     return fract(sin(dot(co.xy, vec2(12.9898,78.233))) * 43758.5453);
@@ -86,8 +124,8 @@ void main() {
         float nb = (b * alpha) + whiteBackground;
 
         if (int(nr * 255.0) == int(r * 255.0)
-        && int(ng * 255.0) == int(g * 255.0)
-        && int(nb * 255.0) == int(b * 255.0)) {
+                && int(ng * 255.0) == int(g * 255.0)
+                && int(nb * 255.0) == int(b * 255.0)) {
 
             // no change - delete blur (otherwise there could be visible remains)
             v_color = vec4(1.0, 1.0, 1.0, 1.0);
@@ -102,17 +140,32 @@ void main() {
         float g = elementTail[1];
         float b = elementTail[0];
 
+        vec4 elementHead = texture(u_element_heads, v_texcoord);
+
         // apply temperature
         int heatType = (flags >> 4) & 0x3;
         if (heatType > 0) {
-            vec4 elementHead = texture(u_element_heads, v_texcoord);
             float temperature = elementHead[3];  // 0..1
-
             if (temperature >= 0.001) {
                 applyTemperature(temperature, heatType, r, g, b);
             }
         }
 
-        v_color = vec4(r, g, b, 1.0);
+        // apply noise
+        int type = int(floor(elementHead[0] * 255.0 + 0.5));  // the first byte
+        int typeClass = type & 0x7;  // the first 3 bits
+        if (typeClass == 0x4) {
+            // fluid
+            float n = 0.2 * noiseA(v_texcoord.xy * 20., 0.5);
+            v_color = vec4(mix(vec3(r, g, b), vec3(1., 1., 1.), n), 1.);
+
+        } else if (typeClass == 0x2) {
+            // gas
+            float n = noiseA(v_texcoord.xy * 10., 0.6);
+            v_color = vec4(mix(vec3(r, g, b), vec3(1., 1., 1.), n), 1.);
+
+        } else {
+            v_color = vec4(r, g, b, 1.0);
+        }
     }
 }

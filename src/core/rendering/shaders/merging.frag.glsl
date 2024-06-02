@@ -10,7 +10,7 @@ uniform sampler2D u_element_tails;
 uniform sampler2D u_blur;
 uniform sampler2D u_temperature_palette;
 
-// --- common
+// ------ ------ temperature ------ ------
 
 #define TEMP_PALETTE_SIZE 91.0
 
@@ -49,7 +49,7 @@ void applyTemperature(float temperature, int heatType, inout float r, inout floa
     b = (b * alpha) + (cb * (1.0 - alpha));
 }
 
-// ---
+// ------ ------ main ------ ------
 
 void main() {
     vec4 elementTail = texture(u_element_tails, v_texcoord);
