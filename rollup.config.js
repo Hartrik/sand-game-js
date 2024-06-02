@@ -8,6 +8,7 @@ import postcss from 'rollup-plugin-postcss';
 import header from "postcss-header";
 import cssnano from "cssnano";
 import copy from 'rollup-plugin-copy';
+import glslify from 'rollup-plugin-glslify';
 import pkg from './package.json';
 
 const PLUGINS_COMMON = [
@@ -35,6 +36,13 @@ const PLUGINS_COMMON = [
         compact: true,
         include: [
             "**/assets/structures/*.json",
+        ],
+        exclude: []
+    }),
+    glslify({
+        compress: true,
+        include: [
+            "**/shaders/*.glsl",
         ],
         exclude: []
     })
