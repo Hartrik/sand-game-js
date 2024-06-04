@@ -6,7 +6,7 @@ import VisualEffects from "./VisualEffects";
 /**
  *
  * @author Patrik Harag
- * @version 2024-05-26
+ * @version 2024-06-04
  */
 export default class ProcessorModuleLiquid {
 
@@ -39,6 +39,8 @@ export default class ProcessorModuleLiquid {
                 return this.#behaviourSubtypeWater(elementHead, x, y);
             case ElementHead.SPECIAL_LIQUID_LIGHT_OIL:
                 return this.#behaviourSubtypeLightOil(elementHead, x, y);
+            case ElementHead.SPECIAL_LIQUID_LIGHT_ACID:
+                return this.#behaviourSubtypeLightAcid(elementHead, x, y);
             case ElementHead.SPECIAL_LIQUID_HEAVY_MOLTEN:
                 return this.#behaviourSubtypeHeavyMolten(elementHead, x, y);
         }
@@ -52,6 +54,8 @@ export default class ProcessorModuleLiquid {
                 return this.#testBehaviourSubtypeWater(elementHead, x, y);
             case ElementHead.SPECIAL_LIQUID_LIGHT_OIL:
                 return this.#testBehaviourSubtypeLightOil(elementHead, x, y);
+            case ElementHead.SPECIAL_LIQUID_LIGHT_ACID:
+                return true;  // TODO
             case ElementHead.SPECIAL_LIQUID_HEAVY_MOLTEN:
                 return this.#testBehaviourSubtypeHeavyMolten(elementHead, x, y);
         }
@@ -193,6 +197,63 @@ export default class ProcessorModuleLiquid {
         return this.#testMoveLightFluid(x, y - 1)
             || this.#testMoveLightFluid(x + 1, y)
             || this.#testMoveLightFluid(x - 1, y);
+    }
+
+    #behaviourSubtypeLightAcid(elementHead, x, y) {
+        const typeClass = ElementHead.getTypeClass(elementHead);
+        if (typeClass !== ElementHead.TYPE_FLUID) {
+            return 0;
+        }
+
+        let skipTemperature = 0;
+
+        const rnd = this.#random.nextInt(32);
+
+        // moving
+        if (rnd % 16 === 0) {
+            // TODO: duplicated code
+
+            // gravity down...
+            if (this.#testMoveLightFluid(x, y - 1)) {
+                this.#elementArea.swap(x, y, x, y - 1);
+                skipTemperature = ProcessorModuleLiquid.RET_FLAG_SKIP_TEMP;
+            } else {
+                if (rnd === 0) {
+                    if (this.#testMoveLightFluid(x + 1, y)) {
+                        this.#elementArea.swap(x, y, x + 1, y);
+                        skipTemperature = ProcessorModuleLiquid.RET_FLAG_SKIP_TEMP;
+                    }
+                } else {
+                    if (this.#testMoveLightFluid(x - 1, y)) {
+                        this.#elementArea.swap(x, y, x - 1, y);
+                        skipTemperature = ProcessorModuleLiquid.RET_FLAG_SKIP_TEMP;
+                    }
+                }
+            }
+        } else if (rnd === 15) {
+            // try dissolve
+
+            const directions = [[0, 1], [0, -1], [-1, 0], [-1, 0], [-1, 0], [1, 0], [1, 0], [1, 0]];
+            const randomDirection = directions[this.#random.nextInt(directions.length)];
+            const targetX = x + randomDirection[0];
+            const targetY = y + randomDirection[1];
+            const targetElement = this.#elementArea.getElementHeadOrNull(targetX, targetY);
+            if (targetElement !== null) {
+                const targetTypeClass = ElementHead.getTypeClass(targetElement);
+
+                switch (targetTypeClass) {
+                    case ElementHead.TYPE_POWDER:
+                    case ElementHead.TYPE_POWDER_WET:
+                    case ElementHead.TYPE_STATIC:
+                        this.#elementArea.setElement(targetX, targetY, this.#processorContext.getDefaults().getDefaultElement());
+                }
+
+                // TODO: water interaction
+                // TODO: lifespan
+            }
+        }
+
+        return skipTemperature;
     }
 
     // --- utilities

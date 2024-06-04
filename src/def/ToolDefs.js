@@ -14,7 +14,7 @@ import _ASSET_ICON_FLUIDS from './assets/tools/droplet-fill.svg'
 /**
  *
  * @author Patrik Harag
- * @version 2024-05-25
+ * @version 2024-06-04
  */
 export default class ToolDefs {
 
@@ -262,6 +262,15 @@ export default class ToolDefs {
         }
     });
 
+    static ACID = Tools.roundBrushTool(BrushDefs.ACID, ToolDefs.DEFAULT_SIZE, {
+        codeName: 'acid',
+        displayName: 'Acid',
+        category: ToolDefs.CATEGORY_FLUIDS,
+        badgeStyle: {
+            backgroundColor: 'rgb(148,150,14)',
+        }
+    });
+
     static FIRE = Tools.roundBrushTool(Brushes.temperatureOrBrush(50, BrushDefs.FIRE), ToolDefs.DEFAULT_SIZE, {
         codeName: 'fire',
         displayName: 'Fire',
@@ -327,6 +336,7 @@ export default class ToolDefs {
         this.ROCK_TEMPLATES_LG,
         this.WATER,
         this.OIL,
+        this.ACID,
         this.METAL_MOLTEN,
         this.FIRE,
         this.METEOR,

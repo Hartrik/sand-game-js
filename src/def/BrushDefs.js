@@ -17,6 +17,7 @@ import _ASSET_PALETTE_ASH from './assets/brushes/ash.palette.csv';
 import _ASSET_PALETTE_WATER from './assets/brushes/water.palette.csv';
 import _ASSET_PALETTE_STEAM from './assets/brushes/steam.palette.csv';
 import _ASSET_PALETTE_OIL from './assets/brushes/oil.palette.csv';
+import _ASSET_PALETTE_ACID from './assets/brushes/acid.palette.csv';
 import _ASSET_PALETTE_WALL from './assets/brushes/wall.palette.csv';
 import _ASSET_PALETTE_TREE_WOOD_LIGHT from './assets/brushes/tree-wood-light.palette.csv';
 import _ASSET_PALETTE_TREE_WOOD_DARK from './assets/brushes/tree-wood-dark.palette.csv';
@@ -30,7 +31,7 @@ import _ASSET_TEXTURE_WOOD from './assets/brushes/wood-wall.png';
 /**
  *
  * @author Patrik Harag
- * @version 2024-05-25
+ * @version 2024-06-04
  */
 export default class BrushDefs {
 
@@ -222,6 +223,15 @@ export default class BrushDefs {
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_1, ElementTail.HEAT_EFFECT_NONE, 3))
     ]));
 
+    static ACID = Brushes.colorPaletteRandom(_ASSET_PALETTE_ACID, Brushes.random([
+        new Element(
+            ElementHead.of(
+                ElementHead.type8Fluid(ElementHead.TYPE_FLUID),
+                ElementHead.behaviour8(ElementHead.BEHAVIOUR_LIQUID, ElementHead.SPECIAL_LIQUID_LIGHT_ACID),
+                ElementHead.modifiers8(ElementHead.HMI_CONDUCTIVE_3)),
+            ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_1, ElementTail.HEAT_EFFECT_NONE, 3))
+    ]));
+
     static GRASS = Brushes.random([
         new Element(
             ElementHead.of(
@@ -400,6 +410,7 @@ export default class BrushDefs {
         water: BrushDefs.WATER,
         steam: BrushDefs.STEAM,
         oil: BrushDefs.OIL,
+        acid: BrushDefs.ACID,
         grass: BrushDefs.GRASS,
         tree: BrushDefs.TREE,
         tree_wood: BrushDefs.TREE_WOOD,
