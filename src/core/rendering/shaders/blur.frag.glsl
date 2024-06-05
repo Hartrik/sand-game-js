@@ -54,36 +54,36 @@ void applyTemperature(float temperature, int heatType, inout float r, inout floa
 // inspired by https://www.shadertoy.com/view/Mt2SzR
 
 float noise_func(float x, float y) {
-    return fract(sin(x + y * 10000.) * 10000.);
+    return fract(sin(x + y * 10000.0) * 10000.0);
 }
 
 float noise_smooth(vec2 p) {
-    vec2 interp = smoothstep(0., 1., fract(p));
+    vec2 interp = smoothstep(0.0, 1.0, fract(p));
     float s = mix(noise_func(floor(p.x), floor(p.y)), noise_func(ceil(p.x), floor(p.y)), interp.x);
     float n = mix(noise_func(floor(p.x), ceil(p.y)), noise_func(ceil(p.x), ceil(p.y)), interp.x);
     return mix(s, n, interp.y);
 }
 
 float noise_fractal(vec2 p) {
-    float x = 0.;
-    x += noise_smooth(p);
-    x += noise_smooth(p * 2.) / 2.;
-    x += noise_smooth(p * 4.) / 4.;
-    x += noise_smooth(p * 8.) / 8.;
-    x += noise_smooth(p * 16.) / 16.;
-    x /= 1. + 1./2. + 1./4. + 1./8. + 1./16.;
-    return x;
+    float r = 0.0;
+    r += noise_smooth(p);
+    r += noise_smooth(p * 2.0) / 2.0;
+    r += noise_smooth(p * 4.0) / 4.0;
+    r += noise_smooth(p * 8.0) / 8.0;
+    r += noise_smooth(p * 16.0) / 16.0;
+    r /= 1.0 + 1.0/2.0 + 1.0/4.0 + 1.0/8.0 + 1.0/16.0;
+    return r;
 }
 
 float noise_moving(vec2 p, float timeMod) {
-    float x = noise_fractal(p + (u_time * timeMod));  // slower
+    float x = noise_fractal(p + (u_time * timeMod));
     float y = noise_fractal(p - (u_time * timeMod));
     return noise_fractal(p + vec2(x, y));
 }
 
 float noiseA(vec2 p, float timeMod) {
     float x = noise_moving(p, timeMod);
-    float y = noise_moving(p + 100., timeMod);
+    float y = noise_moving(p + 100.0, timeMod);
     return noise_moving(p + vec2(x, y), timeMod);
 }
 
@@ -152,17 +152,31 @@ void main() {
         }
 
         // apply noise
-        int type = int(floor(elementHead[0] * 255.0 + 0.5));  // the first byte
-        int typeClass = type & 0x7;  // the first 3 bits
+        int type8 = int(floor(elementHead[0] * 255.0 + 0.5));  // the first byte
+        int typeClass = type8 & 0x7;  // the first 3 bits
         if (typeClass == 0x4) {
             // fluid
-            float n = 0.2 * noiseA(v_texcoord.xy * 20., 0.5);
-            v_color = vec4(mix(vec3(r, g, b), vec3(1., 1., 1.), n), 1.);
+
+            // dummy heuristic, it can be improved later...
+            float avg = (r + g + b) / 3.0;
+            float c = 0.0;
+            if (avg < 0.3) {
+                // ~ dark fluid
+                c = 0.2;
+            } else if (avg < 0.5) {
+                // ~ lighter fluid
+                c = 0.3;
+            } else {
+                // ~ light fluid
+                c = 0.4;
+            }
+            float n = c * noiseA(v_texcoord.xy * 20.0, 0.5);
+            v_color = vec4(mix(vec3(r, g, b), vec3(1.0, 1.0, 1.0), n), 1.0);
 
         } else if (typeClass == 0x2) {
             // gas
-            float n = noiseA(v_texcoord.xy * 10., 0.6);
-            v_color = vec4(mix(vec3(r, g, b), vec3(1., 1., 1.), n), 1.);
+            float n = noiseA(v_texcoord.xy * 10.0, 0.6);
+            v_color = vec4(mix(vec3(r, g, b), vec3(1.0, 1.0, 1.0), n), 1.0);
 
         } else {
             v_color = vec4(r, g, b, 1.0);
