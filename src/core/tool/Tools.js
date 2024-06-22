@@ -13,11 +13,12 @@ import SelectionFakeTool from "./SelectionFakeTool";
 import TemplateSelectionFakeTool from "./TemplateSelectionFakeTool";
 import GlobalActionTool from "./GlobalActionTool";
 import InsertEntityTool from "./InsertEntityTool";
+import ColorSelectionFakeTool from "./ColorSelectionFakeTool";
 
 /**
  *
  * @author Patrik Harag
- * @version 2024-05-07
+ * @version 2024-06-22
  */
 export default class Tools {
 
@@ -86,6 +87,17 @@ export default class Tools {
      */
     static meteorTool(meteor, meteorFromLeft, meteorFromRight, info) {
         return new MeteorTool(Tools.#info(info), meteor, meteorFromLeft, meteorFromRight);
+    }
+
+    /**
+     *
+     * @param func {function(r:number,g:number,b:number):Tool}
+     * @param defaultColor {string}
+     * @param info {ToolInfo|object|undefined}
+     * @return {Tool}
+     */
+    static colorSelectionTool(func, defaultColor, info) {
+        return new ColorSelectionFakeTool(Tools.#info(info), func, defaultColor);
     }
 
     /**

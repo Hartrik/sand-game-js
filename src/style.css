@@ -125,6 +125,21 @@
     border: none;
 }
 
+.sand-game-component .sand-game-tools .color-sand-game-tool {
+    position: relative;
+    display: inline-block;
+}
+
+.sand-game-component .sand-game-tools .color-sand-game-tool input {
+    cursor: pointer;
+    opacity: 0;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+}
+
 .sand-game-component .sand-game-tools .btn-sand-game-tool:hover {
     filter: brightness(103%);
 }
@@ -146,6 +161,7 @@
 }
 
 .sand-game-component .sand-game-tools .btn-sand-game-tool.selected,
+.sand-game-component .sand-game-tools .color-sand-game-tool.selected,
 .sand-game-component .sand-game-tools .dropdown-item.selected {
     outline: red solid 1px;
 }

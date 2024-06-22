@@ -7,6 +7,7 @@ import ToolDefs from "../../def/ToolDefs";
 import TemplateSelectionFakeTool from "../../core/tool/TemplateSelectionFakeTool";
 import GlobalActionTool from "../../core/tool/GlobalActionTool";
 import SelectionFakeTool from "../../core/tool/SelectionFakeTool";
+import ColorSelectionFakeTool from "../../core/tool/ColorSelectionFakeTool";
 import Resources from "../../io/Resources";
 import Tools from "../../core/tool/Tools";
 
@@ -76,51 +77,96 @@ export default class ComponentViewTools extends Component {
     }
 
     #createButton(tool, info, controller, dropdown) {
-        const codeName = info.getCodeName();
         const badgeStyle = info.getBadgeStyle();
 
-        const buttonAttributes = {
-            class: 'btn btn-secondary ' + ComponentViewTools.#BUTTON_TYPE,
-            style: badgeStyle
-        };
-        const buttonContent = this.#createButtonContent(info);
+        if (tool instanceof ColorSelectionFakeTool) {
 
-        let button;
-        if (dropdown) {
-            const ovContent = DomBuilder.span(buttonContent, buttonAttributes)
-            const ovAttributes = {
-                class: 'dropdown-item',
-            };
-            button = DomBuilder.button(ovContent, ovAttributes);
-        } else {
-            button = DomBuilder.button(buttonContent, buttonAttributes);
-        }
+            const input = DomBuilder.element('input', {
+                type: 'color',
+                value: tool.getDefaultColor(),
+                title: 'Choose color'
+            });
 
-        // init button
-
-        button.addEventListener('click', () => {
-            this.#selectTool(tool, controller);
-        });
-
-        controller.getToolManager().addOnPrimaryToolChanged(newTool => {
-            if (newTool === tool) {
-                button.classList.add('selected');
-            } else {
-                button.classList.remove('selected');
+            if (badgeStyle.backgroundColor === undefined) {
+                badgeStyle.backgroundColor = tool.getDefaultColor();
             }
-        });
 
-        // initial select
-        if (tool === controller.getToolManager().getPrimaryTool()) {
-            button.classList.add('selected');
+            const buttonAttributes = {
+                class: 'btn btn-secondary ' + ComponentViewTools.#BUTTON_TYPE,
+                style: badgeStyle
+            };
+            const buttonContent = this.#createButtonContent(info);
+            const button = DomBuilder.button(buttonContent, buttonAttributes);
+
+            // init
+
+            const onChange = () => {
+                const hexColor = input.value;
+                const r = parseInt(hexColor[1] + hexColor[2], 16);
+                const g = parseInt(hexColor[3] + hexColor[4], 16);
+                const b = parseInt(hexColor[5] + hexColor[6], 16);
+
+                button.style.backgroundColor = hexColor;
+                const newTool = tool.getFunc()(r, g, b);
+                controller.getToolManager().setPrimaryTool(newTool);
+            };
+            input.addEventListener('input', onChange);
+            input.addEventListener('click', onChange);
+
+            // input disabled
+            controller.getToolManager().addOnInputDisabledChanged(disabled => {
+                button.disabled = disabled;
+            });
+
+            return DomBuilder.div({ class: 'color-sand-game-tool' }, [
+                input,
+                button
+            ]);
+
+        } else {
+            const buttonAttributes = {
+                class: 'btn btn-secondary ' + ComponentViewTools.#BUTTON_TYPE,
+                style: badgeStyle
+            };
+            const buttonContent = this.#createButtonContent(info);
+
+            let button;
+            if (dropdown) {
+                const ovContent = DomBuilder.span(buttonContent, buttonAttributes)
+                const ovAttributes = {
+                    class: 'dropdown-item',
+                };
+                button = DomBuilder.button(ovContent, ovAttributes);
+            } else {
+                button = DomBuilder.button(buttonContent, buttonAttributes);
+            }
+
+            // init button
+
+            button.addEventListener('click', () => {
+                this.#selectTool(tool, controller);
+            });
+
+            controller.getToolManager().addOnPrimaryToolChanged(newTool => {
+                if (newTool === tool) {
+                    button.classList.add('selected');
+                } else {
+                    button.classList.remove('selected');
+                }
+            });
+
+            // initial select
+            if (tool === controller.getToolManager().getPrimaryTool()) {
+                button.classList.add('selected');
+            }
+
+            // input disabled
+            controller.getToolManager().addOnInputDisabledChanged(disabled => {
+                button.disabled = disabled;
+            });
+
+            return button;
         }
-
-        // input disabled
-        controller.getToolManager().addOnInputDisabledChanged(disabled => {
-            button.disabled = disabled;
-        });
-
-        return button;
     }
 
     #selectTool(tool, controller) {
