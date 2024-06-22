@@ -13,9 +13,11 @@ import Tools from "../../core/tool/Tools";
 /**
  *
  * @author Patrik Harag
- * @version 2024-05-25
+ * @version 2024-06-22
  */
 export default class ComponentViewTools extends Component {
+
+    static #BUTTON_TYPE = 'btn-sand-game-tool';
 
     /** @type Tool[] */
     #tools;
@@ -35,31 +37,6 @@ export default class ComponentViewTools extends Component {
     createNode(controller) {
         let buttons = [];
 
-        const buttonType = 'btn-sand-game-tool';
-
-        const initButton = (button, tool) => {
-            button.addEventListener('click', () => {
-                this.#selectTool(tool, controller);
-            });
-
-            controller.getToolManager().addOnPrimaryToolChanged(newTool => {
-                if (newTool === tool) {
-                    button.classList.add('selected');
-                } else {
-                    button.classList.remove('selected');
-                }
-            });
-
-            // initial select
-            if (tool === controller.getToolManager().getPrimaryTool()) {
-                button.classList.add('selected');
-            }
-
-            controller.getToolManager().addOnInputDisabledChanged(disabled => {
-                button.disabled = disabled;
-            });
-        }
-
         for (let tool of this.#tools) {
             const info = tool.getInfo();
             let codeName = info.getCodeName();
@@ -70,26 +47,14 @@ export default class ComponentViewTools extends Component {
                 const ulContent = [];
                 for (const innerTool of tool.getTools()) {
                     const innerInfo = innerTool.getInfo();
-                    let innerCodeName = innerInfo.getCodeName();
-                    let innerDisplayName = innerInfo.getDisplayName();
-                    let innerBadgeStyle = innerInfo.getBadgeStyle();
-
-                    const innerLabel = DomBuilder.span(innerDisplayName, {
-                        class: 'btn btn-secondary ' + buttonType + ' ' + codeName,
-                        style: innerBadgeStyle,
-                    })
-                    const innerToolAttributes = {
-                        class: 'dropdown-item',
-                    };
-                    const innerButton = DomBuilder.button(innerLabel, innerToolAttributes);
-                    initButton(innerButton, innerTool);
+                    const innerButton = this.#createButton(innerTool, innerInfo, controller, true)
                     ulContent.push(DomBuilder.element('li', null, innerButton));
                 }
 
                 const buttonContent = this.#createButtonContent(info);
                 const button = DomBuilder.div({ class: 'btn-group' }, [
                     DomBuilder.button(buttonContent, {
-                        class: 'btn btn-secondary dropdown-toggle ' + buttonType + ' ' + codeName,
+                        class: 'btn btn-secondary dropdown-toggle ' + ComponentViewTools.#BUTTON_TYPE + ' ' + codeName,
                         style: badgeStyle,
                         'data-bs-toggle': 'dropdown',
                         'aria-expanded': 'false'
@@ -102,18 +67,60 @@ export default class ComponentViewTools extends Component {
                 buttons.push(button);
 
             } else {
-                const attributes = {
-                    class: 'btn btn-secondary ' + buttonType + ' ' + codeName,
-                    style: badgeStyle
-                };
-                const buttonContent = this.#createButtonContent(info);
-                const button = DomBuilder.button(buttonContent, attributes);
-                initButton(button, tool);
+                const button = this.#createButton(tool, info, controller, false);
                 buttons.push(button);
             }
         }
 
         return DomBuilder.div({ class: 'sand-game-tools' }, buttons);
+    }
+
+    #createButton(tool, info, controller, dropdown) {
+        const codeName = info.getCodeName();
+        const badgeStyle = info.getBadgeStyle();
+
+        const buttonAttributes = {
+            class: 'btn btn-secondary ' + ComponentViewTools.#BUTTON_TYPE,
+            style: badgeStyle
+        };
+        const buttonContent = this.#createButtonContent(info);
+
+        let button;
+        if (dropdown) {
+            const ovContent = DomBuilder.span(buttonContent, buttonAttributes)
+            const ovAttributes = {
+                class: 'dropdown-item',
+            };
+            button = DomBuilder.button(ovContent, ovAttributes);
+        } else {
+            button = DomBuilder.button(buttonContent, buttonAttributes);
+        }
+
+        // init button
+
+        button.addEventListener('click', () => {
+            this.#selectTool(tool, controller);
+        });
+
+        controller.getToolManager().addOnPrimaryToolChanged(newTool => {
+            if (newTool === tool) {
+                button.classList.add('selected');
+            } else {
+                button.classList.remove('selected');
+            }
+        });
+
+        // initial select
+        if (tool === controller.getToolManager().getPrimaryTool()) {
+            button.classList.add('selected');
+        }
+
+        // input disabled
+        controller.getToolManager().addOnInputDisabledChanged(disabled => {
+            button.disabled = disabled;
+        });
+
+        return button;
     }
 
     #selectTool(tool, controller) {
