@@ -168,7 +168,7 @@ export default class ProcessorModuleFire {
         const heatModIndex = ElementHead.getHeatModIndex(elementHead);
         const flammableChance = ElementHead.hmiToFlammableChanceTo10000(heatModIndex);
         if (flammableChance !== 0) {
-            if (ElementHead.getBehaviour(elementHead) === ElementHead.BEHAVIOUR_FIRE_SOURCE) {
+            if (ElementHead.getFireSource(elementHead) === 1) {
                 // already in fire
                 return;
             }
@@ -283,7 +283,7 @@ export default class ProcessorModuleFire {
     // UTILS
 
     ignite(elementHead, x, y, heatModIndex) {
-        let modifiedElementHead = ElementHead.setBehaviour(elementHead, ElementHead.BEHAVIOUR_FIRE_SOURCE);
+        let modifiedElementHead = ElementHead.setFireSource(elementHead, 1);
         modifiedElementHead = ElementHead.setTemperature(modifiedElementHead, ElementHead.hmiToFlameHeat(heatModIndex));
         this.#elementArea.setElementHead(x, y, modifiedElementHead);
         // change visual

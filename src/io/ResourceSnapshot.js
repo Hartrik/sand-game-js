@@ -9,7 +9,7 @@ import ElementHead from "../core/ElementHead";
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-20
+ * @version 2024-06-23
  */
 export default class ResourceSnapshot {
 
@@ -143,6 +143,11 @@ export default class ResourceSnapshot {
             ResourceSnapshot.#convertToV7(snapshot);
             snapshot.metadata.formatVersion = 7;
         }
+        if (snapshot.metadata.formatVersion === 7) {
+            // FIRE_SOURCE behaviour >> flag
+            ResourceSnapshot.#convertToV8(snapshot);
+            snapshot.metadata.formatVersion = 8;
+        }
 
         return snapshot;
     }
@@ -203,6 +208,7 @@ export default class ResourceSnapshot {
                     elementHead = (elementHead & 0xFFFFFFF8) | typeClass;
                 }
 
+                // TODO: missing heat modifiers
                 // set at least some conductivity type and heat effect type
                 switch (typeClass) {
                     case 0x5: // powder element
@@ -319,6 +325,30 @@ export default class ResourceSnapshot {
                 // set entity behaviour
                 if (behaviour === 0x3 || behaviour === 0x4) {
                     elementHead = (elementHead & 0xFFFF00FF) | (0xD << 8);
+                }
+
+                elementArea.setElementHead(x, y, elementHead);
+            }
+        }
+
+        snapshot.dataHeads = elementArea.getDataHeads();
+        snapshot.dataTails = elementArea.getDataTails();
+    }
+
+    static #convertToV8(snapshot) {
+        const elementArea = ElementArea.from(
+            snapshot.metadata.width, snapshot.metadata.height,
+            snapshot.dataHeads, snapshot.dataTails);
+
+        for (let y = 0; y < snapshot.metadata.height; y++) {
+            for (let x = 0; x < snapshot.metadata.width; x++) {
+                let elementHead = elementArea.getElementHead(x, y);
+
+                // FIRE_SOURCE behaviour >> flag
+                let behaviour = (elementHead >> 8) & 0xF;
+                if (behaviour === 0xA) {
+                    elementHead = elementHead & 0xFFFF00FF;  // unset behaviour
+                    elementHead = elementHead | (1 << 23);  // set fire source flag
                 }
 
                 elementArea.setElementHead(x, y, elementHead);

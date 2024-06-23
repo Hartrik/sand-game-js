@@ -7,7 +7,7 @@
  * <pre>
  *     | type class   3b  | type modifiers                 5b  |
  *     | behaviour             4b  | special               4b  |
- *     | heat modifiers index                              8b  |
+ *     | heat modifiers index                  7b  | fire  1b  |
  *     | temperature                                       8b  |
  * </pre>
  *
@@ -22,7 +22,7 @@
  * </pre>
  *
  * @author Patrik Harag
- * @version 2024-05-26
+ * @version 2024-06-23
  */
 export default class ElementHead {
 
@@ -49,7 +49,7 @@ export default class ElementHead {
     static BEHAVIOUR_TREE_TRUNK = 0x7;
     static BEHAVIOUR_TREE_LEAF = 0x8;
     static BEHAVIOUR_FIRE = 0x9;
-    static BEHAVIOUR_FIRE_SOURCE = 0xA;
+    static BEHAVIOUR_A = 0xA;
     static BEHAVIOUR_METEOR = 0xB;  // TODO: to entity?
     static BEHAVIOUR_LIQUID = 0xC;
     static BEHAVIOUR_ENTITY = 0xD;
@@ -103,7 +103,8 @@ export default class ElementHead {
         return behaviour | (special << 4);
     }
 
-    static modifiers8(heatModIndex = 0) {
+    static modifiers8(heatModIndex = 0, fireSource = 0) {
+        // TODO: fireSource
         return heatModIndex;
     }
 
@@ -146,7 +147,11 @@ export default class ElementHead {
     }
 
     static getHeatModIndex(elementHead) {
-        return (elementHead >> 16) & 0x000000FF;
+        return (elementHead >> 16) & 0x7F;
+    }
+
+    static getFireSource(elementHead) {
+        return (elementHead >> 23) & 0x1;
     }
 
     static getTemperature(elementHead) {
@@ -192,7 +197,11 @@ export default class ElementHead {
     }
 
     static setHeatModIndex(elementHead, heatModIndex) {
-        return (elementHead & 0xFF00FFFF) | (heatModIndex << 16);
+        return (elementHead & 0xff80ffff) | (heatModIndex << 16);
+    }
+
+    static setFireSource(elementHead, fireSource) {
+        return (elementHead & ~(1 << 23)) | (fireSource << 23);
     }
 
     static setTemperature(elementHead, temperature) {

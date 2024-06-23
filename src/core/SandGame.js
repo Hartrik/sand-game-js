@@ -353,7 +353,10 @@ export default class SandGame {
                 type: ElementHead.getBehaviour(elementHead),
                 special: ElementHead.getSpecial(elementHead)
             },
-            heatModIndex: ElementHead.getHeatModIndex(elementHead),
+            modifiers: {
+                heatModIndex: ElementHead.getHeatModIndex(elementHead),
+                fireSource: ElementHead.getFireSource(elementHead),
+            },
             temperature: ElementHead.getTemperature(elementHead),
             color: [
                 ElementTail.getColorRed(elementTail),

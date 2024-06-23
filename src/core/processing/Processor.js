@@ -500,6 +500,11 @@ export default class Processor extends ProcessorContext {
             return true;
         }
 
+        if (ElementHead.getFireSource(elementHead) === 1) {
+            this.#moduleFire.behaviourFireSource(elementHead, x, y);
+            return true;
+        }
+
         const behaviour = ElementHead.getBehaviour(elementHead);
         let active = false;
         switch (behaviour) {
@@ -537,11 +542,6 @@ export default class Processor extends ProcessorContext {
             case ElementHead.BEHAVIOUR_TREE_ROOT:
                 this.#moduleTree.behaviourTreeRoot(elementHead, x, y);
                 active = true;
-                break;
-            case ElementHead.BEHAVIOUR_FIRE_SOURCE:
-                this.#moduleFire.behaviourFireSource(elementHead, x, y);
-                active = true;
-                processTemperature = false;
                 break;
             case ElementHead.BEHAVIOUR_METEOR:
                 this.#moduleMeteor.behaviourMeteor(elementHead, x, y);
@@ -648,7 +648,7 @@ export default class Processor extends ProcessorContext {
         // self-ignition
         const chanceToIgnite = ElementHead.hmiToSelfIgnitionChanceTo10000(heatModIndex);
         if (newTemp > 100 && chanceToIgnite > 0) {
-            if (ElementHead.getBehaviour(elementHead) === ElementHead.BEHAVIOUR_FIRE_SOURCE) {
+            if (ElementHead.getFireSource(elementHead) === 1) {
                 // already in fire
             } else {
                 if (this.#random.nextInt(10000) < chanceToIgnite) {

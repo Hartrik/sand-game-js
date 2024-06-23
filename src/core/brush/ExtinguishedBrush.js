@@ -7,7 +7,7 @@ import AbstractEffectBrush from "./AbstractEffectBrush";
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-07
+ * @version 2024-06-23
  */
 export default class ExtinguishedBrush extends AbstractEffectBrush {
 
@@ -21,9 +21,8 @@ export default class ExtinguishedBrush extends AbstractEffectBrush {
             return null;
         }
 
-        const behaviour = ElementHead.getBehaviour(element.elementHead);
-        if (behaviour === ElementHead.BEHAVIOUR_FIRE_SOURCE) {
-            const newElementHead = ElementHead.setBehaviour(element.elementHead, ElementHead.BEHAVIOUR_NONE);
+        if (ElementHead.getFireSource(element.elementHead) === 1) {
+            const newElementHead = ElementHead.setFireSource(element.elementHead, 0);
             return new Element(newElementHead, element.elementTail);
         } else {
             return null;
