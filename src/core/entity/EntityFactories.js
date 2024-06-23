@@ -11,7 +11,7 @@ import StateBasedFishLikeEntity from "./StateBasedFishLikeEntity";
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-27
+ * @version 2024-06-23
  */
 export default class EntityFactories {
 
@@ -35,7 +35,7 @@ export default class EntityFactories {
             ElementHead.of(
                 ElementHead.type8(ElementHead.TYPE_STATIC),
                 ElementHead.behaviour8(ElementHead.BEHAVIOUR_ENTITY, 0),
-                ElementHead.modifiers8(ElementHead.HMI_CONDUCTIVE_1)),
+                ElementHead.modifiers8(ElementHead.HMI_WOOD_LIKE)),
             ElementTail.of(0, 0, 0, blurType))
     });
 

@@ -5,7 +5,6 @@ import Entity from "./Entity";
 import PositionedElement from "../PositionedElement";
 
 // TODO: support collisions/interleaving with other entities
-// TODO: support flammability
 
 /**
  *

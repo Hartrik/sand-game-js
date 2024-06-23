@@ -7,11 +7,11 @@ import StateBasedAbstractEntity from "./StateBasedAbstractEntity";
 /**
  *
  * @author Patrik Harag
- * @version 2024-05-25
+ * @version 2024-06-23
  */
 export default class StateBasedBirdLikeEntity extends StateBasedAbstractEntity {
 
-    static #MAX_AVG_TEMPERATURE = 10;
+    static #MAX_AVG_TEMPERATURE = 150;
 
     static #MAX_STUCK_COUNT = 15;
 
@@ -21,9 +21,6 @@ export default class StateBasedBirdLikeEntity extends StateBasedAbstractEntity {
 
     _checkIsSpace(elementHead) {
         if (ElementHead.getTypeClass(elementHead) > ElementHead.TYPE_GAS) {
-            return false;
-        }
-        if (ElementHead.getBehaviour(elementHead) === ElementHead.BEHAVIOUR_FIRE) {
             return false;
         }
         return true;
