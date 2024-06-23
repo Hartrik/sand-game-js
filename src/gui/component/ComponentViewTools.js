@@ -112,9 +112,28 @@ export default class ComponentViewTools extends Component {
             };
             input.addEventListener('input', onChange);
             input.addEventListener('click', onChange);
+            button.addEventListener('click', onChange);
+
+            // selection
+
+            const exampleTool = tool.getFunc()(0, 0, 0);
+            const expectedCodeName = exampleTool.getInfo().getCodeName();
+            controller.getToolManager().addOnPrimaryToolChanged(newTool => {
+                if (newTool.getInfo()?.getCodeName() === expectedCodeName) {
+                    button.classList.add('selected');
+                } else {
+                    button.classList.remove('selected');
+                }
+            });
+
+            // initial select
+            if (controller.getToolManager().getPrimaryTool().getInfo()?.getCodeName() === expectedCodeName) {
+                button.classList.add('selected');
+            }
 
             // input disabled
             controller.getToolManager().addOnInputDisabledChanged(disabled => {
+                input.disabled = disabled;
                 button.disabled = disabled;
             });
 
