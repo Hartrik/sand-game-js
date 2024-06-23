@@ -49,13 +49,13 @@ export default class StateBasedBirdLikeEntity extends StateBasedAbstractEntity {
                         this._waypoint.stuck = -20;  // try random walk now...
                     }
                     if (this._waypoint.stuck >= 0) {
-                        this._moveInWaypointDirection(2);
+                        this._moveInWaypointDirection(3);
                     } else {
                         this._waypoint.stuck++;
-                        this._moveRandom(2);
+                        this._moveRandom(3);
                     }
                 } else {
-                    this._moveRandom(2);
+                    this._moveRandom(3);
                 }
             }
         }
