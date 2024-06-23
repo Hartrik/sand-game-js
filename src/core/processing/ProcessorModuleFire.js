@@ -7,7 +7,7 @@ import VisualEffects from "./VisualEffects.js";
 /**
  *
  * @author Patrik Harag
- * @version 2024-02-01
+ * @version 2024-06-23
  */
 export default class ProcessorModuleFire {
 
@@ -229,7 +229,7 @@ export default class ProcessorModuleFire {
 
         if (flags === 0b00 || (flags & 0b10) !== 0) {  // no air || some water
             // extinguish
-            this.#elementArea.setElementHead(x, y, ElementHead.setBehaviour(elementHead, ElementHead.BEHAVIOUR_NONE));
+            this.#elementArea.setElementHead(x, y, ElementHead.setFireSource(elementHead, 0));
             return;
         }
 
