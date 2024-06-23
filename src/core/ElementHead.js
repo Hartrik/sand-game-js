@@ -57,11 +57,11 @@ export default class ElementHead {
     static BEHAVIOUR_F = 0xF;
 
     static FIELD_SPECIAL_SIZE = 4;  // bits
-    static SPECIAL_LIQUID_WATER = 0;
-    static SPECIAL_LIQUID_WATER_STAINED = 1;
-    static SPECIAL_LIQUID_LIGHT_OIL = 5;
-    static SPECIAL_LIQUID_LIGHT_ACID = 6;
-    static SPECIAL_LIQUID_HEAVY_MOLTEN = 10;
+    static SPECIAL_LIQUID_ACID = 2;
+    static SPECIAL_LIQUID_OIL = 4;
+    static SPECIAL_LIQUID_WATER_STAINED = 6;
+    static SPECIAL_LIQUID_WATER = 8;
+    static SPECIAL_LIQUID_MOLTEN_METAL = 12;
 
     static FIELD_HMI_SIZE = 8;  // bits
 

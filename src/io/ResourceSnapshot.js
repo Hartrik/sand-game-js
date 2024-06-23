@@ -145,6 +145,7 @@ export default class ResourceSnapshot {
         }
         if (snapshot.metadata.formatVersion === 7) {
             // FIRE_SOURCE behaviour >> flag
+            // changed liquid types
             ResourceSnapshot.#convertToV8(snapshot);
             snapshot.metadata.formatVersion = 8;
         }
@@ -343,12 +344,24 @@ export default class ResourceSnapshot {
         for (let y = 0; y < snapshot.metadata.height; y++) {
             for (let x = 0; x < snapshot.metadata.width; x++) {
                 let elementHead = elementArea.getElementHead(x, y);
+                let behaviour = (elementHead >> 8) & 0xF;
 
                 // FIRE_SOURCE behaviour >> flag
-                let behaviour = (elementHead >> 8) & 0xF;
                 if (behaviour === 0xA) {
                     elementHead = elementHead & 0xFFFF00FF;  // unset behaviour
                     elementHead = elementHead | (1 << 23);  // set fire source flag
+                }
+
+                // map liquid types
+                if (behaviour === 0xC) {
+                    let special = (elementHead >> 12) & 0x0000000F;
+                    switch (special) {
+                        case 0: special = 8; break;  // SPECIAL_LIQUID_WATER
+                        case 5: special = 4; break;  // SPECIAL_LIQUID_LIGHT_OIL
+                        case 6: special = 2; break;  // SPECIAL_LIQUID_LIGHT_ACID
+                        case 10: special = 12; break;  // SPECIAL_LIQUID_HEAVY_MOLTEN
+                    }
+                    elementHead = (elementHead & 0xFFFF0FFF) | (special << 12);
                 }
 
                 elementArea.setElementHead(x, y, elementHead);

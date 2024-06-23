@@ -253,9 +253,11 @@ export default class ProcessorModuleFire {
         }
 
         // water => extinguish
-        if (ElementHead.getBehaviour(elementHead) === ElementHead.BEHAVIOUR_LIQUID
-                && ElementHead.getSpecial(elementHead) === ElementHead.SPECIAL_LIQUID_WATER) {
-            return 0b10;
+        if (ElementHead.getBehaviour(elementHead) === ElementHead.BEHAVIOUR_LIQUID) {
+            const special = ElementHead.getSpecial(elementHead);
+            if (special === ElementHead.SPECIAL_LIQUID_WATER || special === ElementHead.SPECIAL_LIQUID_WATER_STAINED) {
+                return 0b10;
+            }
         }
 
         // air => spawn fire

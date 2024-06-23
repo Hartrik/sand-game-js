@@ -13,10 +13,6 @@ export default class ProcessorModuleLiquid {
     static RET_FLAG_ACTIVE = 0b10;
     static RET_FLAG_SKIP_TEMP = 0b01;
 
-    static FIRST_LIGHT = ElementHead.SPECIAL_LIQUID_LIGHT_OIL;
-    static FIRST_HEAVY = ElementHead.SPECIAL_LIQUID_HEAVY_MOLTEN;
-
-
     /** @type ElementArea */
     #elementArea;
 
@@ -36,14 +32,15 @@ export default class ProcessorModuleLiquid {
         const special = ElementHead.getSpecial(elementHead);
         switch (special) {
             case ElementHead.SPECIAL_LIQUID_WATER:
+                return this.#behaviourSubtypeWater(elementHead, special, x, y);
             case ElementHead.SPECIAL_LIQUID_WATER_STAINED:
-                return this.#behaviourSubtypeWater(elementHead, x, y);
-            case ElementHead.SPECIAL_LIQUID_LIGHT_OIL:
-                return this.#behaviourSubtypeLightOil(elementHead, x, y);
-            case ElementHead.SPECIAL_LIQUID_LIGHT_ACID:
-                return this.#behaviourSubtypeLightAcid(elementHead, x, y);
-            case ElementHead.SPECIAL_LIQUID_HEAVY_MOLTEN:
-                return this.#behaviourSubtypeHeavyMolten(elementHead, x, y);
+                return this.#behaviourSubtypeWaterStained(elementHead, special, x, y);
+            case ElementHead.SPECIAL_LIQUID_OIL:
+                return this.#behaviourSubtypeOil(elementHead, special, x, y);
+            case ElementHead.SPECIAL_LIQUID_ACID:
+                return this.#behaviourSubtypeAcid(elementHead, special, x, y);
+            case ElementHead.SPECIAL_LIQUID_MOLTEN_METAL:
+                return this.#behaviourSubtypeMoltenMetal(elementHead, special, x, y);
         }
         return 0;
     }
@@ -52,19 +49,20 @@ export default class ProcessorModuleLiquid {
         const special = ElementHead.getSpecial(elementHead);
         switch (special) {
             case ElementHead.SPECIAL_LIQUID_WATER:
+                return this.#testBehaviourSubtypeWater(elementHead, special, x, y);
             case ElementHead.SPECIAL_LIQUID_WATER_STAINED:
-                return this.#testBehaviourSubtypeWater(elementHead, x, y);
-            case ElementHead.SPECIAL_LIQUID_LIGHT_OIL:
-                return this.#testBehaviourSubtypeLightOil(elementHead, x, y);
-            case ElementHead.SPECIAL_LIQUID_LIGHT_ACID:
-                return this.#testBehaviourSubtypeLightAcid(elementHead, x, y);
-            case ElementHead.SPECIAL_LIQUID_HEAVY_MOLTEN:
-                return this.#testBehaviourSubtypeHeavyMolten(elementHead, x, y);
+                return this.#testBehaviourSubtypeWaterStained(elementHead, special, x, y);
+            case ElementHead.SPECIAL_LIQUID_OIL:
+                return this.#testBehaviourSubtypeOil(elementHead, special, x, y);
+            case ElementHead.SPECIAL_LIQUID_ACID:
+                return this.#testBehaviourSubtypeAcid(elementHead, special, x, y);
+            case ElementHead.SPECIAL_LIQUID_MOLTEN_METAL:
+                return this.#testBehaviourSubtypeMoltenMetal(elementHead, special, x, y);
         }
         return false;
     }
 
-    #behaviourSubtypeWater(elementHead, x, y) {
+    #behaviourSubtypeWater(elementHead, special, x, y) {
         const typeClass = ElementHead.getTypeClass(elementHead);
         const temperature = ElementHead.getTemperature(elementHead);
 
@@ -89,7 +87,7 @@ export default class ProcessorModuleLiquid {
         return 0;
     }
 
-    #testBehaviourSubtypeWater(elementHead, x, y) {
+    #testBehaviourSubtypeWater(elementHead, special, x, y) {
         const typeClass = ElementHead.getTypeClass(elementHead);
         const temperature = ElementHead.getTemperature(elementHead);
 
@@ -101,7 +99,39 @@ export default class ProcessorModuleLiquid {
         return false;
     }
 
-    #behaviourSubtypeHeavyMolten(elementHead, x, y) {
+    #behaviourSubtypeWaterStained(elementHead, special, x, y) {
+        const typeClass = ElementHead.getTypeClass(elementHead);
+        const temperature = ElementHead.getTemperature(elementHead);
+
+        if (typeClass === ElementHead.TYPE_FLUID) {
+            if (temperature > 20) {
+                const brush = this.#processorContext.getDefaults().getBrushSteam();
+                const element = brush.apply(x, y, this.#random);
+                const newElementHead = ElementHead.setTemperature(element.elementHead, temperature);
+                this.#elementArea.setElementHeadAndTail(x, y, newElementHead, element.elementTail);
+                return ProcessorModuleLiquid.RET_FLAG_ACTIVE | ProcessorModuleLiquid.RET_FLAG_SKIP_TEMP;
+            }
+
+            const rnd = this.#random.nextInt(8);
+            // secondary movement
+            if (rnd % 4 === 0) {
+                return this.#secondaryMove(special, x, y, 0, rnd === 4);
+            }
+        }
+        return 0;
+    }
+
+    #testBehaviourSubtypeWaterStained(elementHead, special, x, y) {
+        const typeClass = ElementHead.getTypeClass(elementHead);
+        const temperature = ElementHead.getTemperature(elementHead);
+
+        if (typeClass === ElementHead.TYPE_FLUID) {
+            return temperature > 20 || this.#testSecondaryMove(special, x, y);
+        }
+        return false;
+    }
+
+    #behaviourSubtypeMoltenMetal(elementHead, special, x, y) {
         const typeClass = ElementHead.getTypeClass(elementHead);
         if (typeClass !== ElementHead.TYPE_FLUID) {
             return 0;
@@ -113,30 +143,14 @@ export default class ProcessorModuleLiquid {
 
         // secondary movement
         if (rnd % 4 === 0) {
-            // gravity down...
-            if (this.#testMoveHeavyFluid(x, y + 1)) {
-                this.#elementArea.swap(x, y, x, y + 1);
-                result = ProcessorModuleLiquid.RET_FLAG_SKIP_TEMP;
-            } else {
-                if (rnd === 4) {
-                    if (this.#testMoveHeavyFluid(x + 1, y)) {
-                        this.#elementArea.swap(x, y, x + 1, y);
-                        result = ProcessorModuleLiquid.RET_FLAG_SKIP_TEMP;
-                    }
-                } else {
-                    if (this.#testMoveHeavyFluid(x - 1, y)) {
-                        this.#elementArea.swap(x, y, x - 1, y);
-                        result = ProcessorModuleLiquid.RET_FLAG_SKIP_TEMP;
-                    }
-                }
-            }
+            result = this.#secondaryMove(special, x, y, result, rnd === 4);
         }
 
         const active = ProcessorModuleLiquid.RET_FLAG_ACTIVE;  // it doesn't matter because of temperature...
         return active | result;
     }
 
-    #testBehaviourSubtypeHeavyMolten(elementHead, x, y) {
+    #testBehaviourSubtypeMoltenMetal(elementHead, special, x, y) {
         const typeClass = ElementHead.getTypeClass(elementHead);
         if (typeClass !== ElementHead.TYPE_FLUID) {
             return false;
@@ -144,7 +158,7 @@ export default class ProcessorModuleLiquid {
         return true;  // it doesn't matter because of temperature...
     }
 
-    #behaviourSubtypeLightOil(elementHead, x, y) {
+    #behaviourSubtypeOil(elementHead, special, x, y) {
         const typeClass = ElementHead.getTypeClass(elementHead);
         if (typeClass !== ElementHead.TYPE_FLUID) {
             return 0;
@@ -156,7 +170,7 @@ export default class ProcessorModuleLiquid {
 
         // secondary movement
         if (rnd % 16 === 0) {
-            result = this.#moveLightFluid(x, y, result, rnd === 0);
+            result = this.#secondaryMove(special, x, y, result, rnd === 0);
         }
 
         // staining
@@ -182,18 +196,16 @@ export default class ProcessorModuleLiquid {
         return result;
     }
 
-    #testBehaviourSubtypeLightOil(elementHead, x, y) {
+    #testBehaviourSubtypeOil(elementHead, special, x, y) {
         const typeClass = ElementHead.getTypeClass(elementHead);
         if (typeClass !== ElementHead.TYPE_FLUID) {
             return false;
         }
 
-        return this.#testMoveLightFluid(x, y - 1)
-            || this.#testMoveLightFluid(x + 1, y)
-            || this.#testMoveLightFluid(x - 1, y);
+        return this.#testSecondaryMove(special, x, y);
     }
 
-    #behaviourSubtypeLightAcid(elementHead, x, y) {
+    #behaviourSubtypeAcid(elementHead, special, x, y) {
         const typeClass = ElementHead.getTypeClass(elementHead);
         const inLiquidForm = typeClass === ElementHead.TYPE_FLUID;
 
@@ -202,7 +214,7 @@ export default class ProcessorModuleLiquid {
         if (rnd < 0.16) {
             if (inLiquidForm) {
                 // secondary movement - 16 %
-                result = this.#moveLightFluid(x, y, result, rnd < 0.08);
+                result = this.#secondaryMove(special, x, y, result, rnd < 0.08);
             }
 
         } else if ((rnd = rnd - 0.16) < 0.02) {
@@ -239,15 +251,15 @@ export default class ProcessorModuleLiquid {
                     const behaviour = ElementHead.getBehaviour(targetElementHead);
                     if (behaviour === ElementHead.BEHAVIOUR_LIQUID) {
                         const special = ElementHead.getSpecial(targetElementHead);
-                        if (special === ElementHead.SPECIAL_LIQUID_WATER) {
+                        if (special === ElementHead.SPECIAL_LIQUID_WATER || special === ElementHead.SPECIAL_LIQUID_WATER_STAINED) {
                             if (rnd < 0.01) {
                                 // neutralize
                                 const waterBrush = this.#processorContext.getDefaults().getBrushWater();
                                 this.#elementArea.setElement(x, y, waterBrush.apply(x, y, this.#random));
                                 result = ProcessorModuleLiquid.RET_FLAG_ACTIVE | ProcessorModuleLiquid.RET_FLAG_SKIP_TEMP;
                             }
-                        } else if (special === ElementHead.SPECIAL_LIQUID_LIGHT_OIL
-                            || special === ElementHead.SPECIAL_LIQUID_HEAVY_MOLTEN) {
+                        } else if (special === ElementHead.SPECIAL_LIQUID_OIL
+                                || special === ElementHead.SPECIAL_LIQUID_MOLTEN_METAL) {
                             // dissolving
                             const defaultElement = this.#processorContext.getDefaults().getDefaultElement();
                             this.#elementArea.setElement(targetX, targetY, defaultElement);
@@ -270,15 +282,13 @@ export default class ProcessorModuleLiquid {
         return result;
     }
 
-    #testBehaviourSubtypeLightAcid(elementHead, x, y) {
+    #testBehaviourSubtypeAcid(elementHead, special, x, y) {
         const typeClass = ElementHead.getTypeClass(elementHead);
         if (typeClass !== ElementHead.TYPE_FLUID) {
             return true;
         }
 
-        if (this.#testMoveLightFluid(x, y - 1)
-            || this.#testMoveLightFluid(x + 1, y)
-            || this.#testMoveLightFluid(x - 1, y)) {
+        if (this.#testSecondaryMove(special, x, y)) {
             return true;
         }
 
@@ -296,25 +306,28 @@ export default class ProcessorModuleLiquid {
                 return true;
             }
             const special = ElementHead.getSpecial(targetElementHead);
-            if (special !== ElementHead.SPECIAL_LIQUID_LIGHT_ACID) {
+            if (special !== ElementHead.SPECIAL_LIQUID_ACID) {
                 return true;
             }
         }
         return false;
     }
 
-    #moveLightFluid(x, y, result, preferRight) {
-        if (this.#testMoveLightFluid(x, y - 1)) {
-            this.#elementArea.swap(x, y, x, y - 1);
+    // --- utilities
+
+    #secondaryMove(special, x, y, result, preferRight) {
+        const dy = special < ElementHead.SPECIAL_LIQUID_WATER ? -1 : +1;
+        if (this.#testSecondaryMoveTo(special, x, y + dy)) {
+            this.#elementArea.swap(x, y, x, y + dy);
             result = ProcessorModuleLiquid.RET_FLAG_SKIP_TEMP;
         } else {
             if (preferRight) {
-                if (this.#testMoveLightFluid(x + 1, y)) {
+                if (this.#testSecondaryMoveTo(special, x + 1, y)) {
                     this.#elementArea.swap(x, y, x + 1, y);
                     result = ProcessorModuleLiquid.RET_FLAG_SKIP_TEMP;
                 }
             } else {
-                if (this.#testMoveLightFluid(x - 1, y)) {
+                if (this.#testSecondaryMoveTo(special, x - 1, y)) {
                     this.#elementArea.swap(x, y, x - 1, y);
                     result = ProcessorModuleLiquid.RET_FLAG_SKIP_TEMP;
                 }
@@ -323,22 +336,14 @@ export default class ProcessorModuleLiquid {
         return result;
     }
 
-    // --- utilities
-
-    #testMoveHeavyFluid(nx, ny) {
-        const targetElementHead = this.#elementArea.getElementHeadOrNull(nx, ny);
-        if (targetElementHead === null) {
-            return false;
-        }
-        if (ElementHead.getTypeClass(targetElementHead) !== ElementHead.TYPE_FLUID) {
-            return false;
-        }
-        const special = ElementHead.getSpecial(targetElementHead);
-        return special < ProcessorModuleLiquid.FIRST_HEAVY;
-
+    #testSecondaryMove(special, x, y) {
+        const dy = special < ElementHead.SPECIAL_LIQUID_WATER ? -1 : +1;
+        return this.#testSecondaryMoveTo(special, x, y + dy)
+            || this.#testSecondaryMoveTo(special, x + 1, y)
+            || this.#testSecondaryMoveTo(special, x - 1, y)
     }
 
-    #testMoveLightFluid(nx, ny) {
+    #testSecondaryMoveTo(special, nx, ny) {
         const targetElementHead = this.#elementArea.getElementHeadOrNull(nx, ny);
         if (targetElementHead === null) {
             return false;
@@ -346,7 +351,22 @@ export default class ProcessorModuleLiquid {
         if (ElementHead.getTypeClass(targetElementHead) !== ElementHead.TYPE_FLUID) {
             return false;
         }
-        const special = ElementHead.getSpecial(targetElementHead);
-        return !(special >= ProcessorModuleLiquid.FIRST_LIGHT && special <= ProcessorModuleLiquid.FIRST_HEAVY);
+        const targetSpecial = ElementHead.getSpecial(targetElementHead);
+        if (special === targetSpecial) {
+            return false;
+        }
+
+        if (special < ElementHead.SPECIAL_LIQUID_WATER) {
+            // lighter than water
+            if (special < targetSpecial) {
+                return true;
+            }
+        } else {
+            // heavier than water
+            if (special > targetSpecial) {
+                return true;
+            }
+        }
+        return false;
     }
 }

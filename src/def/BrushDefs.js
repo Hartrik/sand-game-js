@@ -128,7 +128,7 @@ export default class BrushDefs {
             new Element(
                 ElementHead.of(
                     ElementHead.type8(ElementHead.type8Solid(ElementHead.TYPE_STATIC, 2, false)),
-                    ElementHead.behaviour8(ElementHead.BEHAVIOUR_LIQUID, ElementHead.SPECIAL_LIQUID_HEAVY_MOLTEN),
+                    ElementHead.behaviour8(ElementHead.BEHAVIOUR_LIQUID, ElementHead.SPECIAL_LIQUID_MOLTEN_METAL),
                     ElementHead.modifiers8(ElementHead.HMI_METAL)),
                 ElementTail.of(155, 155, 155, ElementTail.BLUR_TYPE_NONE, ElementTail.HEAT_EFFECT_3))
         ]),
@@ -228,7 +228,7 @@ export default class BrushDefs {
         new Element(
             ElementHead.of(
                 ElementHead.type8Fluid(ElementHead.TYPE_FLUID),
-                ElementHead.behaviour8(ElementHead.BEHAVIOUR_LIQUID, ElementHead.SPECIAL_LIQUID_LIGHT_OIL),
+                ElementHead.behaviour8(ElementHead.BEHAVIOUR_LIQUID, ElementHead.SPECIAL_LIQUID_OIL),
                 ElementHead.modifiers8(ElementHead.HMI_OIL)),
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_1, ElementTail.HEAT_EFFECT_NONE, 3))
     ]));
@@ -237,7 +237,7 @@ export default class BrushDefs {
         new Element(
             ElementHead.of(
                 ElementHead.type8Fluid(ElementHead.TYPE_FLUID),
-                ElementHead.behaviour8(ElementHead.BEHAVIOUR_LIQUID, ElementHead.SPECIAL_LIQUID_LIGHT_ACID),
+                ElementHead.behaviour8(ElementHead.BEHAVIOUR_LIQUID, ElementHead.SPECIAL_LIQUID_ACID),
                 ElementHead.modifiers8(ElementHead.HMI_CONDUCTIVE_3)),
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_1, ElementTail.HEAT_EFFECT_NONE, 3))
     ]));
