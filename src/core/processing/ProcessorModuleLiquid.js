@@ -6,7 +6,7 @@ import VisualEffects from "./VisualEffects";
 /**
  *
  * @author Patrik Harag
- * @version 2024-06-05
+ * @version 2024-06-23
  */
 export default class ProcessorModuleLiquid {
 
@@ -36,6 +36,7 @@ export default class ProcessorModuleLiquid {
         const special = ElementHead.getSpecial(elementHead);
         switch (special) {
             case ElementHead.SPECIAL_LIQUID_WATER:
+            case ElementHead.SPECIAL_LIQUID_WATER_STAINED:
                 return this.#behaviourSubtypeWater(elementHead, x, y);
             case ElementHead.SPECIAL_LIQUID_LIGHT_OIL:
                 return this.#behaviourSubtypeLightOil(elementHead, x, y);
@@ -51,6 +52,7 @@ export default class ProcessorModuleLiquid {
         const special = ElementHead.getSpecial(elementHead);
         switch (special) {
             case ElementHead.SPECIAL_LIQUID_WATER:
+            case ElementHead.SPECIAL_LIQUID_WATER_STAINED:
                 return this.#testBehaviourSubtypeWater(elementHead, x, y);
             case ElementHead.SPECIAL_LIQUID_LIGHT_OIL:
                 return this.#testBehaviourSubtypeLightOil(elementHead, x, y);
@@ -161,7 +163,15 @@ export default class ProcessorModuleLiquid {
         if (rnd === 7) {
             const targetHead = this.#elementArea.getElementHeadOrNull(x, y + 1);
             if (targetHead !== null) {
-                if (ElementHead.getTypeClass(targetHead) >= ElementHead.TYPE_FLUID) {
+                const targetClass = ElementHead.getTypeClass(targetHead);
+                if (targetClass === ElementHead.TYPE_FLUID) {
+                    if (ElementHead.getBehaviour(targetHead) === ElementHead.BEHAVIOUR_LIQUID
+                            && ElementHead.getSpecial(targetHead) === ElementHead.SPECIAL_LIQUID_WATER) {
+
+                        const oilyWaterBrush = this.#processorContext.getDefaults().getBrushWaterOily();
+                        this.#elementArea.setElement(x, y + 1, oilyWaterBrush.apply(x, y, this.#random));
+                    }
+                } else if (targetClass > ElementHead.TYPE_FLUID) {
                     let targetTail = this.#elementArea.getElementTail(x, y + 1);
                     targetTail = VisualEffects.visualBurn(targetTail, 1, 1);
                     this.#elementArea.setElementTail(x, y + 1, targetTail);

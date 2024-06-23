@@ -15,6 +15,7 @@ import _ASSET_PALETTE_THERMITE from './assets/brushes/thermite-2.palette.csv';
 import _ASSET_PALETTE_COAL from './assets/brushes/coal.palette.csv';
 import _ASSET_PALETTE_ASH from './assets/brushes/ash.palette.csv';
 import _ASSET_PALETTE_WATER from './assets/brushes/water.palette.csv';
+import _ASSET_PALETTE_WATER_OILY from './assets/brushes/water-oily.palette.csv';
 import _ASSET_PALETTE_STEAM from './assets/brushes/steam.palette.csv';
 import _ASSET_PALETTE_OIL from './assets/brushes/oil.palette.csv';
 import _ASSET_PALETTE_ACID from './assets/brushes/acid.palette.csv';
@@ -31,7 +32,7 @@ import _ASSET_TEXTURE_WOOD from './assets/brushes/wood-wall.png';
 /**
  *
  * @author Patrik Harag
- * @version 2024-06-04
+ * @version 2024-06-23
  */
 export default class BrushDefs {
 
@@ -201,6 +202,15 @@ export default class BrushDefs {
             ElementHead.of(
                 ElementHead.type8Fluid(ElementHead.TYPE_FLUID),
                 ElementHead.behaviour8(ElementHead.BEHAVIOUR_LIQUID, ElementHead.SPECIAL_LIQUID_WATER),
+                ElementHead.modifiers8(ElementHead.HMI_CONDUCTIVE_3)),
+            ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_1, ElementTail.HEAT_EFFECT_NONE))
+    ]));
+
+    static WATER_OILY = Brushes.colorPaletteRandom(_ASSET_PALETTE_WATER_OILY, Brushes.random([
+        new Element(
+            ElementHead.of(
+                ElementHead.type8Fluid(ElementHead.TYPE_FLUID),
+                ElementHead.behaviour8(ElementHead.BEHAVIOUR_LIQUID, ElementHead.SPECIAL_LIQUID_WATER_STAINED),
                 ElementHead.modifiers8(ElementHead.HMI_CONDUCTIVE_3)),
             ElementTail.of(0, 0, 0, ElementTail.BLUR_TYPE_1, ElementTail.HEAT_EFFECT_NONE))
     ]));
@@ -408,6 +418,7 @@ export default class BrushDefs {
         metal: BrushDefs.METAL,
         metal_molten: BrushDefs.METAL_MOLTEN,
         water: BrushDefs.WATER,
+        water_oily: BrushDefs.WATER_OILY,
         steam: BrushDefs.STEAM,
         oil: BrushDefs.OIL,
         acid: BrushDefs.ACID,

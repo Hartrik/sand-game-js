@@ -10,7 +10,7 @@ import BrushCollectionImpl from "./BrushCollectionImpl";
 /**
  *
  * @author Patrik Harag
- * @version 2024-04-27
+ * @version 2024-06-23
  */
 export default class GameDefaultsImpl extends GameDefaults {
 
@@ -21,6 +21,7 @@ export default class GameDefaultsImpl extends GameDefaults {
     /** @type Element */ #defaultElement;
 
     /** @type Brush */ #brushWater;
+    /** @type Brush */ #brushWaterOily;
     /** @type Brush */ #brushSteam;
     /** @type Brush */ #brushGrass ;
     /** @type Brush */ #brushTree;
@@ -62,6 +63,7 @@ export default class GameDefaultsImpl extends GameDefaults {
         this.#defaultElement = resolveBrush('air').apply(0, 0, undefined);
 
         this.#brushWater = resolveBrush('water');
+        this.#brushWaterOily = resolveBrush('water_oily');
         this.#brushSteam = resolveBrush('steam');
         this.#brushGrass = resolveBrush('grass');
         this.#brushTree = resolveBrush('tree');
@@ -90,6 +92,10 @@ export default class GameDefaultsImpl extends GameDefaults {
 
     getBrushWater() {
         return this.#brushWater;
+    }
+
+    getBrushWaterOily() {
+        return this.#brushWaterOily;
     }
 
     getBrushSteam() {

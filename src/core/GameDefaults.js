@@ -7,7 +7,7 @@ import Brush from "./brush/Brush.js";
  * @interface
  *
  * @author Patrik Harag
- * @version 2024-04-27
+ * @version 2024-06-23
  */
 export default class GameDefaults {
 
@@ -39,6 +39,13 @@ export default class GameDefaults {
      * @return Brush
      */
     getBrushWater() {
+        throw 'Not implemented';
+    }
+
+    /**
+     * @return Brush
+     */
+    getBrushWaterOily() {
         throw 'Not implemented';
     }
 
